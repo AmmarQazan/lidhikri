@@ -13,3 +13,5 @@ app/build
 *.aab
 keystore/
 *.keystore
+graphify-out/
+preview-apk/*.apk

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <application>
+        <activity
+            android:name=".ui.overlay.OverlayActivity"
+            android:exported="true"
+            tools:replace="android:exported" />
+        <service
+            android:name=".service.AdhkarReminderService"
+            android:exported="true"
+            tools:replace="android:exported" />
+        <service
+            android:name=".service.AzkarCollectionPlayService"
+            android:exported="true"
+            tools:replace="android:exported" />
+    </application>
+</manifest>

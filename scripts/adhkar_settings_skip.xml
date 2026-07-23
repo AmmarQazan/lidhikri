@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+    <boolean name="onboarding_completed" value="true" />
+    <string name="app_language">ar</string>
+    <boolean name="auto_azkar_enabled" value="true" />
+    <boolean name="service_enabled" value="true" />
+</map>
