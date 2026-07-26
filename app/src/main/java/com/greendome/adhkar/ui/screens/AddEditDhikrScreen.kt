@@ -86,7 +86,7 @@ fun AddEditDhikrScreen(
     var remoteUrl by remember { mutableStateOf(existing?.remoteAudioUrl ?: "") }
     var popup by remember { mutableStateOf(existing?.displayPopup ?: true) }
     var notification by remember { mutableStateOf(existing?.displayNotification ?: false) }
-    var lockScreen by remember { mutableStateOf(existing?.displayLockScreen ?: false) }
+    var lockScreen by remember { mutableStateOf(existing?.displayLockScreen ?: true) }
     var audioOnly by remember { mutableStateOf(existing?.displayAudioOnly ?: false) }
     var audioText by remember { mutableStateOf(existing?.displayAudioText ?: true) }
     var isLongForm by remember { mutableStateOf(existing?.isLongForm ?: (adminTargetCategory == DhikrCategory.JAWAMI)) }

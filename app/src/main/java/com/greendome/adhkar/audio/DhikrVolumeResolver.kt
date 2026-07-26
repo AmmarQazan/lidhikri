@@ -11,8 +11,9 @@ import com.greendome.adhkar.data.model.VolumeMode
 object DhikrVolumeResolver {
 
     fun playerAudioAttributes(mode: VolumeMode): AudioAttributes = when (mode) {
+        // يدوي: نفس مسار الوسائط مع ضبط مستوى المشغّل داخلياً (لا صوت النظام/التنبيهات)
         VolumeMode.MANUAL -> AudioAttributes.Builder()
-            .setUsage(C.USAGE_ASSISTANCE_SONIFICATION)
+            .setUsage(C.USAGE_MEDIA)
             .setContentType(C.AUDIO_CONTENT_TYPE_SPEECH)
             .build()
         VolumeMode.MEDIA -> AudioAttributes.Builder()
@@ -27,7 +28,7 @@ object DhikrVolumeResolver {
 
     fun focusAudioAttributes(mode: VolumeMode): PlatformAudioAttributes = when (mode) {
         VolumeMode.MANUAL -> PlatformAudioAttributes.Builder()
-            .setUsage(PlatformAudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+            .setUsage(PlatformAudioAttributes.USAGE_MEDIA)
             .setContentType(PlatformAudioAttributes.CONTENT_TYPE_SPEECH)
             .build()
         VolumeMode.MEDIA -> PlatformAudioAttributes.Builder()

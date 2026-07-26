@@ -128,6 +128,18 @@ class SettingsRepository(context: Context) {
         get() = prefs.getInt("seed_version", 0)
         set(v) = prefs.edit().putInt("seed_version", v).apply()
 
+    var remoteContentVersion: Int
+        get() = prefs.getInt("remote_content_version", 0)
+        set(v) = prefs.edit().putInt("remote_content_version", v).apply()
+
+    var lastRemoteSyncAt: Long
+        get() = prefs.getLong("remote_sync_at", 0L)
+        set(v) = prefs.edit().putLong("remote_sync_at", v).apply()
+
+    var lastRemoteSyncError: String?
+        get() = prefs.getString("remote_sync_error", null)
+        set(v) = prefs.edit().putString("remote_sync_error", v).apply()
+
     var reminderDisplayStyle: ReminderDisplayStyle
         get() {
             val raw = prefs.getString("reminder_display_style", ReminderDisplayStyle.POPUP_ONLY.name)
@@ -459,6 +471,13 @@ class ReciterRepository(private val db: AdhkarDatabase) {
 
 class SeedData(private val db: AdhkarDatabase, private val settings: SettingsRepository) {
     suspend fun seedIfEmpty() {
+        if (settings.remoteContentVersion > 0 && db.dhikrDao().getDefaults().isNotEmpty()) {
+            if (settings.seedVersion < 15) {
+                db.dhikrDao().resetDefaultDisplayModes()
+                settings.seedVersion = 15
+            }
+            return
+        }
         if (settings.seedVersion < 3) {
             db.dhikrDao().deleteDefaults()
 
@@ -554,6 +573,10 @@ class SeedData(private val db: AdhkarDatabase, private val settings: SettingsRep
         if (settings.seedVersion < 14) {
             db.dhikrDao().resetDefaultDisplayModes()
             settings.seedVersion = 14
+        }
+        if (settings.seedVersion < 15) {
+            db.dhikrDao().resetDefaultDisplayModes()
+            settings.seedVersion = 15
         }
     }
 

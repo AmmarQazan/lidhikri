@@ -7,7 +7,10 @@ import com.greendome.adhkar.data.DhikrRepository
 import com.greendome.adhkar.data.ReciterRepository
 import com.greendome.adhkar.data.SeedData
 import com.greendome.adhkar.data.SettingsRepository
+import com.greendome.adhkar.service.OfflineDownloadHelper
 import com.greendome.adhkar.service.SilentNotificationChannels
+import com.greendome.adhkar.sync.RemoteContentSync
+import com.greendome.adhkar.sync.RemoteSyncResult
 import com.greendome.adhkar.data.local.AdhkarDatabase
 import com.greendome.adhkar.util.LocaleHelper
 import com.greendome.adhkar.widget.DhikrOfDayManager
@@ -40,7 +43,14 @@ class AdhkarApplication : Application() {
         SilentNotificationChannels.ensureCreated(this)
         SilentNotificationChannels.cancelDhikrAlerts(this)
         appScope.launch {
+            val syncResult = RemoteContentSync.syncIfNeeded(this@AdhkarApplication, settings, database)
+            if (syncResult is RemoteSyncResult.Updated) {
+                settings.seedVersion = maxOf(settings.seedVersion, 15)
+            }
             SeedData(database, settings).seedIfEmpty()
+            if (syncResult is RemoteSyncResult.Updated) {
+                OfflineDownloadHelper.downloadAllPending(this@AdhkarApplication)
+            }
             CollectionRepository(database, this@AdhkarApplication).rescheduleAllAlarms()
             DhikrOfDayManager.refresh(this@AdhkarApplication)
         }

@@ -41,6 +41,7 @@ abstract class AdhkarDatabase : RoomDatabase() {
     abstract fun statsDao(): StatsDao
     abstract fun collectionDao(): CollectionDao
     abstract fun azkarItemDao(): AzkarItemDao
+    abstract fun catalogSyncDao(): CatalogSyncDao
 
     companion object {
         @Volatile private var instance: AdhkarDatabase? = null

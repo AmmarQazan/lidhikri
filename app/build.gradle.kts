@@ -13,9 +13,14 @@ android {
         applicationId = "com.greendome.adhkar"
         minSdk = 26
         targetSdk = 35
-        versionCode = 4
-        versionName = "1.0.3"
+        versionCode = 5
+        versionName = "1.0.4"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField(
+            "String",
+            "REMOTE_CONTENT_BASE_URL",
+            "\"https://raw.githubusercontent.com/AmmarQazan/sabbih/main/remote-content\""
+        )
     }
 
     buildTypes {
@@ -39,6 +44,16 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
+    }
+
+    sourceSets {
+        getByName("debug") {
+            assets.srcDirs("src/main/assets")
+        }
+        getByName("release") {
+            assets.srcDirs("src/release/assets")
+        }
     }
 
     packaging {

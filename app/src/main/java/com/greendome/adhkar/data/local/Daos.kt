@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
@@ -44,7 +45,7 @@ interface DhikrDao {
         UPDATE dhikr SET
             displayPopup = 1,
             displayNotification = 0,
-            displayLockScreen = 0,
+            displayLockScreen = 1,
             displayAudioOnly = 0,
             displayAudioText = 1
         WHERE isDefault = 1
@@ -150,4 +151,35 @@ interface StatsDao {
 
     @Query("UPDATE daily_stats SET playCount = playCount + 1 WHERE dateKey = :dateKey")
     suspend fun increment(dateKey: String)
+}
+
+@Dao
+interface CatalogSyncDao {
+    @Query("DELETE FROM reciter_azkar_audio")
+    suspend fun deleteAllReciterAzkarAudio()
+
+    @Query("DELETE FROM reciter_audio")
+    suspend fun deleteAllReciterAudio()
+
+    @Query("DELETE FROM azkar_item WHERE collectionId != :preserveCollectionId")
+    suspend fun deleteCatalogAzkarExcept(preserveCollectionId: String)
+
+    @Query("DELETE FROM adhkar_collection WHERE id != :preserveCollectionId")
+    suspend fun deleteCatalogCollectionsExcept(preserveCollectionId: String)
+
+    @Query("DELETE FROM dhikr WHERE isDefault = 1")
+    suspend fun deleteDefaultDhikr()
+
+    @Query("DELETE FROM reciter")
+    suspend fun deleteAllReciters()
+
+    @Transaction
+    suspend fun clearCatalogForSync(preserveCollectionId: String) {
+        deleteAllReciterAzkarAudio()
+        deleteAllReciterAudio()
+        deleteCatalogAzkarExcept(preserveCollectionId)
+        deleteCatalogCollectionsExcept(preserveCollectionId)
+        deleteDefaultDhikr()
+        deleteAllReciters()
+    }
 }

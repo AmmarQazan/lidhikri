@@ -445,4 +445,6 @@
     <string name="dhikr_of_day_widget_description">يعرض ذكراً يومياً عشوائياً من الأذكار</string>
     <string name="dhikr_of_day_channel">ذكر اليوم</string>
     <string name="dhikr_of_day_channel_hint">تذكير صامت على شاشة القفل بذكر اليوم</string>
+    <string name="lock_screen_channel">تسبيح شاشة القفل</string>
+    <string name="lock_screen_channel_hint">عرض نص التسبيحة على شاشة القفل</string>
 </resources>

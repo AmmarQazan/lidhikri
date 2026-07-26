@@ -96,11 +96,17 @@ def transform_rows(table: str, rows: list[dict], base_url: str) -> list[dict]:
 
 def pull_emulator_db(dest: Path) -> None:
     dest.parent.mkdir(parents=True, exist_ok=True)
+    subprocess.run(
+        ["adb", "shell", "run-as com.greendome.adhkar sqlite3 databases/adhkar.db 'PRAGMA wal_checkpoint(FULL);'"],
+        check=True,
+    )
     result = subprocess.run(
         ["adb", "exec-out", "run-as", "com.greendome.adhkar", "cat", "databases/adhkar.db"],
         check=True,
         capture_output=True,
     )
+    if len(result.stdout) < 1000:
+        raise SystemExit("قاعدة البيانات المسحوبة فارغة — تأكد من تثبيت التطبيق وتشغيله")
     dest.write_bytes(result.stdout)
 
 
@@ -137,7 +143,7 @@ def export_bundle(db_path: Path, base_url: str, version: int | None = None) -> i
         "contentPath": f"bundles/v{version}/content.json",
         "sha256": digest,
         "generatedAt": bundle["generatedAt"],
-        "minAppVersion": "1.0.3",
+        "minAppVersion": "1.0.4",
     }
     (REMOTE_ROOT / "manifest.json").write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",

@@ -6,7 +6,9 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.app.KeyguardManager
 import android.media.AudioManager
+import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.greendome.adhkar.MainActivity
@@ -105,7 +107,7 @@ class AdhkarReminderService : Service() {
                 showLockScreen(dhikr.id, text)
                 textShown = true
             }
-            if (modes.showsTextViaPopup()) {
+            if (modes.showsTextViaPopup() && !isKeyguardLocked()) {
                 showPopup(dhikr.id, text)
                 textShown = true
             }
@@ -158,12 +160,11 @@ class AdhkarReminderService : Service() {
         return list[index]
     }
 
-    /** يطبّق الإعداد العام (الافتراضي: نافذة منبثقة فقط) فوق إعدادات الذكر */
+    /** يطبّق الإعداد العام (الافتراضي: نافذة منبثقة) مع الحفاظ على شاشة القفل من إعداد الذكر */
     private fun resolveDisplayModes(dhikr: DhikrEntity) = when (settings.reminderDisplayStyle) {
         ReminderDisplayStyle.POPUP_ONLY -> dhikr.displayModes().copy(
             popup = true,
-            notification = false,
-            lockScreen = false
+            notification = false
         )
         ReminderDisplayStyle.NOTIFICATION_ONLY -> dhikr.displayModes().copy(
             popup = false,
@@ -202,8 +203,51 @@ class AdhkarReminderService : Service() {
         mgr.notify(dhikrId.toInt(), notification)
     }
 
+    private fun isKeyguardLocked(): Boolean {
+        val keyguard = getSystemService(KEYGUARD_SERVICE) as KeyguardManager
+        return keyguard.isKeyguardLocked
+    }
+
     private fun showLockScreen(dhikrId: Long, text: String) {
-        runCatching { startActivity(OverlayActivity.lockScreenIntent(this, dhikrId, text)) }
+        val intent = OverlayActivity.lockScreenIntent(this, dhikrId, text)
+        if (isKeyguardLocked()) {
+            showLockScreenFullScreenNotification(dhikrId, text, intent)
+            return
+        }
+        runCatching { startActivity(intent) }
+    }
+
+    private fun showLockScreenFullScreenNotification(dhikrId: Long, text: String, fullScreenIntent: Intent) {
+        val fullScreenPending = PendingIntent.getActivity(
+            this,
+            LOCK_SCREEN_REQUEST_CODE + dhikrId.toInt(),
+            fullScreenIntent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+        val builder = NotificationCompat.Builder(this, SilentNotificationChannels.LOCK_SCREEN)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(getString(R.string.app_name))
+            .setContentText(text)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_ALARM)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setAutoCancel(true)
+            .setFullScreenIntent(fullScreenPending, true)
+        val notification = builder
+            .setSound(null)
+            .setVibrate(null)
+            .setDefaults(0)
+            .setOnlyAlertOnce(true)
+            .build()
+        val mgr = getSystemService(NotificationManager::class.java)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE ||
+            mgr.canUseFullScreenIntent()
+        ) {
+            mgr.notify(LOCK_SCREEN_NOTIF_ID + dhikrId.toInt(), notification)
+        } else {
+            runCatching { startActivity(fullScreenIntent) }
+        }
     }
 
     private fun showPopup(dhikrId: Long, text: String) {
@@ -265,5 +309,7 @@ class AdhkarReminderService : Service() {
         const val ACTION_REFRESH = "refresh"
         const val ACTION_TRIGGER = "trigger"
         private const val NOTIF_SERVICE = 42
+        private const val LOCK_SCREEN_NOTIF_ID = 9_000
+        private const val LOCK_SCREEN_REQUEST_CODE = 90_000
     }
 }

@@ -105,6 +105,8 @@
     <string name="dhikr_of_day_add_widget">Ajouter le widget à l\'accueil</string>
     <string name="dhikr_of_day_channel">Dhikr du jour</string>
     <string name="dhikr_of_day_channel_hint">Rappel silencieux sur l\'écran de verrouillage</string>
+    <string name="lock_screen_channel">Tasbih sur écran verrouillé</string>
+    <string name="lock_screen_channel_hint">Affiche le texte du dhikr sur l\'écran de verrouillage</string>
 <string name="dhikr_of_day_display_hint">Widget d\'accueil ou notification sur l\'écran de verrouillage</string>
     <string name="dhikr_of_day_display_section">Où afficher</string>
     <string name="dhikr_of_day_enable">Activer le dhikr du jour</string>

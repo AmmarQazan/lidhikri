@@ -149,10 +149,10 @@
 ### البناء
 
 > **مهم على Windows:** إذا فشل البناء بسبب المسار العربي، استخدم:
-> `C:\Users\pc\greendome-adhkar` (رابط junction للمشروع)
+> `C:\Users\pc\sabbih` أو `C:\Users\pc\سبح` (رابط junction للمشروع)
 
 ```bash
-cd C:\Users\pc\greendome-adhkar
+cd C:\Users\pc\sabbih
 gradlew.bat assembleDebug
 ```
 
@@ -169,6 +169,6 @@ APK الناتج: `app/build/outputs/apk/debug/app-debug.apk`
 
 ## الترخيص والتواصل
 
-© Green Dome — جميع الحقوق محفوظة.
+© سَبّح (Sabbih) — جميع الحقوق محفوظة.
 
 للدعم أو الاستفسارات، افتح Issue في مستودع المشروع على GitHub.

@@ -26,7 +26,7 @@ data class DhikrEntity(
     val isDownloaded: Boolean = false,
     val displayPopup: Boolean = true,
     val displayNotification: Boolean = false,
-    val displayLockScreen: Boolean = false,
+    val displayLockScreen: Boolean = true,
     val displayAudioOnly: Boolean = false,
     val displayAudioText: Boolean = true,
     val sortOrder: Int = 0,
@@ -41,11 +41,11 @@ data class DhikrEntity(
     val scheduleLabelAr: String = "",
     val createdAt: Long = System.currentTimeMillis()
 ) {
-    /** الافتراضي للتسبيح/الذكر التلقائي: نافذة منبثقة + صوت مع النص */
+    /** الافتراضي للتسبيح/الذكر التلقائي: نافذة منبثقة + شاشة قفل + صوت مع النص */
     fun withStandardAutoDisplay(): DhikrEntity = copy(
         displayPopup = true,
         displayNotification = false,
-        displayLockScreen = false,
+        displayLockScreen = true,
         displayAudioOnly = false,
         displayAudioText = true
     )

@@ -13,6 +13,7 @@ object SilentNotificationChannels {
     const val SERVICE = "adhkar_service_silent_v2"
     const val TEXT_REMINDER = "adhkar_text_reminder_v1"
     const val DHIKR_OF_DAY = "dhikr_of_day_v1"
+    const val LOCK_SCREEN = "adhkar_lock_screen_v1"
 
     private val REMOVED_CHANNEL_IDS = listOf(
         "adhkar_service_silent",
@@ -72,6 +73,20 @@ object SilentNotificationChannels {
                 setShowBadge(false)
                 lockscreenVisibility = Notification.VISIBILITY_PUBLIC
                 description = context.getString(com.greendome.adhkar.R.string.dhikr_of_day_channel_hint)
+            }
+        )
+        mgr.createNotificationChannel(
+            NotificationChannel(
+                LOCK_SCREEN,
+                context.getString(com.greendome.adhkar.R.string.lock_screen_channel),
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                setSound(null, null)
+                enableVibration(false)
+                enableLights(false)
+                setShowBadge(false)
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                description = context.getString(com.greendome.adhkar.R.string.lock_screen_channel_hint)
             }
         )
     }

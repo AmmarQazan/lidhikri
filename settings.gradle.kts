@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "GreenDomeAdhkar"
+rootProject.name = "Sabbih"
 include(":app")

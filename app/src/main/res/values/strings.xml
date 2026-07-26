@@ -445,4 +445,6 @@
     <string name="dhikr_of_day_widget_description">Shows a random daily dhikr from your adhkar</string>
     <string name="dhikr_of_day_channel">Dhikr of the day</string>
     <string name="dhikr_of_day_channel_hint">Silent lock screen reminder with today\'s dhikr</string>
+    <string name="lock_screen_channel">Lock screen dhikr</string>
+    <string name="lock_screen_channel_hint">Shows tasbih text on the lock screen</string>
 </resources>

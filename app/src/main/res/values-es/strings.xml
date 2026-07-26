@@ -105,6 +105,8 @@
     <string name="dhikr_of_day_add_widget">Añadir widget a la pantalla de inicio</string>
     <string name="dhikr_of_day_channel">Dhikr del día</string>
     <string name="dhikr_of_day_channel_hint">Recordatorio silencioso en pantalla de bloqueo</string>
+    <string name="lock_screen_channel">Tasbih en pantalla de bloqueo</string>
+    <string name="lock_screen_channel_hint">Muestra el texto del dhikr en la pantalla de bloqueo</string>
 <string name="dhikr_of_day_display_hint">Widget de inicio o notificación en pantalla de bloqueo</string>
     <string name="dhikr_of_day_display_section">Dónde mostrar</string>
     <string name="dhikr_of_day_enable">Activar dhikr del día</string>
