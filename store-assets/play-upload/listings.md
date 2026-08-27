@@ -297,4 +297,4 @@ Play Console يقبل حتى 8 لقطات هاتف — اختر الثمانية
 
 النص الكامل: `privacy.html`
 
-الرابط المنشور (يُلصق في Play Console): https://sabbih-dhikr-ammar.web.app/
+الرابط المنشور (يُلصق في Play Console): https://sabbih.web.app/privacy

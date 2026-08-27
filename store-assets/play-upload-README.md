@@ -47,4 +47,4 @@
 
 `privacy.html` — انشر الصفحة على الويب ثم الصق الرابط في الكونسول. لا يُرفع الملف مباشرة.
 
-الرابط المنشور: https://sabbih-dhikr-ammar.web.app/
+الرابط المنشور: https://sabbih.web.app/

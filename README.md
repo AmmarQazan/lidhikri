@@ -96,7 +96,7 @@
 
 صفحة جاهزة للمتجر: `store-assets/privacy.html`
 
-الرابط المنشور: https://sabbih-dhikr-ammar.web.app/
+الرابط المنشور: https://sabbih.web.app/privacy
 
 | البيان | التفاصيل |
 |--------|----------|

@@ -1,0 +1,18 @@
+{
+  "projects": {
+    "default": "sabbih-dhikr-ammar"
+  },
+  "targets": {
+    "sabbih-dhikr-ammar": {
+      "hosting": {
+        "brand": [
+          "sabbih"
+        ],
+        "legacy": [
+          "sabbih-dhikr-ammar"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}
