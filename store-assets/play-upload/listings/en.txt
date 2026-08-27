@@ -1,0 +1,61 @@
+## English (en)
+
+### App name
+Sabbih
+
+### Short description (80 chars)
+Auto dhikr, Hisnul Muslim, misbaha & home widgets — works fully offline
+
+### Full description
+Sabbih — your daily companion for dhikr and remembrance.
+
+Do you forget to remember Allah while using your phone? Sabbih reminds you automatically with short audio tasbih and adhkar — without interrupting calls or chats.
+
+✦ Auto tasbih
+• Periodic reminders (Subhan Allah, Alhamdulillah, Allahu Akbar, and more)
+• Custom interval, random or sequential playback
+• Pauses during phone and VoIP calls
+• Optional pause during media, silent/Do Not Disturb, or by flipping the phone
+
+✦ Auto adhkar
+• Hisnul Muslim sections (morning, evening, sleep, and more)
+• Daily schedule per section — time and weekdays you choose
+• One dhikr from each enabled section, random or in order
+• Seasonal takbir (Eid) via the Hijri calendar
+
+✦ Flexible display
+• Popup over other apps, silent text notification, or lock screen
+• Audio only or audio + text
+• Customizable popup size, position, and duration
+
+✦ Digital misbaha
+• Traditional beads or electronic counter
+• Target count, sound, and vibration
+• Home screen widgets (traditional 3×2 or electronic 2×2)
+
+✦ Dhikr of the day
+• A random daily dhikr from your collection
+• Home widget or silent lock-screen reminder
+• Colors, font size, and transparent background
+
+✦ Read adhkar
+• Browse Hisnul Muslim
+• Reciter audio or TTS
+• Select specific items to listen
+
+✦ Voices
+• Built-in audio, your own recording, or a file from your phone
+• Separate reciter and volume for tasbih and for adhkar
+• Download for offline use
+
+✦ Custom dhikr stay on your device only — no account, no ads.
+
+Works offline after downloading audio. Available in Arabic, English, French, and Spanish. Comfortable layout on tablets.
+
+———
+After install: enable notifications, overlay permission, and battery exemption so reminders stay reliable.
+
+### Keywords
+tasbih, adhkar, dhikr, misbaha, hisnul muslim, widget, islamic, reminder, morning adhkar
+
+---

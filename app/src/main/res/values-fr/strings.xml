@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='utf-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="activity_log_less">Moins</string>
     <string name="activity_log_more">Plus</string>
@@ -7,20 +7,43 @@
     <string name="activity_log_today_total">Aujourd\'hui : %1$d tasbih</string>
     <string name="add_dhikr">Ajouter</string>
     <string name="add_my_dhikr">Ajouter un adhkar</string>
-    <string name="admin_add_azkar_item">Ajouter un adhkar à la section</string><string name="admin_add_azkar_section">Ajouter une section d\'adhkar</string><string name="admin_add_default">Ajouter dhikr par défaut</string>
-    <string name="admin_add_jawami">Ajouter un jawami tasbih</string><string name="admin_add_reciter">Ajouter récitateur</string>
-    <string name="admin_add_short_tasbih">Ajouter un tasbih court</string><string name="admin_auto_play_allowed">Autoriser la lecture automatique</string><string name="admin_auto_play_allowed_hint">Seules les sections activées ici peuvent être programmées par les utilisateurs</string><string name="admin_auto_play_allowed_off">Lecture automatique : non autorisée</string><string name="admin_auto_play_allowed_on">Lecture automatique : autorisée</string><string name="admin_azkar_section_title_ar">Nom de la section (arabe)</string><string name="admin_azkar_section_title_en">Nom de la section (anglais)</string><string name="admin_azkar_sections">Gérer les sections d\'adhkar</string><string name="admin_azkar_sections_hint">Choisissez une section pour modifier les textes ou ajouter des adhkar</string><string name="admin_azkar_virtue">Mérite / note (facultatif)</string><string name="admin_content_management">Gestion du contenu</string><string name="admin_delete_audio">Supprimer l\'audio</string>
-    <string name="admin_delete_azkar_item">Supprimer cet adhkar</string><string name="admin_delete_reciter">Supprimer récitateur</string>
-    <string name="admin_dhikr_section_empty">Aucun élément — appuyez sur + pour ajouter</string><string name="admin_edit_azkar_item">Modifier le texte de l\'adhkar</string><string name="admin_edit_azkar_section">Modifier la section</string><string name="admin_edit_dhikr">Modifier le dhikr (admin)</string><string name="admin_edit_reciter">Modifier récitateur</string>
+    <string name="admin_add_azkar_item">Ajouter un adhkar à la section</string>
+    <string name="admin_add_azkar_section">Ajouter une section d\'adhkar</string>
+    <string name="admin_add_default">Ajouter dhikr par défaut</string>
+    <string name="admin_add_jawami">Ajouter un jawami tasbih</string>
+    <string name="admin_add_reciter">Ajouter récitateur</string>
+    <string name="admin_add_short_tasbih">Ajouter un tasbih court</string>
+    <string name="admin_auto_play_allowed">Autoriser la lecture automatique</string>
+    <string name="admin_auto_play_allowed_hint">Seules les sections activées ici peuvent être programmées par les utilisateurs</string>
+    <string name="admin_auto_play_allowed_off">Lecture automatique : non autorisée</string>
+    <string name="admin_auto_play_allowed_on">Lecture automatique : autorisée</string>
+    <string name="admin_azkar_section_title_ar">Nom de la section (arabe)</string>
+    <string name="admin_azkar_section_title_en">Nom de la section (anglais)</string>
+    <string name="admin_azkar_sections">Gérer les sections d\'adhkar</string>
+    <string name="admin_azkar_sections_hint">Choisissez une section pour modifier les textes ou ajouter des adhkar</string>
+    <string name="admin_azkar_virtue">Mérite / note (facultatif)</string>
+    <string name="admin_content_management">Gestion du contenu</string>
+    <string name="admin_delete_audio">Supprimer l\'audio</string>
+    <string name="admin_delete_azkar_item">Supprimer cet adhkar</string>
+    <string name="admin_delete_reciter">Supprimer récitateur</string>
+    <string name="admin_dhikr_section_empty">Aucun élément — appuyez sur + pour ajouter</string>
+    <string name="admin_edit_azkar_item">Modifier le texte de l\'adhkar</string>
+    <string name="admin_edit_azkar_section">Modifier la section</string>
+    <string name="admin_edit_dhikr">Modifier le dhikr (admin)</string>
+    <string name="admin_edit_reciter">Modifier récitateur</string>
     <string name="admin_export">Exporter</string>
     <string name="admin_import">Importer</string>
-    <string name="admin_jawami_repeat">Nombre de répétitions</string><string name="admin_link_audio">Lier l\'URL</string>
+    <string name="admin_jawami_repeat">Nombre de répétitions</string>
+    <string name="admin_link_audio">Lier l\'URL</string>
     <string name="admin_login">Connexion admin</string>
-    <string name="admin_manage_other_builtin">Adhkar programmés et saisonniers</string><string name="admin_manage_other_builtin_hint">Takbir de l\'Aïd, longs adhkar et autres éléments intégrés</string><string name="admin_manage_reciters">Gérer les récitateurs</string>
+    <string name="admin_manage_other_builtin">Adhkar programmés et saisonniers</string>
+    <string name="admin_manage_other_builtin_hint">Takbir de l\'Aïd, longs adhkar et autres éléments intégrés</string>
+    <string name="admin_manage_reciters">Gérer les récitateurs</string>
     <string name="admin_no_default_dhikr">Aucun dhikr par défaut</string>
     <string name="admin_no_reciters">Aucun récitateur — appuyez sur Ajouter</string>
     <string name="admin_pin">Code admin</string>
-    <string name="admin_pin_wrong">Code incorrect</string><string name="admin_reciter_audio_attached">Audio joint</string>
+    <string name="admin_pin_wrong">Code incorrect</string>
+    <string name="admin_reciter_audio_attached">Audio joint</string>
     <string name="admin_reciter_audio_attached_builtin">Audio intégré</string>
     <string name="admin_reciter_audio_attached_file">Fichier audio importé</string>
     <string name="admin_reciter_audio_attached_link">URL liée</string>
@@ -36,7 +59,10 @@
     <string name="admin_reciter_name_fr">Nom du récitateur (français)</string>
     <string name="admin_reciters_hint">Ajoutez des récitateurs et importez un fichier audio ou liez une URL pour chaque dhikr par défaut</string>
     <string name="admin_scheduled_list">Adhkar par défaut</string>
-    <string name="admin_section_count">%1$d éléments</string><string name="admin_tap_to_edit">Appuyez sur un élément pour modifier son texte et ses réglages</string><string name="admin_tasbih_section">Modifier tasbih et adhkar intégrés</string><string name="admin_upload_audio">Importer</string>
+    <string name="admin_section_count">%1$d éléments</string>
+    <string name="admin_tap_to_edit">Appuyez sur un élément pour modifier son texte et ses réglages</string>
+    <string name="admin_tasbih_section">Modifier tasbih et adhkar intégrés</string>
+    <string name="admin_upload_audio">Importer</string>
     <string name="app_name">Sabbih</string>
     <string name="arabic_font_hint">Police pour les adhkar et les textes coraniques</string>
     <string name="arabic_font_title">Police des textes arabes</string>
@@ -47,42 +73,99 @@
     <string name="audio_none">Texte seul</string>
     <string name="audio_record">Enregistrer ma voix</string>
     <string name="audio_source">Source audio</string>
-    <string name="auto_azkar_hint">Un dhikr par section activée chaque jour — aléatoire ou dans l\'ordre</string><string name="auto_azkar_mode_label">Sélection quotidienne des adhkar :</string><string name="auto_azkar_mode_random_detail">Aléatoire : un dhikr différent chaque jour</string><string name="auto_azkar_mode_sequential_detail">Dans l\'ordre : dhikr après dhikr selon la liste</string><string name="auto_azkar_off">Adhkar auto désactivés</string><string name="auto_azkar_on">Adhkar auto activés</string><string name="auto_azkar_random">Dhikr aléatoire de chaque section</string><string name="auto_azkar_schedule_collapse">Masquer les détails</string><string name="auto_azkar_schedule_expand">Appuyez pour les détails</string><string name="auto_azkar_schedule_one_dhikr">Un seul dhikr est choisi dans chaque section activée (pas toute la section)</string><string name="auto_azkar_schedule_title">Que se passe-t-il à l\'heure programmée ?</string><string name="auto_azkar_section">Adhkar automatiques</string><string name="auto_azkar_sequential">Dhikr séquentiel de chaque section</string><string name="auto_interval_summary">Toutes les %1$d minutes</string>
+    <string name="auto_azkar_hint">Un dhikr par section activée chaque jour — aléatoire ou dans l\'ordre</string>
+    <string name="auto_azkar_mode_label">Sélection quotidienne des adhkar :</string>
+    <string name="auto_azkar_mode_random_detail">Aléatoire : un dhikr différent chaque jour</string>
+    <string name="auto_azkar_mode_sequential_detail">Dans l\'ordre : dhikr après dhikr selon la liste</string>
+    <string name="auto_azkar_off">Adhkar auto désactivés</string>
+    <string name="auto_azkar_on">Adhkar auto activés</string>
+    <string name="auto_azkar_random">Dhikr aléatoire de chaque section</string>
+    <string name="auto_azkar_schedule_collapse">Masquer les détails</string>
+    <string name="auto_azkar_schedule_expand">Appuyez pour les détails</string>
+    <string name="auto_azkar_schedule_one_dhikr">Un seul dhikr est choisi dans chaque section activée (pas toute la section)</string>
+    <string name="auto_azkar_schedule_title">Que se passe-t-il à l\'heure programmée ?</string>
+    <string name="auto_azkar_section">Adhkar automatiques</string>
+    <string name="auto_azkar_sequential">Dhikr séquentiel de chaque section</string>
+    <string name="auto_interval_summary">Toutes les %1$d minutes</string>
     <string name="auto_reciter_summary">Voix : %1$s</string>
     <string name="auto_settings_button">Réglages tasbih et voix</string>
-    <string name="auto_settings_short">Réglages</string><string name="auto_tasbih_enable">Activer le tasbih automatique</string>
+    <string name="auto_settings_short">Réglages</string>
+    <string name="auto_tasbih_enable">Activer le tasbih automatique</string>
     <string name="auto_tasbih_hint">Rappels d\'adhkar à intervalles pendant l\'utilisation du téléphone</string>
     <string name="auto_tasbih_off">Tasbih automatique désactivé</string>
     <string name="auto_tasbih_on">Tasbih automatique activé</string>
     <string name="auto_tasbih_section">Tasbih automatique</string>
-    <string name="azkar_add_favorite">Ajouter aux favoris</string><string name="azkar_auto_enable">Activer le rappel automatique</string><string name="azkar_auto_not_allowed">La lecture automatique n\'est pas disponible pour cette section. L\'administrateur doit l\'activer d\'abord.</string><string name="azkar_auto_on">Programmé : %1$s</string><string name="azkar_auto_playing">Lecture des adhkar…</string><string name="azkar_auto_popup_label">Dhikr automatique</string><string name="azkar_card_empty">Aucun adhkar dans cette section</string>
+    <string name="azkar_add_favorite">Ajouter aux favoris</string>
+    <string name="azkar_auto_enable">Activer le rappel automatique</string>
+    <string name="azkar_auto_not_allowed">La lecture automatique n\'est pas disponible pour cette section. L\'administrateur doit l\'activer d\'abord.</string>
+    <string name="azkar_auto_on">Programmé : %1$s</string>
+    <string name="azkar_auto_playing">Lecture des adhkar…</string>
+    <string name="azkar_auto_popup_label">Dhikr automatique</string>
+    <string name="azkar_card_empty">Aucun adhkar dans cette section</string>
     <string name="azkar_card_info">Information</string>
     <string name="azkar_card_less">Moins</string>
     <string name="azkar_card_more">Plus</string>
     <string name="azkar_card_next">Suivant</string>
+    <string name="azkar_card_next_preview">Suivant : %1$s</string>
+    <string name="azkar_card_last_item">Dernier dhikr de la section</string>
     <string name="azkar_card_progress">%1$d / %2$d</string>
     <string name="azkar_card_share">Partager</string>
     <string name="azkar_card_tap_hint">Touchez n\'importe où pour compter</string>
     <string name="azkar_card_virtue_title">Mérite</string>
     <string name="azkar_copy_text">Copier le texte</string>
-    <string name="azkar_days_label">Jours de la semaine</string><string name="azkar_display_card">Vue carte</string>
-    <string name="azkar_display_hint">Liste défilante ou une carte à la fois</string>
+    <string name="azkar_days_label">Jours de la semaine</string>
+    <string name="azkar_display_card">Vue carte</string>
+    <string name="azkar_display_hint">Afficher les adhkar en liste ou en une carte par dhikr</string>
     <string name="azkar_display_list">Vue liste</string>
-    <string name="azkar_display_section">Affichage des adhkar</string>
-    <string name="azkar_favorites_title">Adhkar favoris</string><string name="azkar_hub_hint">Adhkar de Hisnul Muslim — lisez manuellement ou programmez la lecture auto</string><string name="azkar_nav_label">Naviguer entre les adhkar</string><string name="azkar_pause">Pause</string><string name="azkar_paused">En pause</string><string name="azkar_play_channel">Lecture des adhkar</string><string name="azkar_play_item">Lire ce dhikr</string><string name="azkar_play_selected">Lire la sélection (%1$d)</string><string name="azkar_play_tts">Lire la section à voix haute</string><string name="azkar_playing">Lecture…</string><string name="azkar_playing_reciter">Lecture avec le récitateur sélectionné…</string><string name="azkar_popup_preview_sample">Ô Allah, par Toi nous entrons dans le matin et par Toi nous entrons dans le soir, et par Toi nous vivons et par Toi nous mourons, et vers Toi est la résurrection.</string>
+    <string name="azkar_display_section">Affichage par défaut des adhkar</string>
+    <string name="azkar_favorites_title">Adhkar favoris</string>
+    <string name="azkar_hub_hint">Adhkar de Hisnul Muslim — lisez-les ou programmez la lecture automatique</string>
+    <string name="azkar_nav_label">Naviguer entre les adhkar</string>
+    <string name="azkar_pause">Pause</string>
+    <string name="azkar_paused">En pause</string>
+    <string name="azkar_play_channel">Lecture des adhkar</string>
+    <string name="azkar_play_item">Lire ce dhikr</string>
+    <string name="azkar_play_selected">Lire la sélection (%1$d)</string>
+    <string name="azkar_play_tts">Lire la section à voix haute</string>
+    <string name="azkar_playing">Lecture…</string>
+    <string name="azkar_playing_reciter">Lecture avec le récitateur sélectionné…</string>
+    <string name="azkar_popup_preview_sample">Ô Allah, par Toi nous entrons dans le matin et par Toi nous entrons dans le soir, et par Toi nous vivons et par Toi nous mourons, et vers Toi est la résurrection.</string>
     <string name="azkar_popup_preview_section">Adhkar du matin</string>
     <string name="azkar_popup_settings_hint">Fenêtre plus large, affichage plus long — pour lire les adhkar confortablement.</string>
     <string name="azkar_popup_settings_section">Fenêtre des adhkar</string>
-    <string name="azkar_read_hint">%1$d éléments — appuyez pour lire et compter</string><string name="azkar_read_section">Lire les adhkar</string><string name="azkar_remove_favorite">Retirer des favoris</string><string name="azkar_repeat_label">Répéter : %1$d</string><string name="azkar_repeat_n_times">%1$d fois</string>
+    <string name="azkar_read_hint">%1$d éléments — appuyez pour lire et compter</string>
+    <string name="azkar_read_section">Lire les adhkar</string>
+    <string name="azkar_remove_favorite">Retirer des favoris</string>
+    <string name="azkar_repeat_label">Répéter : %1$d</string>
+    <string name="azkar_repeat_n_times">%1$d fois</string>
     <string name="azkar_repeat_once">Une fois</string>
     <string name="azkar_repeat_twice">Deux fois</string>
-    <string name="azkar_resume">Reprendre</string><string name="azkar_schedule_hide">Masquer la planification auto</string><string name="azkar_schedule_hint">Lire cette section à une heure fixe les jours choisis</string><string name="azkar_schedule_section">Planification automatique</string><string name="azkar_schedule_show">Afficher la planification auto</string><string name="azkar_select_all">Tout sélectionner</string><string name="azkar_select_hint">Cochez les adhkar à lire à voix haute</string><string name="azkar_select_none">Effacer la sélection</string><string name="azkar_share_text">Partager le texte</string>
-    <string name="azkar_speed_label">Vitesse de lecture</string><string name="azkar_speed_value">%1$.1fx</string><string name="azkar_stop">Arrêter</string><string name="azkar_text_copied">Texte copié</string>
+    <string name="azkar_resume">Reprendre</string>
+    <string name="azkar_schedule_hide">Masquer la planification auto</string>
+    <string name="azkar_schedule_hint">Lire cette section à une heure fixe les jours choisis</string>
+    <string name="azkar_schedule_section">Planification automatique</string>
+    <string name="azkar_schedule_show">Afficher la planification auto</string>
+    <string name="azkar_select_all">Tout sélectionner</string>
+    <string name="azkar_select_hint">Cochez les adhkar à lire à voix haute</string>
+    <string name="azkar_select_none">Effacer la sélection</string>
+    <string name="azkar_share_text">Partager le texte</string>
+    <string name="azkar_speed_label">Vitesse de lecture</string>
+    <string name="azkar_speed_value">%1$.1fx</string>
+    <string name="azkar_stop">Arrêter</string>
+    <string name="azkar_text_copied">Texte copié</string>
     <string name="azkar_text_menu">Options du texte</string>
-    <string name="azkar_time_label">Heure du rappel</string><string name="azkar_tts_auto">Lecture vocale auto (TTS)</string><string name="battery_hint">Autoriser l\'utilisation sans restriction</string>
+    <string name="azkar_time_label">Heure du rappel</string>
+    <string name="azkar_tts_auto">Lecture vocale auto (TTS)</string>
+    <string name="battery_hint">Autoriser l\'utilisation sans restriction</string>
     <string name="battery_optimization">Optimisation batterie</string>
-    <string name="builtin_jawami">Jawami tasbih</string><string name="builtin_jawami_hint">Tasbih plus long — activez avec l\'interrupteur pour la lecture auto</string><string name="builtin_section">Adhkar intégrés</string>
-    <string name="builtin_short_tasbih">Tasbih court</string><string name="cancel">Annuler</string>
+    <string name="builtin_jawami">Jawami du tasbih</string>
+    <string name="builtin_jawami_hint">Tasbih plus long — activez avec l\'interrupteur pour la lecture auto</string>
+    <string name="builtin_section">Adhkar intégrés</string>
+    <string name="builtin_short_tasbih">Tasbih court</string>
+    <string name="cancel">Annuler</string>
+    <string name="ok">OK</string>
+    <string name="audio_not_available_title">Aucun fichier audio</string>
+    <string name="audio_not_available_message">Aucun enregistrement n\'est disponible pour cet élément. Ajoutez un audio depuis les paramètres du récitateur ou en modifiant le dhikr.</string>
     <string name="category_custom">Personnalisé</string>
     <string name="category_eid">Aïd</string>
     <string name="category_evening">Soir</string>
@@ -102,24 +185,41 @@
     <string name="dhikr_audio_record_hint">Enregistrez votre voix pour cet adhkar — reste sur le téléphone</string>
     <string name="dhikr_audio_section">Voix liée</string>
     <string name="dhikr_audio_section_hint">Enregistrez votre voix ou joignez un fichier audio</string>
-    <string name="dhikr_of_day_add_widget">Ajouter le widget à l\'accueil</string>
+    <string name="dhikr_of_day_add_widget">Ajouter le dhikr du jour à l\'accueil</string>
     <string name="dhikr_of_day_channel">Dhikr du jour</string>
-    <string name="dhikr_of_day_channel_hint">Rappel silencieux sur l\'écran de verrouillage</string>
+    <string name="dhikr_of_day_channel_hint">Rappel silencieux sur l\'écran de verrouillage avec le dhikr du jour</string>
     <string name="lock_screen_channel">Tasbih sur écran verrouillé</string>
     <string name="lock_screen_channel_hint">Affiche le texte du dhikr sur l\'écran de verrouillage</string>
-<string name="dhikr_of_day_display_hint">Widget d\'accueil ou notification sur l\'écran de verrouillage</string>
+    <string name="dhikr_of_day_display_hint">Widget d\'accueil ou notification sur l\'écran de verrouillage</string>
     <string name="dhikr_of_day_display_section">Où afficher</string>
     <string name="dhikr_of_day_enable">Activer le dhikr du jour</string>
     <string name="dhikr_of_day_fallback">Subhan Allah wa bihamdihi</string>
     <string name="dhikr_of_day_loading">Chargement…</string>
-    <string name="dhikr_of_day_lock_hint">Affiche le dhikr du jour sur l\'écran de verrouillage en notification silencieuse.</string>
+    <string name="dhikr_of_day_lock_hint">Affiche le dhikr du jour sur l\'écran de verrouillage en notification silencieuse. Activez les notifications si demandé.</string>
     <string name="dhikr_of_day_mode_home_widget">Widget d\'accueil</string>
     <string name="dhikr_of_day_mode_lock_screen">Écran de verrouillage</string>
     <string name="dhikr_of_day_preview_section">Dhikr du jour</string>
     <string name="dhikr_of_day_refresh">Choisir un autre dhikr pour aujourd\'hui</string>
     <string name="dhikr_of_day_title">Dhikr du jour</string>
-    <string name="dhikr_of_day_widget_description">Affiche un dhikr quotidien aléatoire</string>
+    <string name="dhikr_of_day_widget_description">Affiche un dhikr quotidien aléatoire parmi vos adhkar</string>
     <string name="dhikr_of_day_widget_empty">Activez le dhikr du jour dans les paramètres</string>
+    <string name="dhikr_of_day_widget_background_hint">S\'applique au widget d\'accueil. Transparent affiche le fond d\'écran.</string>
+    <string name="dhikr_of_day_text_color_section">Couleur du texte</string>
+    <string name="dhikr_of_day_text_color_hint">Couleur du texte du dhikr sur le widget</string>
+    <string name="dhikr_of_day_text_color_auto">Automatique</string>
+    <string name="dhikr_of_day_text_color_black">Noir</string>
+    <string name="dhikr_of_day_text_color_gold">Or</string>
+    <string name="dhikr_of_day_text_color_brown">Marron</string>
+    <string name="dhikr_of_day_text_color_navy">Marine</string>
+    <string name="dhikr_of_day_text_color_teal">Turquoise</string>
+    <string name="dhikr_of_day_text_color_maroon">Bordeaux</string>
+    <string name="dhikr_of_day_text_color_gray">Gris</string>
+    <string name="dhikr_of_day_text_color_amber">Ambre</string>
+    <string name="dhikr_of_day_font_size_section">Taille du texte</string>
+    <string name="dhikr_of_day_font_size_hint">Agrandir ou réduire le texte du widget</string>
+    <string name="dhikr_of_day_font_smaller">Plus petit</string>
+    <string name="dhikr_of_day_font_larger">Plus grand</string>
+    <string name="dhikr_of_day_font_size_value">Taille du texte : %1$d</string>
     <string name="dhikr_of_day_widget_hint">Appui long sur l\'accueil puis Widgets si le bouton ne fonctionne pas.</string>
     <string name="dhikr_of_day_widget_manual_hint">Ajoutez le widget manuellement depuis la liste des widgets.</string>
     <string name="dhikr_text_section">Texte de l\'adhkar</string>
@@ -128,9 +228,18 @@
     <string name="display_audio_only">Audio seul</string>
     <string name="display_audio_text">Audio + texte</string>
     <string name="display_lock">Écran verrouillé</string>
-    <string name="display_lock_hint">Affiche le texte du dhikr sur l\'écran de verrouillage quand le téléphone est verrouillé</string><string name="display_mode">Mode d\'affichage</string>
-    <string name="display_mode_hint">La notification est texte seul (sans audio de l\'app). Audio seul désactive toutes les options visuelles. Les modes audio ne se combinent pas avec la notification.</string><string name="display_notification">Notification</string>
-    <string name="display_notification_hint">Affiche le texte du dhikr dans la barre de notifications — silencieux, sans audio de l\'app</string><string name="display_popup">Fenêtre popup</string>
+    <string name="display_lock_hint">Affiche le texte du dhikr sur l\'écran de verrouillage quand le téléphone est verrouillé</string>
+    <string name="lock_screen_fsi_title">Autorisation écran verrouillé</string>
+    <string name="lock_screen_fsi_message">Pour afficher le dhikr sur l\'écran de verrouillage, autorisez les notifications plein écran pour cette application.</string>
+    <string name="lock_screen_fsi_open_settings">Ouvrir les paramètres</string>
+    <string name="lock_screen_fsi_continue_anyway">Continuer sans</string>
+    <string name="lock_screen_fsi_still_needed">Les notifications plein écran sont toujours désactivées — le dhikr peut ne pas s\'afficher sur l\'écran de verrouillage.</string>
+    <string name="lock_screen_fsi_settings_failed">Impossible d\'ouvrir les paramètres. Ouvrez les notifications de l\'application manuellement.</string>
+    <string name="display_mode">Mode d\'affichage</string>
+    <string name="display_mode_hint">La notification est texte seul (sans audio de l\'app). Audio seul désactive toutes les options visuelles. Les modes audio ne se combinent pas avec la notification.</string>
+    <string name="display_notification">Notification</string>
+    <string name="display_notification_hint">Affiche le texte du dhikr dans la barre de notifications — silencieux, sans audio de l\'app</string>
+    <string name="display_popup">Fenêtre popup</string>
     <string name="download_all">Tout télécharger hors ligne</string>
     <string name="downloaded">Téléchargé</string>
     <string name="downloading">Téléchargement…</string>
@@ -138,9 +247,11 @@
     <string name="edit_dhikr">Modifier</string>
     <string name="enabled">Activé</string>
     <string name="error_audio_file_required">Choisissez un fichier audio ou changez la source</string>
-    <string name="error_notification_audio_conflict">La notification texte ne peut pas être combinée avec les modes audio</string><string name="error_reciter_name_required">Le nom arabe du récitateur est requis</string>
+    <string name="error_notification_audio_conflict">La notification texte ne peut pas être combinée avec les modes audio</string>
+    <string name="error_reciter_name_required">Le nom arabe du récitateur est requis</string>
     <string name="error_recording_required">Enregistrez la voix ou choisissez texte seul</string>
-    <string name="error_section_title_required">Le nom de la section est requis</string><string name="error_text_required">Veuillez saisir le texte arabe</string>
+    <string name="error_section_title_required">Le nom de la section est requis</string>
+    <string name="error_text_required">Veuillez saisir le texte arabe</string>
     <string name="font_scale_hint">Texte dans l\'application (pas la fenêtre)</string>
     <string name="font_scale_title">Taille du texte de l\'app</string>
     <string name="font_scale_value">Taille du texte : %1$d%%</string>
@@ -164,6 +275,28 @@
     <string name="minute">Min</string>
     <string name="minute_label">min</string>
     <string name="misbaha_counter_of">/ %1$s</string>
+    <string name="misbaha_progress">%1$s sur %2$s</string>
+    <string name="misbaha_remaining">Reste %1$s</string>
+    <string name="misbaha_widget_progress_preview">0 sur 33</string>
+    <string name="misbaha_widget_remaining_preview">Reste 33</string>
+    <string name="misbaha_widget_count_preview">0</string>
+    <string name="misbaha_widget_of_preview">/ 33</string>
+    <string name="misbaha_bead_scale_section">Taille des perles traditionnelles</string>
+    <string name="misbaha_bead_scale_hint">Agrandir ou réduire les perles de la misbaha traditionnelle</string>
+    <string name="misbaha_bead_scale_value">Taille : %1$d%%</string>
+    <string name="misbaha_bead_theme_section">Apparence et couleur des perles</string>
+    <string name="misbaha_bead_theme_hint">Choisissez un thème de perles (royal, désert, etc.)</string>
+    <string name="misbaha_electronic_theme_section">Apparence de la misbaha électronique</string>
+    <string name="misbaha_electronic_theme_hint">Couleurs du compteur électronique dans l\'app : l\'anneau, le centre et les chiffres</string>
+    <string name="misbaha_bead_theme_classic">Classique</string>
+    <string name="misbaha_bead_theme_royal">Royal</string>
+    <string name="misbaha_bead_theme_desert">Désert</string>
+    <string name="misbaha_bead_theme_emerald">Émeraude</string>
+    <string name="misbaha_bead_theme_ocean">Océan</string>
+    <string name="misbaha_bead_theme_amber">Ambre</string>
+    <string name="misbaha_bead_theme_wood">Bois</string>
+    <string name="misbaha_bead_theme_silver">Argent</string>
+    <string name="misbaha_bead_theme_ruby">Rubis</string>
     <string name="app_digits_arabic">Chiffres indiens (٠١٢٣)</string>
     <string name="app_digits_hint">Affichage des chiffres dans l\'application</string>
     <string name="app_digits_latin">Chiffres latins (0123)</string>
@@ -184,7 +317,7 @@
     <string name="misbaha_reset">Réinitialiser</string>
     <string name="misbaha_style_electronic">Électronique</string>
     <string name="misbaha_style_hint">Perles traditionnelles ou compteur électronique</string>
-    <string name="misbaha_style_section">Type de misbaha</string>
+    <string name="misbaha_style_section">Type de misbaha par défaut</string>
     <string name="misbaha_style_traditional">Traditionnelle</string>
     <string name="misbaha_tap_hint">Appuyez n\'importe où pour compter</string>
     <string name="misbaha_tap_hint_electronic">Appuyez pour compter sur le compteur numérique</string>
@@ -196,13 +329,18 @@
     <string name="my_dhikr_section">Mes adhkar sur ce téléphone</string>
     <string name="nav_adhkar">Adhkar</string>
     <string name="nav_admin">Admin</string>
-    <string name="nav_azkar">Sections adhkar</string>
+    <string name="nav_azkar">Sections d\'adhkar</string>
     <string name="nav_home">Accueil</string>
     <string name="nav_misbaha">Misbaha</string>
     <string name="nav_read">Lecture des tasbihs</string>
     <string name="nav_settings">Paramètres</string>
     <string name="nav_tasbih">Jawami du tasbih</string>
-    <string name="next_azkar_none">Aucune section programmée — activez la planification dans les sections d\'adhkar</string><string name="next_azkar_summary">Prochain dhikr : %1$s — %2$s</string><string name="next_azkar_time_later">%1$02d/%2$02d — %3$02d:%4$02d</string><string name="next_azkar_time_today">Aujourd\'hui %1$02d:%2$02d</string><string name="next_azkar_time_tomorrow">Demain %1$02d:%2$02d</string><string name="next_reminder">Prochain rappel dans %1$d min</string>
+    <string name="next_azkar_none">Aucune section programmée — activez la planification dans les sections d\'adhkar</string>
+    <string name="next_azkar_summary">Prochain dhikr : %1$s — %2$s</string>
+    <string name="next_azkar_time_later">%1$02d/%2$02d — %3$02d:%4$02d</string>
+    <string name="next_azkar_time_today">Aujourd\'hui %1$02d:%2$02d</string>
+    <string name="next_azkar_time_tomorrow">Demain %1$02d:%2$02d</string>
+    <string name="next_reminder">Prochain rappel dans %1$d min</string>
     <string name="no_internet_needed">Fonctionne hors ligne après téléchargement</string>
     <string name="onboarding_feature_azkar_subtitle">Matin, soir et plus — lire ou écouter</string>
     <string name="onboarding_feature_azkar_title">Collections d\'adhkar</string>
@@ -218,6 +356,7 @@
     <string name="onboarding_language_subtitle">Modifiable plus tard dans les réglages</string>
     <string name="onboarding_language_title">Choisir la langue</string>
     <string name="onboarding_next">Suivant</string>
+    <string name="onboarding_back">Précédent</string>
     <string name="onboarding_ready_subtitle">Tasbih et adhkar automatiques activés — qu\'Allah accepte votre rappel</string>
     <string name="onboarding_ready_title">Tout est prêt !</string>
     <string name="onboarding_settings_disable_subtitle">Dans le même écran, désactivez le rappel automatique, ou coupez tous les adhkar depuis l\'accueil</string>
@@ -239,8 +378,16 @@
     <string name="overlay_collapse_popup">Réduire</string>
     <string name="overlay_dismiss">Fermer</string>
     <string name="overlay_expand_popup">Agrandir pour lire</string>
-    <string name="overlay_stop_auto_azkar">Arrêter la lecture</string><string name="pause_during_calls">Pause pendant les appels</string>
-    <string name="pause_during_media">Pause pendant les médias</string>
+    <string name="overlay_stop_auto_azkar">Arrêter la lecture</string>
+    <string name="pause_during_calls">Pause pendant les appels</string>
+    <string name="pause_during_calls_hint">Pas de son de l\'application pendant un appel téléphonique ou audio/vidéo (WhatsApp, Telegram, Signal, Messenger, Meet, Skype, et tout appel en ligne).</string>
+    <string name="pause_during_media">Couper le son si une autre application diffuse de l\'audio</string>
+    <string name="pause_during_media_hint">Activé : silence si une autre application diffuse de l\'audio — YouTube, musique, notes vocales WhatsApp/Telegram/Signal/Messenger, ou appels dans ces applications. Désactivé : les autres applications peuvent s\'interrompre puis reprendre.</string>
+    <string name="respect_quiet_mode">Respecter le mode silencieux / Ne pas déranger</string>
+    <string name="respect_quiet_mode_hint">Pas de son de rappel si le téléphone est silencieux ou en mode Ne pas déranger.</string>
+    <string name="flip_to_stop_playback">Retourner le téléphone pour arrêter</string>
+    <string name="flip_to_stop_playback_hint">Retournez le téléphone face contre table pendant l\'écoute pour arrêter la lecture.</string>
+    <string name="auto_tasbih_audio_when_hint">Un tasbih court par intervalle — pas une chaîne complète. Les adhkar automatiques : un dhikr à l\'heure prévue (voir les réglages des adhkar auto).</string>
     <string name="permission_mic">Microphone</string>
     <string name="permission_notifications">Notifications</string>
     <string name="permission_overlay">Affichage par-dessus les apps</string>
@@ -256,9 +403,9 @@
     <string name="popup_box_width_value">Largeur : %1$d%% de l\'écran</string>
     <string name="popup_font_scale">Taille du texte de la fenêtre</string>
     <string name="popup_font_scale_value">Texte de la fenêtre : %1$d%%</string>
-    <string name="popup_position_x">Position horizontale (droite ← gauche)</string>
+    <string name="popup_position_x">Position horizontale</string>
     <string name="popup_position_x_value">Depuis la gauche : %1$d%%</string>
-    <string name="popup_position_y">Position verticale (bas ← haut)</string>
+    <string name="popup_position_y">Position verticale</string>
     <string name="popup_position_y_value">Depuis le haut : %1$d%%</string>
     <string name="popup_preview_on_device">Aperçu à l\'écran</string>
     <string name="popup_preview_sample">Subhan Allah wa bihamdihi</string>
@@ -282,13 +429,28 @@
     <string name="reminder_channel">Rappels adhkar</string>
     <string name="reminder_channel_silent_hint">Notification silencieuse — seul le son du tasbih de l\'app</string>
     <string name="reminder_display_both">Fenêtre et notification</string>
+    <string name="auto_reminder_display_section">Affichage sur écran verrouillé</string>
+    <string name="auto_reminder_display_hint">Réglage commun pour le tasbih et les adhkar automatiques</string>
+    <string name="auto_reminder_lock_screen">Afficher sur l\'écran verrouillé</string>
+    <string name="auto_reminder_lock_screen_hint">Affiche le texte du rappel sur l\'écran verrouillé — tasbih et adhkar</string>
+    <string name="tasbih_display_section">Affichage du tasbih</string>
+    <string name="tasbih_display_hint">Comment apparaissent les rappels de tasbih automatiques</string>
+    <string name="tasbih_auto_lock_screen">Tasbih sur écran verrouillé</string>
+    <string name="tasbih_auto_lock_screen_hint">Carte tasbih sur l\'écran de verrouillage</string>
+    <string name="azkar_auto_display_section">Affichage des adhkar</string>
+    <string name="azkar_auto_display_hint">Comment apparaissent les adhkar automatiques</string>
+    <string name="azkar_auto_lock_screen">Adhkar sur l\'écran verrouillé</string>
+    <string name="azkar_auto_lock_screen_hint">Carte d\'adhkar avec le titre de la section — séparée du tasbih</string>
+    <string name="azkar_voice_section">Voix des adhkar</string>
+    <string name="azkar_voice_section_hint">Récitateur et volume pour les adhkar automatiques — séparés du tasbih</string>
     <string name="reminder_display_hint">Fenêtre, notification ou les deux — sans son d\'alerte séparé</string>
     <string name="reminder_display_notification_only">Notification uniquement</string>
     <string name="reminder_display_popup_only">Fenêtre uniquement</string>
     <string name="reminder_display_section">Affichage du rappel</string>
     <string name="reminder_popup_channel">Fenêtre de rappel</string>
     <string name="reminder_popup_channel_hint">Rappel plein écran — sans son d\'alerte</string>
-    <string name="reminder_silent_system_hint">Si le son d\'alerte persiste : Paramètres → Applications → Sabbih → Notifications → « Rappels adhkar » → désactiver le son</string><string name="save">Enregistrer</string>
+    <string name="reminder_silent_system_hint">Si le son d\'alerte persiste : Paramètres → Applications → Sabbih → Notifications → « Rappels adhkar » → désactiver le son</string>
+    <string name="save">Enregistrer</string>
     <string name="schedule_active_now">Actif maintenant</string>
     <string name="schedule_always">Toujours</string>
     <string name="schedule_both">Heure + hijri</string>
@@ -308,14 +470,46 @@
     <string name="service_running">Rappels actifs</string>
     <string name="settings_auto_azkar_subtitle">Sélection quotidienne, horaire, fenêtre</string>
     <string name="settings_auto_azkar_title">Adhkar automatiques</string>
+    <string name="settings_display_subtitle">Thème, polices, affichage des adhkar, chiffres</string>
+    <string name="settings_display_title">Affichage et lecture</string>
+    <string name="settings_app_general_subtitle">Langue, lecture, batterie, affichage par-dessus</string>
+    <string name="settings_app_general_title">Application et autorisations</string>
     <string name="settings_auto_tasbih_subtitle">Intervalle, voix, apparence de la fenêtre</string>
     <string name="settings_auto_tasbih_title">Tasbih automatique</string>
     <string name="settings_dhikr_of_day_hint">Un dhikr aléatoire parmi vos adhkar, renouvelé chaque jour.</string>
     <string name="settings_dhikr_of_day_subtitle">Widget d\'accueil ou écran de verrouillage</string>
     <string name="settings_dhikr_of_day_title">Dhikr du jour</string>
+    <string name="settings_misbaha_widget_hint">Un compteur compact. Touchez le widget pour compter, comme la misbaha de l\'app. Tous les réglages n\'y apparaissent pas.</string>
+    <string name="settings_misbaha_widget_subtitle">Compteur traditionnel ou électronique sur l\'accueil</string>
+    <string name="settings_misbaha_widget_title">Widget misbaha</string>
+    <string name="settings_widgets_hint">Ajoutez un widget à l\'accueil. Chaque type a sa propre taille.</string>
+    <string name="settings_widgets_subtitle">Dhikr du jour et misbaha d\'accueil</string>
+    <string name="settings_widgets_title">Widgets</string>
+    <string name="misbaha_widget_add">Ajouter la misbaha à l\'accueil</string>
+    <string name="misbaha_widget_electronic_description">Compteur électronique compact avec un anneau de perles</string>
+    <string name="misbaha_widget_electronic_label">Misbaha électronique</string>
+    <string name="misbaha_widget_hint">Si le bouton ne fonctionne pas, appui long sur l\'accueil puis Widgets.</string>
+    <string name="misbaha_widget_manual_hint">Ajoutez le widget manuellement depuis la liste des widgets.</string>
+    <string name="misbaha_widget_reset">Réinitialiser le compteur du widget</string>
+    <string name="misbaha_widget_size_electronic">Taille électronique : 2×2 sur l\'accueil</string>
+    <string name="misbaha_widget_size_traditional">Taille traditionnelle : 3×2 sur l\'accueil</string>
+    <string name="misbaha_widget_style_section">Style du widget</string>
+    <string name="misbaha_widget_background_section">Fond du widget</string>
+    <string name="misbaha_widget_background_hint">S\'applique aux widgets traditionnel et électronique. Le fond transparent laisse voir le fond d\'écran.</string>
+    <string name="misbaha_widget_background_white">Blanc</string>
+    <string name="misbaha_widget_background_cream">Crème</string>
+    <string name="misbaha_widget_background_green">Vert</string>
+    <string name="misbaha_widget_background_dark">Sombre</string>
+    <string name="misbaha_widget_background_transparent">Transparent</string>
+    <string name="misbaha_widget_theme_section">Apparence électronique</string>
+    <string name="misbaha_widget_theme_hint">Les mêmes thèmes de couleurs que les perles de l\'application, appliqués au widget électronique</string>
+    <string name="misbaha_widget_tap_hint">Touchez le widget sur l\'accueil pour compter.</string>
+    <string name="misbaha_widget_target_section">Objectif</string>
+    <string name="misbaha_widget_traditional_description">Perles traditionnelles compactes avec compte et reste</string>
+    <string name="misbaha_widget_traditional_label">Misbaha traditionnelle</string>
     <string name="settings_hub_hint">Choisissez une section à configurer</string>
     <string name="settings_hub_section">Paramètres</string>
-    <string name="settings_misbaha_subtitle">Type, son et vibration au comptage</string>
+    <string name="settings_misbaha_subtitle">Type, apparence des perles ou électronique, son et vibration</string>
     <string name="settings_misbaha_title">Misbaha</string>
     <string name="settings_version_subtitle">Version et dernière mise à jour</string>
     <string name="sleep_end">Sommeil jusqu\'à</string>
@@ -328,18 +522,51 @@
     <string name="text_arabic">Texte arabe</string>
     <string name="text_english">Texte anglais</string>
     <string name="text_french">Texte français</string>
-    <string name="text_reminder_channel">Dhikr texte seul</string><string name="text_reminder_channel_hint">Rappel texte silencieux — sans son de l\'app</string><string name="text_spanish">Texte espagnol</string>
+    <string name="text_reminder_channel">Dhikr texte seul</string>
+    <string name="text_reminder_channel_hint">Rappel texte silencieux — sans son de l\'app</string>
+    <string name="text_spanish">Texte espagnol</string>
     <string name="time_from">De</string>
     <string name="time_to">À</string>
     <string name="today_count">Aujourd\'hui : %1$d</string>
     <string name="today_hijri">Aujourd\'hui : %1$s</string>
-    <string name="today_stats_azkar_title">Adhkâr auto aujourd\'hui</string>
-    <string name="today_stats_hint">Les compteurs auto augmentent à chaque rappel réussi. La misbaha compte les appuis manuels. Remis à zéro chaque jour.</string>
+    <string name="today_stats_azkar_title">Adhkar auto aujourd\'hui</string>
+    <string name="today_stats_hint">Les compteurs automatiques augmentent à chaque rappel réussi. La misbaha compte les appuis manuels. Remise à zéro chaque jour.</string>
     <string name="today_stats_misbaha_title">Misbaha aujourd\'hui</string>
     <string name="today_stats_tasbih_title">Tasbihs auto aujourd\'hui</string>
-    <string name="tts_voice_female">Voix féminine</string><string name="tts_voice_hint">Utilisé quand aucun audio de récitateur n\'est disponible pour un adhkar</string><string name="tts_voice_male">Voix masculine</string><string name="tts_voice_section">Voix TTS (secours adhkar)</string><string name="version_info_section">Informations de version</string>
+    <string name="tts_voice_female">Voix féminine</string>
+    <string name="tts_voice_hint">Utilisé quand aucun audio de récitateur n\'est disponible pour un adhkar</string>
+    <string name="tts_voice_male">Voix masculine</string>
+    <string name="tts_voice_section">Voix TTS (secours adhkar)</string>
+    <string name="version_info_section">Informations de version</string>
     <string name="version_info_title">%1$s — version %2$s</string>
     <string name="version_info_updated_at">Dernière mise à jour</string>
+    <string name="content_sync_section">Synchronisation du contenu</string>
+    <string name="content_version_label">Pack de contenu</string>
+    <string name="content_version_none">Pas encore synchronisé</string>
+    <string name="content_version_value">v%1$d</string>
+    <string name="content_sync_at_label">Dernière synchro du contenu</string>
+    <string name="content_sync_never">Jamais</string>
+    <string name="content_sync_error_label">Dernière erreur de synchro</string>
+    <string name="content_sync_check_updates">Vérifier les mises à jour du contenu</string>
+    <string name="content_sync_checking">Vérification…</string>
+    <string name="content_sync_up_to_date">Contenu à jour — pack v%1$d</string>
+    <string name="content_remote_version_label">Dernière version sur Firebase</string>
+    <string name="content_remote_version_unknown">Vérification impossible</string>
+    <string name="content_update_available">Mise à jour disponible — appuyez sur vérifier ci-dessous</string>
+    <string name="settings_version_subtitle_with_pack">Version de l\'app et pack de contenu %1$d</string>
+    <string name="content_sync_updated">Mis à jour vers le pack v%1$d</string>
+    <string name="content_sync_status_label">Statut</string>
+    <string name="admin_remote_sync_hint">Connectez-vous avec le compte admin Firebase, puis publiez — les utilisateurs reçoivent la mise à jour à la synchro.</string>
+    <string name="admin_export_dhikr_hint">Exporte uniquement les dhikr intégrés (JSON). La publication complète inclut sections et récitateurs.</string>
+    <string name="admin_publish_section">Publication aux utilisateurs</string>
+    <string name="admin_publish_updates">Publier les mises à jour</string>
+    <string name="admin_publish_in_progress">Publication…</string>
+    <string name="admin_publish_success">Publié — pack de contenu v%1$d</string>
+    <string name="admin_firebase_email_label">E-mail admin Firebase</string>
+    <string name="admin_firebase_email_hint">admin@example.com</string>
+    <string name="admin_firebase_password_label">Mot de passe Firebase</string>
+    <string name="admin_firebase_password_hint">Mot de passe du compte admin</string>
+    <string name="admin_azkar_publish_hint">Après modification des sections, publiez depuis l\'accueil admin.</string>
     <string name="version_info_version_label">Version</string>
     <string name="voice_section">Voix des adhkar</string>
     <string name="voice_section_hint">Choisissez le récitateur pour les rappels et l\'écoute</string>
@@ -351,4 +578,5 @@
     <string name="volume_mode_system_hint">Utilisez les boutons volume du téléphone pendant la lecture</string>
     <string name="volume_mode_system_level">Niveau système actuel : %1$d%%</string>
     <string name="volume_mode_title">Contrôle du volume</string>
-    </resources>
+    <string name="admin_reciter_audio_pick_section">Choisissez une section pour gérer les enregistrements de ce récitateur</string>
+</resources>
