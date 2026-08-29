@@ -22,6 +22,41 @@ enum class ReminderDisplayStyle {
     BOTH
 }
 
+/** كيف يظهر التذكير التلقائي على جهاز المستخدم */
+enum class AutoReminderPresentation {
+    POPUP_AND_AUDIO,
+    POPUP_ONLY,
+    NOTIFICATION,
+    AUDIO_ONLY;
+
+    fun toDisplayModes(): DisplayModes = when (this) {
+        POPUP_AND_AUDIO -> DisplayModes(
+            popup = true,
+            notification = false,
+            audioOnly = false,
+            audioWithText = true
+        )
+        POPUP_ONLY -> DisplayModes(
+            popup = true,
+            notification = false,
+            audioOnly = false,
+            audioWithText = false
+        )
+        NOTIFICATION -> DisplayModes(
+            popup = false,
+            notification = true,
+            audioOnly = false,
+            audioWithText = false
+        )
+        AUDIO_ONLY -> DisplayModes(
+            popup = false,
+            notification = false,
+            audioOnly = true,
+            audioWithText = false
+        )
+    }
+}
+
 enum class DisplayMode {
     POPUP, NOTIFICATION, LOCK_SCREEN, AUDIO_ONLY, AUDIO_TEXT
 }
@@ -49,9 +84,51 @@ enum class DhikrOfDayDisplayMode {
     HOME_WIDGET, LOCK_SCREEN
 }
 
+/** لون نص ويدجت ذكر اليوم */
+enum class DhikrOfDayTextColor {
+    AUTO,
+    BLACK,
+    WHITE,
+    GOLD,
+    GREEN,
+    CREAM,
+    BROWN,
+    NAVY,
+    TEAL,
+    MAROON,
+    GRAY,
+    AMBER
+}
+
+/** حدود حجم خط ويدجت ذكر اليوم */
+object DhikrOfDayWidgetText {
+    const val MIN_FONT_SP = 10
+    const val MAX_FONT_SP = 28
+    const val DEFAULT_FONT_SP = 14
+}
+
 /** طريقة عرض أذكار القسم: قائمة أو بطاقة واحدة */
 enum class AzkarDisplayMode {
     LIST, CARD
+}
+
+/** حجم نص الأذكار في وضع القائمة — الافتراضي يطابق تسبيحة المسبحة المختارة */
+object AzkarListText {
+    const val MIN_FONT_SP = 13
+    const val MAX_FONT_SP = 28
+    /** titleMedium في شاشة المسبحة (نص التسبيحة المختارة) */
+    const val DEFAULT_FONT_SP = 17
+    const val STEP_SP = 1
+    const val LINE_HEIGHT_RATIO = 28f / 17f
+}
+
+/** حجم نص الذكر في وضع البطاقة */
+object AzkarCardText {
+    const val MIN_FONT_SP = 14
+    const val MAX_FONT_SP = 36
+    const val DEFAULT_FONT_SP = 21
+    const val STEP_SP = 1
+    const val LINE_HEIGHT_RATIO = 34f / 21f
 }
 
 /** ردّة فعل ضغط خرزة المسبحة */
@@ -68,10 +145,38 @@ enum class MisbahaStyle {
     ELECTRONIC
 }
 
+/** خلفية ويدجت الشاشة الرئيسية (المسبحة وذكر اليوم) */
+enum class MisbahaWidgetBackground {
+    WHITE,
+    CREAM,
+    GREEN,
+    DARK,
+    TRANSPARENT
+}
+
+/** مظهر وألوان خرز المسبحة */
+enum class MisbahaBeadTheme {
+    CLASSIC,
+    ROYAL,
+    DESERT,
+    EMERALD,
+    OCEAN,
+    AMBER,
+    WOOD,
+    SILVER,
+    RUBY
+}
+
 /** شكل عرض الأرقام في التطبيق */
 enum class NumberDigitStyle {
     ARABIC_INDIC,
     LATIN
+}
+
+/** عرض ساعة الذكر القادم: 12 أو 24 */
+enum class ClockHourFormat {
+    HOUR_24,
+    HOUR_12
 }
 
 /** نمط خط نصوص الأذكار والقرآن */
@@ -113,11 +218,8 @@ data class DisplayModes(
 
 /** قوالب جدولة جاهزة للمدير */
 enum class SchedulePreset(val labelAr: String) {
-    EID_FITR("تكبيرات عيد الفطر (١–٤ شوال)"),
-    EID_ADHA("تكبيرات عيد الأضحى (١٠–١٣ ذو الحجة)"),
-    MORNING("أذكار الصباح (٥:٠٠ – ١٠:٠٠)"),
-    EVENING("أذكار المساء (١٦:٠٠ – ٢٠:٠٠)"),
-    RAMADAN("شهر رمضان كاملاً"),
+    EID_FITR("تكبيرات عيد الفطر (١ شوال)"),
+    EID_ADHA("تكبيرات عيد الأضحى (١٠ ذو الحجة)"),
     CUSTOM("مخصص")
 }
 
@@ -138,38 +240,15 @@ fun SchedulePreset.toValues(): SchedulePresetValues = when (this) {
         scheduleType = ScheduleType.HIJRI_RANGE,
         hijriMonth = 10,
         hijriDayStart = 1,
-        hijriDayEnd = 4,
-        labelAr = "تكبيرات عيد الفطر"
+        hijriDayEnd = 1,
+        labelAr = "تكبيرات عيد الفطر — ١ شوال"
     )
     SchedulePreset.EID_ADHA -> SchedulePresetValues(
         scheduleType = ScheduleType.HIJRI_RANGE,
         hijriMonth = 12,
         hijriDayStart = 10,
-        hijriDayEnd = 13,
-        labelAr = "تكبيرات عيد الأضحى"
-    )
-    SchedulePreset.MORNING -> SchedulePresetValues(
-        scheduleType = ScheduleType.TIME_RANGE,
-        timeStartHour = 5,
-        timeStartMinute = 0,
-        timeEndHour = 10,
-        timeEndMinute = 0,
-        labelAr = "أذكار الصباح"
-    )
-    SchedulePreset.EVENING -> SchedulePresetValues(
-        scheduleType = ScheduleType.TIME_RANGE,
-        timeStartHour = 16,
-        timeStartMinute = 0,
-        timeEndHour = 20,
-        timeEndMinute = 0,
-        labelAr = "أذكار المساء"
-    )
-    SchedulePreset.RAMADAN -> SchedulePresetValues(
-        scheduleType = ScheduleType.HIJRI_RANGE,
-        hijriMonth = 9,
-        hijriDayStart = 1,
-        hijriDayEnd = 30,
-        labelAr = "شهر رمضان"
+        hijriDayEnd = 10,
+        labelAr = "تكبيرات عيد الأضحى — ١٠ ذو الحجة"
     )
     SchedulePreset.CUSTOM -> SchedulePresetValues(scheduleType = ScheduleType.ALWAYS)
 }

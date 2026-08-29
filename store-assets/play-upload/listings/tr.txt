@@ -1,0 +1,59 @@
+## Turkish (tr)
+
+### App name
+Sabbih
+
+### Short description (80 chars)
+Otomatik zikir, Hisnul Müslim, tesbih ve widget — çevrimdışı da çalışır
+
+### Full description
+Sabbih — günlük zikir ve tesbihat yol arkadaşınız.
+
+Telefonu kullanırken Allah'ı anmayı unutuyor musunuz? Sabbih sizi kısa sesli tesbih ve zikirlerle otomatik hatırlatır — aramaları ve sohbetleri kesmeden.
+
+✦ Otomatik tesbih
+• Periyodik hatırlatmalar (Sübhanallah, Elhamdülillah, Allahu ekber ve daha fazlası)
+• Özel aralık, rastgele veya sırayla çalma
+• Telefon ve internet aramalarında durur
+• Medya, sessiz/Rahatsız etme veya telefonu ters çevirerek durdurma seçenekleri
+
+✦ Otomatik zikir
+• Hisnul Müslim bölümleri (sabah, akşam, uyku ve daha fazlası)
+• Bölüm başına günlük saat ve günler
+• Her açık bölümden bir zikir, rastgele veya sırayla
+• Hicri takvimle mevsimsel tekbir (Bayram)
+
+✦ Esnek görünüm
+• Diğer uygulamaların üstünde pencere, sessiz bildirim veya kilit ekranı
+• Yalnızca ses veya ses + metin
+• Pencere boyutu, konumu ve süresi ayarlanabilir
+
+✦ Dijital tesbih
+• Geleneksel taneler veya elektronik sayaç
+• Hedef sayı, ses ve titreşim
+• Ana ekran widget'ları (geleneksel 3×2 veya elektronik 2×2)
+
+✦ Günün zikri
+• Koleksiyonunuzdan rastgele günlük zikir
+• Ana ekran widget'ı veya sessiz kilit ekranı
+• Renkler, yazı boyutu ve şeffaf arka plan
+
+✦ Zikir okuma
+• Hisnul Müslim'i gezin
+• Kari sesi veya TTS
+• Dinlemek için öğeleri seçin
+
+✦ Sesler
+• Dahili ses, kendi kaydınız veya telefondan dosya
+• Tesbih ve zikir için ayrı kari ve ses
+• Çevrimdışı indirme
+
+✦ Özel zikirler yalnızca cihazınızda kalır — hesap yok, reklam yok.
+
+Ses indirildikten sonra çevrimdışı çalışır. Arapça, İngilizce, Fransızca, İspanyolca, Türkçe, Urduca, Endonezce ve Hintçe. Tabletlerde rahat düzen.
+
+———
+Kurulumdan sonra: bildirimleri, diğer uygulamaların üstünde gösterme iznini ve pil muafiyetini açın ki hatırlatmalar güvenilir kalsın.
+
+### Keywords
+tesbih, zikir, tesbihat, misbaha, hisnul muslim, widget, islami, hatırlatma, sabah zikirleri

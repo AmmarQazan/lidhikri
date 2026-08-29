@@ -42,7 +42,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.greendome.adhkar.R
-import com.greendome.adhkar.data.AzkarFavorites
 import com.greendome.adhkar.data.local.AdhkarCollectionEntity
 import com.greendome.adhkar.data.local.AzkarItemEntity
 import com.greendome.adhkar.ui.theme.GoldDome
@@ -90,6 +89,12 @@ fun AdminAzkarCollectionsScreen(
                 style = MaterialTheme.typography.bodyMedium,
                 color = GreenPrimary
             )
+            Text(
+                stringResource(R.string.admin_azkar_publish_hint),
+                style = MaterialTheme.typography.bodySmall,
+                color = GoldDome,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
             Button(onClick = onAddCollection, modifier = Modifier.fillMaxWidth()) {
                 Icon(Icons.Default.Add, contentDescription = null)
                 Text(
@@ -97,7 +102,7 @@ fun AdminAzkarCollectionsScreen(
                     modifier = Modifier.padding(start = 8.dp)
                 )
             }
-            collections.filter { it.id != AzkarFavorites.COLLECTION_ID }.forEach { collection ->
+            collections.forEach { collection ->
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -106,7 +111,7 @@ fun AdminAzkarCollectionsScreen(
                 ) {
                     Column(Modifier.padding(16.dp)) {
                         Text(
-                            if (lang == "ar") collection.titleAr else collection.titleEn.ifBlank { collection.titleAr },
+                            azkarCollectionTitle(collection, lang),
                             fontWeight = FontWeight.Medium
                         )
                         Text(
@@ -141,7 +146,7 @@ fun AdminAzkarItemsScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(if (lang == "ar") collection.titleAr else collection.titleEn.ifBlank { collection.titleAr })
+                    Text(azkarCollectionTitle(collection, lang))
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -177,7 +182,16 @@ fun AdminAzkarItemsScreen(
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Column(Modifier.padding(12.dp)) {
-                        Text(item.textAr, maxLines = 2)
+                        Text(item.localizedText(lang), maxLines = 3)
+                        if (item.localizedVirtue(lang).isNotBlank()) {
+                            Text(
+                                item.localizedVirtue(lang),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = GoldDome,
+                                modifier = Modifier.padding(top = 4.dp),
+                                maxLines = 2
+                            )
+                        }
                         if (item.repeatCount > 1) {
                             Text(
                                 stringResourceDigits(R.string.azkar_repeat_label, item.repeatCount),
@@ -271,7 +285,8 @@ fun AdminEditAzkarItemScreen(
                                 textAr = textAr.trim(),
                                 virtueAr = virtueAr.trim(),
                                 repeatCount = repeatCount.toInt().coerceAtLeast(1),
-                                sortOrder = existing?.sortOrder ?: nextSortOrder
+                                sortOrder = existing?.sortOrder ?: nextSortOrder,
+                                sourceItemId = existing?.sourceItemId
                             )
                         )
                     },
@@ -303,7 +318,6 @@ fun AdminEditAzkarCollectionScreen(
     var titleEn by remember { mutableStateOf(existing?.titleEn ?: "") }
     var autoPlayAllowed by remember { mutableStateOf(existing?.autoPlayAllowed ?: false) }
     var autoPlay by remember { mutableStateOf(existing?.autoPlayEnabled ?: false) }
-    var useTts by remember { mutableStateOf(existing?.useTtsAutoPlay ?: true) }
     var hour by remember { mutableFloatStateOf((existing?.scheduleHour ?: 7).toFloat()) }
     var minute by remember { mutableFloatStateOf((existing?.scheduleMinute ?: 0).toFloat()) }
     var error by remember { mutableStateOf(false) }
@@ -380,14 +394,6 @@ fun AdminEditAzkarCollectionScreen(
                     Text(stringResource(R.string.azkar_auto_enable))
                     Switch(checked = autoPlay, onCheckedChange = { autoPlay = it })
                 }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(stringResource(R.string.azkar_tts_auto))
-                    Switch(checked = useTts, onCheckedChange = { useTts = it })
-                }
                 Text(stringResource(R.string.azkar_time_label))
                 Text(
                     "${hour.toInt().toString().padStart(2, '0')}:${minute.toInt().toString().padStart(2, '0')}"
@@ -410,18 +416,20 @@ fun AdminEditAzkarCollectionScreen(
                             return@Button
                         }
                         val id = existing?.id ?: "custom_${System.currentTimeMillis()}"
+                        val base = existing ?: AdhkarCollectionEntity(
+                            id = id,
+                            titleAr = titleAr.trim(),
+                            sortOrder = nextSortOrder
+                        )
                         onSave(
-                            AdhkarCollectionEntity(
+                            base.copy(
                                 id = id,
                                 titleAr = titleAr.trim(),
                                 titleEn = titleEn.trim(),
-                                sortOrder = existing?.sortOrder ?: nextSortOrder,
                                 autoPlayAllowed = autoPlayAllowed,
                                 autoPlayEnabled = autoPlayAllowed && autoPlay,
                                 scheduleHour = hour.toInt(),
-                                scheduleMinute = minute.toInt(),
-                                weekDaysMask = existing?.weekDaysMask ?: 127,
-                                useTtsAutoPlay = useTts
+                                scheduleMinute = minute.toInt()
                             )
                         )
                     },

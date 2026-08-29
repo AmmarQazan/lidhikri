@@ -21,8 +21,17 @@ DEFAULT_BASE_URL = "https://raw.githubusercontent.com/AmmarQazan/sabbih/main/rem
 TABLES = {
     "dhikr": "SELECT * FROM dhikr WHERE isDefault = 1 ORDER BY sortOrder, id",
     "reciters": "SELECT * FROM reciter ORDER BY id",
-    "reciterAudio": "SELECT * FROM reciter_audio ORDER BY id",
-    "reciterAzkarAudio": "SELECT * FROM reciter_azkar_audio ORDER BY id",
+    "reciterAudio": """
+        SELECT ra.* FROM reciter_audio ra
+        INNER JOIN dhikr d ON d.id = ra.dhikrId AND d.isDefault = 1
+        ORDER BY ra.id
+    """,
+    "reciterAzkarAudio": """
+        SELECT raa.* FROM reciter_azkar_audio raa
+        INNER JOIN azkar_item ai ON ai.id = raa.azkarItemId
+        WHERE ai.collectionId != 'favorites'
+        ORDER BY raa.id
+    """,
     "collections": "SELECT * FROM adhkar_collection WHERE id != 'favorites' ORDER BY sortOrder",
     "azkarItems": """
         SELECT * FROM azkar_item
@@ -110,6 +119,17 @@ def pull_emulator_db(dest: Path) -> None:
     dest.write_bytes(result.stdout)
 
 
+def _count_orphaned_reciter_audio(conn: sqlite3.Connection) -> int:
+    total = conn.execute("SELECT COUNT(*) FROM reciter_audio").fetchone()[0]
+    linked = conn.execute(
+        """
+        SELECT COUNT(*) FROM reciter_audio ra
+        INNER JOIN dhikr d ON d.id = ra.dhikrId AND d.isDefault = 1
+        """
+    ).fetchone()[0]
+    return max(0, total - linked)
+
+
 def next_version() -> int:
     manifest_path = REMOTE_ROOT / "manifest.json"
     if manifest_path.exists():
@@ -128,6 +148,9 @@ def export_bundle(db_path: Path, base_url: str, version: int | None = None) -> i
         for key, query in TABLES.items():
             rows = fetch_table(conn, query)
             bundle[key] = transform_rows(key, rows, base_url)
+        skipped_audio = _count_orphaned_reciter_audio(conn)
+        if skipped_audio:
+            print(f"Skipped {skipped_audio} orphaned reciter_audio row(s)")
     finally:
         conn.close()
 

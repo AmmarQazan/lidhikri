@@ -8,17 +8,30 @@ import android.content.Context
 import android.os.Build
 import androidx.core.app.NotificationCompat
 
-/** قناة واحدة فقط — إشعار الخدمة الخلفية، بدون إشعارات تسبيح */
+/** قنوات الإشعارات الصامتة — خدمة خلفية، تذكيرات، وشاشة القفل */
 object SilentNotificationChannels {
     const val SERVICE = "adhkar_service_silent_v2"
-    const val TEXT_REMINDER = "adhkar_text_reminder_v1"
-    const val DHIKR_OF_DAY = "dhikr_of_day_v1"
+    const val TEXT_REMINDER = "adhkar_text_reminder_v2"
+    const val DHIKR_OF_DAY = "dhikr_of_day_v2"
     const val LOCK_SCREEN = "adhkar_lock_screen_v1"
+
+    const val SERVICE_NOTIFICATION_ID = 42
+    const val AZKAR_PLAY_NOTIFICATION_ID = 77
+    const val DHIKR_OF_DAY_NOTIFICATION_ID = 88
+    const val LOCK_SCREEN_NOTIFICATION_ID_BASE = 9_000
+
+    private val PROTECTED_NOTIFICATION_IDS = setOf(
+        SERVICE_NOTIFICATION_ID,
+        AZKAR_PLAY_NOTIFICATION_ID,
+        DHIKR_OF_DAY_NOTIFICATION_ID,
+    )
 
     private val REMOVED_CHANNEL_IDS = listOf(
         "adhkar_service_silent",
         "adhkar_reminder_silent_v3",
         "adhkar_reminder_popup_v1",
+        "adhkar_text_reminder_v1",
+        "dhikr_of_day_v1",
         "service",
         "reminder",
         "reminder_silent",
@@ -32,7 +45,6 @@ object SilentNotificationChannels {
     fun ensureCreated(context: Context) {
         val mgr = context.getSystemService(NotificationManager::class.java)
         REMOVED_CHANNEL_IDS.forEach { mgr.deleteNotificationChannel(it) }
-        cancelDhikrAlerts(context)
 
         mgr.createNotificationChannel(
             NotificationChannel(
@@ -58,6 +70,7 @@ object SilentNotificationChannels {
                 enableVibration(false)
                 enableLights(false)
                 setShowBadge(false)
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
                 description = context.getString(com.greendome.adhkar.R.string.text_reminder_channel_hint)
             }
         )
@@ -65,7 +78,7 @@ object SilentNotificationChannels {
             NotificationChannel(
                 DHIKR_OF_DAY,
                 context.getString(com.greendome.adhkar.R.string.dhikr_of_day_channel),
-                NotificationManager.IMPORTANCE_LOW
+                NotificationManager.IMPORTANCE_DEFAULT
             ).apply {
                 setSound(null, null)
                 enableVibration(false)
@@ -91,21 +104,48 @@ object SilentNotificationChannels {
         )
     }
 
-    /** إلغاء أي إشعار تسبيح قديم ما زال معلقاً في النظام */
-    fun cancelDhikrAlerts(context: Context) {
+    /** تنظيف معرّفات إشعارات التسبيح القديمة فقط — دون المساس بذكر اليوم أو شاشة القفل */
+    fun cancelLegacyAlertIds(context: Context) {
+        val mgr = context.getSystemService(NotificationManager::class.java)
+        for (id in LEGACY_ALERT_ID_MIN..LEGACY_ALERT_ID_MAX) {
+            if (id !in PROTECTED_NOTIFICATION_IDS) {
+                mgr.cancel(id)
+            }
+        }
+    }
+
+    /** إلغاء تذكير التسبيح/الذكر الحالي قبل عرض تذكير جديد */
+    fun cancelTransientReminderAlerts(context: Context) {
         val mgr = context.getSystemService(NotificationManager::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             mgr.activeNotifications
-                .filter { it.id != 42 && it.id != 77 }
-                .filter { it.notification.channelId != TEXT_REMINDER }
+                .filter { posted ->
+                    val channelId = posted.notification.channelId
+                    channelId == TEXT_REMINDER || channelId == LOCK_SCREEN
+                }
                 .forEach { posted ->
                     mgr.cancel(posted.tag, posted.id)
                 }
         }
-        for (id in LEGACY_ALERT_ID_MIN..2_000) {
-            mgr.cancel(id)
+        for (id in LEGACY_ALERT_ID_MIN..LEGACY_ALERT_ID_MAX) {
+            if (id !in PROTECTED_NOTIFICATION_IDS) {
+                mgr.cancel(id)
+            }
         }
     }
+
+    @Deprecated("استخدم cancelLegacyAlertIds أو cancelTransientReminderAlerts")
+    fun cancelDhikrAlerts(context: Context) = cancelLegacyAlertIds(context)
+
+    fun applyTextReminderDefaults(builder: NotificationCompat.Builder): NotificationCompat.Builder =
+        builder
+            .setSilent(true)
+            .setDefaults(0)
+            .setSound(null)
+            .setVibrate(null)
+            .setOnlyAlertOnce(true)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
 
     fun applySilentDefaults(builder: NotificationCompat.Builder): NotificationCompat.Builder =
         builder

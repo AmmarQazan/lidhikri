@@ -29,9 +29,40 @@ object CollectionScheduleHelper {
 
     fun allDaysEnabled(): Int = 127
 
-    fun dayLabelsAr(): List<String> = listOf(
-        "الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"
-    )
+    fun dayLabels(lang: String): List<String> {
+        val symbols = java.text.DateFormatSymbols(AppLanguages.locale(lang))
+        val weekdays = symbols.weekdays
+        return DAY_BITS.map { weekdays[it] }
+    }
+
+    fun dayLabelsAr(): List<String> = dayLabels("ar")
+
+    fun formatSchedule(collection: AdhkarCollectionEntity, lang: String): String {
+        val labels = dayLabels(lang)
+        val days = labels
+            .mapIndexed { index, label -> if (collection.weekDaysMask and (1 shl index) != 0) label else null }
+            .filterNotNull()
+        val daysText = if (days.size == 7) everyDayLabel(lang) else {
+            val sep = if (AppLanguages.isRtl(lang)) "، " else ", "
+            days.joinToString(sep)
+        }
+        val hour = collection.scheduleHour.toString().padStart(2, '0')
+        val minute = collection.scheduleMinute.toString().padStart(2, '0')
+        return "$daysText — $hour:$minute"
+    }
+
+    fun formatScheduleAr(collection: AdhkarCollectionEntity): String = formatSchedule(collection, "ar")
+
+    private fun everyDayLabel(lang: String): String = when (lang) {
+        "ar" -> "كل يوم"
+        "tr" -> "Her gün"
+        "ur" -> "ہر روز"
+        "id" -> "Setiap hari"
+        "hi" -> "हर दिन"
+        "fr" -> "Tous les jours"
+        "es" -> "Todos los días"
+        else -> "Every day"
+    }
 
     fun nextTriggerAt(collection: AdhkarCollectionEntity, fromMillis: Long = System.currentTimeMillis()): Long {
         val cal = Calendar.getInstance().apply { timeInMillis = fromMillis }
@@ -52,21 +83,29 @@ object CollectionScheduleHelper {
 
     fun findNextEnabled(
         collections: List<AdhkarCollectionEntity>,
-        fromMillis: Long = System.currentTimeMillis()
+        fromMillis: Long = System.currentTimeMillis(),
+        extraTriggers: List<Pair<AdhkarCollectionEntity, Long>> = emptyList()
     ): Pair<AdhkarCollectionEntity, Long>? {
-        return collections
+        val scheduled = collections
             .filter { it.autoPlayAllowed && it.autoPlayEnabled }
             .map { it to nextTriggerAt(it, fromMillis) }
-            .minByOrNull { it.second }
+        val extras = extraTriggers.filter { it.second > fromMillis }
+        return (scheduled + extras).minByOrNull { it.second }
     }
 
-    fun formatScheduleAr(collection: AdhkarCollectionEntity): String {
-        val days = dayLabelsAr()
-            .mapIndexed { index, label -> if (collection.weekDaysMask and (1 shl index) != 0) label else null }
-            .filterNotNull()
-        val daysText = if (days.size == 7) "كل يوم" else days.joinToString("، ")
-        val hour = collection.scheduleHour.toString().padStart(2, '0')
-        val minute = collection.scheduleMinute.toString().padStart(2, '0')
-        return "$daysText — $hour:$minute"
+    /** هل موعد تشغيل هذا القسم الآن (نفس الساعة والدقيقة ويوم الأسبوع)؟ */
+    fun isDueAt(
+        collection: AdhkarCollectionEntity,
+        calendar: Calendar = Calendar.getInstance()
+    ): Boolean {
+        if (!collection.autoPlayAllowed || !collection.autoPlayEnabled) return false
+        if (!isDayEnabled(collection.weekDaysMask, calendar.get(Calendar.DAY_OF_WEEK))) return false
+        return calendar.get(Calendar.HOUR_OF_DAY) == collection.scheduleHour &&
+            calendar.get(Calendar.MINUTE) == collection.scheduleMinute
     }
+
+    fun isAnyDueAt(
+        collections: Iterable<AdhkarCollectionEntity>,
+        calendar: Calendar = Calendar.getInstance()
+    ): Boolean = collections.any { isDueAt(it, calendar) }
 }

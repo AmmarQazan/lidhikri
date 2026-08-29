@@ -41,7 +41,7 @@ object DhikrScheduleMatcher {
         val day = hijri.get(ChronoField.DAY_OF_MONTH)
         if (month != dhikr.hijriMonth) return false
         val dayStart = if (dhikr.hijriDayStart > 0) dhikr.hijriDayStart else 1
-        val dayEnd = if (dhikr.hijriDayEnd > 0) dhikr.hijriDayEnd else 30
+        val dayEnd = if (dhikr.hijriDayEnd > 0) dhikr.hijriDayEnd else dayStart
         return day in dayStart..dayEnd
     }
 
@@ -64,8 +64,8 @@ object DhikrScheduleMatcher {
         if (dhikr.hijriMonth < 1) return ""
         val monthName = HIJRI_MONTHS_AR.getOrElse(dhikr.hijriMonth) { "شهر ${dhikr.hijriMonth}" }
         val start = if (dhikr.hijriDayStart > 0) dhikr.hijriDayStart else 1
-        val end = if (dhikr.hijriDayEnd > 0) dhikr.hijriDayEnd else 30
-        return "$start–$end $monthName"
+        val end = if (dhikr.hijriDayEnd > 0) dhikr.hijriDayEnd else start
+        return if (start == end) "$start $monthName" else "$start–$end $monthName"
     }
 
     private fun pad(n: Int) = n.toString().padStart(2, '0')

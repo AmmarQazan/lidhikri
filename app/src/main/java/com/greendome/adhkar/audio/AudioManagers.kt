@@ -1,8 +1,6 @@
 package com.greendome.adhkar.audio
 
 import android.content.Context
-import android.media.AudioAttributes
-import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.media.MediaRecorder
 import android.net.Uri
@@ -17,6 +15,9 @@ import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import com.greendome.adhkar.data.SettingsRepository
 import com.greendome.adhkar.data.model.VolumeMode
+import com.greendome.adhkar.data.model.VoiceSettingsTarget
+import com.greendome.adhkar.util.DeviceAudioGate
+import com.greendome.adhkar.util.FlipToStopMonitor
 import java.io.File
 
 class CallStateMonitor(private val appContext: Context) {
@@ -73,12 +74,20 @@ class CallStateMonitor(private val appContext: Context) {
 
 class DhikrAudioPlayer(private val context: Context) {
     private var player: ExoPlayer? = null
-    private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-    private var focusRequest: AudioFocusRequest? = null
+    private val flipMonitor = FlipToStopMonitor(context) { stop() }
 
-    fun play(pathOrUri: String, settings: SettingsRepository, onComplete: () -> Unit = {}) {
+    fun play(
+        pathOrUri: String,
+        settings: SettingsRepository,
+        voiceProfile: VoiceSettingsTarget = VoiceSettingsTarget.TASBIH,
+        onComplete: () -> Unit = {}
+    ) {
         stop()
-        val mode = settings.volumeMode
+        if (DeviceAudioGate.shouldSuppressPlayback(context, settings)) {
+            onComplete()
+            return
+        }
+        val mode = DhikrVolumeResolver.volumeMode(settings, voiceProfile)
         val attrs = DhikrVolumeResolver.playerAudioAttributes(mode)
         val player = ExoPlayer.Builder(context).build().also { player = it }
         val uri = when {
@@ -88,68 +97,130 @@ class DhikrAudioPlayer(private val context: Context) {
                 pathOrUri.startsWith("https://") -> Uri.parse(pathOrUri)
             else -> Uri.fromFile(File(pathOrUri))
         }
-        player.setAudioAttributes(attrs, false)
+        player.setAudioAttributes(attrs, DhikrVolumeResolver.shouldHandleAudioFocus(mode))
         player.setMediaItem(MediaItem.fromUri(uri))
-        player.volume = DhikrVolumeResolver.playerVolume(settings)
+        player.volume = DhikrVolumeResolver.playerVolume(settings, voiceProfile)
         player.addListener(object : Player.Listener {
             override fun onPlaybackStateChanged(state: Int) {
                 if (state == Player.STATE_ENDED) {
-                    abandonFocus()
+                    stopFlipMonitor()
                     onComplete()
                 }
             }
         })
-        if (requestFocus(mode)) {
-            player.prepare()
-            player.play()
-        }
+        startFlipMonitorIfEnabled(settings)
+        player.prepare()
+        player.play()
     }
 
-    fun playAsset(assetPath: String, settings: SettingsRepository, onComplete: () -> Unit = {}) {
+    fun playAsset(
+        assetPath: String,
+        settings: SettingsRepository,
+        voiceProfile: VoiceSettingsTarget = VoiceSettingsTarget.TASBIH,
+        onComplete: () -> Unit = {}
+    ) {
         stop()
-        val mode = settings.volumeMode
+        if (DeviceAudioGate.shouldSuppressPlayback(context, settings)) {
+            onComplete()
+            return
+        }
+        val mode = DhikrVolumeResolver.volumeMode(settings, voiceProfile)
         val attrs = DhikrVolumeResolver.playerAudioAttributes(mode)
         val player = ExoPlayer.Builder(context).build().also { player = it }
-        player.setAudioAttributes(attrs, false)
+        player.setAudioAttributes(attrs, DhikrVolumeResolver.shouldHandleAudioFocus(mode))
         player.setMediaItem(MediaItem.fromUri("asset:///$assetPath"))
-        player.volume = DhikrVolumeResolver.playerVolume(settings)
+        player.volume = DhikrVolumeResolver.playerVolume(settings, voiceProfile)
         player.addListener(object : Player.Listener {
             override fun onPlaybackStateChanged(state: Int) {
                 if (state == Player.STATE_ENDED) {
-                    abandonFocus()
+                    stopFlipMonitor()
                     onComplete()
                 }
             }
         })
-        if (requestFocus(mode)) {
-            player.prepare()
-            player.play()
+        startFlipMonitorIfEnabled(settings)
+        player.prepare()
+        player.play()
+    }
+
+    fun playSequence(
+        items: List<PlayableAudio>,
+        settings: SettingsRepository,
+        voiceProfile: VoiceSettingsTarget = VoiceSettingsTarget.TASBIH,
+        onItemStart: (index: Int) -> Unit = {},
+        onComplete: () -> Unit = {},
+    ) {
+        stop()
+        if (items.isEmpty()) {
+            onComplete()
+            return
         }
+        if (DeviceAudioGate.shouldSuppressPlayback(context, settings)) {
+            onComplete()
+            return
+        }
+        val mode = DhikrVolumeResolver.volumeMode(settings, voiceProfile)
+        val attrs = DhikrVolumeResolver.playerAudioAttributes(mode)
+        val player = ExoPlayer.Builder(context).build().also { player = it }
+        player.setAudioAttributes(attrs, DhikrVolumeResolver.shouldHandleAudioFocus(mode))
+        player.volume = DhikrVolumeResolver.playerVolume(settings, voiceProfile)
+        player.setMediaItems(
+            items.mapIndexed { index, item ->
+                item.toMediaItem().buildUpon().setMediaId("tasbih-$index").build()
+            }
+        )
+        var lastStartedIndex = -1
+        var finished = false
+        fun markItemStarted(index: Int) {
+            if (index == lastStartedIndex || index !in items.indices) return
+            lastStartedIndex = index
+            onItemStart(index)
+        }
+        player.addListener(object : Player.Listener {
+            override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+                markItemStarted(player.currentMediaItemIndex)
+            }
+
+            override fun onPlaybackStateChanged(state: Int) {
+                if (state == Player.STATE_ENDED && !finished) {
+                    finished = true
+                    stopFlipMonitor()
+                    onComplete()
+                }
+            }
+        })
+        markItemStarted(0)
+        startFlipMonitorIfEnabled(settings)
+        player.prepare()
+        player.play()
     }
 
     fun stop() {
+        stopFlipMonitor()
         player?.release()
         player = null
-        abandonFocus()
     }
 
-    private fun requestFocus(mode: VolumeMode): Boolean {
-        val attrs = DhikrVolumeResolver.focusAudioAttributes(mode)
-        focusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
-            .setAudioAttributes(attrs)
-            .setOnAudioFocusChangeListener { change ->
-                if (change == AudioManager.AUDIOFOCUS_LOSS || change == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
-                    stop()
-                }
+    private fun PlayableAudio.toMediaItem(): MediaItem = when (this) {
+        is PlayableAudio.Asset -> MediaItem.fromUri("asset:///$path")
+        is PlayableAudio.File -> {
+            val uri = when {
+                path.startsWith("content:") ||
+                    path.startsWith("file:") ||
+                    path.startsWith("http://") ||
+                    path.startsWith("https://") -> Uri.parse(path)
+                else -> Uri.fromFile(File(path))
             }
-            .build()
-        val result = audioManager.requestAudioFocus(focusRequest!!)
-        return result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+            MediaItem.fromUri(uri)
+        }
     }
 
-    private fun abandonFocus() {
-        focusRequest?.let { audioManager.abandonAudioFocusRequest(it) }
-        focusRequest = null
+    private fun startFlipMonitorIfEnabled(settings: SettingsRepository) {
+        if (settings.flipToStopPlayback) flipMonitor.start()
+    }
+
+    private fun stopFlipMonitor() {
+        flipMonitor.stop()
     }
 }
 
@@ -211,8 +282,12 @@ class AudioDownloadManager(private val context: Context) {
     fun copyFromUri(uri: Uri, fileName: String): String? {
         return try {
             val file = File(audioDir, fileName)
-            context.contentResolver.openInputStream(uri)?.use { input ->
+            val copied = context.contentResolver.openInputStream(uri)?.use { input ->
                 file.outputStream().use { output -> input.copyTo(output) }
+            } ?: return null
+            if (copied <= 0L || !file.isFile || file.length() <= 0L) {
+                file.delete()
+                return null
             }
             file.absolutePath
         } catch (_: Exception) {

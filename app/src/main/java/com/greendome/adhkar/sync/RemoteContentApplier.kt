@@ -6,11 +6,13 @@ import com.greendome.adhkar.data.local.AdhkarCollectionEntity
 import com.greendome.adhkar.data.local.AdhkarDatabase
 import com.greendome.adhkar.data.local.AzkarItemEntity
 import com.greendome.adhkar.data.local.DhikrEntity
+import com.greendome.adhkar.data.local.dhikrEnabledForAutoTasbihImport
 import com.greendome.adhkar.data.local.ReciterAudioEntity
 import com.greendome.adhkar.data.local.ReciterAzkarAudioEntity
 import com.greendome.adhkar.data.local.ReciterEntity
 import com.greendome.adhkar.data.model.AudioSourceType
 import com.greendome.adhkar.data.model.DhikrCategory
+import com.greendome.adhkar.data.model.ReciterVoiceScope
 import com.greendome.adhkar.data.model.ScheduleType
 import org.json.JSONArray
 import org.json.JSONObject
@@ -40,8 +42,13 @@ class RemoteContentApplier(private val db: AdhkarDatabase) {
                     nameEn = o.optString("nameEn", ""),
                     nameFr = o.optString("nameFr", ""),
                     nameEs = o.optString("nameEs", ""),
-                    isBuiltin = o.optBoolean("isBuiltin", true),
-                    isActive = o.optBoolean("isActive", true)
+                    nameTr = o.optString("nameTr", ""),
+                    nameUr = o.optString("nameUr", ""),
+                    nameId = o.optString("nameId", ""),
+                    nameHi = o.optString("nameHi", ""),
+                    isBuiltin = o.optBoolean("isBuiltin", false),
+                    isActive = o.optBoolean("isActive", true),
+                    voiceScope = enumValue(o.optString("voiceScope", ReciterVoiceScope.BOTH.name)),
                 )
             )
         }
@@ -58,6 +65,10 @@ class RemoteContentApplier(private val db: AdhkarDatabase) {
                 sourceType == AudioSourceType.BUILTIN && audioPath != null -> AudioSourceType.DOWNLOAD
                 else -> sourceType
             }
+            val category = enumValue<DhikrCategory>(o.optString("category", DhikrCategory.GENERAL.name))
+            val isLongForm = o.optBoolean("isLongForm", false)
+            val isDefault = o.optBoolean("isDefault", true)
+            val sortOrder = o.optInt("sortOrder", 0)
             db.dhikrDao().insert(
                 DhikrEntity(
                     id = o.getLong("id"),
@@ -65,11 +76,21 @@ class RemoteContentApplier(private val db: AdhkarDatabase) {
                     textEn = o.optString("textEn", ""),
                     textFr = o.optString("textFr", ""),
                     textEs = o.optString("textEs", ""),
-                    category = enumValue(o.optString("category", DhikrCategory.GENERAL.name)),
+                    textTr = o.optString("textTr", ""),
+                    textUr = o.optString("textUr", ""),
+                    textId = o.optString("textId", ""),
+                    textHi = o.optString("textHi", ""),
+                    category = category,
                     repeatCount = o.optInt("repeatCount", 1),
-                    isEnabled = o.optBoolean("isEnabled", true),
-                    isDefault = o.optBoolean("isDefault", true),
-                    isLongForm = o.optBoolean("isLongForm", false),
+                    isEnabled = dhikrEnabledForAutoTasbihImport(
+                        category = category,
+                        isLongForm = isLongForm,
+                        isDefault = isDefault,
+                        sortOrder = sortOrder,
+                        remoteEnabled = o.optBoolean("isEnabled", true),
+                    ),
+                    isDefault = isDefault,
+                    isLongForm = isLongForm,
                     audioSourceType = resolvedType,
                     audioPath = remoteAudio ?: audioPath,
                     reciterId = o.optLong("reciterId", -1L).takeIf { it >= 0L },
@@ -80,7 +101,7 @@ class RemoteContentApplier(private val db: AdhkarDatabase) {
                     displayLockScreen = o.optBoolean("displayLockScreen", true),
                     displayAudioOnly = o.optBoolean("displayAudioOnly", false),
                     displayAudioText = o.optBoolean("displayAudioText", true),
-                    sortOrder = o.optInt("sortOrder", 0),
+                    sortOrder = sortOrder,
                     scheduleType = enumValue(o.optString("scheduleType", ScheduleType.ALWAYS.name)),
                     timeStartHour = o.optInt("timeStartHour", -1),
                     timeStartMinute = o.optInt("timeStartMinute", 0),
@@ -104,6 +125,12 @@ class RemoteContentApplier(private val db: AdhkarDatabase) {
                     id = o.getString("id"),
                     titleAr = o.getString("titleAr"),
                     titleEn = o.optString("titleEn", ""),
+                    titleFr = o.optString("titleFr", ""),
+                    titleEs = o.optString("titleEs", ""),
+                    titleTr = o.optString("titleTr", ""),
+                    titleUr = o.optString("titleUr", ""),
+                    titleId = o.optString("titleId", ""),
+                    titleHi = o.optString("titleHi", ""),
                     sortOrder = o.optInt("sortOrder", 0),
                     autoPlayAllowed = o.optBoolean("autoPlayAllowed", false),
                     autoPlayEnabled = o.optBoolean("autoPlayEnabled", false),

@@ -1,0 +1,59 @@
+## Indonesian (id)
+
+### App name
+Sabbih
+
+### Short description (80 chars)
+Dzikir otomatis, Hisnul Muslim, tasbih & widget — tetap jalan offline
+
+### Full description
+Sabbih — teman harian untuk dzikir dan tasbih.
+
+Lupa mengingat Allah saat memakai ponsel? Sabbih mengingatkan Anda otomatis dengan tasbih dan dzikir bersuara singkat — tanpa memotong panggilan atau percakapan.
+
+✦ Tasbih otomatis
+• Pengingat berkala (Subhanallah, Alhamdulillah, Allahu Akbar, dan lainnya)
+• Interval kustom, acak atau berurutan
+• Berhenti saat panggilan telepon dan daring
+• Opsi jeda saat media, senyap/Jangan Ganggu, atau dengan membalik ponsel
+
+✦ Dzikir otomatis
+• Bagian Hisnul Muslim (pagi, petang, tidur, dan lainnya)
+• Jadwal harian per bagian — jam dan hari yang Anda pilih
+• Satu dzikir dari setiap bagian yang aktif, acak atau berurutan
+• Takbir musiman (Idul) lewat kalender Hijriah
+
+✦ Tampilan fleksibel
+• Jendela di atas aplikasi lain, notifikasi senyap, atau layar kunci
+• Hanya audio atau audio + teks
+• Ukuran, posisi, dan durasi jendela dapat diatur
+
+✦ Tasbih digital
+• Manik tradisional atau penghitung elektronik
+• Target hitungan, suara, dan getar
+• Widget layar utama (tradisional 3×2 atau elektronik 2×2)
+
+✦ Dzikir hari ini
+• Dzikir harian acak dari koleksi Anda
+• Widget beranda atau pengingat senyap di layar kunci
+• Warna, ukuran huruf, dan latar transparan
+
+✦ Membaca dzikir
+• Telusuri Hisnul Muslim
+• Suara qari atau TTS
+• Pilih item tertentu untuk didengar
+
+✦ Suara
+• Audio bawaan, rekaman Anda, atau berkas dari ponsel
+• Qari dan volume terpisah untuk tasbih dan dzikir
+• Unduh untuk dipakai offline
+
+✦ Dzikir khusus hanya tersimpan di perangkat — tanpa akun, tanpa iklan.
+
+Berjalan offline setelah audio diunduh. Tersedia dalam Arab, Inggris, Prancis, Spanyol, Turki, Urdu, Indonesia, dan Hindi. Tata letak nyaman di tablet.
+
+———
+Setelah memasang: aktifkan notifikasi, izin tampil di atas aplikasi lain, dan pengecualian baterai agar pengingat tetap andal.
+
+### Keywords
+tasbih, dzikir, zikir, misbaha, hisnul muslim, widget, islam, pengingat, dzikir pagi

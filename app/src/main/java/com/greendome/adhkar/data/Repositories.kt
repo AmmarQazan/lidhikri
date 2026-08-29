@@ -4,21 +4,41 @@ import android.content.Context
 import com.greendome.adhkar.data.local.AdhkarDatabase
 import com.greendome.adhkar.data.local.DhikrEntity
 import com.greendome.adhkar.data.local.ReciterAudioEntity
+import com.greendome.adhkar.data.local.ReciterAzkarAudioEntity
 import com.greendome.adhkar.data.local.ReciterEntity
 import com.greendome.adhkar.data.model.AppThemeMode
 import com.greendome.adhkar.data.model.ArabicFontStyle
+import com.greendome.adhkar.data.model.AzkarCardText
 import com.greendome.adhkar.data.model.AzkarDisplayMode
+import com.greendome.adhkar.data.model.AzkarListText
 import com.greendome.adhkar.data.model.DhikrOfDayDisplayMode
+import com.greendome.adhkar.data.model.DhikrOfDayTextColor
+import com.greendome.adhkar.data.model.DhikrOfDayWidgetText
 import com.greendome.adhkar.data.model.MisbahaFeedbackMode
+import com.greendome.adhkar.data.model.MisbahaBeadTheme
 import com.greendome.adhkar.data.model.MisbahaStyle
+import com.greendome.adhkar.data.model.MisbahaWidgetBackground
+import com.greendome.adhkar.data.model.ClockHourFormat
 import com.greendome.adhkar.data.model.NumberDigitStyle
 import com.greendome.adhkar.data.model.AudioSourceType
 import com.greendome.adhkar.data.model.DhikrCategory
 import com.greendome.adhkar.data.model.ScheduleType
+import com.greendome.adhkar.prayer.AsrMadhabPref
+import com.greendome.adhkar.prayer.CalculationMethodPref
+import com.greendome.adhkar.prayer.DstMode
+import com.greendome.adhkar.prayer.LocationMode
+import com.greendome.adhkar.prayer.PrayerConfig
+import com.greendome.adhkar.prayer.PrayerLocation
+import com.greendome.adhkar.prayer.PrayerName
+import com.greendome.adhkar.prayer.TimezoneMode
+import com.greendome.adhkar.util.AppLanguages
 import com.greendome.adhkar.util.DhikrScheduleMatcher
+import com.greendome.adhkar.util.TasbihWindow
 import com.greendome.adhkar.data.model.PopupAppearance
 import com.greendome.adhkar.data.model.PopupSettingsTarget
+import com.greendome.adhkar.data.model.VoiceSettingsTarget
 import com.greendome.adhkar.data.model.ReminderDisplayStyle
+import com.greendome.adhkar.data.model.AutoReminderPresentation
 import com.greendome.adhkar.data.model.TtsVoiceGender
 import com.greendome.adhkar.data.model.VolumeMode
 import kotlinx.coroutines.flow.Flow
@@ -28,11 +48,41 @@ class SettingsRepository(context: Context) {
 
     companion object {
         const val DEFAULT_ADMIN_PIN = "23704660"
+        val WIDGET_TARGET_OPTIONS = listOf(33, 99, 100)
+        private const val KEY_RECITER_LIBRARY_OPT_IN = "reciter_library_opt_in"
     }
 
     var intervalMinutes: Int
         get() = prefs.getInt("interval_minutes", 15)
         set(v) = prefs.edit().putInt("interval_minutes", v).apply()
+
+    var tasbihStartHour: Int
+        get() = prefs.getInt("tasbih_start_h", TasbihWindow.FALLBACK_START_HOUR).coerceIn(0, 23)
+        set(v) = prefs.edit().putInt("tasbih_start_h", v.coerceIn(0, 23)).apply()
+
+    var tasbihStartMinute: Int
+        get() = prefs.getInt("tasbih_start_m", TasbihWindow.FALLBACK_START_MINUTE).coerceIn(0, 59)
+        set(v) = prefs.edit().putInt("tasbih_start_m", v.coerceIn(0, 59)).apply()
+
+    var tasbihEndHour: Int
+        get() = prefs.getInt("tasbih_end_h", TasbihWindow.FALLBACK_END_HOUR).coerceIn(0, 23)
+        set(v) = prefs.edit().putInt("tasbih_end_h", v.coerceIn(0, 23)).apply()
+
+    var tasbihEndMinute: Int
+        get() = prefs.getInt("tasbih_end_m", TasbihWindow.FALLBACK_END_MINUTE).coerceIn(0, 59)
+        set(v) = prefs.edit().putInt("tasbih_end_m", v.coerceIn(0, 59)).apply()
+
+    val hasTasbihWindowSet: Boolean
+        get() = prefs.contains("tasbih_start_h")
+
+    fun setTasbihWindow(startHour: Int, startMinute: Int, endHour: Int, endMinute: Int) {
+        prefs.edit()
+            .putInt("tasbih_start_h", startHour.coerceIn(0, 23))
+            .putInt("tasbih_start_m", startMinute.coerceIn(0, 59))
+            .putInt("tasbih_end_h", endHour.coerceIn(0, 23))
+            .putInt("tasbih_end_m", endMinute.coerceIn(0, 59))
+            .apply()
+    }
 
     var isServiceEnabled: Boolean
         get() = prefs.getBoolean("service_enabled", true)
@@ -64,6 +114,29 @@ class SettingsRepository(context: Context) {
         }
         set(v) = prefs.edit().putString("misbaha_style", v.name).apply()
 
+    var misbahaBeadScale: Float
+        get() = prefs.getFloat("misbaha_bead_scale", 1f).coerceIn(0.7f, 1.6f)
+        set(v) = prefs.edit().putFloat("misbaha_bead_scale", v.coerceIn(0.7f, 1.6f)).apply()
+
+    var misbahaBeadTheme: MisbahaBeadTheme
+        get() {
+            val raw = prefs.getString("misbaha_bead_theme", MisbahaBeadTheme.CLASSIC.name)
+                ?: MisbahaBeadTheme.CLASSIC.name
+            return runCatching { MisbahaBeadTheme.valueOf(raw) }
+                .getOrDefault(MisbahaBeadTheme.CLASSIC)
+        }
+        set(v) = prefs.edit().putString("misbaha_bead_theme", v.name).apply()
+
+    var misbahaElectronicTheme: MisbahaBeadTheme
+        get() {
+            val raw = prefs.getString("misbaha_electronic_theme", null)
+                ?: prefs.getString("misbaha_bead_theme", MisbahaBeadTheme.CLASSIC.name)
+                ?: MisbahaBeadTheme.CLASSIC.name
+            return runCatching { MisbahaBeadTheme.valueOf(raw) }
+                .getOrDefault(MisbahaBeadTheme.CLASSIC)
+        }
+        set(v) = prefs.edit().putString("misbaha_electronic_theme", v.name).apply()
+
     var numberDigitStyle: NumberDigitStyle
         get() {
             val raw = prefs.getString("number_digit_style", NumberDigitStyle.ARABIC_INDIC.name)
@@ -92,6 +165,186 @@ class SettingsRepository(context: Context) {
         get() = prefs.getBoolean("pause_media", true)
         set(v) = prefs.edit().putBoolean("pause_media", v).apply()
 
+    /** لا تشغّل الصوت في الصامت أو عدم الإزعاج */
+    var respectQuietMode: Boolean
+        get() = prefs.getBoolean("respect_quiet_mode", true)
+        set(v) = prefs.edit().putBoolean("respect_quiet_mode", v).apply()
+
+    var respectPrayerTime: Boolean
+        get() = prefs.getBoolean("respect_prayer_time", false)
+        set(v) = prefs.edit().putBoolean("respect_prayer_time", v).apply()
+
+    var afterPrayerFromSalahEnabled: Boolean
+        get() = prefs.getBoolean("after_prayer_from_salah", true)
+        set(v) = prefs.edit().putBoolean("after_prayer_from_salah", v).apply()
+
+    var prayerLocationMode: LocationMode
+        get() = enumPref("prayer_location_mode", LocationMode.MANUAL)
+        set(v) = prefs.edit().putString("prayer_location_mode", v.name).apply()
+
+    var prayerTravelAutoUpdate: Boolean
+        get() = prefs.getBoolean("prayer_travel_auto", false)
+        set(v) = prefs.edit().putBoolean("prayer_travel_auto", v).apply()
+
+    var prayerLastTravelCheckAt: Long
+        get() = prefs.getLong("prayer_travel_check_at", 0L)
+        set(v) = prefs.edit().putLong("prayer_travel_check_at", v).apply()
+
+    var prayerLatitude: Double
+        get() = java.lang.Double.longBitsToDouble(prefs.getLong("prayer_lat", 0L))
+        set(v) = prefs.edit().putLong("prayer_lat", java.lang.Double.doubleToRawLongBits(v)).apply()
+
+    var prayerLongitude: Double
+        get() = java.lang.Double.longBitsToDouble(prefs.getLong("prayer_lng", 0L))
+        set(v) = prefs.edit().putLong("prayer_lng", java.lang.Double.doubleToRawLongBits(v)).apply()
+
+    var prayerCityName: String
+        get() = prefs.getString("prayer_city", "").orEmpty()
+        set(v) = prefs.edit().putString("prayer_city", v).apply()
+
+    var prayerCountryName: String
+        get() = prefs.getString("prayer_country", "").orEmpty()
+        set(v) = prefs.edit().putString("prayer_country", v).apply()
+
+    var prayerCountryCode: String
+        get() = prefs.getString("prayer_country_code", "").orEmpty()
+        set(v) = prefs.edit().putString("prayer_country_code", v).apply()
+
+    var prayerTimezoneMode: TimezoneMode
+        get() = enumPref("prayer_tz_mode", TimezoneMode.AUTO)
+        set(v) = prefs.edit().putString("prayer_tz_mode", v.name).apply()
+
+    var prayerTimezoneId: String
+        get() = prefs.getString("prayer_tz_id", "").orEmpty()
+        set(v) = prefs.edit().putString("prayer_tz_id", v).apply()
+
+    var prayerDstMode: DstMode
+        get() = enumPref("prayer_dst_mode", DstMode.AUTO)
+        set(v) = prefs.edit().putString("prayer_dst_mode", v.name).apply()
+
+    var prayerCalculationMethod: CalculationMethodPref
+        get() = enumPref("prayer_method", CalculationMethodPref.AUTO)
+        set(v) = prefs.edit().putString("prayer_method", v.name).apply()
+
+    var prayerAsrMadhab: AsrMadhabPref
+        get() = enumPref("prayer_madhab", AsrMadhabPref.AUTO)
+        set(v) = prefs.edit().putString("prayer_madhab", v.name).apply()
+
+    var prayerJumuahQuietMinutes: Int
+        get() = prefs.getInt("prayer_jumuah_quiet", PrayerConfig.DEFAULT_JUMUAH_QUIET)
+            .coerceIn(PrayerConfig.QUIET_MIN, PrayerConfig.QUIET_MAX)
+        set(v) = prefs.edit().putInt(
+            "prayer_jumuah_quiet",
+            v.coerceIn(PrayerConfig.QUIET_MIN, PrayerConfig.QUIET_MAX)
+        ).apply()
+
+    fun prayerMinuteOffset(prayer: PrayerName): Int =
+        prefs.getInt("prayer_off_${prayer.name}", 0)
+            .coerceIn(PrayerConfig.OFFSET_MIN, PrayerConfig.OFFSET_MAX)
+
+    fun setPrayerMinuteOffset(prayer: PrayerName, minutes: Int) {
+        prefs.edit().putInt(
+            "prayer_off_${prayer.name}",
+            minutes.coerceIn(PrayerConfig.OFFSET_MIN, PrayerConfig.OFFSET_MAX)
+        ).apply()
+    }
+
+    fun prayerQuietMinutes(prayer: PrayerName): Int =
+        prefs.getInt("prayer_quiet_${prayer.name}", PrayerConfig.defaultQuietMinutes(prayer))
+            .coerceIn(PrayerConfig.QUIET_MIN, PrayerConfig.QUIET_MAX)
+
+    fun setPrayerQuietMinutes(prayer: PrayerName, minutes: Int) {
+        prefs.edit().putInt(
+            "prayer_quiet_${prayer.name}",
+            minutes.coerceIn(PrayerConfig.QUIET_MIN, PrayerConfig.QUIET_MAX)
+        ).apply()
+    }
+
+    fun prayerAfterDelayMinutes(prayer: PrayerName): Int {
+        val key = "prayer_after_delay_${prayer.name}"
+        val fallback = prayerQuietMinutes(prayer)
+        val raw = if (prefs.contains(key)) prefs.getInt(key, fallback) else fallback
+        return raw.coerceIn(PrayerConfig.QUIET_MIN, PrayerConfig.QUIET_MAX)
+    }
+
+    fun setPrayerAfterDelayMinutes(prayer: PrayerName, minutes: Int) {
+        prefs.edit().putInt(
+            "prayer_after_delay_${prayer.name}",
+            minutes.coerceIn(PrayerConfig.QUIET_MIN, PrayerConfig.QUIET_MAX)
+        ).apply()
+    }
+
+    var prayerJumuahAfterDelayMinutes: Int
+        get() {
+            val fallback = prayerJumuahQuietMinutes
+            val raw = if (prefs.contains("prayer_jumuah_after_delay")) {
+                prefs.getInt("prayer_jumuah_after_delay", fallback)
+            } else {
+                fallback
+            }
+            return raw.coerceIn(PrayerConfig.QUIET_MIN, PrayerConfig.QUIET_MAX)
+        }
+        set(v) = prefs.edit().putInt(
+            "prayer_jumuah_after_delay",
+            v.coerceIn(PrayerConfig.QUIET_MIN, PrayerConfig.QUIET_MAX)
+        ).apply()
+
+    val hasPrayerLocation: Boolean
+        get() = prayerCityName.isNotBlank() &&
+            !(prayerLatitude == 0.0 && prayerLongitude == 0.0)
+
+    fun setPrayerLocation(location: PrayerLocation, mode: LocationMode = prayerLocationMode) {
+        prefs.edit()
+            .putLong("prayer_lat", java.lang.Double.doubleToRawLongBits(location.latitude))
+            .putLong("prayer_lng", java.lang.Double.doubleToRawLongBits(location.longitude))
+            .putString("prayer_city", location.cityName)
+            .putString("prayer_country", location.countryName)
+            .putString("prayer_country_code", location.countryCode)
+            .putString("prayer_location_mode", mode.name)
+            .commit()
+    }
+
+    fun prayerConfig(): PrayerConfig {
+        val location = if (hasPrayerLocation) {
+            PrayerLocation(
+                latitude = prayerLatitude,
+                longitude = prayerLongitude,
+                cityName = prayerCityName,
+                countryName = prayerCountryName,
+                countryCode = prayerCountryCode
+            )
+        } else {
+            null
+        }
+        return PrayerConfig(
+            enabled = respectPrayerTime && location != null,
+            afterPrayerReminder = afterPrayerFromSalahEnabled,
+            location = location,
+            locationMode = prayerLocationMode,
+            travelAutoUpdate = prayerTravelAutoUpdate,
+            timezoneMode = prayerTimezoneMode,
+            timezoneId = prayerTimezoneId,
+            dstMode = prayerDstMode,
+            method = prayerCalculationMethod,
+            madhab = prayerAsrMadhab,
+            minuteOffsets = PrayerName.entries.associateWith { prayerMinuteOffset(it) },
+            quietMinutes = PrayerName.entries.associateWith { prayerQuietMinutes(it) },
+            jumuahQuietMinutes = prayerJumuahQuietMinutes,
+            afterPrayerMinutes = PrayerName.entries.associateWith { prayerAfterDelayMinutes(it) },
+            jumuahAfterPrayerMinutes = prayerJumuahAfterDelayMinutes
+        )
+    }
+
+    private inline fun <reified T : Enum<T>> enumPref(key: String, default: T): T {
+        val raw = prefs.getString(key, default.name) ?: default.name
+        return runCatching { java.lang.Enum.valueOf(T::class.java, raw) }.getOrDefault(default)
+    }
+
+    /** إيقاف الاستماع عند قلب الهاتف */
+    var flipToStopPlayback: Boolean
+        get() = prefs.getBoolean("flip_to_stop", true)
+        set(v) = prefs.edit().putBoolean("flip_to_stop", v).apply()
+
     var sleepStartHour: Int
         get() = prefs.getInt("sleep_start_h", 23)
         set(v) = prefs.edit().putInt("sleep_start_h", v).apply()
@@ -109,12 +362,106 @@ class SettingsRepository(context: Context) {
         set(v) = prefs.edit().putInt("sleep_end_m", v).apply()
 
     var selectedReciterId: Long
-        get() = prefs.getLong("selected_reciter", 1L)
+        get() = prefs.getLong("selected_reciter", SubaihatReciterSeed.RECITER_ID)
         set(v) = prefs.edit().putLong("selected_reciter", v).apply()
 
+    var azkarSelectedReciterId: Long
+        get() = prefs.getLong(
+            "azkar_selected_reciter",
+            prefs.getLong("selected_reciter", SubaihatReciterSeed.RECITER_ID)
+        )
+        set(v) = prefs.edit().putLong("azkar_selected_reciter", v).apply()
+
+    fun optedInReciterLibraryIds(): Set<Long> {
+        val raw = prefs.getString(KEY_RECITER_LIBRARY_OPT_IN, "").orEmpty()
+        if (raw.isBlank()) return emptySet()
+        return raw.split(',').mapNotNull { it.toLongOrNull() }.toSet()
+    }
+
+    fun isReciterLibraryOptedIn(reciterId: Long): Boolean =
+        reciterId in optedInReciterLibraryIds()
+
+    fun optInReciterLibrary(reciterId: Long) {
+        val next = optedInReciterLibraryIds() + reciterId
+        prefs.edit().putString(KEY_RECITER_LIBRARY_OPT_IN, next.joinToString(",")).apply()
+    }
+
+    var azkarVolume: Float
+        get() = prefs.getFloat("azkar_volume", prefs.getFloat("volume", 0.8f))
+        set(v) = prefs.edit().putFloat("azkar_volume", v).apply()
+
+    var azkarVolumeMode: VolumeMode
+        get() {
+            val raw = prefs.getString("azkar_volume_mode", null)
+                ?: prefs.getString("volume_mode", VolumeMode.MANUAL.name)
+                ?: VolumeMode.MANUAL.name
+            return runCatching { VolumeMode.valueOf(raw) }.getOrDefault(VolumeMode.MANUAL)
+        }
+        set(v) = prefs.edit().putString("azkar_volume_mode", v.name).apply()
+
+    /** شاشة القفل للتسبيح التلقائي */
+    var tasbihAutoLockScreenEnabled: Boolean
+        get() = prefs.getBoolean(
+            "tasbih_auto_lock_screen",
+            prefs.getBoolean("auto_reminder_lock_screen", true)
+        )
+        set(v) = prefs.edit().putBoolean("tasbih_auto_lock_screen", v).apply()
+
+    /** شاشة القفل للأذكار التلقائية */
+    var azkarAutoLockScreenEnabled: Boolean
+        get() = prefs.getBoolean(
+            "azkar_auto_lock_screen",
+            prefs.getBoolean("auto_reminder_lock_screen", true)
+        )
+        set(v) = prefs.edit().putBoolean("azkar_auto_lock_screen", v).apply()
+
+    @Deprecated("Use tasbihAutoLockScreenEnabled or azkarAutoLockScreenEnabled")
+    var autoReminderLockScreenEnabled: Boolean
+        get() = tasbihAutoLockScreenEnabled
+        set(v) {
+            tasbihAutoLockScreenEnabled = v
+            azkarAutoLockScreenEnabled = v
+        }
+
+    fun selectedReciterIdFor(target: VoiceSettingsTarget): Long = when (target) {
+        VoiceSettingsTarget.TASBIH -> selectedReciterId
+        VoiceSettingsTarget.AZKAR -> azkarSelectedReciterId
+    }
+
+    fun volumeFor(target: VoiceSettingsTarget): Float = when (target) {
+        VoiceSettingsTarget.TASBIH -> volume
+        VoiceSettingsTarget.AZKAR -> azkarVolume
+    }
+
+    fun volumeModeFor(target: VoiceSettingsTarget): VolumeMode = when (target) {
+        VoiceSettingsTarget.TASBIH -> volumeMode
+        VoiceSettingsTarget.AZKAR -> azkarVolumeMode
+    }
+
+    fun setSelectedReciterId(target: VoiceSettingsTarget, reciterId: Long) {
+        when (target) {
+            VoiceSettingsTarget.TASBIH -> selectedReciterId = reciterId
+            VoiceSettingsTarget.AZKAR -> azkarSelectedReciterId = reciterId
+        }
+    }
+
+    fun setVolume(target: VoiceSettingsTarget, value: Float) {
+        when (target) {
+            VoiceSettingsTarget.TASBIH -> volume = value
+            VoiceSettingsTarget.AZKAR -> azkarVolume = value
+        }
+    }
+
+    fun setVolumeMode(target: VoiceSettingsTarget, mode: VolumeMode) {
+        when (target) {
+            VoiceSettingsTarget.TASBIH -> volumeMode = mode
+            VoiceSettingsTarget.AZKAR -> azkarVolumeMode = mode
+        }
+    }
+
     var appLanguage: String
-        get() = prefs.getString("app_language", "ar") ?: "ar"
-        set(v) = prefs.edit().putString("app_language", v).apply()
+        get() = AppLanguages.coerce(prefs.getString("app_language", "ar") ?: "ar")
+        set(v) = prefs.edit().putString("app_language", AppLanguages.coerce(v)).apply()
 
     var sequentialIndex: Int
         get() = prefs.getInt("sequential_index", 0)
@@ -140,6 +487,30 @@ class SettingsRepository(context: Context) {
         get() = prefs.getString("remote_sync_error", null)
         set(v) = prefs.edit().putString("remote_sync_error", v).apply()
 
+    var remoteContentSha256: String
+        get() = prefs.getString("remote_content_sha256", "").orEmpty()
+        set(v) = prefs.edit().putString("remote_content_sha256", v).apply()
+
+    var prayerDefaultsVersion: Int
+        get() = prefs.getInt("prayer_defaults_version", 0)
+        set(v) = prefs.edit().putInt("prayer_defaults_version", v).apply()
+
+    var prayerDefaultsJson: String
+        get() = prefs.getString("prayer_defaults_json", "").orEmpty()
+        set(v) = prefs.edit().putString("prayer_defaults_json", v).apply()
+
+    var prayerDefaultsDirty: Boolean
+        get() = prefs.getBoolean("prayer_defaults_dirty", false)
+        set(v) = prefs.edit().putBoolean("prayer_defaults_dirty", v).apply()
+
+    var firebaseAdminEmail: String?
+        get() = prefs.getString("firebase_admin_email", null)
+        set(v) = prefs.edit().putString("firebase_admin_email", v).apply()
+
+    var firebaseAdminPassword: String?
+        get() = prefs.getString("firebase_admin_password", null)
+        set(v) = prefs.edit().putString("firebase_admin_password", v).apply()
+
     var reminderDisplayStyle: ReminderDisplayStyle
         get() {
             val raw = prefs.getString("reminder_display_style", ReminderDisplayStyle.POPUP_ONLY.name)
@@ -148,6 +519,32 @@ class SettingsRepository(context: Context) {
                 .getOrDefault(ReminderDisplayStyle.POPUP_ONLY)
         }
         set(v) = prefs.edit().putString("reminder_display_style", v.name).apply()
+
+    var tasbihPresentation: AutoReminderPresentation
+        get() = presentationPref(
+            "tasbih_presentation",
+            when (reminderDisplayStyle) {
+                ReminderDisplayStyle.NOTIFICATION_ONLY -> AutoReminderPresentation.NOTIFICATION
+                else -> AutoReminderPresentation.POPUP_AND_AUDIO
+            }
+        )
+        set(v) = prefs.edit().putString("tasbih_presentation", v.name).apply()
+
+    var azkarPresentation: AutoReminderPresentation
+        get() = presentationPref("azkar_presentation", AutoReminderPresentation.POPUP_AND_AUDIO)
+        set(v) = prefs.edit().putString("azkar_presentation", v.name).apply()
+
+    var afterPrayerPresentation: AutoReminderPresentation
+        get() = presentationPref("after_prayer_presentation", AutoReminderPresentation.POPUP_AND_AUDIO)
+        set(v) = prefs.edit().putString("after_prayer_presentation", v.name).apply()
+
+    private fun presentationPref(
+        key: String,
+        default: AutoReminderPresentation
+    ): AutoReminderPresentation {
+        val raw = prefs.getString(key, default.name) ?: default.name
+        return runCatching { AutoReminderPresentation.valueOf(raw) }.getOrDefault(default)
+    }
 
     // —— نافذة التسبيح ——
     var tasbihPopupPositionX: Float
@@ -242,12 +639,21 @@ class SettingsRepository(context: Context) {
         set(v) { tasbihPopupAutoDismissSeconds = v }
 
     var autoAzkarEnabled: Boolean
-        get() = prefs.getBoolean("auto_azkar_enabled", true)
+        get() = prefs.getBoolean("auto_azkar_enabled", false)
         set(v) = prefs.edit().putBoolean("auto_azkar_enabled", v).apply()
 
     var autoAzkarRandomMode: Boolean
         get() = prefs.getBoolean("auto_azkar_random", true)
         set(v) = prefs.edit().putBoolean("auto_azkar_random", v).apply()
+
+    var azkarClockHourFormat: ClockHourFormat
+        get() {
+            val raw = prefs.getString("azkar_clock_hour_format", ClockHourFormat.HOUR_24.name)
+                ?: ClockHourFormat.HOUR_24.name
+            return runCatching { ClockHourFormat.valueOf(raw) }
+                .getOrDefault(ClockHourFormat.HOUR_24)
+        }
+        set(v) = prefs.edit().putString("azkar_clock_hour_format", v.name).apply()
 
     var dhikrOfDayEnabled: Boolean
         get() = prefs.getBoolean("dhikr_of_day_enabled", false)
@@ -261,6 +667,73 @@ class SettingsRepository(context: Context) {
                 .getOrDefault(DhikrOfDayDisplayMode.HOME_WIDGET)
         }
         set(v) = prefs.edit().putString("dhikr_of_day_display", v.name).apply()
+
+    var dhikrOfDayWidgetBackground: MisbahaWidgetBackground
+        get() {
+            val raw = prefs.getString("dhikr_of_day_widget_background", MisbahaWidgetBackground.CREAM.name)
+                ?: MisbahaWidgetBackground.CREAM.name
+            return runCatching { MisbahaWidgetBackground.valueOf(raw) }
+                .getOrDefault(MisbahaWidgetBackground.CREAM)
+        }
+        set(v) = prefs.edit().putString("dhikr_of_day_widget_background", v.name).apply()
+
+    var dhikrOfDayWidgetTextColor: DhikrOfDayTextColor
+        get() {
+            val raw = prefs.getString("dhikr_of_day_widget_text_color", DhikrOfDayTextColor.AUTO.name)
+                ?: DhikrOfDayTextColor.AUTO.name
+            return runCatching { DhikrOfDayTextColor.valueOf(raw) }
+                .getOrDefault(DhikrOfDayTextColor.AUTO)
+        }
+        set(v) = prefs.edit().putString("dhikr_of_day_widget_text_color", v.name).apply()
+
+    var dhikrOfDayWidgetFontSizeSp: Int
+        get() = prefs.getInt("dhikr_of_day_widget_font_sp", DhikrOfDayWidgetText.DEFAULT_FONT_SP)
+            .coerceIn(DhikrOfDayWidgetText.MIN_FONT_SP, DhikrOfDayWidgetText.MAX_FONT_SP)
+        set(v) = prefs.edit().putInt(
+            "dhikr_of_day_widget_font_sp",
+            v.coerceIn(DhikrOfDayWidgetText.MIN_FONT_SP, DhikrOfDayWidgetText.MAX_FONT_SP)
+        ).apply()
+
+    var misbahaWidgetStyle: MisbahaStyle
+        get() {
+            val raw = prefs.getString("misbaha_widget_style", MisbahaStyle.TRADITIONAL.name)
+                ?: MisbahaStyle.TRADITIONAL.name
+            return runCatching { MisbahaStyle.valueOf(raw) }
+                .getOrDefault(MisbahaStyle.TRADITIONAL)
+        }
+        set(v) = prefs.edit().putString("misbaha_widget_style", v.name).apply()
+
+    var misbahaWidgetBackground: MisbahaWidgetBackground
+        get() {
+            val raw = prefs.getString("misbaha_widget_background", MisbahaWidgetBackground.WHITE.name)
+                ?: MisbahaWidgetBackground.WHITE.name
+            return runCatching { MisbahaWidgetBackground.valueOf(raw) }
+                .getOrDefault(MisbahaWidgetBackground.WHITE)
+        }
+        set(v) = prefs.edit().putString("misbaha_widget_background", v.name).apply()
+
+    var misbahaWidgetBeadTheme: MisbahaBeadTheme
+        get() {
+            val raw = prefs.getString("misbaha_widget_bead_theme", MisbahaBeadTheme.CLASSIC.name)
+                ?: MisbahaBeadTheme.CLASSIC.name
+            return runCatching { MisbahaBeadTheme.valueOf(raw) }
+                .getOrDefault(MisbahaBeadTheme.CLASSIC)
+        }
+        set(v) = prefs.edit().putString("misbaha_widget_bead_theme", v.name).apply()
+
+    var misbahaWidgetTarget: Int
+        get() {
+            val value = prefs.getInt("misbaha_widget_target", 33)
+            return if (value in WIDGET_TARGET_OPTIONS) value else 33
+        }
+        set(v) = prefs.edit().putInt(
+            "misbaha_widget_target",
+            if (v in WIDGET_TARGET_OPTIONS) v else 33
+        ).apply()
+
+    var misbahaWidgetCount: Int
+        get() = prefs.getInt("misbaha_widget_count", 0).coerceAtLeast(0)
+        set(v) = prefs.edit().putInt("misbaha_widget_count", v.coerceAtLeast(0)).apply()
 
     var ttsVoiceGender: TtsVoiceGender
         get() {
@@ -313,8 +786,8 @@ class SettingsRepository(context: Context) {
         set(v) = prefs.edit().putBoolean("onboarding_completed", v).apply()
 
     var onboardingStep: Int
-        get() = prefs.getInt("onboarding_step", 0).coerceIn(0, 5)
-        set(v) = prefs.edit().putInt("onboarding_step", v.coerceIn(0, 5)).apply()
+        get() = prefs.getInt("onboarding_step", 0).coerceIn(0, 10)
+        set(v) = prefs.edit().putInt("onboarding_step", v.coerceIn(0, 10)).apply()
 
     var appThemeMode: AppThemeMode
         get() {
@@ -331,6 +804,22 @@ class SettingsRepository(context: Context) {
             return runCatching { AzkarDisplayMode.valueOf(raw) }.getOrDefault(AzkarDisplayMode.CARD)
         }
         set(v) = prefs.edit().putString("azkar_display_mode", v.name).apply()
+
+    var azkarListFontSizeSp: Int
+        get() = prefs.getInt("azkar_list_font_sp", AzkarListText.DEFAULT_FONT_SP)
+            .coerceIn(AzkarListText.MIN_FONT_SP, AzkarListText.MAX_FONT_SP)
+        set(v) = prefs.edit().putInt(
+            "azkar_list_font_sp",
+            v.coerceIn(AzkarListText.MIN_FONT_SP, AzkarListText.MAX_FONT_SP)
+        ).apply()
+
+    var azkarCardFontSizeSp: Int
+        get() = prefs.getInt("azkar_card_font_sp", AzkarCardText.DEFAULT_FONT_SP)
+            .coerceIn(AzkarCardText.MIN_FONT_SP, AzkarCardText.MAX_FONT_SP)
+        set(v) = prefs.edit().putInt(
+            "azkar_card_font_sp",
+            v.coerceIn(AzkarCardText.MIN_FONT_SP, AzkarCardText.MAX_FONT_SP)
+        ).apply()
 
     fun verifyAdminPin(pin: String): Boolean {
         val entered = pin.normalizePinDigits()
@@ -360,11 +849,19 @@ class DhikrRepository(private val db: AdhkarDatabase) {
 
     suspend fun getById(id: Long) = dao.getById(id)
     suspend fun save(entity: DhikrEntity): Long = if (entity.id == 0L) dao.insert(entity) else { dao.update(entity); entity.id }
-    suspend fun deleteCustom(id: Long) = dao.deleteCustom(id)
+    suspend fun deleteCustom(id: Long) = delete(id)
+    suspend fun delete(id: Long) {
+        val existing = dao.getById(id)
+        db.reciterAudioDao().deleteByDhikrIds(listOf(id))
+        dao.deleteByIds(listOf(id))
+        if (existing?.category == DhikrCategory.JAWAMI) {
+            JawamiAzkarSeed.syncAzkarItemsFromDhikr(db)
+        }
+    }
     suspend fun getEnabledList() = dao.getEnabledList()
 
     suspend fun getActiveNowList(): List<DhikrEntity> =
-        dao.getEnabledList().filter { DhikrScheduleMatcher.isActiveNow(it) }
+        dao.getEnabledList().filter { it.isEligibleForAutoTasbih() && DhikrScheduleMatcher.isActiveNow(it) }
 }
 
 class DailyStatsRepository(private val db: AdhkarDatabase) {
@@ -430,6 +927,8 @@ class ReciterRepository(private val db: AdhkarDatabase) {
     fun observeAll() = db.reciterDao().observeAll()
     fun observeAudioByReciter(reciterId: Long) = db.reciterAudioDao().observeByReciter(reciterId)
 
+    fun observeAzkarAudioByReciter(reciterId: Long) = db.reciterAzkarAudioDao().observeByReciter(reciterId)
+
     suspend fun save(entity: ReciterEntity): Long = db.reciterDao().insert(entity)
 
     suspend fun deleteReciter(id: Long) {
@@ -456,7 +955,10 @@ class ReciterRepository(private val db: AdhkarDatabase) {
     suspend fun saveReciterAudio(entity: ReciterAudioEntity): Long {
         val existing = db.reciterAudioDao().get(entity.dhikrId, entity.reciterId)
         val toSave = if (existing != null) entity.copy(id = existing.id) else entity
-        return db.reciterAudioDao().insert(toSave)
+        val id = db.reciterAudioDao().insert(toSave)
+        val keepId = if (existing != null) existing.id else id
+        db.reciterAudioDao().deleteOthers(entity.dhikrId, entity.reciterId, keepId)
+        return keepId
     }
 
     suspend fun deleteReciterAudio(id: Long, localPath: String?) {
@@ -467,29 +969,66 @@ class ReciterRepository(private val db: AdhkarDatabase) {
         }
         db.reciterAudioDao().delete(id)
     }
+
+    suspend fun saveReciterAzkarAudio(entity: ReciterAzkarAudioEntity): Long {
+        val existing = db.reciterAzkarAudioDao().get(entity.azkarItemId, entity.reciterId)
+        val toSave = if (existing != null) entity.copy(id = existing.id) else entity
+        val id = db.reciterAzkarAudioDao().insert(toSave)
+        val keepId = if (existing != null) existing.id else id
+        db.reciterAzkarAudioDao().deleteOthers(entity.azkarItemId, entity.reciterId, keepId)
+        return keepId
+    }
+
+    suspend fun deleteReciterAzkarAudio(id: Long, localPath: String?) {
+        localPath?.let { path ->
+            try {
+                java.io.File(path).takeIf { it.exists() }?.delete()
+            } catch (_: Exception) { }
+        }
+        db.reciterAzkarAudioDao().delete(id)
+    }
 }
 
 class SeedData(private val db: AdhkarDatabase, private val settings: SettingsRepository) {
     suspend fun seedIfEmpty() {
-        if (settings.remoteContentVersion > 0 && db.dhikrDao().getDefaults().isNotEmpty()) {
+        val catalogEmpty = db.isOfficialCatalogEmpty()
+        if (catalogEmpty) {
+            settings.seedVersion = 0
+        }
+        if (CatalogRecovery.shouldSkipBuiltinSeed(settings.remoteContentVersion, catalogEmpty)) {
             if (settings.seedVersion < 15) {
                 db.dhikrDao().resetDefaultDisplayModes()
                 settings.seedVersion = 15
             }
+            if (settings.seedVersion < 16) {
+                db.dhikrDao().disableJawamiAutoTasbih()
+                settings.seedVersion = 16
+            }
+            if (settings.seedVersion < 17) {
+                db.dhikrDao().disableLongFormAutoTasbih()
+                settings.seedVersion = 17
+            }
+            if (settings.seedVersion < 18) {
+                db.collectionDao().getById(AzkarFavorites.COLLECTION_ID)?.let { favorites ->
+                    db.collectionDao().insert(
+                        favorites.copy(autoPlayAllowed = false, autoPlayEnabled = false)
+                    )
+                }
+                settings.seedVersion = 18
+            }
+            if (settings.seedVersion < 19) {
+                db.dhikrDao().markKnownLongFormDhikr()
+                db.dhikrDao().disableJawamiAutoTasbih()
+                db.dhikrDao().disableLongFormAutoTasbih()
+                settings.seedVersion = 19
+            }
+            applySubaihatLibrary()
             return
         }
         if (settings.seedVersion < 3) {
             db.dhikrDao().deleteDefaults()
 
-            db.reciterDao().insert(
-                ReciterEntity(
-                    id = 1,
-                    nameAr = "المسبحة الصوتية - masba7a",
-                    nameEn = "Masba7a Audio Tasbih",
-                    nameFr = "Tasbih audio Masba7a",
-                    nameEs = "Tasbih audio Masba7a"
-                )
-            )
+            db.reciterDao().insert(ReciterLibrariesMigration.mixedVoicesEntity())
 
             masba7aDhikr().forEach { db.dhikrDao().insert(it) }
             scheduledDhikr().forEach { db.dhikrDao().insert(it) }
@@ -578,22 +1117,154 @@ class SeedData(private val db: AdhkarDatabase, private val settings: SettingsRep
             db.dhikrDao().resetDefaultDisplayModes()
             settings.seedVersion = 15
         }
+        if (settings.seedVersion < 16) {
+            db.dhikrDao().disableJawamiAutoTasbih()
+            settings.seedVersion = 16
+        }
+        if (settings.seedVersion < 17) {
+            db.dhikrDao().disableLongFormAutoTasbih()
+            settings.seedVersion = 17
+        }
+        if (settings.seedVersion < 18) {
+            db.collectionDao().getById(AzkarFavorites.COLLECTION_ID)?.let { favorites ->
+                db.collectionDao().insert(
+                    favorites.copy(autoPlayAllowed = false, autoPlayEnabled = false)
+                )
+            }
+            settings.seedVersion = 18
+        }
+        if (settings.seedVersion < 19) {
+            db.dhikrDao().markKnownLongFormDhikr()
+            db.dhikrDao().disableJawamiAutoTasbih()
+            db.dhikrDao().disableLongFormAutoTasbih()
+            settings.seedVersion = 19
+        }
+        applySubaihatLibrary()
     }
 
-    private suspend fun seedBuiltinReciterAudio(db: AdhkarDatabase) {
-        val builtinReciterId = 1L
-        if (db.reciterDao().getById(builtinReciterId) == null) {
-            db.reciterDao().insert(
-                ReciterEntity(
-                    id = builtinReciterId,
-                    nameAr = "المسبحة الصوتية - masba7a",
-                    nameEn = "Masba7a Audio Tasbih",
-                    nameFr = "Tasbih audio Masba7a",
-                    nameEs = "Tasbih audio Masba7a",
-                    isBuiltin = true
+    private suspend fun applySubaihatLibrary() {
+        ensureBuiltinDhikrAndCollections()
+        IslambookAzkarSeed.ensureAfterPrayerClosingSurahs(db)
+        JawamiAzkarSeed.keepOnlyWithAudio(db, jawamiTasbihDhikr())
+        val reciterId = SubaihatReciterSeed.ensure(db)
+        if (settings.seedVersion < 20) {
+            val tasbih = settings.selectedReciterId
+            val azkar = settings.azkarSelectedReciterId
+            if (tasbih == 1L || tasbih == SubaihatReciterSeed.RECITER_ID) {
+                settings.selectedReciterId = reciterId
+            }
+            if (azkar == 1L || azkar == SubaihatReciterSeed.RECITER_ID) {
+                settings.azkarSelectedReciterId = reciterId
+            }
+            settings.seedVersion = 20
+        }
+        if (settings.seedVersion < 21) {
+            settings.seedVersion = 21
+        }
+        if (settings.seedVersion < 22) {
+            settings.seedVersion = 22
+        }
+        ReciterLibrariesMigration.apply(db, settings)
+        if (settings.seedVersion < 23) {
+            settings.seedVersion = 23
+        }
+        if (settings.seedVersion < 24) {
+            applyDefaultAzkarHoursIfUnchanged()
+            settings.seedVersion = 24
+        }
+        if (settings.seedVersion < 25) {
+            applyUserToggleableAzkarSections()
+            settings.seedVersion = 25
+        }
+        if (settings.seedVersion < 26) {
+            settings.seedVersion = 26
+        }
+        applyEidTakbirSingleHijriDay()
+    }
+
+    private suspend fun applyEidTakbirSingleHijriDay() {
+        val defaults = db.dhikrDao().getDefaults()
+        val extraScheduled = defaults.filter {
+            it.scheduleType != ScheduleType.ALWAYS && it.category != DhikrCategory.EID
+        }
+        if (extraScheduled.isNotEmpty()) {
+            val ids = extraScheduled.map { it.id }
+            db.reciterAudioDao().deleteByDhikrIds(ids)
+            db.dhikrDao().deleteByIds(ids)
+        }
+        val templates = scheduledDhikr()
+        defaults.filter { it.category == DhikrCategory.EID }.forEach { existing ->
+            val template = templates.find { it.sortOrder == existing.sortOrder } ?: return@forEach
+            db.dhikrDao().update(
+                existing.copy(
+                    scheduleType = template.scheduleType,
+                    hijriMonth = template.hijriMonth,
+                    hijriDayStart = template.hijriDayStart,
+                    hijriDayEnd = template.hijriDayEnd,
+                    scheduleLabelAr = template.scheduleLabelAr
                 )
             )
         }
+    }
+
+    private suspend fun applyUserToggleableAzkarSections() {
+        listOf("home", JawamiAzkarSeed.COLLECTION_ID, AzkarFavorites.COLLECTION_ID).forEach { id ->
+            val existing = db.collectionDao().getById(id)
+            val allowed = AutoAzkarCatalog.entityAutoPlayAllowed(id)
+            if (existing != null) {
+                db.collectionDao().update(
+                    existing.copy(
+                        autoPlayAllowed = allowed,
+                        autoPlayEnabled = allowed && existing.autoPlayEnabled
+                    )
+                )
+            } else if (id == AzkarFavorites.COLLECTION_ID) {
+                AzkarFavorites.ensureCollection(db)
+            }
+        }
+    }
+
+    private suspend fun applyDefaultAzkarHoursIfUnchanged() {
+        suspend fun updateIfUnchanged(id: String, oldHour: Int, oldMinute: Int, newHour: Int, newMinute: Int) {
+            val collection = db.collectionDao().getById(id) ?: return
+            if (collection.scheduleHour == oldHour && collection.scheduleMinute == oldMinute) {
+                db.collectionDao().update(
+                    collection.copy(scheduleHour = newHour, scheduleMinute = newMinute)
+                )
+            }
+        }
+        updateIfUnchanged("morning", 6, 0, TasbihWindow.DEFAULT_MORNING_HOUR, TasbihWindow.DEFAULT_MORNING_MINUTE)
+        updateIfUnchanged("sleep", 22, 0, TasbihWindow.DEFAULT_SLEEP_HOUR, TasbihWindow.DEFAULT_SLEEP_MINUTE)
+        updateIfUnchanged("wake_up", 6, 0, TasbihWindow.DEFAULT_WAKE_HOUR, TasbihWindow.DEFAULT_WAKE_MINUTE)
+    }
+
+    private suspend fun ensureBuiltinDhikrAndCollections() {
+        val defaults = db.dhikrDao().getDefaults().toMutableList()
+        if (defaults.isEmpty()) {
+            (masba7aDhikr() + scheduledDhikr() + jawamiTasbihDhikr()).forEach { template ->
+                val id = db.dhikrDao().insert(template)
+                defaults += template.copy(id = id)
+            }
+        } else if (defaults.none { it.category == DhikrCategory.EID }) {
+            scheduledDhikr().forEach { template ->
+                val exists = defaults.any {
+                    it.isDefault && it.sortOrder == template.sortOrder && it.category == template.category
+                }
+                if (!exists) {
+                    val id = db.dhikrDao().insert(template)
+                    defaults += template.copy(id = id)
+                }
+            }
+        }
+        if (db.collectionDao().getById("morning") == null) {
+            IslambookAzkarSeed.seed(db)
+        }
+        JawamiAzkarSeed.seed(db) { jawamiTasbihDhikr() }
+        seedBuiltinReciterAudio(db)
+    }
+
+    private suspend fun seedBuiltinReciterAudio(db: AdhkarDatabase) {
+        val builtinReciterId = ReciterLibrariesMigration.ensureMixedVoicesReciter(db)
         db.dhikrDao().getDefaults().forEach { dhikr ->
             val asset = dhikr.audioPath?.takeIf {
                 dhikr.audioSourceType == AudioSourceType.BUILTIN && it.isNotBlank()
@@ -631,9 +1302,9 @@ class SeedData(private val db: AdhkarDatabase, private val settings: SettingsRep
         dhikr(8, "اللهم صل وسلم وبارك على نبينا محمد", "O Allah, bless and grant peace to our Prophet Muhammad", "Ô Allah, bénis notre Prophète Muhammad", "Oh Allah, bendice a nuestro Profeta Muhammad", "audio/sou_salah.mp3"),
         dhikr(9, "سبحان الله وبحمده", "Subhan Allah wa bihamdih", "Gloire à Allah et louange à Lui", "Gloria a Allah y alabanza a Él", "audio/sou_tasbhamd.mp3"),
         dhikr(10, "سبحان الله العظيم", "Subhan Allah Al-Azim", "Gloire à Allah le Très Grand", "Gloria a Allah el Grandioso", "audio/sou_tasbta3zeem.mp3"),
-        dhikr(11, "لَا إلَه إلّا اللهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلُّ شَيْءٍ قَدِيرٍ", "La ilaha illallah wahdahu la sharika lah...", "Il n'y a de dieu qu'Allah, Seul, sans associé...", "No hay dios sino Allah, Único, sin asociado...", "audio/sou_tawheed.mp3", longForm = true),
-        dhikr(12, "سبحان الله وبحمده عدد خلقه ورضا نفسه وزنة عرشه ومداد كلماته", "Subhan Allah wa bihamdih adada khalqih...", "Gloire et louange à Allah autant que Sa création...", "Gloria y alabanza a Allah según Su creación...", "audio/sou_adadd.mp3", longForm = true),
-        dhikr(13, "لا إله إلا أنت سبحانك إني كنت من ظالمين", "La ilaha illa anta subhanaka inni kuntu minaz-zalimin", "Il n'y a de dieu que Toi, gloire à Toi, j'étais du nombre des injustes", "No hay dios sino Tú, gloria a Ti, yo era de los injustos", "audio/sou_ghamm.mp3", longForm = true),
+        dhikr(11, "لَا إلَه إلّا اللهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلُّ شَيْءٍ قَدِيرٍ", "La ilaha illallah wahdahu la sharika lah...", "Il n'y a de dieu qu'Allah, Seul, sans associé...", "No hay dios sino Allah, Único, sin asociado...", "audio/sou_tawheed.mp3", longForm = true, enabled = false),
+        dhikr(12, "سبحان الله وبحمده عدد خلقه ورضا نفسه وزنة عرشه ومداد كلماته", "Subhan Allah wa bihamdih adada khalqih...", "Gloire et louange à Allah autant que Sa création...", "Gloria y alabanza a Allah según Su creación...", "audio/sou_adadd.mp3", longForm = true, enabled = false),
+        dhikr(13, "لا إله إلا أنت سبحانك إني كنت من ظالمين", "La ilaha illa anta subhanaka inni kuntu minaz-zalimin", "Il n'y a de dieu que Toi, gloire à Toi, j'étais du nombre des injustes", "No hay dios sino Tú, gloria a Ti, yo era de los injustos", "audio/sou_ghamm.mp3", longForm = true, enabled = false),
         dhikr(14, "يا ذا الجلال والإكرام", "Ya Dhal-Jalali wal-Ikram", "Ô Détenteur de la majesté et de la générosité", "Oh Poseedor de la majestad y la generosidad", "audio/sou_galal.mp3"),
         dhikr(15, "حسبي الله ونعم الوكيل", "Hasbiyallahu wa ni'mal wakeel", "Allah me suffit, Il est le meilleur garant", "Allah me basta, Él es el mejor dispositor", "audio/sou_hasbalah.mp3"),
         dhikr(16, "جميع الأذكار (متتابعة)", "All adhkar combined", "Tous les adhkar combinés", "Todos los adhkar combinados", "audio/sou_all.mp3", enabled = false, longForm = true)
@@ -654,88 +1325,6 @@ class SeedData(private val db: AdhkarDatabase, private val settings: SettingsRep
             "سُبْحَانَ اللهِ عَدَدَ خَلْقِهِ، وَسُبْحَانَ اللهِ رِضَا نَفْسِهِ وَسُبْحَانَ اللهِ زِنَةَ عَرْشِهِ، وَسُبْحَانَ اللهِ مِدَادَ كَلِمَاتِهِ.",
             "Subhan Allah adada khalqih, wa Subhan Allah rida nafsih, wa Subhan Allah zinata arshih, wa Subhan Allah midada kalimatih.",
             repeat = 3
-        ),
-        jawami(
-            202,
-            "الحَمدُلِلَّه عَدَدَ خَلْقِهِ، وَالحَمدُلِلَّه رِضَا نَفْسِهِ وَالحَمدُلِلَّه زِنَةَ عَرْشِهِ، وَالحَمدُلِلَّه مِدَادَ كَلِمَاتِهِ.",
-            "Alhamdulillah adada khalqih, wal-hamdu lillah rida nafsih, wal-hamdu lillah zinata arshih, wal-hamdu lillah midada kalimatih.",
-            repeat = 3
-        ),
-        jawami(
-            203,
-            "سبحانَ اللهِ عددَ خَلْقِهِ ، سبحانَ اللهِ عدَدَ خلْقِهِ ، سبحانَ اللهِ عدَدَ خَلْقِهِ.",
-            "Subhan Allah adada khalqih (three times)."
-        ),
-        jawami(
-            204,
-            "سَبْحانَ اللهِ رِضَى نَفْسِهِ ، سبحانَ اللهِ رِضَى نَفْسِهِ ، سبحانَ اللهِ رِضَى نَفْسِهِ.",
-            "Subhan Allah rida nafsih (three times)."
-        ),
-        jawami(
-            205,
-            "سَبحانَ اللهِ زِنَةَ عَرْشِهِ ، سبحانَ اللهِ زِنَةَ عَرْشِهِ ، سبحانَ اللهِ زِنَةَ عَرْشِهِ.",
-            "Subhan Allah zinata arshih (three times)."
-        ),
-        jawami(
-            206,
-            "سبحانَ اللهِ مِدادَ كَلِماتِهِ ، سبحانَ اللهِ مِدادَ كَلِماتِهِ ، سبحانَ اللهِ مِدادَ كَلِماتِهِ.",
-            "Subhan Allah midada kalimatih (three times)."
-        ),
-        jawami(
-            207,
-            "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، وَلَا إِلَهَ إِلَّا اللَّهُ، عَدَدَ خَلْقِهِ، وَرِضَا نَفْسِهِ، وَزِنَةَ عَرْشِهِ، وَمِدَادَ كَلِمَاتِهِ.",
-            "Subhan Allah wa bihamdih, wa la ilaha illallah, adada khalqih, wa rida nafsih, wa zinata arshih, wa midada kalimatih.",
-            repeat = 3
-        ),
-        jawami(
-            208,
-            "سُبْحَانَ اللَّهِ عَدَدَ مَا خَلَقَ فِي السَّمَاءِ، وَسُبْحَانَ اللَّهِ عَدَدَ مَا خَلَقَ فِي الْأَرْضِ، وَسُبْحَانَ اللهِ عَدَدَ مَا خَلَقَ بَيْنَ ذَلِكَ، وَسُبْحَانَ اللَّهِ عَدَدَ مَا هُوَ خَالِقٌ.",
-            "Subhan Allah according to all He created in the heavens, earth, between them, and all He creates."
-        ),
-        jawami(
-            209,
-            "اللهُ أَكْبَرُ عَدَدَ مَا خَلَقَ فِي السَّمَاءِ، وَاللَّهُ أَكْبَرُ عَدَدَ مَا خَلَقَ فِي الْأَرْضِ، وَاللهُ أَكْبَرُ عَدَدَ مَا خَلَقَ بَيْنَ ذَلِكَ، وَاللَّهُ أَكْبَرُ عَدَدَ مَا هُوَ خَالِقٌ.",
-            "Allahu Akbar according to all He created in the heavens, earth, between them, and all He creates."
-        ),
-        jawami(
-            210,
-            "الْحَمْدُ لِلَّهِ عَدَدَ مَا خَلَقَ فِي السَّمَاءِ، وَالْحَمْدُ لِلَّهِ عَدَدَ مَا خَلَقَ فِي الْأَرْضِ، وَالْحَمْدُ لِلَّهِ عَدَدَ مَا خَلَقَ بَيْنَ ذَلِكَ، وَالْحَمْدُ لِلَّهِ عَدَدَ مَا هُوَ خَالِقٌ.",
-            "Alhamdulillah according to all He created in the heavens, earth, between them, and all He creates."
-        ),
-        jawami(
-            211,
-            "لَا إِلَهَ إِلَّا اللَّهُ عَدَدَ مَا خَلَقَ فِي السَّمَاءِ، وَلَا إِلَهَ إِلَّا اللهُ عَدَدَ مَا خَلَقَ فِي الْأَرْضِ وَلَا إِلَهَ إِلَّا اللَّهُ عَدَدَ مَا خَلَقَ بَيْنَ ذَلِكَ، وَلَا إِلَهَ إِلَّا اللَّهُ عَدَدَ مَا هُوَ خَالِقٌ.",
-            "La ilaha illallah according to all He created in the heavens, earth, between them, and all He creates."
-        ),
-        jawami(
-            212,
-            "لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ عَدَدَ مَا خَلَقَ في السَّمَاءِ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ عَدَدَ مَا خَلَقَ فِي الْأَرْضِ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ عَدَدَ مَا خَلَقَ بَيْنَ ذَلِكَ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللهِ عَدَدَ مَا هُوَ خَالِقٌ.",
-            "La hawla wa la quwwata illa billah according to all He created in the heavens, earth, between them, and all He creates."
-        ),
-        jawami(
-            213,
-            "الْحَمْدُ لِلَّهِ عَدَدَ مَا خَلَقَ، وَالْحَمْدُ لِلَّهِ مِلْءَ مَا خَلَقَ ، وَالْحَمْدُ لِلَّهِ عَدَدَ مَا فِي السَّمَاوَاتِ وَالْأَرْضِ، وَالْحَمْدُ لِلَّهِ مِلْءَ مَا فِي السَّمَاوَاتِ وَالْأَرْضِ ، وَالْحَمْدُ لِلَّهِ عَدَدَ مَا أَحْصَى كِتَابُهُ، وَالْحَمْدُ لِلَّهِ مِلْءَ مَا أَحْصَى كِتَابُهُ ، وَالْحَمْدُ لِلَّهِ عَدَدَ كُلَّ شَيْءٍ، وَالْحَمْدُ لِلَّهِ مِلْءَ كُلِّ شَيْءٍ.",
-            "Alhamdulillah by number and fullness of creation, heavens and earth, His Book, and all things."
-        ),
-        jawami(
-            214,
-            "سُبْحَانَ اللهِ عَدَدَ مَا خَلَقَ، وَسُبْحَانَ اللهِ مِلْءَ مَا خَلَقَ ، وَسُبْحَانَ اللهِ عَدَدَ مَا فِي السَّمَاوَاتِ وَالأَرْضِ، وَسُبْحَانَ اللَّهِ مِلْءَ مَا فِي السَّمَاوَاتِ وَالْأَرْضِ ، وَسُبْحَانَ اللَّهِ عَدَدَ مَا أَحْصَى كِتَابُهُ، وَسُبْحَانَ اللَّهِ مِلْءَ مَا أَحْصَى كِتَابُهُ ، وَسُبْحَانَ اللَّهِ عَدَدَ كُلِّ شَيْءٍ، وَسُبْحَانَ اللهِ مِلْءَ كُلِّ شَيْءٍ.",
-            "Subhan Allah by number and fullness of creation, heavens and earth, His Book, and all things."
-        ),
-        jawami(
-            215,
-            "الْحَمْدُ لِلَّهِ عَدَدَ مَا أَحْصَى كِتَابُهُ، وَالْحَمْدُ لِلَّهِ عَدَدَ مَا فِي كِتَابِهِ، وَالْحَمْدُ لِلَّهِ عَدَدَ مَا أَحْصَى خَلْقُهُ، وَالْحَمْدُ لِلَّهِ عَلَى مَا فِي خَلْقِهِ، وَالْحَمْدُ لِلَّهِ مِلْءَ سَمَاوَاتِهِ وَأَرْضِهِ، وَالْحَمْدُ لِلَّهِ عَدَدَ كُلِّ شَيْءٍ، وَالْحَمْدُ لِلَّهِ مِلْءَ كُلِّ شَيْءٍ.",
-            "Alhamdulillah by what His Book counted, what is in His Book, what His creation counted, and the fullness of all things."
-        ),
-        jawami(
-            216,
-            "سُبْحَانَ اللَّهِ عَدَدَ مَا أَحْصَى كِتَابُهُ، وَسُبْحَانَ اللَّهِ عَدَدَ مَا فِي كِتَابِهِ، وَسُبْحَانَ اللهِ عَدَدَ مَا أَحْصَى خَلْقُهُ، وَسُبْحَانَ اللَّهِ عَلَى مَا فِي خَلْقِهِ، وَسُبْحَانَ اللَّهِ مِلْءَ سَمَاوَاتِهِ وَأَرْضِهِ، وَسُبْحَانَ اللَّهِ عَدَدَ كُلِّ شَيْءٍ، وَسُبْحَانَ اللهِ مِلْءَ كُلِّ شَيْءٍ.",
-            "Subhan Allah by what His Book counted, what is in His Book, what His creation counted, and the fullness of all things."
-        ),
-        jawami(
-            217,
-            "اللهُ أَكْبَرُ عَدَدَ مَا أَحْصَى كِتَابُهُ، وَاللهُ أَكْبَرُ عَدَدَ مَا فِي كِتَابِهِ، وَاللَّهُ أَكْبَرُ عَدَدَ مَا أَحْصَى خَلْقُهُ، وَاللَّهُ أَكْبَرُ عَلَى مَا فِي خَلْقِهِ، وَاللهُ أَكْبَرُ مِلْءَ سَمَاوَاتِهِ وَأَرْضِهِ، وَاللهُ أَكْبَرُ عَدَدَ كُلِّ شَيْءٍ، وَاللَّهُ أَكْبَرُ مِلْءَ كُلِّ شَيْءٍ.",
-            "Allahu Akbar by what His Book counted, what is in His Book, what His creation counted, and the fullness of all things."
         )
     )
 
@@ -778,8 +1367,8 @@ class SeedData(private val db: AdhkarDatabase, private val settings: SettingsRep
             scheduleType = ScheduleType.HIJRI_RANGE,
             hijriMonth = 10,
             hijriDayStart = 1,
-            hijriDayEnd = 4,
-            scheduleLabelAr = "تكبيرات عيد الفطر"
+            hijriDayEnd = 1,
+            scheduleLabelAr = "تكبيرات عيد الفطر — ١ شوال"
         ).withStandardAutoDisplay(),
         DhikrEntity(
             textAr = "الله أكبر الله أكبر لا إله إلا الله والله أكبر الله أكبر ولله الحمد",
@@ -793,8 +1382,8 @@ class SeedData(private val db: AdhkarDatabase, private val settings: SettingsRep
             scheduleType = ScheduleType.HIJRI_RANGE,
             hijriMonth = 12,
             hijriDayStart = 10,
-            hijriDayEnd = 13,
-            scheduleLabelAr = "تكبيرات عيد الأضحى"
+            hijriDayEnd = 10,
+            scheduleLabelAr = "تكبيرات عيد الأضحى — ١٠ ذو الحجة"
         ).withStandardAutoDisplay()
     )
 

@@ -96,14 +96,27 @@ with sync_playwright() as p:
 
     dump(page, "yt4-vis")
     un = page.get_by_text("Unlisted", exact=True)
-    if un.count():
-        un.first.click(force=True)
-        print("unlisted", flush=True)
+    clicked = False
+    for i in range(un.count()):
+        el = un.nth(i)
+        box = el.bounding_box()
+        if el.is_visible() and box and box["width"] >= 20 and box["height"] >= 10:
+            el.click(force=True)
+            print("unlisted", i, flush=True)
+            clicked = True
+            break
+    if not clicked and un.count():
+        page.mouse.click(620, 430)
+        print("unlisted mouse fallback", flush=True)
     page.wait_for_timeout(800)
     done = page.locator("#done-button")
-    print("done", done.count(), flush=True)
+    save = page.get_by_role("button", name="Save")
+    print("done", done.count(), "save", save.count(), flush=True)
     if done.count():
         done.first.click(force=True)
+        page.wait_for_timeout(10000)
+    elif save.count():
+        save.first.click(force=True)
         page.wait_for_timeout(10000)
     dump(page, "yt4-done")
     body = ""

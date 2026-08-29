@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import shlex
 import subprocess
 import time
 from pathlib import Path
@@ -18,36 +19,54 @@ TMP = ROOT / ".tmp-export"
 LANGS = ("en", "fr", "es")
 
 NAV = {
+    "ar": ("الرئيسية", "المسبحة", "الأذكار", "الإعدادات"),
     "en": ("Home", "Misbaha", "Adhkar sections", "Settings"),
     "fr": ("Accueil", "Misbaha", "Sections d'adhkar", "Paramètres"),
     "es": ("Inicio", "Misbaha", "Secciones de adhkar", "Ajustes"),
 }
 WIDGETS_HUB = {
+    "ar": "ويدجت الشاشة",
     "en": "Home screen widgets",
     "fr": "Widgets",
     "es": "Widgets",
 }
 MISBAHA_WIDGET = {
+    "ar": "مسبحة الشاشة",
     "en": "Misbaha widget",
     "fr": "Widget misbaha",
     "es": "Widget de misbaha",
 }
 ADD_WIDGET = {
+    "ar": "إضافة مسبحة إلى الشاشة الرئيسية",
     "en": "Add misbaha widget to home screen",
     "fr": "Ajouter la misbaha à l'accueil",
     "es": "Añadir misbaha a la pantalla de inicio",
 }
 TRADITIONAL = {
+    "ar": "تقليدية",
     "en": "Traditional",
     "fr": "Traditionnelle",
     "es": "Tradicional",
 }
-DHIKR_TEXT = "سبحان الله وبحمده"
+DHIKR_TEXT = "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ"
 AZKAR_TEXT = "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ"
 AZKAR_SECTION = {
+    "ar": "أذكار الصباح",
     "en": "Morning adhkar",
     "fr": "Adhkar du matin",
     "es": "Adhkar de la mañana",
+}
+DHIKR_OF_DAY = {
+    "ar": "ذكر اليوم",
+    "en": "Dhikr of the day",
+    "fr": "Dhikr du jour",
+    "es": "Dhikr del día",
+}
+ADD_DHIKR = {
+    "ar": "إضافة ذكر اليوم إلى الشاشة الرئيسية",
+    "en": "Add dhikr of the day to home screen",
+    "fr": "Ajouter le dhikr du jour à l'accueil",
+    "es": "Añadir el dhikr del día a la pantalla de inicio",
 }
 
 
@@ -100,6 +119,7 @@ def _nodes(xml: str):
         r'(?:text|content-desc)="([^"]*)"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"'
         r'|bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"[^>]*(?:text|content-desc)="([^"]*)"'
     )
+    seen = set()
     for m in pat.finditer(xml):
         if m.group(1) is not None:
             text, x1, y1, x2, y2 = m.group(1), *map(int, m.group(2, 3, 4, 5))
@@ -107,6 +127,15 @@ def _nodes(xml: str):
             x1, y1, x2, y2 = map(int, m.group(6, 7, 8, 9))
             text = m.group(10)
         if text:
+            seen.add((text, x1, y1, x2, y2))
+            yield text, (x1 + x2) // 2, (y1 + y2) // 2, y1, y2
+    desc = re.compile(
+        r'content-desc="([^"]+)"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"'
+    )
+    for m in desc.finditer(xml):
+        text, x1, y1, x2, y2 = m.group(1), *map(int, m.groups()[1:])
+        key = (text, x1, y1, x2, y2)
+        if key not in seen:
             yield text, (x1 + x2) // 2, (y1 + y2) // 2, y1, y2
 
 
@@ -129,7 +158,8 @@ def tap_text(needle: str, *, contains=False, min_y=0, max_y=9999, retries=4) -> 
         hit = find_text(xml, needle, contains=contains, min_y=min_y, max_y=max_y)
         if hit:
             x, y, text = hit
-            print(f"TAP {text!r} -> {x},{y}", flush=True)
+            shown = text.encode("ascii", "replace").decode("ascii")
+            print(f"TAP {shown!r} -> {x},{y}", flush=True)
             tap_xy(x, y)
             wait(1.6)
             return True
@@ -139,6 +169,7 @@ def tap_text(needle: str, *, contains=False, min_y=0, max_y=9999, retries=4) -> 
 
 
 NAV_X = (127, 405, 678, 945)
+NAV_X_RTL = (945, 675, 405, 135)
 NAV_Y = 2274
 
 
@@ -147,8 +178,9 @@ def tap_nav(lang: str, index: int) -> bool:
     label = NAV[lang][index]
     if tap_text(label, min_y=2000, retries=2):
         return True
+    xs = NAV_X_RTL if lang == "ar" else NAV_X
     print("NAV fallback", lang, index, label)
-    tap_xy(NAV_X[index], NAV_Y)
+    tap_xy(xs[index], NAV_Y)
     wait(1.6)
     return True
 
@@ -182,6 +214,8 @@ def write_prefs(lang: str, onboarding: bool) -> Path:
         '    <boolean name="auto_azkar_enabled" value="true" />\n'
         '    <boolean name="service_enabled" value="true" />\n'
         '    <string name="number_digit_style">LATIN</string>\n'
+        '    <float name="popup_font_scale" value="0.82" />\n'
+        '    <long name="azkar_selected_reciter" value="1" />\n'
         "</map>\n",
         encoding="utf-8",
     )
@@ -219,14 +253,15 @@ def prep(lang: str, onboarding: bool = True, reinstall: bool = False):
 
 
 def overlay(lang: str, azkar: bool):
-    args = [
-        "shell", "am", "start",
-        "-n", f"{PKG}/.ui.overlay.OverlayActivity",
-        "--es", "extra_text", DHIKR_TEXT if not azkar else AZKAR_TEXT,
-    ]
+    text = AZKAR_TEXT if azkar else DHIKR_TEXT
+    cmd = (
+        f"am start -n {PKG}/.ui.overlay.OverlayActivity "
+        f"--es extra_text {shlex.quote(text)}"
+    )
     if azkar:
-        args += ["--es", "extra_section_title", AZKAR_SECTION[lang], "--ez", "extra_auto_azkar", "true"]
-    adb(*args, check=False)
+        section = AZKAR_SECTION.get(lang, AZKAR_SECTION["ar"])
+        cmd += f" --es extra_section_title {shlex.quote(section)} --ez extra_auto_azkar true"
+    adb("shell", cmd, check=False)
     wait(2.8)
 
 
@@ -252,19 +287,67 @@ def open_settings_hub(lang: str):
     wait(1)
     xml = dump_ui()
     hint = {
+        "ar": "اختر القسم الذي تريد ضبطه",
         "en": "Choose a section to configure",
         "fr": "Choisissez une section à configurer",
         "es": "Elige la sección que quieres configurar",
-    }[lang]
-    if hint not in xml:
+    }.get(lang)
+    if hint and hint not in xml:
         back(3)
         tap_nav(lang, 3)
         wait(1.2)
 
 
-def pin_home_widgets(lang: str, out: Path):
+def go_home():
+    adb("shell", "input", "keyevent", "3", check=False)
+    wait(1.8)
+
+
+def remove_extra_home_widgets():
+    """Keep one traditional misbaha; drop extra copies so dhikr of day can fit."""
+    go_home()
+    for _ in range(6):
+        xml = dump_ui()
+        hits = [
+            (x, y, text)
+            for text, x, y, y1, y2 in _nodes(xml)
+            if "متبقي" in text or "remaining" in text.lower() or "restant" in text.lower()
+        ]
+        if len(hits) <= 1:
+            return
+        _, y, _ = sorted(hits, key=lambda h: h[1])[-1]
+        adb("shell", "input", "swipe", "540", str(y), "540", str(y), "900", check=False)
+        wait(1.2)
+        if not (
+            tap_text("Remove", retries=2)
+            or tap_text("إزالة", retries=1)
+            or tap_text("Supprimer", retries=1)
+            or tap_text("Eliminar", retries=1)
+        ):
+            tap_xy(540, 180)
+            wait(1.2)
+        wait(1.0)
+
+
+def pin_dhikr_of_day(lang: str):
     open_settings_hub(lang)
-    tap_text(WIDGETS_HUB[lang], contains=True)
+    tap_text(WIDGETS_HUB[lang], contains=False)
+    wait(1.0)
+    tap_text(DHIKR_OF_DAY[lang], contains=True)
+    wait(1.2)
+    adb("shell", "input", "swipe", "540", "1900", "540", "400", "400", check=False)
+    wait(1.0)
+    if not tap_text(ADD_DHIKR[lang], contains=True):
+        tap_text("Add dhikr", contains=True)
+    wait(2.0)
+    tap_text("Add to home screen", contains=True) or tap_text("Add", contains=False)
+    wait(2.0)
+
+
+def pin_home_widgets(lang: str, out: Path):
+    remove_extra_home_widgets()
+    open_settings_hub(lang)
+    tap_text(WIDGETS_HUB[lang], contains=False)
     wait(1.2)
     shot(out, "09_widgets_hub")
     tap_text(MISBAHA_WIDGET[lang], contains=True)
@@ -275,7 +358,8 @@ def pin_home_widgets(lang: str, out: Path):
     wait(2)
     tap_text("Add", contains=False) or tap_text("ADD", contains=False)
     wait(2)
-    adb("shell", "input", "keyevent", "3", check=False)
+    pin_dhikr_of_day(lang)
+    go_home()
     wait(2)
     shot(out, "10_home_widgets")
     adb("shell", "am", "start", "-n", f"{PKG}/.MainActivity", check=False)

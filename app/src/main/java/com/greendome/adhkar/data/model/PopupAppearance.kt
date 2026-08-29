@@ -19,8 +19,8 @@ data class PopupAppearance(
         const val MAX_AUTO_DISMISS_SECONDS = 60
         const val TASBIH_DEFAULT_AUTO_DISMISS_SECONDS = 5
 
-        const val TASBIH_DEFAULT_BOX_WIDTH = 0.85f
-        const val TASBIH_DEFAULT_FONT_SCALE = 1f
+        const val TASBIH_DEFAULT_BOX_WIDTH = 0.90f
+        const val TASBIH_DEFAULT_FONT_SCALE = 0.82f
 
         const val AZKAR_DEFAULT_BOX_WIDTH = 0.92f
         const val AZKAR_DEFAULT_FONT_SCALE = 1.15f
@@ -30,3 +30,6 @@ data class PopupAppearance(
 }
 
 enum class PopupSettingsTarget { TASBIH, AZKAR }
+
+/** ملف صوت منفصل للتسبيح التلقائي أو الأذكار التلقائية */
+enum class VoiceSettingsTarget { TASBIH, AZKAR }

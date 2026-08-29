@@ -4,10 +4,16 @@ import android.content.Intent
 import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.lifecycle.lifecycleScope
+import com.greendome.adhkar.prayer.TravelLocationUpdater
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.runtime.mutableStateOf
@@ -15,9 +21,15 @@ import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material.icons.Icons
+import com.greendome.adhkar.ui.adaptive.AdaptiveContentContainer
+import com.greendome.adhkar.ui.adaptive.rememberAppWindowWidth
+import com.greendome.adhkar.ui.adaptive.useNavigationRail
+import com.greendome.adhkar.ui.components.AudioUnavailableDialog
 import com.greendome.adhkar.ui.components.AzkarNavIcon
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
@@ -62,6 +74,7 @@ import com.greendome.adhkar.ui.screens.AdminEditReciterScreen
 import com.greendome.adhkar.ui.screens.AdminReciterAudioScreen
 import com.greendome.adhkar.ui.screens.AdminRecitersScreen
 import com.greendome.adhkar.ui.screens.AdminScreen
+import com.greendome.adhkar.ui.screens.AdminPrayerDefaultsScreen
 import com.greendome.adhkar.ui.screens.AzkarCollectionScreen
 import com.greendome.adhkar.ui.screens.AzkarHubScreen
 import com.greendome.adhkar.ui.screens.MyDhikrScreen
@@ -82,16 +95,28 @@ import com.greendome.adhkar.ui.theme.GreenPrimary
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
+import com.greendome.adhkar.audio.AzkarPlaybackResolver
 import com.greendome.adhkar.audio.DhikrAudioPlayer
 import com.greendome.adhkar.audio.DhikrPlaybackResolver
 import com.greendome.adhkar.audio.playResolved
+import com.greendome.adhkar.data.model.VoiceSettingsTarget
+import com.greendome.adhkar.sync.ContentUpdateDialogs
+import com.greendome.adhkar.sync.RemoteContentPublisher
+import com.greendome.adhkar.sync.rememberContentUpdateController
+import com.greendome.adhkar.data.local.AdhkarDatabase
+import com.greendome.adhkar.review.InAppReviewPrompt
+import com.greendome.adhkar.update.ProvidePlayAppUpdate
+import com.greendome.adhkar.update.rememberPlayAppUpdateController
+import com.greendome.adhkar.util.AppLanguages
 import com.greendome.adhkar.util.LocaleHelper
 import com.greendome.adhkar.util.RuntimePermissions
+import com.greendome.adhkar.widget.DhikrOfDayManager
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
     private val holdSystemSplash = mutableStateOf(true)
+    private var mainUiReady = false
 
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(LocaleHelper.wrapWithSavedLanguage(newBase))
@@ -104,7 +129,7 @@ class MainActivity : ComponentActivity() {
         splashScreen.setKeepOnScreenCondition { holdSystemSplash.value }
         super.onCreate(savedInstanceState)
         SilentNotificationChannels.ensureCreated(this)
-        SilentNotificationChannels.cancelDhikrAlerts(this)
+        DhikrOfDayManager.refreshAsync(this)
         setContent {
             val settings = viewModel.settingsRepo()
             val lang = settings.appLanguage
@@ -113,7 +138,7 @@ class MainActivity : ComponentActivity() {
             var showOnboarding by remember { mutableStateOf(!settings.onboardingCompleted) }
             var arabicFontStyle by remember { mutableStateOf(settings.arabicFontStyle) }
             var pendingOnboardingServiceEnable by remember { mutableStateOf(false) }
-            val layoutDirection = if (lang == "ar") LayoutDirection.Rtl else LayoutDirection.Ltr
+            val layoutDirection = if (AppLanguages.isRtl(lang)) LayoutDirection.Rtl else LayoutDirection.Ltr
             val splashDurationMs = if (showOnboarding) 900L else 1400L
 
             val notificationPermissionLauncher = rememberLauncherForActivityResult(
@@ -125,14 +150,15 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            fun enableDefaultAutoFeatures() {
-                settings.autoAzkarEnabled = true
-                settings.isServiceEnabled = true
+            fun enableDefaultAutoFeatures(result: OnboardingResult) {
+                settings.isServiceEnabled = result.autoTasbihEnabled
+                val needsNotifications = result.autoTasbihEnabled || result.autoAzkarEnabled
+                if (!needsNotifications) return
                 val permission = RuntimePermissions.postNotificationsPermission()
                 if (permission != null && !RuntimePermissions.hasPostNotifications(this)) {
-                    pendingOnboardingServiceEnable = true
+                    pendingOnboardingServiceEnable = result.autoTasbihEnabled
                     notificationPermissionLauncher.launch(permission)
-                } else {
+                } else if (result.autoTasbihEnabled) {
                     startAutoTasbih()
                 }
             }
@@ -146,7 +172,8 @@ class MainActivity : ComponentActivity() {
                 arabicFontStyle = result.arabicFontStyle
                 themeMode = result.themeMode
                 showOnboarding = false
-                enableDefaultAutoFeatures()
+                viewModel.applyOnboardingReminders(result)
+                enableDefaultAutoFeatures(result)
                 if (result.language != lang) recreate()
             }
 
@@ -159,6 +186,24 @@ class MainActivity : ComponentActivity() {
 
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                 GreenDomeTheme(themeMode = themeMode) {
+                    val updateController = rememberPlayAppUpdateController()
+                    val contentUpdate = rememberContentUpdateController()
+                    ProvidePlayAppUpdate(updateController) {
+                    LaunchedEffect(showAppSplash, showOnboarding) {
+                        if (!showAppSplash && !showOnboarding) {
+                            mainUiReady = true
+                            kotlinx.coroutines.delay(1000)
+                            val showedAppUpdate = updateController.autoPromptIfNeeded()
+                            val showedContentUpdate = if (!showedAppUpdate) {
+                                contentUpdate.autoPromptIfNeeded()
+                            } else {
+                                false
+                            }
+                            if (!showedAppUpdate && !showedContentUpdate) {
+                                InAppReviewPrompt.onMainScreenReady(this@MainActivity)
+                            }
+                        }
+                    }
                     AppArabicFont(arabicFontStyle) {
                         Box(Modifier.fillMaxSize()) {
                             if (!showOnboarding) {
@@ -173,11 +218,15 @@ class MainActivity : ComponentActivity() {
                                 AppSplashScreen()
                             }
                             if (!showAppSplash && showOnboarding) {
+                                val azkarCollections by viewModel.azkarCollections.collectAsState(
+                                    initial = emptyList()
+                                )
                                 OnboardingFlow(
                                     initialLanguage = lang,
                                     initialFontStyle = arabicFontStyle,
                                     initialThemeMode = themeMode,
                                     initialStep = settings.onboardingStep,
+                                    azkarCollections = azkarCollections,
                                     onLanguageChange = { newLang ->
                                         settings.appLanguage = newLang
                                         recreate()
@@ -188,6 +237,8 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     }
+                    ContentUpdateDialogs(contentUpdate)
+                    }
                 }
             }
         }
@@ -196,6 +247,9 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         viewModel.refreshStats()
+        if (mainUiReady) {
+            InAppReviewPrompt.onMainScreenReady(this)
+        }
         if (viewModel.settingsRepo().isServiceEnabled) {
             ContextCompat.startForegroundService(
                 this,
@@ -203,6 +257,9 @@ class MainActivity : ComponentActivity() {
                     action = AdhkarReminderService.ACTION_REFRESH
                 }
             )
+        }
+        lifecycleScope.launch {
+            TravelLocationUpdater.maybeRefresh(this@MainActivity)
         }
     }
 
@@ -223,12 +280,16 @@ class MainActivity : ComponentActivity() {
         var showAdminScreen by remember { mutableStateOf(false) }
         var isServiceOn by remember { mutableStateOf(settings.isServiceEnabled) }
         var playingDhikrId by remember { mutableStateOf<Long?>(null) }
+        var showNoAudioAlert by remember { mutableStateOf(false) }
         var fontScale by remember { mutableStateOf(settings.fontScale) }
         var numberDigitStyle by remember { mutableStateOf(settings.numberDigitStyle) }
         var autoAzkarEnabled by remember { mutableStateOf(settings.autoAzkarEnabled) }
         var autoAzkarRandom by remember { mutableStateOf(settings.autoAzkarRandomMode) }
         var azkarDisplayMode by remember { mutableStateOf(settings.azkarDisplayMode) }
         var openAzkarCollection by remember { mutableStateOf<AdhkarCollectionEntity?>(null) }
+        var openAzkarItemId by remember { mutableStateOf<Long?>(null) }
+        var openPrayerRespectSettings by remember { mutableStateOf(false) }
+        var azkarSearchQuery by remember { mutableStateOf("") }
         var showMyDhikr by remember { mutableStateOf(false) }
         var adminAzkarBrowse by remember { mutableStateOf(false) }
         var adminAzkarCollection by remember { mutableStateOf<AdhkarCollectionEntity?>(null) }
@@ -237,6 +298,7 @@ class MainActivity : ComponentActivity() {
         var adminEditingAzkarCollection by remember { mutableStateOf<AdhkarCollectionEntity?>(null) }
         var adminAddingAzkarCollection by remember { mutableStateOf(false) }
         var adminRecitersBrowse by remember { mutableStateOf(false) }
+        var adminPrayerDefaults by remember { mutableStateOf(false) }
         var adminAddingReciter by remember { mutableStateOf(false) }
         var adminEditingReciter by remember { mutableStateOf<ReciterEntity?>(null) }
         var adminReciterAudio by remember { mutableStateOf<ReciterEntity?>(null) }
@@ -290,9 +352,29 @@ class MainActivity : ComponentActivity() {
 
         fun playDhikr(dhikr: DhikrEntity) {
             scope.launch {
-                val playable = DhikrPlaybackResolver.resolvePlayable(context, dhikr) ?: return@launch
+                val playable = DhikrPlaybackResolver.resolvePlayable(context, dhikr)
+                if (playable == null) {
+                    showNoAudioAlert = true
+                    return@launch
+                }
                 playingDhikrId = dhikr.id
-                audioPlayer.playResolved(playable, settings) { playingDhikrId = null }
+                audioPlayer.playResolved(playable, settings, VoiceSettingsTarget.TASBIH) {
+                    playingDhikrId = null
+                }
+            }
+        }
+
+        fun previewAzkarVoice() {
+            scope.launch {
+                val items = AdhkarDatabase.get(context).azkarItemDao().getAll()
+                for (item in items) {
+                    val playable = AzkarPlaybackResolver.resolvePlayable(context, item)
+                    if (playable != null) {
+                        audioPlayer.playResolved(playable, settings, VoiceSettingsTarget.AZKAR)
+                        return@launch
+                    }
+                }
+                showNoAudioAlert = true
             }
         }
 
@@ -301,6 +383,7 @@ class MainActivity : ComponentActivity() {
         val reciters by vm.reciters.collectAsState()
         val allReciters by vm.allReciters.collectAsState()
         val azkarCollections by vm.azkarCollections.collectAsState()
+        val allAzkarItems by vm.allAzkarItems.collectAsState()
         val favoriteSourceIds by vm.favoriteSourceIdsFlow()
             .collectAsState(initial = emptySet())
         val azkarItems by vm.collectionItemsFlow(openAzkarCollection?.id ?: adminAzkarCollection?.id ?: "")
@@ -310,6 +393,8 @@ class MainActivity : ComponentActivity() {
         val todayMisbahaCount by vm.todayMisbahaCount.collectAsState()
         val tasbihActivityLog by vm.tasbihActivityLog.collectAsState()
         val minutesUntil by vm.minutesUntilNext.collectAsState()
+        val isPrayerQuiet by vm.isPrayerQuiet.collectAsState()
+        val pendingPublishChanges by vm.pendingPublishChanges.collectAsState()
         val lang = settings.appLanguage
 
         LaunchedEffect(azkarCollections, openAzkarCollection?.id) {
@@ -326,12 +411,98 @@ class MainActivity : ComponentActivity() {
 
         AppFontScale(fontScale) {
         CompositionLocalProvider(LocalNumberDigitStyle provides numberDigitStyle) {
+        fun finishAdminDhikrEditor() {
+            val returnBucket = adminReturnDhikrBucket
+            val openedFromAdmin = adminAddDefault || adminEditing || returnBucket != null
+            adminReturnDhikrBucket = null
+            adminAddDefault = false
+            adminEditing = false
+            adminTargetCategory = null
+            showAddScreen = false
+            editingDhikr = null
+            when {
+                returnBucket != null -> {
+                    adminDhikrBucket = returnBucket
+                    showAdminScreen = false
+                }
+                openedFromAdmin -> showAdminScreen = true
+            }
+        }
+
+        val canPopNestedScreen = adminAddingAzkarCollection ||
+            adminEditingAzkarCollection != null ||
+            editingAzkarItem != null ||
+            adminAddingAzkarItem ||
+            adminAzkarCollection != null ||
+            adminAzkarBrowse ||
+            adminAddingReciter ||
+            adminEditingReciter != null ||
+            adminReciterAudio != null ||
+            adminRecitersBrowse ||
+            adminPrayerDefaults ||
+            showAddScreen ||
+            editingDhikr != null ||
+            adminDhikrBucket != null ||
+            showAdminScreen ||
+            showMyDhikr ||
+            openAzkarCollection != null
+        BackHandler(enabled = canPopNestedScreen || tab != 0) {
+            when {
+                adminAddingAzkarCollection || adminEditingAzkarCollection != null -> {
+                    adminAddingAzkarCollection = false
+                    adminEditingAzkarCollection = null
+                    if (adminAzkarCollection == null) adminAzkarBrowse = true
+                }
+                editingAzkarItem != null || adminAddingAzkarItem -> {
+                    editingAzkarItem = null
+                    adminAddingAzkarItem = false
+                }
+                adminAzkarCollection != null -> {
+                    adminAzkarCollection = null
+                    adminAzkarBrowse = true
+                }
+                adminAzkarBrowse -> {
+                    adminAzkarBrowse = false
+                    showAdminScreen = true
+                }
+                adminAddingReciter || adminEditingReciter != null -> {
+                    adminAddingReciter = false
+                    adminEditingReciter = null
+                    adminRecitersBrowse = true
+                }
+                adminReciterAudio != null -> {
+                    adminReciterAudio = null
+                    adminRecitersBrowse = true
+                }
+                adminRecitersBrowse -> {
+                    adminRecitersBrowse = false
+                    showAdminScreen = true
+                }
+                adminPrayerDefaults -> {
+                    adminPrayerDefaults = false
+                    showAdminScreen = true
+                }
+                showAddScreen || editingDhikr != null -> finishAdminDhikrEditor()
+                adminDhikrBucket != null -> {
+                    adminDhikrBucket = null
+                    showAdminScreen = true
+                }
+                showAdminScreen -> showAdminScreen = false
+                showMyDhikr -> showMyDhikr = false
+                openAzkarCollection != null -> {
+                    openAzkarCollection = null
+                    openAzkarItemId = null
+                }
+                else -> tab = 0
+            }
+        }
+
         if (adminAddingAzkarCollection || adminEditingAzkarCollection != null) {
             AdminEditAzkarCollectionScreen(
                 existing = if (adminAddingAzkarCollection) null else adminEditingAzkarCollection,
                 nextSortOrder = (azkarCollections.maxOfOrNull { it.sortOrder } ?: 0) + 1,
                 onSave = { collection ->
-                    vm.saveCollection(collection) {
+                    vm.saveCollection(collection, markPendingPublish = true) {
                         adminAddingAzkarCollection = false
                         adminEditingAzkarCollection = null
                         adminAzkarCollection = collection
@@ -449,18 +620,38 @@ class MainActivity : ComponentActivity() {
             val reciter = adminReciterAudio!!
             val reciterAudioList by vm.reciterAudioFlow(reciter.id)
                 .collectAsState(initial = emptyList())
+            val reciterAzkarAudioList by vm.reciterAzkarAudioFlow(reciter.id)
+                .collectAsState(initial = emptyList())
             AdminReciterAudioScreen(
                 reciter = reciter,
                 dhikrList = dhikrList,
-                audioList = reciterAudioList,
+                azkarCollections = azkarCollections,
+                azkarItems = allAzkarItems,
+                dhikrAudioList = reciterAudioList,
+                azkarAudioList = reciterAzkarAudioList,
                 lang = lang,
-                onSaveAudio = { audio -> vm.saveReciterAudio(audio) },
-                onDeleteAudio = { audio ->
+                onSaveDhikrAudio = { audio -> vm.saveReciterAudio(audio) },
+                onDeleteDhikrAudio = { audio ->
                     vm.deleteReciterAudio(audio.id, audio.localPath)
+                },
+                onSaveAzkarAudio = { audio -> vm.saveReciterAzkarAudio(audio) },
+                onDeleteAzkarAudio = { audio ->
+                    vm.deleteReciterAzkarAudio(audio.id, audio.localPath)
                 },
                 onBack = {
                     adminReciterAudio = null
                     adminRecitersBrowse = true
+                }
+            )
+            return@CompositionLocalProvider
+        }
+
+        if (adminPrayerDefaults) {
+            AdminPrayerDefaultsScreen(
+                settings = settings,
+                onBack = {
+                    adminPrayerDefaults = false
+                    showAdminScreen = true
                 }
             )
             return@CompositionLocalProvider
@@ -490,22 +681,6 @@ class MainActivity : ComponentActivity() {
             return@CompositionLocalProvider
         }
 
-        fun finishAdminDhikrEditor() {
-            val returnBucket = adminReturnDhikrBucket
-            adminReturnDhikrBucket = null
-            adminAddDefault = false
-            adminEditing = false
-            adminTargetCategory = null
-            showAddScreen = false
-            editingDhikr = null
-            if (returnBucket != null) {
-                adminDhikrBucket = returnBucket
-                showAdminScreen = false
-            } else if (settings.isAdminLoggedIn) {
-                showAdminScreen = true
-            }
-        }
-
         if (showAddScreen || editingDhikr != null) {
             val nextSortOrder = when (adminTargetCategory) {
                 DhikrCategory.JAWAMI -> (dhikrList.filter { it.category == DhikrCategory.JAWAMI }
@@ -522,13 +697,15 @@ class MainActivity : ComponentActivity() {
                 showSchedule = (adminAddDefault || adminEditing) && adminTargetCategory != DhikrCategory.JAWAMI &&
                     editingDhikr?.category != DhikrCategory.JAWAMI,
                 onSave = { entity ->
-                    vm.saveDhikr(entity) { finishAdminDhikrEditor() }
+                    vm.saveDhikr(
+                        entity,
+                        markPendingPublish = adminAddDefault || adminEditing
+                    ) { finishAdminDhikrEditor() }
                 },
                 onCancel = { finishAdminDhikrEditor() },
                 onDelete = { id ->
-                    vm.deleteDhikr(id)
-                    showAddScreen = false
-                    editingDhikr = null
+                    vm.deleteDhikr(id, markPendingPublish = adminAddDefault || adminEditing)
+                    finishAdminDhikrEditor()
                 }
             )
             return@CompositionLocalProvider
@@ -573,14 +750,24 @@ class MainActivity : ComponentActivity() {
                     }
                     adminDhikrBucket = null
                     showAdminScreen = false
+                },
+                onDeleteDhikr = if (
+                    bucket == AdminDhikrBucket.SHORT_TASBIH ||
+                    bucket == AdminDhikrBucket.JAWAMI
+                ) {
+                    { dhikr -> vm.deleteDhikr(dhikr.id, markPendingPublish = true) }
+                } else {
+                    null
                 }
             )
             return@CompositionLocalProvider
         }
 
         if (showAdminScreen) {
+            val appContext = LocalContext.current
             AdminScreen(
                 isLoggedIn = settings.isAdminLoggedIn,
+                settings = settings,
                 onLogin = vm::loginAdmin,
                 onLogout = {
                     vm.logoutAdmin()
@@ -599,64 +786,46 @@ class MainActivity : ComponentActivity() {
                     adminRecitersBrowse = true
                     showAdminScreen = false
                 },
+                onManagePrayerDefaults = {
+                    adminPrayerDefaults = true
+                    showAdminScreen = false
+                },
                 dhikrList = dhikrList,
                 azkarCollectionCount = azkarCollections.size,
-                onImport = { list -> list.forEach { vm.saveDhikr(it) } }
+                pendingPublishChanges = pendingPublishChanges,
+                onImport = { list -> list.forEach { vm.saveDhikr(it, markPendingPublish = true) } },
+                onPublishUpdates = { onProgress ->
+                    RemoteContentPublisher.publish(
+                        appContext,
+                        settings,
+                        AdhkarDatabase.get(appContext),
+                        onProgress
+                    )
+                }
             )
             return@CompositionLocalProvider
         }
 
-        Scaffold(
-            bottomBar = {
-                NavigationBar(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    contentColor = GreenPrimary,
-                    tonalElevation = 0.dp
-                ) {
-                    val navColors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = GreenPrimary,
-                        selectedTextColor = GreenPrimary,
-                        indicatorColor = GoldDome.copy(alpha = 0.18f),
-                        unselectedIconColor = Color(0xFF6B6B6B),
-                        unselectedTextColor = Color(0xFF6B6B6B)
-                    )
-                    NavigationBarItem(
-                        selected = tab == 0,
-                        onClick = { tab = 0 },
-                        icon = { Icon(Icons.Default.Home, null) },
-                        label = { Text(stringResource(R.string.nav_home)) },
-                        colors = navColors
-                    )
-                    NavigationBarItem(
-                        selected = tab == 1,
-                        onClick = { tab = 1 },
-                        icon = {
-                            val tint = if (tab == 1) GreenPrimary else Color(0xFF6B6B6B)
-                            MisbahaNavIcon(tint = tint)
-                        },
-                        label = { Text(stringResource(R.string.nav_misbaha)) },
-                        colors = navColors
-                    )
-                    NavigationBarItem(
-                        selected = tab == 2,
-                        onClick = { tab = 2; openAzkarCollection = null; showMyDhikr = false },
-                        icon = {
-                            val tint = if (tab == 2) GreenPrimary else Color(0xFF6B6B6B)
-                            AzkarNavIcon(tint = tint)
-                        },
-                        label = { Text(stringResource(R.string.nav_azkar)) },
-                        colors = navColors
-                    )
-                    NavigationBarItem(
-                        selected = tab == 3,
-                        onClick = { tab = 3 },
-                        icon = { Icon(Icons.Default.Settings, null) },
-                        label = { Text(stringResource(R.string.nav_settings)) },
-                        colors = navColors
-                    )
-                }
-            }
-        ) { padding ->
+        Box(modifier = Modifier.fillMaxSize()) {
+        val windowWidth = rememberAppWindowWidth()
+        val useRail = windowWidth.useNavigationRail()
+        val navBarColors = NavigationBarItemDefaults.colors(
+            selectedIconColor = GreenPrimary,
+            selectedTextColor = GreenPrimary,
+            indicatorColor = GoldDome.copy(alpha = 0.18f),
+            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        val navRailColors = NavigationRailItemDefaults.colors(
+            selectedIconColor = GreenPrimary,
+            selectedTextColor = GreenPrimary,
+            indicatorColor = GoldDome.copy(alpha = 0.18f),
+            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        @Composable
+        fun MainTabs(padding: androidx.compose.foundation.layout.PaddingValues) {
             when (tab) {
                 0 -> HomeScreen(
                     isServiceOn = isServiceOn,
@@ -664,26 +833,31 @@ class MainActivity : ComponentActivity() {
                     todayAzkarCount = todayAzkarCount,
                     todayMisbahaCount = todayMisbahaCount,
                     minutesUntilNext = minutesUntil,
+                    isPrayerQuiet = isPrayerQuiet,
                     autoAzkarEnabled = autoAzkarEnabled,
                     azkarCollections = azkarCollections,
+                    prayerConfig = settings.prayerConfig(),
+                    clockHourFormat = settings.azkarClockHourFormat,
                     appLang = lang,
                     onToggleService = {
                         if (isServiceOn) stopAutoTasbih() else requestEnableAutoTasbih()
                     },
                     onToggleAutoAzkar = {
                         autoAzkarEnabled = it
-                        settings.autoAzkarEnabled = it
+                        vm.setAutoAzkarEnabled(it)
                     },
                     modifier = Modifier.padding(padding),
                     onAdminSecretTap = { showAdminScreen = true }
                 )
                 1 -> MisbahaScreen(
-                    items = dhikrList.filter {
-                        it.isDefault && !it.isLongForm && it.category != DhikrCategory.JAWAMI
-                    },
+                    items = dhikrList.filter { it.isBuiltinShortTasbih() }
+                        .distinctBy { it.textAr.trim() },
                     lang = lang,
                     activityData = tasbihActivityLog,
-                    onTasbihCounted = vm::recordMisbahaCount,
+                    onTasbihCounted = {
+                        vm.recordMisbahaCount()
+                        InAppReviewPrompt.considerLaunch(this@MainActivity)
+                    },
                     onOpenActivityLog = { vm.loadTasbihActivityLog() },
                     onActivityPeriodChange = vm::loadTasbihActivityLog,
                     modifier = Modifier.padding(padding)
@@ -714,7 +888,10 @@ class MainActivity : ComponentActivity() {
                                     azkarDisplayMode = mode
                                     settings.azkarDisplayMode = mode
                                 },
-                                onBack = { openAzkarCollection = null },
+                                onBack = {
+                                    openAzkarCollection = null
+                                    openAzkarItemId = null
+                                },
                                 onSaveSchedule = { updated ->
                                     vm.saveCollection(updated)
                                     openAzkarCollection = updated
@@ -722,12 +899,31 @@ class MainActivity : ComponentActivity() {
                                 onToggleFavorite = { item ->
                                     vm.toggleAzkarFavorite(item)
                                 },
+                                onOpenAfterPrayerSettings = {
+                                    openAzkarCollection = null
+                                    openAzkarItemId = null
+                                    openPrayerRespectSettings = true
+                                    tab = 3
+                                },
+                                initialItemId = openAzkarItemId,
+                                modifier = Modifier.padding(padding),
                             )
                         }
                         else -> AzkarHubScreen(
                             collections = azkarCollections,
+                            allItems = allAzkarItems,
+                            customDhikr = dhikrList,
                             lang = lang,
-                            onOpenCollection = { openAzkarCollection = it },
+                            searchQuery = azkarSearchQuery,
+                            onSearchQueryChange = { azkarSearchQuery = it },
+                            onOpenCollection = {
+                                openAzkarItemId = null
+                                openAzkarCollection = it
+                            },
+                            onOpenItem = { collection, item ->
+                                openAzkarItemId = item.id
+                                openAzkarCollection = collection
+                            },
                             onOpenMyDhikr = { showMyDhikr = true },
                             modifier = Modifier.padding(padding),
                         )
@@ -745,7 +941,7 @@ class MainActivity : ComponentActivity() {
                     },
                     onToggleAutoAzkar = {
                         autoAzkarEnabled = it
-                        settings.autoAzkarEnabled = it
+                        vm.setAutoAzkarEnabled(it)
                     },
                     onAutoAzkarRandomChange = {
                         autoAzkarRandom = it
@@ -754,7 +950,9 @@ class MainActivity : ComponentActivity() {
                     onPreviewVoice = {
                         dhikrList.firstOrNull { it.audioSourceType != com.greendome.adhkar.data.model.AudioSourceType.NONE }
                             ?.let { playDhikr(it) }
+                            ?: run { showNoAudioAlert = true }
                     },
+                    onPreviewAzkarVoice = { previewAzkarVoice() },
                     onLanguageChanged = onLanguageChanged,
                     onFontScaleChanged = { fontScale = settings.fontScale },
                     onArabicFontChanged = onArabicFontChanged,
@@ -770,9 +968,78 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     },
+                    openPrayerRespect = openPrayerRespectSettings,
+                    onOpenPrayerRespectConsumed = { openPrayerRespectSettings = false },
                     modifier = Modifier.padding(padding)
                 )
             }
+        }
+
+        if (useRail) {
+            Row(Modifier.fillMaxSize()) {
+                MainNavigationRail(
+                    tab = tab,
+                    colors = navRailColors,
+                    onHome = { tab = 0 },
+                    onMisbaha = { tab = 1 },
+                    onAzkar = { tab = 2; openAzkarCollection = null; showMyDhikr = false },
+                    onSettings = { tab = 3 },
+                )
+                AdaptiveContentContainer(Modifier.weight(1f)) {
+                    Scaffold { padding -> MainTabs(padding) }
+                }
+            }
+        } else {
+        AdaptiveContentContainer {
+        Scaffold(
+            bottomBar = {
+                NavigationBar(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    contentColor = GreenPrimary,
+                    tonalElevation = 0.dp
+                ) {
+                    NavigationBarItem(
+                        selected = tab == 0,
+                        onClick = { tab = 0 },
+                        icon = { Icon(Icons.Default.Home, null) },
+                        label = { Text(stringResource(R.string.nav_home)) },
+                        colors = navBarColors
+                    )
+                    NavigationBarItem(
+                        selected = tab == 1,
+                        onClick = { tab = 1 },
+                        icon = {
+                            val tint = if (tab == 1) GreenPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                            MisbahaNavIcon(tint = tint)
+                        },
+                        label = { Text(stringResource(R.string.nav_misbaha)) },
+                        colors = navBarColors
+                    )
+                    NavigationBarItem(
+                        selected = tab == 2,
+                        onClick = { tab = 2; openAzkarCollection = null; showMyDhikr = false },
+                        icon = {
+                            val tint = if (tab == 2) GreenPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                            AzkarNavIcon(tint = tint)
+                        },
+                        label = { Text(stringResource(R.string.nav_azkar)) },
+                        colors = navBarColors
+                    )
+                    NavigationBarItem(
+                        selected = tab == 3,
+                        onClick = { tab = 3 },
+                        icon = { Icon(Icons.Default.Settings, null) },
+                        label = { Text(stringResource(R.string.nav_settings)) },
+                        colors = navBarColors
+                    )
+                }
+            }
+        ) { padding -> MainTabs(padding) }
+        }
+        }
+        if (showNoAudioAlert) {
+            AudioUnavailableDialog(onDismiss = { showNoAudioAlert = false })
+        }
         }
         }
         }
@@ -787,5 +1054,56 @@ class MainActivity : ComponentActivity() {
         val action = if (currentlyOn) AdhkarReminderService.ACTION_STOP else AdhkarReminderService.ACTION_START
         ContextCompat.startForegroundService(this, Intent(this, AdhkarReminderService::class.java).apply { this.action = action })
         viewModel.refreshStats()
+    }
+}
+
+@Composable
+private fun MainNavigationRail(
+    tab: Int,
+    colors: androidx.compose.material3.NavigationRailItemColors,
+    onHome: () -> Unit,
+    onMisbaha: () -> Unit,
+    onAzkar: () -> Unit,
+    onSettings: () -> Unit,
+) {
+    NavigationRail(
+        modifier = Modifier.fillMaxHeight(),
+        containerColor = MaterialTheme.colorScheme.background,
+        contentColor = GreenPrimary,
+    ) {
+        NavigationRailItem(
+            selected = tab == 0,
+            onClick = onHome,
+            icon = { Icon(Icons.Default.Home, null) },
+            label = { Text(stringResource(R.string.nav_home)) },
+            colors = colors
+        )
+        NavigationRailItem(
+            selected = tab == 1,
+            onClick = onMisbaha,
+            icon = {
+                val tint = if (tab == 1) GreenPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                MisbahaNavIcon(tint = tint)
+            },
+            label = { Text(stringResource(R.string.nav_misbaha)) },
+            colors = colors
+        )
+        NavigationRailItem(
+            selected = tab == 2,
+            onClick = onAzkar,
+            icon = {
+                val tint = if (tab == 2) GreenPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                AzkarNavIcon(tint = tint)
+            },
+            label = { Text(stringResource(R.string.nav_azkar)) },
+            colors = colors
+        )
+        NavigationRailItem(
+            selected = tab == 3,
+            onClick = onSettings,
+            icon = { Icon(Icons.Default.Settings, null) },
+            label = { Text(stringResource(R.string.nav_settings)) },
+            colors = colors
+        )
     }
 }

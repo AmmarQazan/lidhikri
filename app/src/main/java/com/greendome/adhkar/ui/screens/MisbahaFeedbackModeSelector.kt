@@ -1,8 +1,11 @@
 package com.greendome.adhkar.ui.screens
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -10,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.greendome.adhkar.R
 import com.greendome.adhkar.data.model.MisbahaFeedbackMode
@@ -20,13 +24,14 @@ fun MisbahaFeedbackModeSelector(
     onSelected: (MisbahaFeedbackMode) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    MisbahaFeedbackMode.entries.forEach { mode ->
-        MisbahaFeedbackModeOption(
-            label = misbahaFeedbackModeLabel(mode),
-            selected = selected == mode,
-            onSelect = { onSelected(mode) },
-            modifier = modifier
-        )
+    Column(modifier = modifier.selectableGroup()) {
+        MisbahaFeedbackMode.entries.forEach { mode ->
+            MisbahaFeedbackModeOption(
+                label = misbahaFeedbackModeLabel(mode),
+                selected = selected == mode,
+                onSelect = { onSelected(mode) }
+            )
+        }
     }
 }
 
@@ -40,10 +45,15 @@ private fun MisbahaFeedbackModeOption(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 2.dp),
+            .selectable(
+                selected = selected,
+                onClick = onSelect,
+                role = Role.RadioButton
+            )
+            .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        RadioButton(selected = selected, onClick = onSelect)
+        RadioButton(selected = selected, onClick = null)
         Text(
             label,
             style = MaterialTheme.typography.bodyMedium,

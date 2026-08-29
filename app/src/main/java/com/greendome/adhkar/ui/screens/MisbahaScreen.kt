@@ -25,12 +25,17 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.CompositionLocalProvider
@@ -44,6 +49,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.BlurCircular
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.TouchApp
@@ -65,20 +71,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.greendome.adhkar.R
 import com.greendome.adhkar.audio.DhikrAudioPlayer
 import com.greendome.adhkar.audio.DhikrPlaybackResolver
 import com.greendome.adhkar.audio.playResolved
-import com.greendome.adhkar.audio.playSequence
 import com.greendome.adhkar.data.SettingsRepository
 import com.greendome.adhkar.data.local.DhikrEntity
+import com.greendome.adhkar.data.model.MisbahaBeadTheme
 import com.greendome.adhkar.data.model.MisbahaStyle
 import com.greendome.adhkar.util.MisbahaFeedback
+import com.greendome.adhkar.ui.components.AudioUnavailableDialog
+import com.greendome.adhkar.ui.theme.AppCardColors
 import com.greendome.adhkar.ui.theme.formatLocalizedDigits
 import com.greendome.adhkar.ui.theme.stringResourceDigits
-import com.greendome.adhkar.ui.theme.GoldDome
-import com.greendome.adhkar.ui.theme.GoldLight
 import com.greendome.adhkar.ui.theme.GreenPrimary
 import com.greendome.adhkar.ui.theme.GreenPrimaryDark
 import kotlinx.coroutines.delay
@@ -111,11 +116,16 @@ fun MisbahaScreen(
     var target by remember { mutableIntStateOf(33) }
     var repeatEnabled by remember { mutableStateOf(settings.misbahaRepeatEnabled) }
     var misbahaStyle by remember { mutableStateOf(settings.misbahaStyle) }
+    val beadScale = settings.misbahaBeadScale
+    val beadTheme = settings.misbahaBeadTheme
+    val electronicTheme = settings.misbahaElectronicTheme
     var isPlaying by remember { mutableStateOf(false) }
+    var showNoAudioAlert by remember { mutableStateOf(false) }
     var pressed by remember { mutableStateOf(false) }
     var showActivityLog by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val scale by animateFloatAsState(if (pressed) 0.9f else 1f, label = "misbahaPulse")
+    val remaining = (target - counter).coerceAtLeast(0)
 
     DisposableEffect(Unit) {
         onDispose {
@@ -130,6 +140,16 @@ fun MisbahaScreen(
         isPlaying = false
     }
 
+    fun countFromPlayback() {
+        counter++
+        onTasbihCounted()
+        pressed = true
+        scope.launch {
+            delay(120)
+            pressed = false
+        }
+    }
+
     fun togglePlayback() {
         val dhikr = selected ?: return
         if (isPlaying) {
@@ -137,11 +157,21 @@ fun MisbahaScreen(
             return
         }
         scope.launch {
-            val playable = DhikrPlaybackResolver.resolvePlayable(context, dhikr) ?: return@launch
+            val playable = DhikrPlaybackResolver.resolvePlayable(context, dhikr)
+            if (playable == null) {
+                showNoAudioAlert = true
+                return@launch
+            }
             isPlaying = true
             if (repeatEnabled) {
-                val playables = List(target.coerceAtLeast(1)) { playable }
-                audioPlayer.playSequence(playables, settings) {
+                if (counter >= target) counter = 0
+                val toPlay = (target - counter).coerceAtLeast(1)
+                val playables = List(toPlay) { playable }
+                audioPlayer.playSequence(
+                    items = playables,
+                    settings = settings,
+                    onItemStart = { countFromPlayback() },
+                ) {
                     isPlaying = false
                 }
             } else {
@@ -243,7 +273,7 @@ fun MisbahaScreen(
                 .padding(horizontal = 16.dp, vertical = 8.dp)
                 .fillMaxWidth(),
             shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = AppCardColors(),
             elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
         ) {
             Column(
@@ -253,15 +283,18 @@ fun MisbahaScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = selected?.localizedText(lang) ?: stringResource(R.string.misbaha_pick_dhikr),
-                    style = MaterialTheme.typography.titleMedium,
-                    textAlign = TextAlign.Center,
+                    stringResource(
+                        if (selected == null) {
+                            R.string.misbaha_pick_dhikr
+                        } else {
+                            R.string.misbaha_tap_hint
+                        }
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
                     color = GreenPrimaryDark,
-                    fontWeight = FontWeight.Bold,
-                    lineHeight = 28.sp
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(bottom = 12.dp)
                 )
-
-                Spacer(Modifier.height(12.dp))
 
                 FieldLabel(
                     stringResource(R.string.misbaha_style_section),
@@ -331,33 +364,41 @@ fun MisbahaScreen(
                             },
                             label = {
                                 Text(
-                                    stringResourceDigits(R.string.misbaha_target_value, option),
+                                    if (target == option) {
+                                        stringResourceDigits(
+                                            R.string.misbaha_progress,
+                                            counter,
+                                            option,
+                                        )
+                                    } else {
+                                        stringResourceDigits(R.string.misbaha_target_value, option)
+                                    },
                                     style = MaterialTheme.typography.bodyMedium
                                 )
                             }
                         )
                     }
-                    FilterChip(
-                        selected = repeatEnabled,
-                        onClick = {
-                            repeatEnabled = !repeatEnabled
-                            settings.misbahaRepeatEnabled = repeatEnabled
-                            stopPlayback()
-                        },
-                        label = {
-                            Text(
-                                stringResource(R.string.misbaha_repeat),
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Repeat,
-                                contentDescription = null,
-                                modifier = Modifier.size(18.dp)
-                            )
-                        }
-                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        MisbahaIconChip(
+                            selected = repeatEnabled,
+                            icon = Icons.Default.Repeat,
+                            label = stringResource(R.string.misbaha_repeat),
+                            onClick = {
+                                repeatEnabled = !repeatEnabled
+                                settings.misbahaRepeatEnabled = repeatEnabled
+                                stopPlayback()
+                            },
+                        )
+                        MisbahaIconChip(
+                            selected = true,
+                            icon = Icons.Default.Refresh,
+                            label = stringResource(R.string.misbaha_reset),
+                            onClick = {
+                                counter = 0
+                                stopPlayback()
+                            },
+                        )
+                    }
                 }
                 Text(
                     stringResource(R.string.misbaha_repeat_hint),
@@ -372,55 +413,27 @@ fun MisbahaScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(if (misbahaStyle == MisbahaStyle.TRADITIONAL) 280.dp else 220.dp),
+                        .height(if (misbahaStyle == MisbahaStyle.TRADITIONAL) 300.dp else 250.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     when (misbahaStyle) {
                         MisbahaStyle.ELECTRONIC -> ElectronicMisbahaCounter(
                             counter = counter,
                             target = target,
+                            remaining = remaining,
                             scale = scale,
+                            beadTheme = electronicTheme,
                             isPlaying = isPlaying,
                             onTogglePlayback = { togglePlayback() },
                         )
                         MisbahaStyle.TRADITIONAL -> TraditionalMisbahaCounter(
                             counter = counter,
                             target = target,
+                            remaining = remaining,
+                            beadScale = beadScale,
+                            beadTheme = beadTheme,
                             isPlaying = isPlaying,
                             onTogglePlayback = { togglePlayback() },
-                        )
-                    }
-                }
-
-                Spacer(Modifier.height(12.dp))
-                Text(
-                    stringResource(
-                        if (misbahaStyle == MisbahaStyle.TRADITIONAL) {
-                            R.string.misbaha_tap_hint_traditional
-                        } else {
-                            R.string.misbaha_tap_hint_electronic
-                        }
-                    ),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = GreenPrimaryDark,
-                    textAlign = TextAlign.Center
-                )
-
-                Spacer(Modifier.height(16.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    OutlinedButton(onClick = {
-                        counter = 0
-                        stopPlayback()
-                    }) {
-                        Text(
-                            stringResource(R.string.misbaha_reset),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-                    OutlinedButton(onClick = { tapBead() }) {
-                        Text(
-                            stringResourceDigits(R.string.misbaha_plus_one, 1),
-                            style = MaterialTheme.typography.bodyMedium
                         )
                     }
                 }
@@ -437,65 +450,107 @@ fun MisbahaScreen(
             onPeriodChange = onActivityPeriodChange,
         )
     }
+
+    if (showNoAudioAlert) {
+        AudioUnavailableDialog(onDismiss = { showNoAudioAlert = false })
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun MisbahaIconChip(
+    selected: Boolean,
+    icon: ImageVector,
+    label: String,
+    onClick: () -> Unit,
+) {
+    TooltipBox(
+        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+        tooltip = { PlainTooltip { Text(label) } },
+        state = rememberTooltipState(),
+    ) {
+        FilterChip(
+            selected = selected,
+            onClick = onClick,
+            label = {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = label,
+                    modifier = Modifier.size(18.dp)
+                )
+            },
+        )
+    }
 }
 
 @Composable
 private fun ElectronicMisbahaCounter(
     counter: Int,
     target: Int,
+    remaining: Int,
     scale: Float,
+    beadTheme: MisbahaBeadTheme,
     isPlaying: Boolean,
     onTogglePlayback: () -> Unit,
 ) {
-    Box(
-        modifier = Modifier.size(220.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        BeadRing(count = counter, target = target)
-
+    val palette = beadTheme.palette()
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(
-            modifier = Modifier
-                .size(140.dp)
-                .scale(scale)
-                .clip(CircleShape)
-                .background(
-                    Brush.radialGradient(
-                        listOf(
-                            Color.White.copy(alpha = 0.9f),
-                            GoldLight,
-                            GoldDome,
-                            GreenPrimary.copy(alpha = 0.45f)
-                        )
-                    )
-                ),
+            modifier = Modifier.size(220.dp),
             contentAlignment = Alignment.Center
         ) {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = counter.formatLocalizedDigits(),
-                        style = MaterialTheme.typography.displayMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = GreenPrimaryDark,
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = stringResourceDigits(
-                            R.string.misbaha_counter_of,
-                            target,
-                        ),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = GreenPrimary,
-                        textAlign = TextAlign.Center
-                    )
+            BeadRing(count = counter, target = target, beadTheme = beadTheme)
+
+            Box(
+                modifier = Modifier
+                    .size(140.dp)
+                    .scale(scale)
+                    .clip(CircleShape)
+                    .background(
+                        Brush.radialGradient(
+                            listOf(
+                                Color.White.copy(alpha = 0.92f),
+                                palette.centerHighlight,
+                                palette.centerShadow,
+                                palette.activeHighlight.copy(alpha = 0.5f),
+                            )
+                        )
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = counter.formatLocalizedDigits(),
+                            style = MaterialTheme.typography.displayMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = palette.activeShadow,
+                            textAlign = TextAlign.Center
+                        )
+                        Text(
+                            text = stringResourceDigits(
+                                R.string.misbaha_counter_of,
+                                target,
+                            ),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = palette.activeHighlight,
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
             }
-        }
 
-        MisbahaPlayButton(
-            isPlaying = isPlaying,
-            onTogglePlayback = onTogglePlayback,
-            modifier = Modifier.align(Alignment.TopEnd)
+            MisbahaPlayButton(
+                isPlaying = isPlaying,
+                onTogglePlayback = onTogglePlayback,
+                modifier = Modifier.align(Alignment.TopEnd)
+            )
+        }
+        Text(
+            text = stringResourceDigits(R.string.misbaha_remaining, remaining),
+            style = MaterialTheme.typography.labelMedium,
+            color = palette.activeShadow,
+            textAlign = TextAlign.Center
         )
     }
 }
@@ -504,6 +559,9 @@ private fun ElectronicMisbahaCounter(
 private fun TraditionalMisbahaCounter(
     counter: Int,
     target: Int,
+    remaining: Int,
+    beadScale: Float,
+    beadTheme: MisbahaBeadTheme,
     isPlaying: Boolean,
     onTogglePlayback: () -> Unit,
 ) {
@@ -538,18 +596,28 @@ private fun TraditionalMisbahaCounter(
 
         Text(
             text = stringResourceDigits(
-                R.string.misbaha_counter_of,
+                R.string.misbaha_progress,
+                counter,
                 target,
             ),
             style = MaterialTheme.typography.bodySmall,
             color = GreenPrimary,
-            modifier = Modifier.padding(top = 6.dp, bottom = 8.dp),
+            modifier = Modifier.padding(top = 6.dp),
+            textAlign = TextAlign.Center
+        )
+        Text(
+            text = stringResourceDigits(R.string.misbaha_remaining, remaining),
+            style = MaterialTheme.typography.labelSmall,
+            color = GreenPrimaryDark,
+            modifier = Modifier.padding(top = 2.dp, bottom = 8.dp),
             textAlign = TextAlign.Center
         )
 
         TraditionalBeadString(
             count = counter,
             target = target,
+            beadScale = beadScale,
+            beadTheme = beadTheme,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(230.dp)
@@ -568,7 +636,7 @@ private fun MisbahaPlayButton(
         modifier = modifier
             .size(44.dp)
             .clip(CircleShape)
-            .background(Color.White.copy(alpha = 0.92f))
+            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.92f))
     ) {
         Icon(
             imageVector = if (isPlaying) Icons.Default.Stop else Icons.Default.PlayArrow,
@@ -584,6 +652,8 @@ private fun MisbahaPlayButton(
 private fun TraditionalBeadString(
     count: Int,
     target: Int,
+    beadScale: Float,
+    beadTheme: MisbahaBeadTheme,
     modifier: Modifier = Modifier,
 ) {
     val beadCount = 11
@@ -592,10 +662,11 @@ private fun TraditionalBeadString(
     } else {
         ((count - 1) % beadCount).coerceAtLeast(0)
     }
+    val sizeScale = beadScale.coerceIn(0.7f, 1.6f)
+    val palette = beadTheme.palette()
 
     Canvas(modifier = modifier) {
         val centerIndex = beadCount / 2
-        val stringColor = Color(0xFF4A90C2)
         val beadPositions = List(beadCount) { index ->
             val t = index / (beadCount - 1).toFloat()
             val x = size.width * 0.08f + size.width * 0.84f * t
@@ -611,46 +682,50 @@ private fun TraditionalBeadString(
         }
         drawPath(
             path = stringPath,
-            color = stringColor,
-            style = Stroke(width = size.minDimension * 0.022f, cap = StrokeCap.Round)
+            color = palette.stringColor,
+            style = Stroke(width = size.minDimension * 0.022f * sizeScale, cap = StrokeCap.Round)
         )
 
         beadPositions.forEachIndexed { index, beadCenter ->
             val isCenter = index == centerIndex
             val isActive = index <= progressIndex
             val beadRadius = size.minDimension * if (isCenter) 0.095f else 0.080f
-            val highlight = if (isCenter) GoldLight else Color(0xFF8FD4B8)
-            val shadow = if (isCenter) GoldDome else GreenPrimaryDark
-            val inactiveLight = Color(0xFFD8ECE4)
-            val inactiveDark = Color(0xFF9BB8AD)
+            val scaledRadius = beadRadius * sizeScale
+            val highlight = if (isCenter) palette.centerHighlight else palette.activeHighlight
+            val shadow = if (isCenter) palette.centerShadow else palette.activeShadow
 
             drawCircle(
                 brush = Brush.radialGradient(
                     colors = if (isActive) {
                         listOf(highlight, shadow)
                     } else {
-                        listOf(inactiveLight, inactiveDark)
+                        listOf(palette.inactiveLight, palette.inactiveDark)
                     },
-                    center = beadCenter - Offset(beadRadius * 0.25f, beadRadius * 0.25f),
-                    radius = beadRadius * 1.6f
+                    center = beadCenter - Offset(scaledRadius * 0.25f, scaledRadius * 0.25f),
+                    radius = scaledRadius * 1.6f
                 ),
-                radius = beadRadius,
+                radius = scaledRadius,
                 center = beadCenter
             )
             drawCircle(
                 color = Color.White.copy(alpha = if (isActive) 0.35f else 0.18f),
-                radius = beadRadius * 0.28f,
-                center = beadCenter - Offset(beadRadius * 0.28f, beadRadius * 0.32f)
+                radius = scaledRadius * 0.28f,
+                center = beadCenter - Offset(scaledRadius * 0.28f, scaledRadius * 0.32f)
             )
         }
     }
 }
 
 @Composable
-private fun BeadRing(count: Int, target: Int) {
+private fun BeadRing(
+    count: Int,
+    target: Int,
+    beadTheme: MisbahaBeadTheme,
+) {
     val beadCount = 33
     val progress = if (target == 0) 0f else (count % target).toFloat() / target
     val filledBeads = (progress * beadCount).toInt().coerceIn(0, beadCount)
+    val palette = beadTheme.palette()
 
     Canvas(modifier = Modifier.fillMaxSize()) {
         val center = Offset(size.width / 2f, size.height / 2f)
@@ -667,13 +742,13 @@ private fun BeadRing(count: Int, target: Int) {
             drawCircle(
                 brush = if (active) {
                     Brush.radialGradient(
-                        colors = listOf(GoldLight, GoldDome),
+                        colors = listOf(palette.activeHighlight, palette.activeShadow),
                         center = beadCenter,
                         radius = beadRadius * 1.5f
                     )
                 } else {
                     Brush.radialGradient(
-                        colors = listOf(Color(0xFFE8E8E8), Color(0xFFB0B0B0)),
+                        colors = listOf(palette.inactiveLight, palette.inactiveDark),
                         center = beadCenter,
                         radius = beadRadius * 1.5f
                     )

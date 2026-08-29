@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -13,6 +14,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -21,8 +24,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -33,7 +42,7 @@ import com.greendome.adhkar.data.model.DhikrCategory
 import com.greendome.adhkar.data.model.ScheduleType
 import com.greendome.adhkar.ui.theme.GoldDome
 import com.greendome.adhkar.ui.theme.GreenPrimary
-import com.greendome.adhkar.ui.theme.GreenPrimaryDark
+import com.greendome.adhkar.ui.theme.AppCardColors
 import com.greendome.adhkar.ui.theme.stringResourceDigits
 import com.greendome.adhkar.ui.theme.formatLocalizedDigits
 import com.greendome.adhkar.util.DhikrScheduleMatcher
@@ -46,9 +55,9 @@ enum class AdminDhikrBucket {
 
 fun adminDhikrItems(list: List<DhikrEntity>, bucket: AdminDhikrBucket): List<DhikrEntity> {
     val builtIn = list.filter { it.isDefault }
-    val shortTasbih = builtIn.filter { !it.isLongForm && it.category != DhikrCategory.JAWAMI }
-    val jawami = builtIn.filter { it.category == DhikrCategory.JAWAMI }
-    val otherBuiltIn = builtIn.filter { it !in shortTasbih && it !in jawami }
+    val shortTasbih = builtIn.filter { it.isBuiltinShortTasbih() }
+    val jawami = builtIn.filter { it.isJawamiSectionItem() }
+    val otherBuiltIn = builtIn.filter { it.isEidTakbir() }
     return when (bucket) {
         AdminDhikrBucket.SHORT_TASBIH -> shortTasbih
         AdminDhikrBucket.JAWAMI -> jawami
@@ -77,9 +86,42 @@ fun AdminDhikrBrowseScreen(
     items: List<DhikrEntity>,
     onBack: () -> Unit,
     onAdd: () -> Unit,
-    onEditDhikr: (DhikrEntity) -> Unit
+    onEditDhikr: (DhikrEntity) -> Unit,
+    onDeleteDhikr: ((DhikrEntity) -> Unit)? = null
 ) {
     val filtered = adminDhikrItems(items, bucket)
+    var pendingDelete by remember { mutableStateOf<DhikrEntity?>(null) }
+
+    pendingDelete?.let { dhikr ->
+        val deleteTitle = when (bucket) {
+            AdminDhikrBucket.JAWAMI -> R.string.admin_delete_jawami
+            else -> R.string.admin_delete_short_tasbih
+        }
+        val deleteConfirm = when (bucket) {
+            AdminDhikrBucket.JAWAMI -> R.string.admin_delete_jawami_confirm
+            else -> R.string.admin_delete_short_tasbih_confirm
+        }
+        AlertDialog(
+            onDismissRequest = { pendingDelete = null },
+            title = { Text(stringResource(deleteTitle)) },
+            text = { Text(stringResource(deleteConfirm)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onDeleteDhikr?.invoke(dhikr)
+                        pendingDelete = null
+                    }
+                ) {
+                    Text(stringResource(deleteTitle))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingDelete = null }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -125,12 +167,24 @@ fun AdminDhikrBrowseScreen(
                     Text(
                         stringResource(R.string.admin_dhikr_section_empty),
                         modifier = Modifier.padding(16.dp),
-                        color = GreenPrimaryDark
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             } else {
                 filtered.forEach { dhikr ->
-                    AdminDhikrCard(dhikr, onEditDhikr)
+                    AdminDhikrCard(
+                        dhikr = dhikr,
+                        onEditDhikr = onEditDhikr,
+                        onDeleteDhikr = if (onDeleteDhikr != null) {
+                            { pendingDelete = dhikr }
+                        } else {
+                            null
+                        },
+                        deleteLabel = when (bucket) {
+                            AdminDhikrBucket.JAWAMI -> R.string.admin_delete_jawami
+                            else -> R.string.admin_delete_short_tasbih
+                        }
+                    )
                 }
             }
         }
@@ -138,36 +192,57 @@ fun AdminDhikrBrowseScreen(
 }
 
 @Composable
-fun AdminDhikrCard(dhikr: DhikrEntity, onEditDhikr: (DhikrEntity) -> Unit) {
+fun AdminDhikrCard(
+    dhikr: DhikrEntity,
+    onEditDhikr: (DhikrEntity) -> Unit,
+    onDeleteDhikr: (() -> Unit)? = null,
+    deleteLabel: Int = R.string.admin_delete_short_tasbih,
+) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onEditDhikr(dhikr) },
+        modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = androidx.compose.ui.graphics.Color.White)
+        colors = AppCardColors()
     ) {
-        Column(Modifier.padding(12.dp)) {
-            Text(dhikr.textAr, maxLines = 2)
-            if (dhikr.category == DhikrCategory.JAWAMI && dhikr.repeatCount > 1) {
-                Text(
-                    stringResourceDigits(R.string.azkar_repeat_label, dhikr.repeatCount),
-                    color = GoldDome,
-                    fontWeight = FontWeight.Medium
-                )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                Modifier
+                    .weight(1f)
+                    .clickable { onEditDhikr(dhikr) }
+                    .padding(12.dp)
+            ) {
+                Text(dhikr.textAr, maxLines = 2)
+                if (dhikr.category == DhikrCategory.JAWAMI && dhikr.repeatCount > 1) {
+                    Text(
+                        stringResourceDigits(R.string.azkar_repeat_label, dhikr.repeatCount),
+                        color = GoldDome,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+                if (dhikr.scheduleType != ScheduleType.ALWAYS) {
+                    Text(
+                        DhikrScheduleMatcher.scheduleSummaryAr(dhikr).formatLocalizedDigits(),
+                        color = GoldDome,
+                        fontWeight = FontWeight.Medium
+                    )
+                    val active = DhikrScheduleMatcher.isActiveNow(dhikr)
+                    Text(
+                        if (active) stringResource(R.string.schedule_active_now) else stringResource(R.string.schedule_inactive_now),
+                        color = if (active) GreenPrimary else androidx.compose.ui.graphics.Color.Gray
+                    )
+                } else if (dhikr.category != DhikrCategory.JAWAMI) {
+                    Text(stringResource(R.string.schedule_always), color = androidx.compose.ui.graphics.Color.Gray)
+                }
             }
-            if (dhikr.scheduleType != ScheduleType.ALWAYS) {
-                Text(
-                    DhikrScheduleMatcher.scheduleSummaryAr(dhikr).formatLocalizedDigits(),
-                    color = GoldDome,
-                    fontWeight = FontWeight.Medium
-                )
-                val active = DhikrScheduleMatcher.isActiveNow(dhikr)
-                Text(
-                    if (active) stringResource(R.string.schedule_active_now) else stringResource(R.string.schedule_inactive_now),
-                    color = if (active) GreenPrimary else androidx.compose.ui.graphics.Color.Gray
-                )
-            } else if (dhikr.category != DhikrCategory.JAWAMI) {
-                Text(stringResource(R.string.schedule_always), color = androidx.compose.ui.graphics.Color.Gray)
+            if (onDeleteDhikr != null) {
+                IconButton(onClick = onDeleteDhikr) {
+                    Icon(
+                        Icons.Default.Delete,
+                        contentDescription = stringResource(deleteLabel)
+                    )
+                }
             }
         }
     }

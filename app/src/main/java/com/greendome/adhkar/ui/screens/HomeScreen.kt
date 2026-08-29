@@ -27,8 +27,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.greendome.adhkar.R
 import com.greendome.adhkar.data.local.AdhkarCollectionEntity
+import com.greendome.adhkar.prayer.PrayerConfig
+import com.greendome.adhkar.prayer.PrayerQuietWindows
+import com.greendome.adhkar.prayer.PrayerRespectGate
+import com.greendome.adhkar.data.model.ClockHourFormat
 import com.greendome.adhkar.util.CollectionScheduleHelper
+import com.greendome.adhkar.util.formatClockTime
 import java.util.Calendar
+import com.greendome.adhkar.ui.theme.AppCardColors
+import com.greendome.adhkar.ui.theme.AppMutedTextColor
 import com.greendome.adhkar.ui.theme.formatLocalizedDigits
 import com.greendome.adhkar.ui.theme.GreenPrimary
 import com.greendome.adhkar.ui.theme.GreenPrimaryDark
@@ -41,8 +48,11 @@ fun HomeScreen(
     todayAzkarCount: Int,
     todayMisbahaCount: Int,
     minutesUntilNext: Int,
+    isPrayerQuiet: Boolean,
     autoAzkarEnabled: Boolean,
     azkarCollections: List<AdhkarCollectionEntity>,
+    prayerConfig: PrayerConfig,
+    clockHourFormat: ClockHourFormat,
     appLang: String,
     onToggleService: () -> Unit,
     onToggleAutoAzkar: (Boolean) -> Unit,
@@ -63,7 +73,7 @@ fun HomeScreen(
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 Card(
-                    colors = CardDefaults.cardColors(containerColor = androidx.compose.ui.graphics.Color.White),
+                    colors = AppCardColors(),
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -80,12 +90,15 @@ fun HomeScreen(
                         ) {
                             Column(Modifier.weight(1f).padding(end = 8.dp)) {
                                 Text(
-                                    if (isServiceOn) stringResource(R.string.auto_tasbih_on)
-                                    else stringResource(R.string.auto_tasbih_off),
+                                    when {
+                                        !isServiceOn -> stringResource(R.string.auto_tasbih_off)
+                                        isPrayerQuiet -> stringResource(R.string.auto_tasbih_paused_prayer)
+                                        else -> stringResource(R.string.auto_tasbih_on)
+                                    },
                                     style = MaterialTheme.typography.titleSmall,
                                     fontWeight = FontWeight.Bold,
-                                    color = if (isServiceOn) GreenPrimary
-                                    else androidx.compose.ui.graphics.Color.Gray
+                                    color = if (isServiceOn && !isPrayerQuiet) GreenPrimary
+                                    else AppMutedTextColor()
                                 )
                                 if (isServiceOn) {
                                     Spacer(Modifier.height(6.dp))
@@ -101,7 +114,7 @@ fun HomeScreen(
                 }
 
                 Card(
-                    colors = CardDefaults.cardColors(containerColor = androidx.compose.ui.graphics.Color.White),
+                    colors = AppCardColors(),
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -122,7 +135,7 @@ fun HomeScreen(
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.Bold,
                                 color = if (autoAzkarEnabled) GreenPrimary
-                                else androidx.compose.ui.graphics.Color.Gray,
+                                else AppMutedTextColor(),
                                 modifier = Modifier.weight(1f).padding(end = 8.dp)
                             )
                             Switch(checked = autoAzkarEnabled, onCheckedChange = onToggleAutoAzkar)
@@ -131,16 +144,17 @@ fun HomeScreen(
                             Spacer(Modifier.height(8.dp))
                             NextAzkarScheduleLine(
                                 collections = azkarCollections,
-                                appLang = appLang
+                                prayerConfig = prayerConfig,
+                                clockHourFormat = clockHourFormat,
+                                appLang = appLang,
+                                refreshKey = minutesUntilNext
                             )
                         }
                     }
                 }
 
                 Card(
-                    colors = CardDefaults.cardColors(
-                        containerColor = androidx.compose.ui.graphics.Color.White
-                    ),
+                    colors = AppCardColors(),
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -175,7 +189,7 @@ fun HomeScreen(
                         }
                         Text(
                             stringResource(R.string.today_stats_hint),
-                            color = androidx.compose.ui.graphics.Color.Gray,
+                            color = AppMutedTextColor(),
                             modifier = Modifier.padding(top = 6.dp),
                             style = MaterialTheme.typography.bodySmall,
                             textAlign = TextAlign.Center,
@@ -202,7 +216,7 @@ private fun TodayStatLine(
             label,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Bold,
-            color = GreenPrimaryDark,
+            color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
         )
@@ -224,45 +238,56 @@ private fun TodayStatLine(
 @Composable
 private fun NextAzkarScheduleLine(
     collections: List<AdhkarCollectionEntity>,
-    appLang: String
+    prayerConfig: PrayerConfig,
+    clockHourFormat: ClockHourFormat,
+    appLang: String,
+    refreshKey: Int
 ) {
-    val next = remember(collections) { CollectionScheduleHelper.findNextEnabled(collections) }
+    val next = remember(collections, prayerConfig, refreshKey) {
+        val afterPrayer = collections.find {
+            it.id == PrayerRespectGate.AFTER_PRAYER_COLLECTION_ID
+        }
+        val afterPrayerAt = PrayerQuietWindows.nextAfterPrayerTriggerAt(prayerConfig)
+        val extras = if (afterPrayer != null && afterPrayerAt != null) {
+            listOf(afterPrayer to afterPrayerAt)
+        } else {
+            emptyList()
+        }
+        CollectionScheduleHelper.findNextEnabled(collections, extraTriggers = extras)
+    }
     val text = if (next == null) {
         stringResource(R.string.next_azkar_none)
     } else {
         val (collection, triggerAt) = next
-        val title = if (appLang == "ar") collection.titleAr
-        else collection.titleEn.ifBlank { collection.titleAr }
+        val title = azkarCollectionTitle(collection, appLang)
         val trigger = Calendar.getInstance().apply { timeInMillis = triggerAt }
         val now = Calendar.getInstance()
         val tomorrow = Calendar.getInstance().apply {
             timeInMillis = now.timeInMillis
             add(Calendar.DAY_OF_YEAR, 1)
         }
+        val clock = formatClockTime(
+            trigger.get(Calendar.HOUR_OF_DAY),
+            trigger.get(Calendar.MINUTE),
+            clockHourFormat,
+            stringResource(R.string.clock_period_am),
+            stringResource(R.string.clock_period_pm)
+        )
         val timeLabel = when {
             trigger.get(Calendar.YEAR) == now.get(Calendar.YEAR) &&
                 trigger.get(Calendar.DAY_OF_YEAR) == now.get(Calendar.DAY_OF_YEAR) -> {
-                stringResourceDigits(
-                    R.string.next_azkar_time_today,
-                    trigger.get(Calendar.HOUR_OF_DAY),
-                    trigger.get(Calendar.MINUTE)
-                )
+                stringResourceDigits(R.string.next_azkar_time_today, clock)
             }
             trigger.get(Calendar.YEAR) == tomorrow.get(Calendar.YEAR) &&
                 trigger.get(Calendar.DAY_OF_YEAR) == tomorrow.get(Calendar.DAY_OF_YEAR) -> {
-                stringResourceDigits(
-                    R.string.next_azkar_time_tomorrow,
-                    trigger.get(Calendar.HOUR_OF_DAY),
-                    trigger.get(Calendar.MINUTE)
-                )
+                stringResourceDigits(R.string.next_azkar_time_tomorrow, clock)
             }
             else -> {
                 stringResourceDigits(
                     R.string.next_azkar_time_later,
                     trigger.get(Calendar.DAY_OF_MONTH),
                     trigger.get(Calendar.MONTH) + 1,
-                    trigger.get(Calendar.HOUR_OF_DAY),
-                    trigger.get(Calendar.MINUTE)
+                    clock
                 )
             }
         }
@@ -271,7 +296,7 @@ private fun NextAzkarScheduleLine(
     Text(
         text,
         style = MaterialTheme.typography.bodySmall,
-        color = GreenPrimaryDark,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
         fontWeight = FontWeight.Medium
     )
 }

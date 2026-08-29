@@ -1,6 +1,7 @@
 package com.greendome.adhkar.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -52,6 +53,12 @@ fun AppFontScale(scale: Float, content: @Composable () -> Unit) {
         content()
     }
 }
+
+@Composable
+fun AppCardColors() = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+
+@Composable
+fun AppMutedTextColor() = MaterialTheme.colorScheme.onSurfaceVariant
 
 @Composable
 fun AppAccentGreen(): Color =

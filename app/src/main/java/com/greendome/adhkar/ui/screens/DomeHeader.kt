@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,7 +16,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.greendome.adhkar.R
-import com.greendome.adhkar.ui.theme.CreamBackground
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -30,7 +29,7 @@ fun DomeHeader(onLongPress: (() -> Unit)? = null) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(CreamBackground)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .then(clickModifier),
         contentAlignment = Alignment.Center
     ) {
@@ -39,10 +38,9 @@ fun DomeHeader(onLongPress: (() -> Unit)? = null) {
             contentDescription = null,
             contentScale = ContentScale.Fit,
             modifier = Modifier
-                .fillMaxWidth(0.68f)
-                .height(148.dp)
-                .statusBarsPadding()
-                .padding(top = 6.dp, bottom = 10.dp)
+                .fillMaxWidth(0.78f)
+                .height(176.dp)
+                .padding(top = 4.dp, bottom = 12.dp)
         )
     }
 }

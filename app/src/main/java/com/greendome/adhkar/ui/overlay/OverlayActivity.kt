@@ -90,7 +90,7 @@ class OverlayActivity : ComponentActivity() {
         const val EXTRA_SECTION_TITLE = "extra_section_title"
         const val EXTRA_LOCK_SCREEN = "extra_lock_screen"
 
-        fun lockScreenIntent(context: Context, dhikrId: Long, text: String) =
+        fun tasbihPopupIntent(context: Context, dhikrId: Long, text: String) =
             Intent(context, OverlayActivity::class.java).apply {
                 addFlags(
                     Intent.FLAG_ACTIVITY_NEW_TASK or
@@ -99,8 +99,44 @@ class OverlayActivity : ComponentActivity() {
                 )
                 putExtra(EXTRA_TEXT, text)
                 putExtra(EXTRA_DHIKR_ID, dhikrId)
+                putExtra(EXTRA_AUTO_AZKAR, false)
+                putExtra(EXTRA_LOCK_SCREEN, false)
+            }
+
+        fun lockScreenTasbihIntent(context: Context, dhikrId: Long, text: String) =
+            Intent(context, OverlayActivity::class.java).apply {
+                addFlags(
+                    Intent.FLAG_ACTIVITY_NEW_TASK or
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                        Intent.FLAG_ACTIVITY_SINGLE_TOP
+                )
+                putExtra(EXTRA_TEXT, text)
+                putExtra(EXTRA_DHIKR_ID, dhikrId)
+                putExtra(EXTRA_AUTO_AZKAR, false)
                 putExtra(EXTRA_LOCK_SCREEN, true)
             }
+
+        @Deprecated("Use lockScreenTasbihIntent", ReplaceWith("lockScreenTasbihIntent(context, dhikrId, text)"))
+        fun lockScreenIntent(context: Context, dhikrId: Long, text: String) =
+            lockScreenTasbihIntent(context, dhikrId, text)
+
+        fun lockScreenAutoAzkarIntent(
+            context: Context,
+            sectionTitle: String,
+            text: String,
+            itemId: Long
+        ) = Intent(context, OverlayActivity::class.java).apply {
+            addFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK or
+                    Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                    Intent.FLAG_ACTIVITY_SINGLE_TOP
+            )
+            putExtra(EXTRA_TEXT, text)
+            putExtra(EXTRA_DHIKR_ID, itemId)
+            putExtra(EXTRA_AUTO_AZKAR, true)
+            putExtra(EXTRA_SECTION_TITLE, sectionTitle)
+            putExtra(EXTRA_LOCK_SCREEN, true)
+        }
 
         fun autoAzkarIntent(context: Context, sectionTitle: String, text: String) =
             Intent(context, OverlayActivity::class.java).apply {

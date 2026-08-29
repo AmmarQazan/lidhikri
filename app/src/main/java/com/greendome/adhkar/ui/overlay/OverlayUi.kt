@@ -26,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,11 +38,14 @@ import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.greendome.adhkar.R
 import com.greendome.adhkar.data.model.PopupAppearance
 import com.greendome.adhkar.ui.theme.AppFontScale
@@ -73,11 +77,21 @@ fun AutoAzkarOverlayCard(
     val screenHeightDp = LocalConfiguration.current.screenHeightDp
     val maxExpandedHeight = (screenHeightDp * 0.82f).dp
     val boxWidthFraction = if (expanded) 0.98f else appearance.boxWidthFraction
+    val bodyFontSize = if (expanded) 26.sp else 16.sp
+    val bodyLineHeight = if (expanded) 42.sp else 26.sp
+    val overlayFontScale = if (expanded) {
+        (appearance.fontScale * 1.45f).coerceIn(0.8f, 2.2f)
+    } else {
+        appearance.fontScale
+    }
     val alignment = BiasAlignment(
         horizontalBias = appearance.horizontalBias(),
         verticalBias = appearance.verticalBias()
     )
-    AppFontScale(appearance.fontScale) {
+    val density = LocalDensity.current
+    CompositionLocalProvider(
+        LocalDensity provides Density(density.density, overlayFontScale)
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -108,7 +122,11 @@ fun AutoAzkarOverlayCard(
                 if (sectionTitle.isNotBlank()) {
                     Text(
                         text = sectionTitle,
-                        style = MaterialTheme.typography.labelSmall,
+                        style = if (expanded) {
+                            MaterialTheme.typography.labelLarge
+                        } else {
+                            MaterialTheme.typography.labelSmall
+                        },
                         color = GoldDome,
                         textAlign = TextAlign.Center
                     )
@@ -139,11 +157,15 @@ fun AutoAzkarOverlayCard(
                     ) {
                         ArabicText(
                             text = text,
-                            style = MaterialTheme.typography.titleLarge,
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontSize = bodyFontSize,
+                                lineHeight = bodyLineHeight,
+                                fontWeight = FontWeight.SemiBold
+                            ),
                             textAlign = TextAlign.Center,
                             color = GreenPrimaryDark,
                             modifier = Modifier.fillMaxWidth(),
-                            maxLines = if (expanded) Int.MAX_VALUE else 5,
+                            maxLines = if (expanded) Int.MAX_VALUE else 6,
                             overflow = if (expanded) TextOverflow.Visible else TextOverflow.Ellipsis
                         )
                     }
@@ -250,9 +272,16 @@ fun DhikrOverlayCard(
                 Spacer(Modifier.height(12.dp))
                 ArabicText(
                     text = text,
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontSize = 16.sp,
+                        lineHeight = 26.sp,
+                        fontWeight = FontWeight.SemiBold
+                    ),
                     textAlign = TextAlign.Center,
-                    color = GreenPrimaryDark
+                    color = GreenPrimaryDark,
+                    modifier = Modifier.fillMaxWidth(),
+                    maxLines = 6,
+                    overflow = TextOverflow.Ellipsis
                 )
                 if (showDismissButton) {
                     Spacer(Modifier.height(12.dp))

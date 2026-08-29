@@ -34,7 +34,7 @@ import com.greendome.adhkar.data.local.DhikrEntity
 import com.greendome.adhkar.ui.theme.ArabicText
 import com.greendome.adhkar.ui.theme.formatLocalizedDigits
 import com.greendome.adhkar.ui.theme.GreenPrimary
-import com.greendome.adhkar.ui.theme.GreenPrimaryDark
+import com.greendome.adhkar.ui.theme.AppCardColors
 import com.greendome.adhkar.ui.theme.stringResourceDigits
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -53,7 +53,7 @@ fun ReadScreen(items: List<DhikrEntity>, lang: String) {
             stringResource(R.string.read_hint),
             modifier = Modifier.padding(16.dp),
             style = MaterialTheme.typography.bodyMedium,
-            color = GreenPrimaryDark
+            color = MaterialTheme.colorScheme.onBackground
         )
         if (selected == null) {
             Column(
@@ -66,7 +66,7 @@ fun ReadScreen(items: List<DhikrEntity>, lang: String) {
                     Card(
                         onClick = { selected = dhikr; counter = 0 },
                         shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = androidx.compose.ui.graphics.Color.White),
+                        colors = AppCardColors(),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         ArabicText(

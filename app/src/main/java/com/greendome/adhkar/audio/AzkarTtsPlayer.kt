@@ -6,6 +6,7 @@ import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import com.greendome.adhkar.data.SettingsRepository
 import com.greendome.adhkar.data.model.TtsVoiceGender
+import com.greendome.adhkar.util.DeviceAudioGate
 import java.util.concurrent.atomic.AtomicBoolean
 
 enum class TtsPlaybackState { IDLE, PLAYING, PAUSED }
@@ -56,6 +57,10 @@ class AzkarTtsPlayer(
     fun speakAll(texts: List<String>, onDone: () -> Unit = {}) {
         stop()
         if (texts.isEmpty()) return
+        if (DeviceAudioGate.shouldSuppressPlayback(appContext, settingsProvider())) {
+            onDone()
+            return
+        }
         refreshVoice()
         onComplete = onDone
         queue.clear()

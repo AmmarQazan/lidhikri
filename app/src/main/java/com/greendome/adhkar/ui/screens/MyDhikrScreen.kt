@@ -41,7 +41,7 @@ import com.greendome.adhkar.data.model.ScheduleType
 import com.greendome.adhkar.ui.theme.ArabicText
 import com.greendome.adhkar.ui.theme.GoldDome
 import com.greendome.adhkar.ui.theme.GreenPrimary
-import com.greendome.adhkar.ui.theme.GreenPrimaryDark
+import com.greendome.adhkar.ui.theme.AppCardColors
 import com.greendome.adhkar.ui.theme.formatLocalizedDigits
 import com.greendome.adhkar.util.DhikrScheduleMatcher
 
@@ -88,7 +88,7 @@ fun MyDhikrScreen(
                 Text(
                     stringResource(R.string.my_dhikr_hint),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = GreenPrimaryDark,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 OutlinedButton(onClick = onAdd, modifier = Modifier.fillMaxWidth()) {
                     Text(stringResource(R.string.add_my_dhikr))
@@ -106,7 +106,7 @@ fun MyDhikrScreen(
                             modifier = Modifier.padding(16.dp),
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = GreenPrimaryDark,
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                     }
                 }
@@ -119,7 +119,7 @@ fun MyDhikrScreen(
                             .fillMaxWidth()
                             .clickable { onEdit(dhikr) },
                         shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = androidx.compose.ui.graphics.Color.White),
+                        colors = AppCardColors(),
                     ) {
                         androidx.compose.foundation.layout.Row(
                             modifier = Modifier.padding(12.dp),

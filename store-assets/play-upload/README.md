@@ -32,7 +32,7 @@
 
 `promo.mp4` — ارفعه إلى يوتيوب ثم الصق الرابط في خانة الفيديو الترويجي. الكونسول لا يقبل ملف الفيديو مباشرة.
 
-رابط غير مدرج (Unlisted): https://youtube.com/shorts/sP_PB4JO_cs
+رابط غير مدرج (Unlisted): https://youtube.com/shorts/boNOVnRzKFw
 
 ## 4) النصوص
 

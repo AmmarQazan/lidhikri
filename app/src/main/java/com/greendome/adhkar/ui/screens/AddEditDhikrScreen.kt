@@ -4,15 +4,19 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -81,12 +85,15 @@ fun AddEditDhikrScreen(
     var textEn by remember { mutableStateOf(existing?.textEn ?: "") }
     var textFr by remember { mutableStateOf(existing?.textFr ?: "") }
     var textEs by remember { mutableStateOf(existing?.textEs ?: "") }
+    var textTr by remember { mutableStateOf(existing?.textTr ?: "") }
+    var textUr by remember { mutableStateOf(existing?.textUr ?: "") }
+    var textId by remember { mutableStateOf(existing?.textId ?: "") }
+    var textHi by remember { mutableStateOf(existing?.textHi ?: "") }
     var audioType by remember { mutableStateOf(existing?.audioSourceType ?: AudioSourceType.NONE) }
     var audioPath by remember { mutableStateOf(existing?.audioPath) }
     var remoteUrl by remember { mutableStateOf(existing?.remoteAudioUrl ?: "") }
     var popup by remember { mutableStateOf(existing?.displayPopup ?: true) }
     var notification by remember { mutableStateOf(existing?.displayNotification ?: false) }
-    var lockScreen by remember { mutableStateOf(existing?.displayLockScreen ?: true) }
     var audioOnly by remember { mutableStateOf(existing?.displayAudioOnly ?: false) }
     var audioText by remember { mutableStateOf(existing?.displayAudioText ?: true) }
     var isLongForm by remember { mutableStateOf(existing?.isLongForm ?: (adminTargetCategory == DhikrCategory.JAWAMI)) }
@@ -159,15 +166,21 @@ fun AddEditDhikrScreen(
     )
     val audioOptions = if (isUserDhikr) userAudioOptions else AudioSourceType.entries
 
-    val canDelete = existing != null && !existing.isDefault && !isAdminDefault
+    val canDelete = existing != null && (
+        (!existing.isDefault && !isAdminDefault) ||
+            (isAdminEdit && existing.isAdminCatalogDeletable())
+    )
 
     val isJawamiAdmin = (isAdminDefault || isAdminEdit) &&
         (adminTargetCategory == DhikrCategory.JAWAMI || existing?.category == DhikrCategory.JAWAMI)
+
+    BackHandler(onBack = onCancel)
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
+            .windowInsetsPadding(WindowInsets.safeDrawing)
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -202,6 +215,10 @@ fun AddEditDhikrScreen(
         OutlinedTextField(textEn, { textEn = it }, label = { Text(stringResource(R.string.text_english)) }, modifier = Modifier.fillMaxWidth())
         OutlinedTextField(textFr, { textFr = it }, label = { Text(stringResource(R.string.text_french)) }, modifier = Modifier.fillMaxWidth())
         OutlinedTextField(textEs, { textEs = it }, label = { Text(stringResource(R.string.text_spanish)) }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(textTr, { textTr = it }, label = { Text(stringResource(R.string.text_turkish)) }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(textUr, { textUr = it }, label = { Text(stringResource(R.string.text_urdu)) }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(textId, { textId = it }, label = { Text(stringResource(R.string.text_indonesian)) }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(textHi, { textHi = it }, label = { Text(stringResource(R.string.text_hindi)) }, modifier = Modifier.fillMaxWidth())
 
         SectionTitle(
             title = stringResource(R.string.dhikr_audio_section),
@@ -321,25 +338,10 @@ fun AddEditDhikrScreen(
                 audioText = false
                 audioOnly = false
                 popup = false
-                lockScreen = false
             }
         }
         Text(
             stringResource(R.string.display_notification_hint),
-            style = MaterialTheme.typography.bodySmall,
-            color = GreenPrimary,
-            modifier = Modifier.padding(start = 8.dp, bottom = 4.dp)
-        )
-        DisplayCheck(
-            label = stringResource(R.string.display_lock),
-            checked = lockScreen,
-            enabled = !notification && !audioOnly
-        ) { checked ->
-            lockScreen = checked
-            if (checked) audioOnly = false
-        }
-        Text(
-            stringResource(R.string.display_lock_hint),
             style = MaterialTheme.typography.bodySmall,
             color = GreenPrimary,
             modifier = Modifier.padding(start = 8.dp, bottom = 4.dp)
@@ -353,7 +355,6 @@ fun AddEditDhikrScreen(
             if (checked) {
                 notification = false
                 popup = false
-                lockScreen = false
                 audioText = false
             }
         }
@@ -417,6 +418,10 @@ fun AddEditDhikrScreen(
                         textEn = textEn,
                         textFr = textFr,
                         textEs = textEs,
+                        textTr = textTr,
+                        textUr = textUr,
+                        textId = textId,
+                        textHi = textHi,
                         audioSourceType = audioType,
                         audioPath = audioPath,
                         remoteAudioUrl = remoteUrl.ifBlank { null },
@@ -440,7 +445,7 @@ fun AddEditDhikrScreen(
                         category = resolvedCategory,
                         displayPopup = popup,
                         displayNotification = notification,
-                        displayLockScreen = lockScreen,
+                        displayLockScreen = true,
                         displayAudioOnly = audioOnly,
                         displayAudioText = audioText
                             )
@@ -457,7 +462,15 @@ fun AddEditDhikrScreen(
                 onClick = { onDelete(existing!!.id) },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(stringResource(R.string.delete_my_dhikr))
+                Text(
+                    when {
+                        isAdminEdit && existing?.isJawamiSectionItem() == true ->
+                            stringResource(R.string.admin_delete_jawami)
+                        isAdminEdit && existing?.isBuiltinShortTasbih() == true ->
+                            stringResource(R.string.admin_delete_short_tasbih)
+                        else -> stringResource(R.string.delete_my_dhikr)
+                    }
+                )
             }
         }
     }

@@ -56,7 +56,7 @@ def main() -> None:
     logo.thumbnail((240, 320), Image.Resampling.LANCZOS)
     bg.paste(logo, (56, (h - logo.height) // 2), logo)
 
-    title_ar = ar_text("سَبّح")
+    title_ar = ar_text("سَبِّح")
     tag_ar_raw = ar_text("تسبيح وأذكار تلقائية  •  مسبحة وويدجت")
     ar_font = fit_text(draw, title_ar, 620, ["tradbdo.ttf", "tahoma.ttf"], 78)
     en_font = font("segoeuib.ttf", 44)

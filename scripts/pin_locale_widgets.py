@@ -11,7 +11,9 @@ from capture_locale_screens import (
     TRADITIONAL,
     WIDGETS_HUB,
     adb,
+    pin_dhikr_of_day,
     prep,
+    remove_extra_home_widgets,
     shot,
     tap_nav,
     tap_text,
@@ -24,9 +26,10 @@ def pin_and_shot(lang: str) -> None:
     out = OUT_ROOT / lang
     print("pin", lang, flush=True)
     prep(lang, onboarding=True, reinstall=False)
+    remove_extra_home_widgets()
     tap_nav(lang, 3)
     wait(1)
-    tap_text(WIDGETS_HUB[lang], contains=True)
+    tap_text(WIDGETS_HUB[lang], contains=False)
     wait(1)
     tap_text(MISBAHA_WIDGET[lang], contains=True)
     wait(1.2)
@@ -39,11 +42,13 @@ def pin_and_shot(lang: str) -> None:
     wait(2.5)
     tap_text("Add to home screen", contains=True)
     wait(2)
+    pin_dhikr_of_day(lang)
     adb("shell", "input", "keyevent", "3", check=False)
     wait(2.5)
     shot(out, "10_home_widgets")
 
 
 if __name__ == "__main__":
-    for lang in ("en", "fr", "es"):
+    langs = sys.argv[1:] or ["en", "fr", "es"]
+    for lang in langs:
         pin_and_shot(lang)

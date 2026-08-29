@@ -10,54 +10,49 @@ import kotlin.coroutines.resume
 suspend fun playAzkarItemsOrdered(
     context: Context,
     items: List<AzkarItemEntity>,
-    useTts: Boolean,
     audioPlayer: DhikrAudioPlayer,
-    tts: AzkarTtsPlayer,
     settings: SettingsRepository,
     isCancelled: () -> Boolean = { false },
-) {
+    onMissingAudio: () -> Unit = {},
+): Boolean {
+    var playedAny = false
     for (item in items) {
-        if (isCancelled()) return
+        if (isCancelled()) return playedAny
         repeat(item.repeatCount.coerceAtLeast(1)) {
-            if (isCancelled()) return
-            val playable = AzkarPlaybackResolver.resolvePlayable(context, item)
-            if (playable != null) {
-                suspendCancellableCoroutine { cont ->
-                    audioPlayer.playResolved(playable, settings) { cont.resume(Unit) }
-                }
-            } else if (useTts && item.textAr.isNotBlank()) {
-                suspendCancellableCoroutine { cont ->
-                    tts.speakAll(listOf(item.textAr)) { cont.resume(Unit) }
-                }
+            if (isCancelled()) return playedAny
+            val playable = AzkarPlaybackResolver.resolvePlayable(context, item) ?: run {
+                onMissingAudio()
+                return@repeat
+            }
+            playedAny = true
+            suspendCancellableCoroutine { cont ->
+                audioPlayer.playResolved(playable, settings) { cont.resume(Unit) }
             }
         }
     }
+    return playedAny
 }
 
 suspend fun playDhikrItemsOrdered(
     context: Context,
     items: List<DhikrEntity>,
-    useTts: Boolean,
     audioPlayer: DhikrAudioPlayer,
-    tts: AzkarTtsPlayer,
     settings: SettingsRepository,
-    textFor: (DhikrEntity) -> String,
     isCancelled: () -> Boolean = { false },
-) {
+    onMissingAudio: () -> Unit = {},
+): Boolean {
+    var playedAny = false
     for (item in items) {
-        if (isCancelled()) return
+        if (isCancelled()) return playedAny
         val playable = DhikrPlaybackResolver.resolvePlayable(context, item)
-        if (playable != null) {
+        if (playable == null) {
+            onMissingAudio()
+        } else {
+            playedAny = true
             suspendCancellableCoroutine { cont ->
                 audioPlayer.playResolved(playable, settings) { cont.resume(Unit) }
             }
-        } else if (useTts) {
-            val text = textFor(item).trim()
-            if (text.isNotBlank()) {
-                suspendCancellableCoroutine { cont ->
-                    tts.speakAll(listOf(text)) { cont.resume(Unit) }
-                }
-            }
         }
     }
+    return playedAny
 }

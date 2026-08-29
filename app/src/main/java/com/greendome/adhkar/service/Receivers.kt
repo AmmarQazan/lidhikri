@@ -4,17 +4,23 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.greendome.adhkar.data.SettingsRepository
+import com.greendome.adhkar.prayer.PrayerRespectGate
 import com.greendome.adhkar.widget.DhikrOfDayManager
 
 class AlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent?) {
         val settings = SettingsRepository(context)
         if (!settings.isServiceEnabled) return
-        if (ReminderScheduler.isInSleepWindow(context)) {
+        if (ReminderScheduler.isOutsideTasbihWindow(context)) {
             ReminderScheduler.scheduleNext(context)
             return
         }
-        SilentNotificationChannels.cancelDhikrAlerts(context)
+        if (PrayerRespectGate.isQuiet(context)) {
+            ReminderScheduler.scheduleNext(context)
+            AdhkarReminderService.refreshNotification(context)
+            return
+        }
+        SilentNotificationChannels.cancelTransientReminderAlerts(context)
         val serviceIntent = Intent(context, AdhkarReminderService::class.java).apply {
             action = AdhkarReminderService.ACTION_TRIGGER
         }
@@ -38,6 +44,7 @@ class BootReceiver : BroadcastReceiver() {
                 }
             )
         }
+        AfterPrayerAlarmScheduler.reschedule(context)
         DhikrOfDayManager.refreshAsync(context)
     }
 }

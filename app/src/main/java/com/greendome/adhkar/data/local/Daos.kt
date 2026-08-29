@@ -40,6 +40,25 @@ interface DhikrDao {
     @Query("DELETE FROM dhikr WHERE isDefault = 1")
     suspend fun deleteDefaults()
 
+    @Query("DELETE FROM dhikr WHERE id IN (:ids)")
+    suspend fun deleteByIds(ids: List<Long>)
+
+    @Query("UPDATE dhikr SET isEnabled = 0 WHERE category = 'JAWAMI'")
+    suspend fun disableJawamiAutoTasbih()
+
+    @Query("UPDATE dhikr SET isEnabled = 0 WHERE isLongForm = 1 OR sortOrder = 16")
+    suspend fun disableLongFormAutoTasbih()
+
+    @Query(
+        """
+        UPDATE dhikr SET isLongForm = 1
+        WHERE category = 'JAWAMI'
+            OR sortOrder = 16
+            OR sortOrder IN (11, 12, 13)
+        """
+    )
+    suspend fun markKnownLongFormDhikr()
+
     @Query(
         """
         UPDATE dhikr SET
@@ -55,6 +74,9 @@ interface DhikrDao {
 
     @Query("UPDATE dhikr SET isDownloaded = :downloaded, audioPath = :path WHERE id = :id")
     suspend fun updateDownloadState(id: Long, downloaded: Boolean, path: String?)
+
+    @Query("UPDATE dhikr SET remoteAudioUrl = :url WHERE id = :id")
+    suspend fun updateRemoteAudioUrl(id: Long, url: String)
 }
 
 @Dao
@@ -64,6 +86,9 @@ interface ReciterDao {
 
     @Query("SELECT * FROM reciter ORDER BY id")
     fun observeAll(): Flow<List<ReciterEntity>>
+
+    @Query("SELECT * FROM reciter ORDER BY id")
+    suspend fun getAll(): List<ReciterEntity>
 
     @Query("SELECT * FROM reciter WHERE id = :id")
     suspend fun getById(id: Long): ReciterEntity?
@@ -77,14 +102,20 @@ interface ReciterDao {
     @Query("DELETE FROM reciter WHERE id = :id AND isBuiltin = 0")
     suspend fun deleteCustom(id: Long)
 
+    @Query("DELETE FROM reciter WHERE id = :id")
+    suspend fun deleteById(id: Long)
+
     @Query("UPDATE reciter SET isActive = 0 WHERE id = :id")
     suspend fun deactivate(id: Long)
 }
 
 @Dao
 interface ReciterAudioDao {
-    @Query("SELECT * FROM reciter_audio WHERE dhikrId = :dhikrId AND reciterId = :reciterId LIMIT 1")
+    @Query("SELECT * FROM reciter_audio WHERE dhikrId = :dhikrId AND reciterId = :reciterId ORDER BY id DESC LIMIT 1")
     suspend fun get(dhikrId: Long, reciterId: Long): ReciterAudioEntity?
+
+    @Query("DELETE FROM reciter_audio WHERE dhikrId = :dhikrId AND reciterId = :reciterId AND id != :keepId")
+    suspend fun deleteOthers(dhikrId: Long, reciterId: Long, keepId: Long)
 
     @Query("SELECT * FROM reciter_audio WHERE reciterId = :reciterId")
     fun observeByReciter(reciterId: Long): Flow<List<ReciterAudioEntity>>
@@ -101,17 +132,35 @@ interface ReciterAudioDao {
     @Query("DELETE FROM reciter_audio WHERE reciterId = :reciterId")
     suspend fun deleteByReciter(reciterId: Long)
 
+    @Query("DELETE FROM reciter_audio WHERE dhikrId IN (:ids)")
+    suspend fun deleteByDhikrIds(ids: List<Long>)
+
+    @Query("SELECT * FROM reciter_audio ORDER BY id")
+    suspend fun getAll(): List<ReciterAudioEntity>
+
     @Query("SELECT * FROM reciter_audio WHERE isDownloaded = 0 AND remoteUrl IS NOT NULL")
     suspend fun getPendingDownloads(): List<ReciterAudioEntity>
 
+    @Query("SELECT * FROM reciter_audio WHERE reciterId = :reciterId AND isDownloaded = 0 AND remoteUrl IS NOT NULL")
+    suspend fun getPendingDownloadsForReciter(reciterId: Long): List<ReciterAudioEntity>
+
+    @Query("SELECT COUNT(*) FROM reciter_audio WHERE reciterId = :reciterId AND remoteUrl IS NOT NULL AND TRIM(remoteUrl) != ''")
+    suspend fun remoteUrlCount(reciterId: Long): Int
+
     @Query("UPDATE reciter_audio SET isDownloaded = 1, localPath = :path WHERE id = :id")
     suspend fun markDownloaded(id: Long, path: String)
+
+    @Query("UPDATE reciter_audio SET remoteUrl = :url WHERE id = :id")
+    suspend fun updateRemoteUrl(id: Long, url: String)
 }
 
 @Dao
 interface ReciterAzkarAudioDao {
-    @Query("SELECT * FROM reciter_azkar_audio WHERE azkarItemId = :azkarItemId AND reciterId = :reciterId LIMIT 1")
+    @Query("SELECT * FROM reciter_azkar_audio WHERE azkarItemId = :azkarItemId AND reciterId = :reciterId ORDER BY id DESC LIMIT 1")
     suspend fun get(azkarItemId: Long, reciterId: Long): ReciterAzkarAudioEntity?
+
+    @Query("DELETE FROM reciter_azkar_audio WHERE azkarItemId = :azkarItemId AND reciterId = :reciterId AND id != :keepId")
+    suspend fun deleteOthers(azkarItemId: Long, reciterId: Long, keepId: Long)
 
     @Query("SELECT * FROM reciter_azkar_audio WHERE reciterId = :reciterId")
     fun observeByReciter(reciterId: Long): Flow<List<ReciterAzkarAudioEntity>>
@@ -131,11 +180,38 @@ interface ReciterAzkarAudioDao {
     @Query("DELETE FROM reciter_azkar_audio WHERE azkarItemId IN (:ids)")
     suspend fun deleteByAzkarItemIds(ids: List<Long>)
 
+    @Query("SELECT * FROM reciter_azkar_audio ORDER BY id")
+    suspend fun getAll(): List<ReciterAzkarAudioEntity>
+
     @Query("SELECT * FROM reciter_azkar_audio WHERE isDownloaded = 0 AND remoteUrl IS NOT NULL")
     suspend fun getPendingDownloads(): List<ReciterAzkarAudioEntity>
 
+    @Query("SELECT * FROM reciter_azkar_audio WHERE reciterId = :reciterId AND isDownloaded = 0 AND remoteUrl IS NOT NULL")
+    suspend fun getPendingDownloadsForReciter(reciterId: Long): List<ReciterAzkarAudioEntity>
+
+    @Query("SELECT COUNT(*) FROM reciter_azkar_audio WHERE reciterId = :reciterId AND remoteUrl IS NOT NULL AND TRIM(remoteUrl) != ''")
+    suspend fun remoteUrlCount(reciterId: Long): Int
+
     @Query("UPDATE reciter_azkar_audio SET isDownloaded = 1, localPath = :path WHERE id = :id")
     suspend fun markDownloaded(id: Long, path: String)
+
+    @Query("UPDATE reciter_azkar_audio SET remoteUrl = :url WHERE id = :id")
+    suspend fun updateRemoteUrl(id: Long, url: String)
+}
+
+@Dao
+interface PendingPublishDao {
+    @Query("SELECT * FROM pending_publish_change ORDER BY createdAt, changeKey")
+    fun observeAll(): Flow<List<PendingPublishChangeEntity>>
+
+    @Query("SELECT * FROM pending_publish_change ORDER BY createdAt, changeKey")
+    suspend fun getAll(): List<PendingPublishChangeEntity>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsert(entity: PendingPublishChangeEntity)
+
+    @Query("DELETE FROM pending_publish_change")
+    suspend fun clear()
 }
 
 @Dao

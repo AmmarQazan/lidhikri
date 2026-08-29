@@ -8,12 +8,12 @@ const LANGS = {
 const I18N = {
   home: {
     ar: {
-      title: "سَبّح — Sabbih",
-      h1: "سَبّح",
+      title: "سَبِّح — Sabbih",
+      h1: "سَبِّح",
       tag: "Sabbih",
       aboutTitle: "من نحن",
       about:
-        "سَبّح يطوّر تطبيقات أندرويد للذكر والتسبيح: تسبيح تلقائي أثناء استخدام الهاتف، أذكار حصن المسلم، مسبحة رقمية، وويدجت على الشاشة الرئيسية. بلا حساب، بلا إعلانات، وبلا تتبع.",
+        "سَبِّح يطوّر تطبيقات أندرويد للذكر والتسبيح: تسبيح تلقائي أثناء استخدام الهاتف، أذكار حصن المسلم، مسبحة رقمية، وويدجت على الشاشة الرئيسية. بلا حساب، بلا إعلانات، وبلا تتبع.",
       contactTitle: "التواصل",
       contactLead: "البريد العام للمستخدمين والدعم:",
       privacy: "سياسة الخصوصية",
@@ -21,7 +21,7 @@ const I18N = {
     en: {
       title: "Sabbih",
       h1: "Sabbih",
-      tag: "سَبّح",
+      tag: "سَبِّح",
       aboutTitle: "About",
       about:
         "Sabbih builds Android apps for dhikr and tasbih: automatic reminders while you use your phone, Hisnul Muslim collections, a digital misbaha, and home-screen widgets. No account, no ads, and no tracking.",
@@ -32,7 +32,7 @@ const I18N = {
     fr: {
       title: "Sabbih",
       h1: "Sabbih",
-      tag: "سَبّح",
+      tag: "سَبِّح",
       aboutTitle: "À propos",
       about:
         "Sabbih crée des applications Android pour le dhikr et le tasbih : rappels automatiques pendant l’usage du téléphone, collections Hisnul Muslim, misbaha numérique et widgets d’accueil. Pas de compte, pas de publicité, pas de suivi.",
@@ -43,7 +43,7 @@ const I18N = {
     es: {
       title: "Sabbih",
       h1: "Sabbih",
-      tag: "سَبّح",
+      tag: "سَبِّح",
       aboutTitle: "Quiénes somos",
       about:
         "Sabbih crea aplicaciones Android para el dhikr y el tasbih: recordatorios automáticos mientras usas el teléfono, colecciones de Hisnul Muslim, misbaha digital y widgets de inicio. Sin cuenta, sin anuncios y sin rastreo.",
@@ -54,9 +54,9 @@ const I18N = {
   },
   privacy: {
     ar: {
-      title: "سياسة الخصوصية — سَبّح",
-      h1: "سياسة الخصوصية — سَبّح",
-      lead: "سَبّح لا يجمع بيانات شخصية ولا يرسلها لأي خادم.",
+      title: "سياسة الخصوصية — سَبِّح",
+      h1: "سياسة الخصوصية — سَبِّح",
+      lead: "سَبِّح لا يجمع بيانات شخصية ولا يرسلها لأي خادم.",
       col1: "البيان",
       col2: "التفاصيل",
       rows: [

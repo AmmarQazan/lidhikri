@@ -30,7 +30,7 @@
 أُدخل الإنجليزية. أضف هذه من Manage translations إن رغبت:
 
 ### العربية
-سَبّح يطوّر تطبيقات للذكر والتسبيح: تسبيح تلقائي، حصن المسلم، مسبحة وويدجت. بلا إعلانات.
+سَبِّح يطوّر تطبيقات للذكر والتسبيح: تسبيح تلقائي، حصن المسلم، مسبحة وويدجت. بلا إعلانات.
 
 ### Français
 Sabbih crée des apps Android pour le dhikr : tasbih auto, Hisnul Muslim, chapelet et widgets — sans pubs.

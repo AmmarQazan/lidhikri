@@ -6,24 +6,19 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import com.greendome.adhkar.data.SettingsRepository
+import com.greendome.adhkar.data.local.AdhkarCollectionEntity
+import com.greendome.adhkar.data.local.AdhkarDatabase
+import com.greendome.adhkar.prayer.PrayerRespectGate
+import com.greendome.adhkar.util.CollectionScheduleHelper
+import com.greendome.adhkar.util.TasbihWindow
 import java.util.Calendar
+import kotlinx.coroutines.runBlocking
 
 object ReminderScheduler {
     fun scheduleNext(context: Context) {
-        val settings = SettingsRepository(context)
-        val intervalMs = settings.intervalMinutes.coerceAtLeast(1) * 60_000L
         val now = System.currentTimeMillis()
-        val dayStart = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }.timeInMillis
-
-        val elapsed = now - dayStart
-        val slotsPassed = elapsed / intervalMs
-        val nextSlot = (slotsPassed + 1) * intervalMs
-        val triggerAt = dayStart + nextSlot
+        val azkarCollections = loadAutoAzkarCollections(context)
+        val triggerAt = nextTasbihTriggerAt(context, now, azkarCollections)
 
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, AlarmReceiver::class.java)
@@ -50,27 +45,42 @@ object ReminderScheduler {
     }
 
     fun minutesUntilNext(context: Context): Int {
-        val settings = SettingsRepository(context)
-        val intervalMs = settings.intervalMinutes.coerceAtLeast(1) * 60_000L
         val now = System.currentTimeMillis()
-        val dayStart = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }.timeInMillis
-        val elapsed = now - dayStart
-        val slotsPassed = elapsed / intervalMs
-        val nextSlot = (slotsPassed + 1) * intervalMs
-        return ((nextSlot - elapsed) / 60_000).toInt().coerceAtLeast(0)
+        val azkarCollections = loadAutoAzkarCollections(context)
+        val triggerAt = nextTasbihTriggerAt(context, now, azkarCollections)
+        return ((triggerAt - now) / 60_000).toInt().coerceAtLeast(0)
     }
 
-    fun isInSleepWindow(context: Context): Boolean {
-        val s = SettingsRepository(context)
-        val cal = Calendar.getInstance()
-        val nowMin = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE)
-        val start = s.sleepStartHour * 60 + s.sleepStartMinute
-        val end = s.sleepEndHour * 60 + s.sleepEndMinute
-        return if (start > end) nowMin >= start || nowMin < end else nowMin in start until end
+    private fun loadAutoAzkarCollections(context: Context): List<AdhkarCollectionEntity> {
+        val settings = SettingsRepository(context)
+        if (!settings.autoAzkarEnabled) return emptyList()
+        return runBlocking {
+            AdhkarDatabase.get(context).collectionDao().getAutoEnabled()
+        }
+    }
+
+    /** يتخطى فترات التسبيح التي تتزامن مع موعد ذكر تلقائي، ويحصر المواعيد داخل نافذة اليوم */
+    private fun nextTasbihTriggerAt(
+        context: Context,
+        fromMillis: Long,
+        azkarCollections: List<AdhkarCollectionEntity>
+    ): Long {
+        val settings = SettingsRepository(context)
+        val intervalMs = settings.intervalMinutes.coerceAtLeast(1) * 60_000L
+        val window = TasbihWindow.from(settings)
+        var triggerAt = window.nextTriggerAfter(fromMillis, intervalMs)
+        val maxSlots = (24 * 60 * 60 * 1000L / intervalMs).toInt().coerceAtMost(2000)
+        repeat(maxSlots) {
+            triggerAt = PrayerRespectGate.delayPastQuiet(context, triggerAt)
+            val cal = Calendar.getInstance().apply { timeInMillis = triggerAt }
+            if (!CollectionScheduleHelper.isAnyDueAt(azkarCollections, cal)) return triggerAt
+            triggerAt = window.nextTriggerAfter(triggerAt, intervalMs)
+        }
+        return triggerAt
+    }
+
+    fun isOutsideTasbihWindow(context: Context): Boolean {
+        val settings = SettingsRepository(context)
+        return !TasbihWindow.from(settings).contains(Calendar.getInstance())
     }
 }

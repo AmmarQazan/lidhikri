@@ -40,7 +40,7 @@ data class RemoteContentBundle(
 }
 
 sealed class RemoteSyncResult {
-    data object UpToDate : RemoteSyncResult()
+    data class UpToDate(val version: Int) : RemoteSyncResult()
     data class Updated(val version: Int) : RemoteSyncResult()
     data class Failed(val reason: String) : RemoteSyncResult()
 }

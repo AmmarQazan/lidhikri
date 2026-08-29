@@ -5,15 +5,21 @@ import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.util.TypedValue
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import com.greendome.adhkar.MainActivity
 import com.greendome.adhkar.R
 import com.greendome.adhkar.data.SettingsRepository
 import com.greendome.adhkar.data.local.AdhkarDatabase
 import com.greendome.adhkar.data.model.DhikrOfDayDisplayMode
+import com.greendome.adhkar.data.model.DhikrOfDayTextColor
+import com.greendome.adhkar.data.model.MisbahaWidgetBackground
 import com.greendome.adhkar.service.SilentNotificationChannels
+import com.greendome.adhkar.util.LocaleHelper
+import com.greendome.adhkar.util.RuntimePermissions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -24,7 +30,8 @@ object DhikrOfDayManager {
     private const val PREFS = "dhikr_of_day"
     private const val KEY_DATE = "date"
     private const val KEY_TEXT = "text"
-    const val NOTIFICATION_ID = 88
+    private const val KEY_LANG = "lang"
+    const val NOTIFICATION_ID = SilentNotificationChannels.DHIKR_OF_DAY_NOTIFICATION_ID
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -36,21 +43,20 @@ object DhikrOfDayManager {
         val appContext = context.applicationContext
         SilentNotificationChannels.ensureCreated(appContext)
         val settings = SettingsRepository(appContext)
-        if (!settings.dhikrOfDayEnabled) {
-            clearLockScreenNotification(appContext)
-            updateAllWidgets(appContext, "")
-            return
-        }
-
-        val text = ensureTodayDhikr(appContext, settings.appLanguage)
+        val lang = settings.appLanguage
+        val localized = LocaleHelper.wrap(appContext, lang)
+        val text = ensureTodayDhikr(appContext, lang)
+        updateAllWidgets(localized, text)
         when (settings.dhikrOfDayDisplayMode) {
             DhikrOfDayDisplayMode.HOME_WIDGET -> {
                 clearLockScreenNotification(appContext)
-                updateAllWidgets(appContext, text)
             }
             DhikrOfDayDisplayMode.LOCK_SCREEN -> {
-                showLockScreenNotification(appContext, text)
-                updateAllWidgets(appContext, text)
+                if (settings.dhikrOfDayEnabled) {
+                    showLockScreenNotification(localized, text)
+                } else {
+                    clearLockScreenNotification(appContext)
+                }
             }
         }
     }
@@ -65,6 +71,8 @@ object DhikrOfDayManager {
             .getSharedPreferences(PREFS, Context.MODE_PRIVATE)
             .edit()
             .remove(KEY_DATE)
+            .remove(KEY_LANG)
+            .remove(KEY_TEXT)
             .apply()
         refreshAsync(context)
     }
@@ -73,13 +81,14 @@ object DhikrOfDayManager {
         val today = LocalDate.now().toString()
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val storedDate = prefs.getString(KEY_DATE, null)
+        val storedLang = prefs.getString(KEY_LANG, null)
         val storedText = prefs.getString(KEY_TEXT, null)
-        if (storedDate == today && !storedText.isNullOrBlank()) {
+        if (storedDate == today && storedLang == lang && !storedText.isNullOrBlank()) {
             return storedText
         }
 
         val db = AdhkarDatabase.get(context)
-        val azkarTexts = db.azkarItemDao().getAll().map { it.textAr }
+        val azkarTexts = db.azkarItemDao().getAll().map { it.localizedText(lang) }
         val dhikrTexts = db.dhikrDao().getEnabledList().map { it.localizedText(lang) }
         val candidates = (azkarTexts + dhikrTexts)
             .map { it.trim() }
@@ -87,10 +96,11 @@ object DhikrOfDayManager {
             .distinct()
 
         val text = candidates.randomOrNull()
-            ?: context.getString(R.string.dhikr_of_day_fallback)
+            ?: LocaleHelper.wrap(context, lang).getString(R.string.dhikr_of_day_fallback)
 
         prefs.edit()
             .putString(KEY_DATE, today)
+            .putString(KEY_LANG, lang)
             .putString(KEY_TEXT, text)
             .apply()
         return text
@@ -109,10 +119,21 @@ object DhikrOfDayManager {
     }
 
     fun buildRemoteViews(context: Context, text: String): RemoteViews {
+        val settings = SettingsRepository(context)
+        val localized = LocaleHelper.wrap(context, settings.appLanguage)
         val views = RemoteViews(context.packageName, R.layout.widget_dhikr_of_day)
-        val displayText = text.ifBlank { context.getString(R.string.dhikr_of_day_widget_empty) }
-        views.setTextViewText(R.id.widget_title, context.getString(R.string.dhikr_of_day_title))
+        val displayText = text.ifBlank { localized.getString(R.string.dhikr_of_day_widget_empty) }
+        val background = settings.dhikrOfDayWidgetBackground
+        val textColor = settings.dhikrOfDayWidgetTextColor
+        val fontSp = settings.dhikrOfDayWidgetFontSizeSp.toFloat()
+        val titleSp = (fontSp - 1f).coerceAtLeast(11f)
+        views.setInt(R.id.widget_root, "setBackgroundResource", background.drawableRes())
+        views.setTextViewText(R.id.widget_title, localized.getString(R.string.dhikr_of_day_title))
         views.setTextViewText(R.id.widget_dhikr_text, displayText)
+        views.setTextColor(R.id.widget_title, textColor.resolveTitle(context, background))
+        views.setTextColor(R.id.widget_dhikr_text, textColor.resolveBody(context, background))
+        views.setTextViewTextSize(R.id.widget_title, TypedValue.COMPLEX_UNIT_SP, titleSp)
+        views.setTextViewTextSize(R.id.widget_dhikr_text, TypedValue.COMPLEX_UNIT_SP, fontSp)
 
         val openIntent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -128,6 +149,7 @@ object DhikrOfDayManager {
     }
 
     private fun showLockScreenNotification(context: Context, text: String) {
+        if (!RuntimePermissions.hasPostNotifications(context)) return
         val openIntent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
@@ -147,7 +169,7 @@ object DhikrOfDayManager {
             .setSilent(true)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setCategory(NotificationCompat.CATEGORY_STATUS)
             .build()
@@ -166,4 +188,46 @@ object DhikrOfDayManager {
         val provider = ComponentName(context, DhikrOfDayWidgetProvider::class.java)
         return appWidgetManager.requestPinAppWidget(provider, null, null)
     }
+}
+
+private fun DhikrOfDayTextColor.resolveTitle(
+    context: Context,
+    background: MisbahaWidgetBackground,
+): Int = when (this) {
+    DhikrOfDayTextColor.AUTO -> background.dhikrTitleColor(context)
+    else -> resolveFixed(context)
+}
+
+private fun DhikrOfDayTextColor.resolveBody(
+    context: Context,
+    background: MisbahaWidgetBackground,
+): Int = when (this) {
+    DhikrOfDayTextColor.AUTO -> background.dhikrBodyColor(context)
+    else -> resolveFixed(context)
+}
+
+private fun DhikrOfDayTextColor.resolveFixed(context: Context): Int = when (this) {
+    DhikrOfDayTextColor.AUTO,
+    DhikrOfDayTextColor.BLACK -> ContextCompat.getColor(context, R.color.text_primary)
+    DhikrOfDayTextColor.WHITE -> 0xFFFFFFFF.toInt()
+    DhikrOfDayTextColor.GOLD -> ContextCompat.getColor(context, R.color.gold_dome)
+    DhikrOfDayTextColor.GREEN -> 0xFF1F5A3F.toInt()
+    DhikrOfDayTextColor.CREAM -> 0xFFF3E6C8.toInt()
+    DhikrOfDayTextColor.BROWN -> 0xFF6D4C41.toInt()
+    DhikrOfDayTextColor.NAVY -> 0xFF1A365D.toInt()
+    DhikrOfDayTextColor.TEAL -> 0xFF0F766E.toInt()
+    DhikrOfDayTextColor.MAROON -> 0xFF8B3A2A.toInt()
+    DhikrOfDayTextColor.GRAY -> 0xFF5A5A5A.toInt()
+    DhikrOfDayTextColor.AMBER -> 0xFFC67A2A.toInt()
+}
+
+private fun MisbahaWidgetBackground.dhikrTitleColor(context: Context): Int = when (this) {
+    MisbahaWidgetBackground.TRANSPARENT -> contrastTextColor()
+    else -> ContextCompat.getColor(context, R.color.gold_dome)
+}
+
+private fun MisbahaWidgetBackground.dhikrBodyColor(context: Context): Int = when (this) {
+    MisbahaWidgetBackground.DARK,
+    MisbahaWidgetBackground.TRANSPARENT -> contrastTextColor()
+    else -> ContextCompat.getColor(context, R.color.text_primary)
 }

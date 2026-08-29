@@ -2,10 +2,14 @@ package com.greendome.adhkar.data
 
 import android.content.Context
 import com.greendome.adhkar.data.AzkarFavorites
+import com.greendome.adhkar.data.SettingsRepository
 import com.greendome.adhkar.data.local.AdhkarCollectionEntity
 import com.greendome.adhkar.data.local.AdhkarDatabase
 import com.greendome.adhkar.data.local.AzkarItemEntity
+import com.greendome.adhkar.service.AfterPrayerAlarmScheduler
 import com.greendome.adhkar.service.CollectionAlarmScheduler
+import com.greendome.adhkar.service.ReminderScheduler
+import com.greendome.adhkar.util.TasbihWindow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -21,6 +25,11 @@ class CollectionRepository(
     fun observeItems(collectionId: String): Flow<List<AzkarItemEntity>> =
         itemDao.observeByCollection(collectionId)
 
+    fun observeAllItems(): Flow<List<AzkarItemEntity>> =
+        itemDao.observeAll().map { items ->
+            items.filter { it.collectionId != AzkarFavorites.COLLECTION_ID }
+        }
+
     suspend fun getCollection(id: String) = collectionDao.getById(id)
 
     suspend fun getItems(collectionId: String) = itemDao.getByCollection(collectionId)
@@ -33,14 +42,89 @@ class CollectionRepository(
         rescheduleAllAlarms()
     }
 
+    suspend fun initializeTasbihWindowIfNeeded() {
+        val settings = SettingsRepository(context)
+        if (settings.hasTasbihWindowSet) return
+        if (settings.autoAzkarEnabled) {
+            val morning = collectionDao.getById("morning")
+            val sleep = collectionDao.getById("sleep")
+            if (morning != null && sleep != null) {
+                settings.setTasbihWindow(
+                    morning.scheduleHour,
+                    morning.scheduleMinute,
+                    sleep.scheduleHour,
+                    sleep.scheduleMinute
+                )
+                return
+            }
+        }
+        settings.setTasbihWindow(
+            TasbihWindow.FALLBACK_START_HOUR,
+            TasbihWindow.FALLBACK_START_MINUTE,
+            TasbihWindow.FALLBACK_END_HOUR,
+            TasbihWindow.FALLBACK_END_MINUTE
+        )
+    }
+
+    suspend fun applyOnboardingAzkarSchedule(
+        enabled: Boolean,
+        morningHour: Int,
+        morningMinute: Int,
+        sleepHour: Int,
+        sleepMinute: Int,
+        enabledCollectionIds: Set<String> = AutoAzkarCatalog.defaultEnabledClockIds(),
+        afterPrayerEnabled: Boolean = false
+    ) {
+        if (enabled) {
+            SettingsRepository(context).afterPrayerFromSalahEnabled = afterPrayerEnabled
+            AzkarFavorites.ensureCollection(
+                db,
+                autoPlayEnabled = AzkarFavorites.COLLECTION_ID in enabledCollectionIds
+            )
+            val selectableIds = AutoAzkarCatalog.onboardingSpecs()
+                .filter { it.trigger == AutoAzkarCatalog.Trigger.CLOCK }
+                .map { it.id }
+                .toSet()
+            collectionDao.getAll().forEach { collection ->
+                if (!collection.autoPlayAllowed) return@forEach
+                var next = collection.copy(
+                    autoPlayEnabled = if (collection.id in selectableIds) {
+                        collection.id in enabledCollectionIds
+                    } else {
+                        collection.autoPlayEnabled
+                    }
+                )
+                if (collection.id == "morning") {
+                    next = next.copy(
+                        scheduleHour = morningHour.coerceIn(0, 23),
+                        scheduleMinute = morningMinute.coerceIn(0, 59)
+                    )
+                } else if (collection.id == "sleep") {
+                    next = next.copy(
+                        scheduleHour = sleepHour.coerceIn(0, 23),
+                        scheduleMinute = sleepMinute.coerceIn(0, 59)
+                    )
+                }
+                collectionDao.update(next)
+            }
+        }
+        rescheduleAllAlarms()
+    }
+
     suspend fun rescheduleAllAlarms() {
+        val settings = SettingsRepository(context)
+        val autoAzkarOn = settings.autoAzkarEnabled
         collectionDao.getAll().forEach { collection ->
-            if (collection.autoPlayAllowed && collection.autoPlayEnabled) {
+            if (autoAzkarOn && collection.autoPlayAllowed && collection.autoPlayEnabled) {
                 CollectionAlarmScheduler.schedule(context, collection)
             } else {
                 CollectionAlarmScheduler.cancel(context, collection.id)
             }
         }
+        if (settings.isServiceEnabled) {
+            ReminderScheduler.scheduleNext(context)
+        }
+        AfterPrayerAlarmScheduler.reschedule(context)
     }
 
     suspend fun saveItem(item: AzkarItemEntity): Long {
@@ -88,28 +172,12 @@ class CollectionRepository(
     private suspend fun removeFavorite(sourceItemId: Long) {
         itemDao.deleteBySourceItemId(AzkarFavorites.COLLECTION_ID, sourceItemId)
         if (itemDao.countByCollection(AzkarFavorites.COLLECTION_ID) == 0) {
-            collectionDao.deleteById(AzkarFavorites.COLLECTION_ID)
             CollectionAlarmScheduler.cancel(context, AzkarFavorites.COLLECTION_ID)
-        } else {
-            rescheduleAllAlarms()
         }
+        rescheduleAllAlarms()
     }
 
     private suspend fun ensureFavoritesCollection() {
-        if (collectionDao.getById(AzkarFavorites.COLLECTION_ID) != null) return
-        collectionDao.insert(
-            AdhkarCollectionEntity(
-                id = AzkarFavorites.COLLECTION_ID,
-                titleAr = "الأذكار المفضلة",
-                titleEn = "Favorite adhkar",
-                sortOrder = 0,
-                autoPlayAllowed = true,
-                autoPlayEnabled = true,
-                scheduleHour = 7,
-                scheduleMinute = 0,
-                weekDaysMask = 127,
-                useTtsAutoPlay = true
-            )
-        )
+        AzkarFavorites.ensureCollection(db)
     }
 }

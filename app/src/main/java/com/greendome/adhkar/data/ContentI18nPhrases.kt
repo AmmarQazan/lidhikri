@@ -1,0 +1,443 @@
+package com.greendome.adhkar.data
+
+internal val ASBAHNA_MULK = mapOf(
+    "en" to "We have entered the morning and the dominion belongs to Allah. I ask You for the good of this day and seek refuge from its evil, from laziness, and from the punishment of the Fire and the grave.",
+    "fr" to "Nous voici au matin, et la royauté appartient à Allah. Je Te demande le bien de ce jour et cherche protection contre son mal, la paresse, et le châtiment du Feu et de la tombe.",
+    "es" to "Hemos entrado en la mañana y el dominio pertenece a Allah. Te pido el bien de este día y me refugio de su mal, de la pereza y del castigo del Fuego y de la tumba.",
+    "tr" to "Sabaha erdik, mülk Allah'ındır. Bu günün hayrını ister, şerrinden, tembellikten, ateş ve kabir azabından Sana sığınırım.",
+    "ur" to "ہم نے صبح کی اور بادشاہی اللہ کی ہے۔ میں تجھ سے اس دن کی بھلائی مانگتا ہوں اور اس کے شر، کاہلی، اور آگ و قبر کے عذاب سے پناہ مانگتا ہوں۔",
+    "id" to "Kami memasuki pagi dan kerajaan milik Allah. Aku memohon kebaikan hari ini dan berlindung dari keburukannya, dari malas, dan dari azab neraka dan kubur.",
+    "hi" to "हमने सुबह की और राज्य अल्लाह का है। मैं तुझसे इस दिन की भलाई माँगता हूँ और उसके शर, आलस, और आग व क़ब्र के अज़ाब से पनाह लेता हूँ।",
+)
+internal val AMSAYNA_MULK = mapOf(
+    "en" to "We have entered the evening and the dominion belongs to Allah. I ask You for the good of this night and seek refuge from its evil, from laziness, and from the punishment of the Fire and the grave.",
+    "fr" to "Nous voici au soir, et la royauté appartient à Allah. Je Te demande le bien de cette nuit et cherche protection contre son mal, la paresse, et le châtiment du Feu et de la tombe.",
+    "es" to "Hemos entrado en la tarde y el dominio pertenece a Allah. Te pido el bien de esta noche y me refugio de su mal, de la pereza y del castigo del Fuego y de la tumba.",
+    "tr" to "Akşama erdik, mülk Allah'ındır. Bu gecenin hayrını ister, şerrinden, tembellikten, ateş ve kabir azabından Sana sığınırım.",
+    "ur" to "ہم نے شام کی اور بادشاہی اللہ کی ہے۔ میں تجھ سے اس رات کی بھلائی مانگتا ہوں اور اس کے شر، کاہلی، اور آگ و قبر کے عذاب سے پناہ مانگتا ہوں۔",
+    "id" to "Kami memasuki petang dan kerajaan milik Allah. Aku memohon kebaikan malam ini dan berlindung dari keburukannya, dari malas, dan dari azab neraka dan kubur.",
+    "hi" to "हमने शाम की और राज्य अल्लाह का है। मैं तुझसे इस रात की भलाई माँगता हूँ और उसके शर, आलस, और आग व क़ब्र के अज़ाब से पनाह लेता हूँ।",
+)
+internal val BAKKA_ASBAHNA = mapOf(
+    "en" to "O Allah, by You we enter the morning, by You we enter the evening, by You we live, by You we die, and to You is the resurrection.",
+    "fr" to "Ô Allah, par Toi nous atteignons le matin et le soir, par Toi nous vivons, par Toi nous mourons, et vers Toi est la résurrection.",
+    "es" to "Oh Allah, por Ti entramos en la mañana y en la tarde, por Ti vivimos, por Ti morimos, y a Ti es la resurrección.",
+    "tr" to "Allahım! Seninle sabaha, Seninle akşama erdik. Seninle yaşar, Seninle ölürüz. Dönüş Sanadır.",
+    "ur" to "اے اللہ! تیری ہی سے ہم نے صبح کی، تیری ہی سے شام، تیری ہی سے جیتے اور مرتے ہیں، اور تیری ہی طرف اٹھنا ہے۔",
+    "id" to "Ya Allah, dengan-Mu kami pagi, dengan-Mu kami petang, dengan-Mu kami hidup, dengan-Mu kami mati, dan kepada-Mu-lah kebangkitan.",
+    "hi" to "ऐ अल्लाह, तेरे ही से हमने सुबह की, तेरे ही से शाम, तेरे ही से जीते और मरते हैं, और तेरी ही ओर उठना है।",
+)
+internal val BAKKA_AMSAYNA = mapOf(
+    "en" to "O Allah, by You we enter the evening, by You we enter the morning, by You we live, by You we die, and to You is the return.",
+    "fr" to "Ô Allah, par Toi nous atteignons le soir et le matin, par Toi nous vivons, par Toi nous mourons, et vers Toi est le retour.",
+    "es" to "Oh Allah, por Ti entramos en la tarde y en la mañana, por Ti vivimos, por Ti morimos, y a Ti es el retorno.",
+    "tr" to "Allahım! Seninle akşama, Seninle sabaha erdik. Seninle yaşar, Seninle ölürüz. Dönüş Sanadır.",
+    "ur" to "اے اللہ! تیری ہی سے ہم نے شام کی اور صبح، تیری ہی سے جیتے اور مرتے ہیں، اور تیری ہی طرف لوٹنا ہے۔",
+    "id" to "Ya Allah, dengan-Mu kami petang, dengan-Mu kami pagi, dengan-Mu kami hidup, dengan-Mu kami mati, dan kepada-Mu-lah tempat kembali.",
+    "hi" to "ऐ अल्लाह, तेरे ही से हमने शाम की और सुबह, तेरे ही से जीते और मरते हैं, और तेरी ही ओर लौटना है।",
+)
+internal val ALIM_GHAYB = mapOf(
+    "en" to "O Allah, Knower of the unseen and the seen, Creator of the heavens and the earth: I seek refuge in You from the evil of my soul, from Satan and his association, and from bringing harm upon myself or another Muslim.",
+    "fr" to "Ô Allah, Connaisseur de l'invisible et du visible, Créateur des cieux et de la terre : je cherche protection contre le mal de mon âme, de Satan et de son association.",
+    "es" to "Oh Allah, Conocedor de lo oculto y lo manifiesto: me refugio en Ti del mal de mi alma, de Satanás y su asociación.",
+    "tr" to "Allahım! Gaybı ve şahadeti bilen! Nefsimin şerrinden, şeytan ve şirkinden, kendime veya bir müslümana kötülük etmekten Sana sığınırım.",
+    "ur" to "اے اللہ! غیب و شہادت جاننے والے! میں اپنے نفس کے شر، شیطان اور اس کے شرک سے تیری پناہ مانگتا ہوں۔",
+    "id" to "Ya Allah, Yang mengetahui yang gaib dan yang nyata: aku berlindung kepada-Mu dari kejahatan diriku, dari setan dan sekutunya.",
+    "hi" to "ऐ अल्लाह, ग़ैब और ज़ाहिर जानने वाले! मैं अपने नफ्स के शर, शैतान और उसके शिर्क से तेरी पनाह लेता हूँ।",
+)
+internal val ASHHADUKA_MORNING = mapOf(
+    "en" to "O Allah, I have entered the morning calling You to witness — and the bearers of Your Throne, Your angels, and all Your creation — that You are Allah, there is no god but You, and that Muhammad is Your servant and Messenger.",
+    "fr" to "Ô Allah, je suis arrivé au matin en Te prenant à témoin, ainsi que les porteurs de Ton Trône, Tes anges et toute Ta création : Tu es Allah, nulle divinité que Toi, et Muhammad est Ton serviteur et Messager.",
+    "es" to "Oh Allah, he entrado en la mañana tomándote por testigo, y a los portadores de Tu Trono, Tus ángeles y toda Tu creación: Tú eres Allah, no hay dios sino Tú, y Muhammad es Tu siervo y Mensajero.",
+    "tr" to "Allahım! Sabaha erdim; Seni, Arş'ını taşıyanları, meleklerini ve bütün yaratılmışları şahit tutarım: Sen Allah'sın, Senden başka ilah yoktur ve Muhammed Senin kulun ve elçindir.",
+    "ur" to "اے اللہ! میں نے صبح کی، تجھے اور تیرے عرش کے اٹھانے والوں، فرشتوں اور ساری مخلوق کو گواہ بناتا ہوں کہ تو ہی اللہ ہے، تیرے سوا کوئی معبود نہیں، اور محمد تیرا بندہ اور رسول ہے۔",
+    "id" to "Ya Allah, aku memasuki pagi dengan mempersaksikan-Mu, para pemikul Arsy, malaikat, dan seluruh makhluk-Mu: Engkau adalah Allah, tidak ada tuhan selain Engkau, dan Muhammad adalah hamba dan rasul-Mu.",
+    "hi" to "ऐ अल्लाह, मैंने सुबह की; तुझे, तेरे अर्श उठाने वालों, फ़रिश्तों और सारी सृष्टि को गवाह बनाता हूँ कि तू ही अल्लाह है, तेरे सिवा कोई माबूद नहीं, और मुहम्मद तेरा बंदा और रसूल है।",
+)
+internal val ASHHADUKA_EVENING = mapOf(
+    "en" to "O Allah, I have entered the evening calling You to witness — and the bearers of Your Throne, Your angels, and all Your creation — that You are Allah, there is no god but You, and that Muhammad is Your servant and Messenger.",
+    "fr" to "Ô Allah, je suis arrivé au soir en Te prenant à témoin, ainsi que les porteurs de Ton Trône, Tes anges et toute Ta création.",
+    "es" to "Oh Allah, he entrado en la tarde tomándote por testigo, y a los portadores de Tu Trono, Tus ángeles y toda Tu creación.",
+    "tr" to "Allahım! Akşama erdim; Seni, Arş'ını taşıyanları, meleklerini ve bütün yaratılmışları şahit tutarım: Sen Allah'sın, Senden başka ilah yoktur ve Muhammed Senin kulun ve elçindir.",
+    "ur" to "اے اللہ! میں نے شام کی، تجھے اور تیرے عرش کے اٹھانے والوں، فرشتوں اور ساری مخلوق کو گواہ بناتا ہوں کہ تو ہی اللہ ہے، تیرے سوا کوئی معبود نہیں، اور محمد تیرا بندہ اور رسول ہے۔",
+    "id" to "Ya Allah, aku memasuki petang dengan mempersaksikan-Mu, para pemikul Arsy, malaikat, dan seluruh makhluk-Mu: Engkau adalah Allah, tidak ada tuhan selain Engkau, dan Muhammad adalah hamba dan rasul-Mu.",
+    "hi" to "ऐ अल्लाह, मैंने शाम की; तुझे, तेरे अर्श उठाने वालों, फ़रिश्तों और सारी सृष्टि को गवाह बनाता हूँ कि तू ही अल्लाह है, तेरे सिवा कोई माबूद नहीं, और मुहम्मद तेरा बंदा और रसूल है।",
+)
+internal val SHIRK_ISTIGHFAR = mapOf(
+    "en" to "O Allah, I seek refuge in You from associating partners with You knowingly, and I ask Your forgiveness for what I do not know.",
+    "fr" to "Ô Allah, je cherche protection contre T'associer sciemment, et je Te demande pardon pour ce que j'ignore.",
+    "es" to "Oh Allah, me refugio en Ti de asociarte a sabiendas, y Te pido perdón por lo que no sé.",
+    "tr" to "Allahım! Bilerek Sana ortak koşmaktan Sana sığınır, bilmediğim için de bağışlanma dilerim.",
+    "ur" to "اے اللہ! میں جان بوجھ کر تیرے ساتھ شرک کرنے سے پناہ مانگتا ہوں، اور جو نہ جانوں اس کی بخشش مانگتا ہوں۔",
+    "id" to "Ya Allah, aku berlindung kepada-Mu dari menyekutukan-Mu padahal aku tahu, dan aku memohon ampun atas apa yang tidak aku ketahui.",
+    "hi" to "ऐ अल्लाह, मैं जानबूझकर तेरे साथ शिर्क करने से पनाह लेता हूँ, और जो न जानूँ उसकी माफ़ी माँगता हूँ।",
+)
+internal val NIMA_MORNING = mapOf(
+    "en" to "O Allah, whatever blessing has come to me or to any of Your creation this morning is from You alone, without partner. To You is praise and thanks.",
+    "fr" to "Ô Allah, tout bienfait qui m'atteint ce matin vient de Toi seul, sans associé. À Toi la louange et le remerciement.",
+    "es" to "Oh Allah, toda merced que me haya llegado esta mañana es de Ti solo, sin asociado. Tuya es la alabanza y el agradecimiento.",
+    "tr" to "Allahım! Bu sabah bana veya yarattıklarından birine gelen nimet Sendendir, ortağın yoktur. Hamd ve şükür Sanadır.",
+    "ur" to "اے اللہ! اس صبح جو نعمت مجھے یا تیری مخلوق میں سے کسی کو ملی، وہ تیری ہی ہے بے شریک۔ تعریف اور شکر تیرے ہی لیے ہے۔",
+    "id" to "Ya Allah, nikmat apa pun yang datang kepadaku pagi ini, atau kepada makhluk-Mu, itu dari-Mu semata, tanpa sekutu. Bagi-Mu puji dan syukur.",
+    "hi" to "ऐ अल्लाह, इस सुबह जो नेमत मुझे या तेरी सृष्टि में से किसी को मिली, वह तेरी ही है बिना साझी। स्तुति और शुक्र तेरे ही लिए है।",
+)
+internal val NIMA_EVENING = mapOf(
+    "en" to "O Allah, whatever blessing has come to me or to any of Your creation this evening is from You alone, without partner. To You is praise and thanks.",
+    "fr" to "Ô Allah, tout bienfait qui m'atteint ce soir vient de Toi seul. À Toi la louange et le remerciement.",
+    "es" to "Oh Allah, toda merced que me haya llegado esta tarde es de Ti solo. Tuya es la alabanza y el agradecimiento.",
+    "tr" to "Allahım! Bu akşam bana veya yarattıklarından birine gelen nimet Sendendir. Hamd ve şükür Sanadır.",
+    "ur" to "اے اللہ! اس شام جو نعمت مجھے یا تیری مخلوق میں سے کسی کو ملی، وہ تیری ہی ہے بے شریک۔ تعریف اور شکر تیرے ہی لیے ہے۔",
+    "id" to "Ya Allah, nikmat apa pun yang datang kepadaku petang ini, atau kepada makhluk-Mu, itu dari-Mu semata. Bagi-Mu puji dan syukur.",
+    "hi" to "ऐ अल्लाह, इस शाम जो नेमत मुझे या तेरी सृष्टि में से किसी को मिली, वह तेरी ही है। स्तुति और शुक्र तेरे ही लिए है।",
+)
+internal val AFIYAH_BADAN = mapOf(
+    "en" to "O Allah, grant me well-being in my body, my hearing, and my sight. There is no god but You. I seek refuge in You from disbelief, poverty, and the punishment of the grave.",
+    "fr" to "Ô Allah, accorde-moi la santé du corps, de l'ouïe et de la vue. Nulle divinité que Toi. Je cherche protection contre la mécréance, la pauvreté et le châtiment de la tombe.",
+    "es" to "Oh Allah, concédeme bienestar en el cuerpo, el oído y la vista. No hay dios sino Tú. Me refugio de la incredulidad, la pobreza y el castigo de la tumba.",
+    "tr" to "Allahım! Bedenimde, işitmemde ve görmemde afiyet ver. Senden başka ilah yoktur. Küfürden, yoksulluktan ve kabir azabından Sana sığınırım.",
+    "ur" to "اے اللہ! میرے جسم، کان اور آنکھ میں عافیت دے। تیرے سوا کوئی معبود نہیں۔ کفر، فقر اور قبر کے عذاب سے تیری پناہ مانگتا ہوں۔",
+    "id" to "Ya Allah, anugerahkan afiat pada badanku, pendengaranku, dan penglihatanku. Tidak ada tuhan selain Engkau. Aku berlindung dari kekufuran, kemiskinan, dan azab kubur.",
+    "hi" to "ऐ अल्लाह, मेरे बदन, कान और आँख में आफ़ियत दे। तेरे सिवा कोई माबूद नहीं। कुफ़्र, फ़क़्र और क़ब्र के अज़ाब से तेरी पनाह लेता हूँ।",
+)
+internal val HAMM_HAZAN = mapOf(
+    "en" to "O Allah, I seek refuge in You from worry and grief, from incapacity and laziness, from miserliness and cowardice, and from the burden of debt and being overpowered by men.",
+    "fr" to "Ô Allah, je cherche protection contre le souci et la tristesse, l'incapacité et la paresse, l'avarice et la lâcheté, le fardeau de la dette et la domination des hommes.",
+    "es" to "Oh Allah, me refugio de la preocupación y la tristeza, la incapacidad y la pereza, la avaricia y la cobardía, la carga de la deuda y el dominio de los hombres.",
+    "tr" to "Allahım! Üzüntü ve kederden, acizlik ve tembellikten, cimrilik ve korkaklıktan, borç yükünden ve insanların galebesinden Sana sığınırım.",
+    "ur" to "اے اللہ! میں غم و اندوہ، عجز و کاہلی، بخل و بزدلی، قرض کے بوجھ اور لوگوں کے غلبے سے تیری پناہ مانگتا ہوں۔",
+    "id" to "Ya Allah, aku berlindung kepada-Mu dari duka dan sedih, lemah dan malas, kikir dan pengecut, beban utang dan dikuasai orang.",
+    "hi" to "ऐ अल्लाह, मैं ग़म और उदासी, कमज़ोरी और आलस, कंजूसी और कायरता, क़र्ज़ के बोझ और लोगों के ग़लबे से तेरी पनाह लेता हूँ।",
+)
+internal val AFW_AFIYAH = mapOf(
+    "en" to "O Allah, I ask You for pardon and well-being in this world and the Hereafter — in my religion, my worldly life, my family, and my wealth. Cover my faults, calm my fears, and protect me from every direction.",
+    "fr" to "Ô Allah, je Te demande le pardon et la santé en ce monde et dans l'au-delà. Couvre mes défauts, apaise mes frayeurs, et protège-moi de toutes parts.",
+    "es" to "Oh Allah, Te pido perdón y bienestar en este mundo y en el más allá. Cubre mis faltas, calma mis temores y protégeme por todos lados.",
+    "tr" to "Allahım! Dünya ve ahirette af ve afiyet isterim. Ayıplarımı ört, korkularımı gider, her yönden beni koru.",
+    "ur" to "اے اللہ! میں دنیا و آخرت میں عفو و عافیت مانگتا ہوں۔ میری پردہ پوشی فرما، خوف دور کر، اور ہر سمت سے حفاظت فرما۔",
+    "id" to "Ya Allah, aku memohon ampunan dan afiat di dunia dan akhirat. Tutupilah aibku, tenangkan ketakutanku, dan jagalah aku dari segala arah.",
+    "hi" to "ऐ अल्लाह, मैं दुनिया और आख़िरत में माफ़ी और आफ़ियत माँगता हूँ। मेरी पर्दापोशी कर, डर दूर कर, और हर तरफ़ से हिफ़ाज़त कर।",
+)
+internal val BISMILLAH_LA_YADURR = mapOf(
+    "en" to "In the name of Allah, with whose name nothing on earth or in heaven can cause harm, and He is the All-Hearing, the All-Knowing.",
+    "fr" to "Au nom d'Allah, avec le nom de Qui rien ne nuit sur terre ni dans le ciel, et Il est l'Audient, l'Omniscient.",
+    "es" to "En el nombre de Allah, con cuyo nombre nada en la tierra ni en el cielo puede dañar, y Él es el que todo lo oye y todo lo sabe.",
+    "tr" to "Allah'ın adıyla ki O'nun adıyla yerde ve gökte hiçbir şey zarar veremez. O, işitendir, bilendir.",
+    "ur" to "اللہ کے نام سے جس کے نام کے ساتھ زمین و آسمان میں کوئی چیز نقصان نہیں دے سکتی، اور وہ سننے والا جاننے والا ہے۔",
+    "id" to "Dengan nama Allah yang bersama nama-Nya tidak ada sesuatu pun di bumi dan di langit yang membahayakan, dan Dia Maha Mendengar, Maha Mengetahui.",
+    "hi" to "अल्लाह के नाम से जिसके नाम के साथ ज़मीन और आसमान में कोई चीज़ नुकसान नहीं दे सकती, और वह सुनने वाला जानने वाला है।",
+)
+internal val FATH_NASR = mapOf(
+    "en" to "We have entered the morning and the dominion belongs to Allah, Lord of the worlds. O Allah, I ask You for the good of this day — its opening, victory, light, blessing, and guidance — and I seek refuge from the evil in it and after it.",
+    "fr" to "Nous voici au matin, et la royauté appartient à Allah, Seigneur des mondes. Je Te demande le bien de ce jour : son ouverture, sa victoire, sa lumière, sa bénédiction et sa guidance.",
+    "es" to "Hemos entrado en la mañana y el dominio pertenece a Allah, Señor de los mundos. Te pido el bien de este día: su apertura, victoria, luz, bendición y guía.",
+    "tr" to "Sabaha erdik, mülk âlemlerin Rabbi Allah'ındır. Bu günün hayrını, fethini, yardımını, nurunu, bereketini ve hidayetini isterim.",
+    "ur" to "ہم نے صبح کی اور بادشاہی رب العالمین کی ہے۔ اے اللہ اس دن کی بھلائی، فتح، مدد، نور، برکت اور ہدایت مانگتا ہوں، اور اس کے شر سے پناہ مانگتا ہوں۔",
+    "id" to "Kami memasuki pagi dan kerajaan milik Allah, Tuhan semesta alam. Ya Allah, aku memohon kebaikan hari ini: pembukaannya, pertolongan, cahaya, berkah, dan hidayahnya.",
+    "hi" to "हमने सुबह की और राज्य रब्बुल आलमीन का है। ऐ अल्लाह इस दिन की भलाई, फ़तह, मदद, नूर, बरकत और हिदायत माँगता हूँ।",
+)
+internal val FITRA_MORNING = mapOf(
+    "en" to "We have entered the morning upon the fitrah of Islam, the word of sincerity, the religion of our Prophet Muhammad, and the way of our father Ibrahim, upright and Muslim, never among the polytheists.",
+    "fr" to "Nous voici au matin sur la fitra de l'islam, la parole de sincérité, la religion de notre Prophète Muhammad, et la voie de notre père Ibrahim.",
+    "es" to "Hemos entrado en la mañana sobre la fitra del islam, la palabra de sinceridad, la religión de nuestro Profeta Muhammad y la vía de nuestro padre Ibrahim.",
+    "tr" to "İslam fıtratı üzere, ihlas kelimesi üzere, Peygamberimiz'in dini ve atamız İbrahim'in milleti üzere sabaha erdik.",
+    "ur" to "ہم اسلام کی فطرت، کلمہ اخلاص، اپنے نبی محمد کے دین، اور اپنے باپ ابراہیم کی ملت پر صبح کو پہنچے۔",
+    "id" to "Kami memasuki pagi di atas fitrah Islam, kalimat ikhlas, agama Nabi kami Muhammad, dan millah ayah kami Ibrahim.",
+    "hi" to "हम इस्लाम की फ़ितरत, कलिमा इख़लास, अपने नबी मुहम्मद के दीन, और अपने बाप इबराहीम की मिल्लत पर सुबह को पहुँचे।",
+)
+internal val FITRA_EVENING = mapOf(
+    "en" to "We have entered the evening upon the fitrah of Islam, the word of sincerity, the religion of our Prophet Muhammad, and the way of our father Ibrahim, upright and Muslim, never among the polytheists.",
+    "fr" to "Nous voici au soir sur la fitra de l'islam, la parole de sincérité, la religion de notre Prophète et la voie d'Ibrahim.",
+    "es" to "Hemos entrado en la tarde sobre la fitra del islam, la palabra de sinceridad, la religión de nuestro Profeta y la vía de Ibrahim.",
+    "tr" to "İslam fıtratı, ihlas kelimesi, Peygamberimiz'in dini ve atamız İbrahim'in milleti üzere akşama erdik.",
+    "ur" to "ہم اسلام کی فطرت، کلمہ اخلاص، اپنے نبی کے دین اور ابراہیم کی ملت پر شام کو پہنچے۔",
+    "id" to "Kami memasuki petang di atas fitrah Islam, kalimat ikhlas, agama Nabi kami, dan millah Ibrahim.",
+    "hi" to "हम इस्लाम की फ़ितरत, कलिमा इख़लास, अपने नबी के दीन और इबराहीम की मिल्लत पर शाम को पहुँचे।",
+)
+internal val ILM_NAFI = mapOf(
+    "en" to "O Allah, I ask You for beneficial knowledge, wholesome provision, and accepted deeds.",
+    "fr" to "Ô Allah, je Te demande une science utile, une subsistance pure et des œuvres acceptées.",
+    "es" to "Oh Allah, Te pido conocimiento beneficioso, sustento puro y obras aceptadas.",
+    "tr" to "Allahım! Faydalı ilim, temiz rızık ve kabul edilen amel isterim.",
+    "ur" to "اے اللہ! میں نفع بخش علم، پاک رزق اور قبول عمل مانگتا ہوں۔",
+    "id" to "Ya Allah, aku memohon ilmu yang bermanfaat, rezeki yang baik, dan amal yang diterima.",
+    "hi" to "ऐ अल्लाह, मैं लाभदायक इल्म, पाक रिज़्क़ और क़ुबूल अमल माँगता हूँ।",
+)
+internal val ISTIGHFAR_AZIM = mapOf(
+    "en" to "Whoever says: I seek forgiveness of Allah the Magnificent — there is no god but He, the Ever-Living, the Self-Sustaining — and I repent to Him, Allah forgives him even if he had fled from the battlefield.",
+    "fr" to "Quiconque dit : Je demande pardon à Allah l'Immense — nulle divinité que Lui, le Vivant, le Subsistant — et je me repens à Lui, Allah lui pardonne même s'il a fui le combat.",
+    "es" to "Quien dice: Pido perdón a Allah el Inmenso — no hay dios sino Él — y me arrepiento, Allah le perdona aunque haya huido del combate.",
+    "tr" to "Kim: Azîm Allah'tan bağışlanma dilerim — O'ndan başka ilah yoktur, Hayy'dır, Kayyûm'dur — ve O'na tövbe ederim, derse Allah onu bağışlar; savaştan kaçmış olsa bile.",
+    "ur" to "جو کہے: میں اللہ العظیم سے بخشش مانگتا ہوں جس کے سوا کوئی معبود نہیں، وہ حی قیوم ہے، اور اسی کی طرف رجوع کرتا ہوں — اللہ اسے بخش دے گا۔",
+    "id" to "Siapa yang mengucapkan: Aku memohon ampun kepada Allah Yang Mahaagung — tidak ada tuhan selain Dia — dan aku bertobat kepada-Nya, Allah mengampuninya.",
+    "hi" to "जो कहे: मैं अल्लाह अज़ीम से माफ़ी माँगता हूँ जिसके सिवा कोई माबूद नहीं, वह हय्य क़य्यूम है — अल्लाह उसे बख्श देगा।",
+)
+internal val TASBIH_COUNT = mapOf(
+    "en" to "Glory and praise be to Allah, as many as His creation, as much as His pleasure, as heavy as His Throne, and as much as the ink of His words.",
+    "fr" to "Gloire et louange à Allah, autant que Ses créatures, autant que Sa satisfaction, aussi lourd que Son Trône, et autant que l'encre de Ses paroles.",
+    "es" to "Gloria y alabanza a Allah, tanto como Su creación, Su agrado, el peso de Su Trono y la tinta de Sus palabras.",
+    "tr" to "Allah'ı hamd ile tesbih ederim; yaratıklarının sayısı, rızası, Arş'ının ağırlığı ve kelimelerinin mürekkebi kadar.",
+    "ur" to "اللہ کی تسبیح اور حمد، اس کی مخلوق کی تعداد، اس کی رضا، اس کے عرش کے وزن اور اس کے کلمات کی روشنائی کے برابر۔",
+    "id" to "Mahasuci Allah dengan memuji-Nya, sebanyak ciptaan-Nya, keridaan-Nya, berat Arsy-Nya, dan tinta firman-Nya.",
+    "hi" to "अल्लाह की पवित्रता और स्तुति — उसकी सृष्टि की संख्या, उसकी प्रसन्नता, उसके सिंहासन के भार और उसके शब्दों की स्याही जितनी।",
+)
+internal val TAWHID = mapOf(
+    "en" to "There is no god but Allah, alone, without partner. His is the dominion and His is the praise, and He is over all things competent.",
+    "fr" to "Nulle divinité qu'Allah, seul, sans associé. À Lui la royauté et la louange, et Il est capable de toute chose.",
+    "es" to "No hay dios sino Allah, solo, sin asociado. Suyo es el dominio y la alabanza, y Él es capaz de toda cosa.",
+    "tr" to "Allah'tan başka ilah yoktur; O tektir, ortağı yoktur. Mülk O'nundur, hamd O'nadır. O her şeye kadirdir.",
+    "ur" to "اللہ کے سوا کوئی معبود نہیں، وہ یکتا ہے بے شریک، بادشاہی اسی کی ہے اور تعریف اسی کے لیے ہے، اور وہ ہر چیز پر قادر ہے۔",
+    "id" to "Tidak ada tuhan selain Allah, Yang Maha Esa, tiada sekutu bagi-Nya. Bagi-Nya kerajaan dan pujian, dan Dia Mahakuasa atas segala sesuatu.",
+    "hi" to "अल्लाह के सिवा कोई माबूद नहीं, वह अकेला है बिना साझी। राज्य उसी का है, स्तुति उसी की है, और वह हर चीज़ पर क़ादिर है।",
+)
+internal val SLEEP_TAWAFFA = mapOf(
+    "en" to "O Allah, You created my soul and You take it. Its death and its life belong to You.",
+    "fr" to "Ô Allah, Tu as créé mon âme et Tu la reprends. Sa mort et sa vie T'appartiennent.",
+    "es" to "Oh Allah, Tú creaste mi alma y Tú la recoges. Su muerte y su vida Te pertenecen.",
+    "tr" to "Allahım! Ruhumu Sen yarattın ve Sen alırsın. Ölümü de diriliği de Sanadır.",
+    "ur" to "اے اللہ! تو نے میری جان پیدا کی اور تو ہی اسے قبض کرتا ہے۔ اس کی موت اور زندگی تیری ہی ہے۔",
+    "id" to "Ya Allah, Engkau menciptakan jiwaku dan Engkau yang mewafatkannya. Mati dan hidupnya milik-Mu.",
+    "hi" to "ऐ अल्लाह, तूने मेरी जान पैदा की और तू ही उसे लेता है। उसकी मौत और ज़िंदगी तेरी ही है।",
+)
+internal val SLEEP_QINI = mapOf(
+    "en" to "O Allah, protect me from Your punishment on the Day You resurrect Your servants.",
+    "fr" to "Ô Allah, préserve-moi de Ton châtiment le jour où Tu ressusciteras Tes serviteurs.",
+    "es" to "Oh Allah, protégeme de Tu castigo el día en que resucites a Tus siervos.",
+    "tr" to "Allahım! Kullarını dirilttiğin gün azabından beni koru.",
+    "ur" to "اے اللہ! جس دن تو اپنے بندوں کو اٹھائے، اپنے عذاب سے مجھے بچا۔",
+    "id" to "Ya Allah, lindungilah aku dari azab-Mu pada hari Engkau membangkitkan hamba-hamba-Mu.",
+    "hi" to "ऐ अल्लाह, जिस दिन तू अपने बंदों को उठाए, अपने अज़ाब से मुझे बचा।",
+)
+internal val SLEEP_AMUTU = mapOf(
+    "en" to "In Your name, O Allah, I die and I live.",
+    "fr" to "En Ton nom, Ô Allah, je meurs et je vis.",
+    "es" to "En Tu nombre, oh Allah, muero y vivo.",
+    "tr" to "Allahım! Senin adınla ölür ve dirilirim.",
+    "ur" to "اے اللہ! تیرے نام سے میں مرتا اور جیتا ہوں۔",
+    "id" to "Dengan nama-Mu, ya Allah, aku mati dan aku hidup.",
+    "hi" to "ऐ अल्लाह, तेरे नाम से मैं मरता और जीता हूँ।",
+)
+internal val WAKE_AFAANI = mapOf(
+    "en" to "Praise be to Allah who granted well-being to my body, restored my soul to me, and permitted me to remember Him.",
+    "fr" to "Louange à Allah qui a accordé la santé à mon corps, m'a rendu mon âme et m'a permis de L'évoquer.",
+    "es" to "Alabado sea Allah que concedió bienestar a mi cuerpo, me devolvió el alma y me permitió recordarlo.",
+    "tr" to "Bedenime afiyet veren, ruhumu geri veren ve zikrine izin veren Allah'a hamd olsun.",
+    "ur" to "اللہ کا شکر جس نے میرے جسم میں عافیت دی، روح لوٹائی، اور اپنے ذکر کی اجازت دی۔",
+    "id" to "Segala puji bagi Allah yang memberi afiat pada badanku, mengembalikan ruhku, dan mengizinkanku berzikir kepada-Nya.",
+    "hi" to "अल्लाह की स्तुति जिसने मेरे बदन में आफ़ियत दी, रूह लौटाई, और अपने ज़िक्र की इजाज़त दी।",
+)
+internal val ADHAN_REPEAT = mapOf(
+    "en" to "Repeat what the muezzin says, except at the two hayya ala phrases, where you say: There is no power nor strength except with Allah.",
+    "fr" to "Répétez ce que dit le muezzin, sauf aux deux hayya ala, où l'on dit : Il n'y a de force ni de puissance qu'en Allah.",
+    "es" to "Repite lo que dice el almuédano, salvo en las dos hayya ala, donde se dice: No hay poder ni fuerza sino en Allah.",
+    "tr" to "Müezzinin dediğini tekrarla; iki hayye ale'de ise: Güç ve kuvvet ancak Allah iledir, de.",
+    "ur" to "موذن کی بات دہراؤ، سوائے حیعلتین کے، وہاں کہو: کوئی طاقت و قوت نہیں مگر اللہ کے ساتھ۔",
+    "id" to "Ulangi ucapan muazin, kecuali pada dua hayya ala, maka ucapkan: Tidak ada daya dan kekuatan kecuali dengan Allah.",
+    "hi" to "मूअज़्ज़िन की बात दोहराओ, सिवा हय्य अला के दो वाक्यों के — वहाँ कहो: कोई शक्ति नहीं सिवा अल्लाह के।",
+)
+internal val ADHAN_WASILA = mapOf(
+    "en" to "O Allah, Lord of this complete call and the established prayer, grant Muhammad the wasilah and virtue, and raise him to the praiseworthy station You promised him.",
+    "fr" to "Ô Allah, Seigneur de cet appel parfait et de la prière établie, accorde à Muhammad la wasila et le mérite, et élève-le à la station louée que Tu lui as promise.",
+    "es" to "Oh Allah, Señor de esta llamada completa y de la oración establecida, concede a Muhammad la wasila y el mérito, y elévalo a la estación loable que le prometiste.",
+    "tr" to "Allahım! Bu tam davetin ve kılınacak namazın Rabbi! Muhammed'e vesileyi ve fazileti ver, vaat ettiğin makam-ı mahmuda onu ulaştır.",
+    "ur" to "اے اللہ! اس کامل دعوت اور قائم نماز کے رب! محمد کو وسیلہ اور فضیلت عطا فرما، اور جس مقام محمود کا تو نے وعدہ کیا وہاں انہیں پہنچا۔",
+    "id" to "Ya Allah, Tuhan panggilan yang sempurna ini dan shalat yang didirikan, berilah Muhammad wasilah dan keutamaan, dan bangkitkanlah beliau ke maqam terpuji yang Engkau janjikan.",
+    "hi" to "ऐ अल्लाह, इस पूर्ण दावत और क़ायम नमाज़ के रब! मुहम्मद को वसीला और फ़ज़ीलत दे, और जिस मक़ाम महमूद का तूने वादा किया वहाँ उन्हें पहुँचा।",
+)
+internal val HOME_ENTER = mapOf(
+    "en" to "O Allah, I ask You for the best of entering and the best of leaving.",
+    "fr" to "Ô Allah, je Te demande le meilleur de l'entrée et le meilleur de la sortie.",
+    "es" to "Oh Allah, Te pido lo mejor de entrar y lo mejor de salir.",
+    "tr" to "Allahım! Girişin de çıkışın da hayırlısını isterim.",
+    "ur" to "اے اللہ! میں تجھ سے داخلے کی بھلائی اور نکلنے کی بھلائی مانگتا ہوں۔",
+    "id" to "Ya Allah, aku memohon kepada-Mu kebaikan masuk dan kebaikan keluar.",
+    "hi" to "ऐ अल्लाह, मैं तुझसे दाख़िल होने की भलाई और निकलने की भलाई माँगता हूँ।",
+)
+internal val HOME_LEAVE = mapOf(
+    "en" to "O Allah, I seek refuge in You from going astray or being led astray, from slipping or being caused to slip.",
+    "fr" to "Ô Allah, je cherche protection contre m'égarer ou être égaré, contre glisser ou être poussé à glisser.",
+    "es" to "Oh Allah, me refugio en Ti de extraviarme o ser extraviado, de resbalar o ser hecho resbalar.",
+    "tr" to "Allahım! Sapmaktan veya saptırılmaktan, kaymaktan veya kaydırılmaktan Sana sığınırım.",
+    "ur" to "اے اللہ! میں گمراہ ہونے یا گمراہ کیے جانے، پھسلنے یا پھسلائے جانے سے تیری پناہ مانگتا ہوں۔",
+    "id" to "Ya Allah, aku berlindung kepada-Mu dari tersesat atau disesatkan, dari tergelincir atau digelincirkan.",
+    "hi" to "ऐ अल्लाह, मैं गुमराह होने या गुमराह किए जाने, फिसलने या फिसलाए जाने से तेरी पनाह लेता हूँ।",
+)
+internal val VIRTUE_KHAIR_YAWM = mapOf(
+    "en" to "Asking for the good of the day, and seeking refuge from its evil, laziness, and the punishment of the grave.",
+    "fr" to "Demander le bien du jour, et chercher protection contre son mal, la paresse et le châtiment de la tombe.",
+    "es" to "Pedir el bien del día y refugiarse de su mal, la pereza y el castigo de la tumba.",
+    "tr" to "Günün hayrını istemek; şerrinden, tembellikten ve kabir azabından sığınmak.",
+    "ur" to "دن کی بھلائی مانگنا، اور اس کے شر، کاہلی اور قبر کے عذاب سے پناہ۔",
+    "id" to "Memohon kebaikan hari ini, dan berlindung dari keburukannya, malas, dan azab kubur.",
+    "hi" to "दिन की भलाई माँगना, और उसके शर, आलस और क़ब्र के अज़ाब से पनाह।",
+)
+internal val VIRTUE_TAFWID = mapOf(
+    "en" to "Entrusting the matter to Allah and relying upon Him.",
+    "fr" to "Remettre l'affaire à Allah et s'en remettre à Lui.",
+    "es" to "Encomendar el asunto a Allah y confiar en Él.",
+    "tr" to "İşi Allah'a havale etmek ve O'na tevekkül etmek.",
+    "ur" to "کام اللہ کے سپرد کرنا اور اسی پر بھروسہ۔",
+    "id" to "Menyerahkan urusan kepada Allah dan bertawakal kepada-Nya.",
+    "hi" to "काम अल्लाह के हवाले करना और उसी पर भरोसा।",
+)
+internal val VIRTUE_NAFS = mapOf(
+    "en" to "Protection from the evil of the soul, Satan, and his association.",
+    "fr" to "Protection contre le mal de l'âme, de Satan et de son association.",
+    "es" to "Protección del mal del alma, de Satanás y su asociación.",
+    "tr" to "Nefsin, şeytanın ve şirkinin şerrinden korunma.",
+    "ur" to "نفس، شیطان اور اس کے شرک کے شر سے حفاظت۔",
+    "id" to "Perlindungan dari kejahatan jiwa, setan, dan sekutunya.",
+    "hi" to "नफ्स, शैतान और उसके शिर्क के शर से हिफ़ाज़त।",
+)
+internal val VIRTUE_SHIRK = mapOf(
+    "en" to "Protection from lesser and greater shirk.",
+    "fr" to "Protection contre le petit et le grand associationnisme.",
+    "es" to "Protección del shirk menor y mayor.",
+    "tr" to "Küçük ve büyük şirkten korunma.",
+    "ur" to "چھوٹے اور بڑے شرک سے بچاؤ۔",
+    "id" to "Perlindungan dari syirik kecil dan besar.",
+    "hi" to "छोटे और बड़े शिर्क से बचाव।",
+)
+internal val VIRTUE_SHUKR_YAWM = mapOf(
+    "en" to "Giving thanks for the day.",
+    "fr" to "Rendre grâce pour le jour.",
+    "es" to "Dar gracias por el día.",
+    "tr" to "Günün şükrünü eda etmek.",
+    "ur" to "دن کا شکر ادا کرنا۔",
+    "id" to "Menunaikan syukur hari ini.",
+    "hi" to "दिन का शुक्र अदा करना।",
+)
+internal val VIRTUE_AFIYAH = mapOf(
+    "en" to "Asking for well-being, and seeking refuge from disbelief, poverty, and the punishment of the grave.",
+    "fr" to "Demander la santé, et chercher protection contre la mécréance, la pauvreté et le châtiment de la tombe.",
+    "es" to "Pedir bienestar y refugiarse de la incredulidad, la pobreza y el castigo de la tumba.",
+    "tr" to "Afiyet dilemek; küfür, yoksulluk ve kabir azabından sığınmak.",
+    "ur" to "عافیت مانگنا، اور کفر، فقر اور قبر کے عذاب سے پناہ۔",
+    "id" to "Memohon afiat, dan berlindung dari kekufuran, kemiskinan, dan azab kubur.",
+    "hi" to "आफ़ियत माँगना, और कुफ़्र, फ़क़्र और क़ब्र के अज़ाब से पनाह।",
+)
+internal val VIRTUE_HAMM = mapOf(
+    "en" to "Relief from worries, payment of debts, and protection from incapacity.",
+    "fr" to "Soulagement des soucis, acquittement des dettes, et protection contre l'incapacité.",
+    "es" to "Alivio de las preocupaciones, pago de deudas y protección de la incapacidad.",
+    "tr" to "Tasaların giderilmesi, borçların ödenmesi, acizlikten korunma.",
+    "ur" to "غم دور ہونا، قرض ادا ہونا، اور عجز سے بچاؤ۔",
+    "id" to "Hilangnya duka, terlunasi utang, dan terhindar dari kelemahan.",
+    "hi" to "ग़म दूर होना, क़र्ज़ अदा होना, और कमज़ोरी से बचाव।",
+)
+internal val VIRTUE_HIFZ = mapOf(
+    "en" to "Complete protection from every direction, and covering of faults.",
+    "fr" to "Protection complète de toutes parts, et couverture des défauts.",
+    "es" to "Protección completa desde todas las direcciones, y cobertura de las faltas.",
+    "tr" to "Her yönden tam koruma ve ayıpların örtülmesi.",
+    "ur" to "ہر سمت سے مکمل حفاظت، اور پردہ پوشی۔",
+    "id" to "Perlindungan menyeluruh dari segala arah, dan tertutupinya aib.",
+    "hi" to "हर तरफ़ से पूरी हिफ़ाज़त, और पर्दापोशी।",
+)
+internal val VIRTUE_SHAAN = mapOf(
+    "en" to "Setting all affairs aright, and not being left to oneself.",
+    "fr" to "Arranger toutes les affaires, et ne pas être livré à soi-même.",
+    "es" to "Poner en orden todos los asuntos, y no ser abandonado a uno mismo.",
+    "tr" to "Bütün işlerin düzelmesi ve nefse bırakılmamak.",
+    "ur" to "سب معاملات درست ہونا، اور نفس کے حوالے نہ ہونا۔",
+    "id" to "Perbaikan seluruh urusan, dan tidak dibiarkan pada diri sendiri.",
+    "hi" to "सारे काम सुधरना, और नफ्स के हवाले न होना।",
+)
+internal val VIRTUE_FATH = mapOf(
+    "en" to "Asking for opening, light, blessing, and guidance.",
+    "fr" to "Demander l'ouverture, la lumière, la bénédiction et la guidance.",
+    "es" to "Pedir apertura, luz, bendición y guía.",
+    "tr" to "Fetih, nur, bereket ve hidayet dilemek.",
+    "ur" to "فتح، نور، برکت اور ہدایت مانگنا۔",
+    "id" to "Memohon pembukaan, cahaya, berkah, dan hidayah.",
+    "hi" to "फ़तह, नूर, बरकत और हिदायत माँगना।",
+)
+internal val VIRTUE_IMAN = mapOf(
+    "en" to "Renewing faith and holding to the Sunnah.",
+    "fr" to "Renouveler la foi et s'attacher à la Sounna.",
+    "es" to "Renovar la fe y aferrarse a la Sunna.",
+    "tr" to "İmanı yenilemek ve sünnete sarılmak.",
+    "ur" to "ایمان کی تجدید اور سنت سے وابستگی۔",
+    "id" to "Memperbarui iman dan berpegang pada sunnah.",
+    "hi" to "ईमान की ताज़गी और सुन्नत से लगाव।",
+)
+internal val VIRTUE_AJR = mapOf(
+    "en" to "A multiplied reward greater than lengthy tasbih.",
+    "fr" to "Une récompense multipliée, supérieure à un long tasbih.",
+    "es" to "Una recompensa multiplicada, mayor que un tasbih largo.",
+    "tr" to "Uzun tesbihten üstün, kat kat sevap.",
+    "ur" to "لمبی تسبیح سے بڑھ کر گنا بڑھا ہوا اجر۔",
+    "id" to "Pahala berlipat yang melebihi tasbih yang panjang.",
+    "hi" to "लंबी तस्बीह से बढ़कर गुना बढ़ा हुआ अज्र।",
+)
+internal val VIRTUE_ILM = mapOf(
+    "en" to "Asking for beneficial knowledge, wholesome provision, and accepted deeds.",
+    "fr" to "Demander une science utile, une subsistance pure et des œuvres acceptées.",
+    "es" to "Pedir conocimiento beneficioso, sustento puro y obras aceptadas.",
+    "tr" to "Faydalı ilim, temiz rızık ve kabul edilen amel dilemek.",
+    "ur" to "نفع بخش علم، پاک رزق اور قبول عمل مانگنا۔",
+    "id" to "Memohon ilmu bermanfaat, rezeki baik, dan amal yang diterima.",
+    "hi" to "लाभदायक इल्म, पाक रिज़्क़ और क़ुबूल अमल माँगना।",
+)
+internal val VIRTUE_QALB = mapOf(
+    "en" to "Purifying the heart and wiping away misdeeds.",
+    "fr" to "Purifier le cœur et effacer les mauvaises actions.",
+    "es" to "Purificar el corazón y borrar las malas acciones.",
+    "tr" to "Kalbi temizlemek ve kötülükleri silmek.",
+    "ur" to "دل کی صفائی اور برائیاں مٹانا۔",
+    "id" to "Menyucikan hati dan menghapus keburukan.",
+    "hi" to "दिल की सफ़ाई और बुराइयाँ मिटाना।",
+)
+internal val VIRTUE_KHAIR_LAYL = mapOf(
+    "en" to "Asking for the good of the night, and seeking refuge from its evil and the punishment of the grave.",
+    "fr" to "Demander le bien de la nuit, et chercher protection contre son mal et le châtiment de la tombe.",
+    "es" to "Pedir el bien de la noche y refugiarse de su mal y del castigo de la tumba.",
+    "tr" to "Gecenin hayrını istemek; şerrinden ve kabir azabından sığınmak.",
+    "ur" to "رات کی بھلائی مانگنا، اور اس کے شر اور قبر کے عذاب سے پناہ۔",
+    "id" to "Memohon kebaikan malam, dan berlindung dari keburukannya dan azab kubur.",
+    "hi" to "रात की भलाई माँगना, और उसके शर और क़ब्र के अज़ाब से पनाह।",
+)
+internal val VIRTUE_TAFWID_MASA = mapOf(
+    "en" to "Entrusting the matter to Allah in the evening.",
+    "fr" to "Remettre l'affaire à Allah au soir.",
+    "es" to "Encomendar el asunto a Allah por la tarde.",
+    "tr" to "Akşamleyin işi Allah'a havale etmek.",
+    "ur" to "شام کے وقت کام اللہ کے سپرد کرنا۔",
+    "id" to "Menyerahkan urusan kepada Allah di waktu petang.",
+    "hi" to "शाम के वक़्त काम अल्लाह के हवाले करना।",
+)
+internal val VIRTUE_SHUKR_LAYL = mapOf(
+    "en" to "Giving thanks for the night.",
+    "fr" to "Rendre grâce pour la nuit.",
+    "es" to "Dar gracias por la noche.",
+    "tr" to "Gecenin şükrünü eda etmek.",
+    "ur" to "رات کا شکر ادا کرنا۔",
+    "id" to "Menunaikan syukur malam.",
+    "hi" to "रात का शुक्र अदा करना।",
+)
+internal val VIRTUE_SAMM = mapOf(
+    "en" to "Protection from the evil of created beings and poisonous creatures.",
+    "fr" to "Protection contre le mal des créatures et des êtres venimeux.",
+    "es" to "Protección del mal de las criaturas y de los seres venenosos.",
+    "tr" to "Yaratılmışların ve zehirli varlıkların şerrinden korunma.",
+    "ur" to "مخلوقات اور زہریلی چیزوں کے شر سے حفاظت۔",
+    "id" to "Perlindungan dari kejahatan makhluk dan yang berbisa.",
+    "hi" to "मखलूक़ात और ज़हरीली चीज़ों के शर से हिफ़ाज़त।",
+)
+internal val VIRTUE_THABAT = mapOf(
+    "en" to "Closing the day with steadfastness upon tawhid and the Sunnah.",
+    "fr" to "Clore le jour dans la fermeté sur le tawhid et la Sounna.",
+    "es" to "Cerrar el día con firmeza en el tawhid y la Sunna.",
+    "tr" to "Günü tevhid ve sünnet üzere sebatla kapatmak.",
+    "ur" to "دن کو توحید اور سنت پر ثابت قدمی کے ساتھ ختم کرنا۔",
+    "id" to "Menutup hari dengan keteguhan di atas tauhid dan sunnah.",
+    "hi" to "दिन को तौहीद और सुन्नत पर जमाव के साथ ख़त्म करना।",
+)
+internal val VIRTUE_MUAWWIDHAT = mapOf(
+    "en" to "The Muawwidhat after the prayer.",
+    "fr" to "Les Muawwidhat après la prière.",
+    "es" to "Las Muawwidhat después de la oración.",
+    "tr" to "Namazdan sonra Muavvizat.",
+    "ur" to "نماز کے بعد معوذات۔",
+    "id" to "Al-Muawwidzat setelah shalat.",
+    "hi" to "नमाज़ के बाद मुअव्विज़ात।",
+)

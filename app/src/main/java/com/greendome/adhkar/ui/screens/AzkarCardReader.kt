@@ -8,10 +8,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -19,10 +17,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.filled.MenuBook
@@ -35,7 +34,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -52,17 +50,22 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.greendome.adhkar.R
 import com.greendome.adhkar.audio.TtsPlaybackState
+import com.greendome.adhkar.data.SettingsRepository
 import com.greendome.adhkar.data.local.AzkarItemEntity
+import com.greendome.adhkar.data.model.AzkarCardText
+import com.greendome.adhkar.ui.components.AzkarFontSizeButtons
 import com.greendome.adhkar.ui.components.AzkarTextMenu
+import com.greendome.adhkar.ui.theme.AppCardColors
 import com.greendome.adhkar.ui.theme.ArabicText
-import com.greendome.adhkar.ui.theme.CreamBackground
 import com.greendome.adhkar.ui.theme.GoldDome
 import com.greendome.adhkar.ui.theme.GreenPrimary
 import com.greendome.adhkar.ui.theme.GreenPrimaryDark
@@ -77,11 +80,9 @@ fun AzkarCardReader(
     onToggleFavorite: (AzkarItemEntity) -> Unit,
     playingItemId: Long?,
     playbackState: TtsPlaybackState,
-    usingReciterAudio: Boolean,
     onPlayItem: (AzkarItemEntity) -> Unit,
-    onPause: () -> Unit,
-    onResume: () -> Unit,
     onStopPlayback: () -> Unit,
+    initialItemId: Long? = null,
     modifier: Modifier = Modifier
 ) {
     if (items.isEmpty()) {
@@ -92,40 +93,70 @@ fun AzkarCardReader(
             Text(
                 stringResource(R.string.azkar_card_empty),
                 style = MaterialTheme.typography.bodyMedium,
-                color = GreenPrimaryDark
+                color = MaterialTheme.colorScheme.onBackground
             )
         }
         return
     }
 
-    var currentIndex by remember(items) { mutableIntStateOf(0) }
+    var currentIndex by remember(items, initialItemId) {
+        val idx = initialItemId?.let { id -> items.indexOfFirst { it.id == id } }
+            ?.takeIf { it >= 0 } ?: 0
+        mutableIntStateOf(idx)
+    }
     var counter by remember(currentIndex) { mutableIntStateOf(0) }
     var virtueExpanded by remember { mutableStateOf(false) }
     var showInfoDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val settings = remember { SettingsRepository(context) }
+    val lang = settings.appLanguage
+    var cardFontSp by remember { mutableIntStateOf(settings.azkarCardFontSizeSp) }
+    fun changeCardFont(delta: Int) {
+        val next = (cardFontSp + delta).coerceIn(
+            AzkarCardText.MIN_FONT_SP,
+            AzkarCardText.MAX_FONT_SP,
+        )
+        cardFontSp = next
+        settings.azkarCardFontSizeSp = next
+    }
 
     val item = items[currentIndex.coerceIn(0, items.lastIndex)]
+    val nextItem = items.getOrNull(currentIndex + 1)
     val target = item.repeatCount.coerceAtLeast(1)
     val progress = if (target == 0) 0f else counter.toFloat() / target
     val isPlayingThis = playingItemId == item.id && playbackState != TtsPlaybackState.IDLE
-    val canPauseThis = isPlayingThis && !usingReciterAudio && playbackState == TtsPlaybackState.PLAYING
-    val canResumeThis = isPlayingThis && !usingReciterAudio && playbackState == TtsPlaybackState.PAUSED
 
     fun goNext() {
         if (currentIndex < items.lastIndex) {
+            if (isPlayingThis) onStopPlayback()
             currentIndex++
             counter = 0
             virtueExpanded = false
         }
     }
 
+    fun goPrevious() {
+        if (currentIndex > 0) {
+            if (isPlayingThis) onStopPlayback()
+            currentIndex--
+            counter = 0
+            virtueExpanded = false
+        }
+    }
+
     fun incrementCounter() {
-        if (counter < target) counter++
+        if (counter < target) {
+            counter++
+            if (counter >= target && currentIndex < items.lastIndex) {
+                goNext()
+            }
+        }
     }
 
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(CreamBackground)
+            .background(MaterialTheme.colorScheme.background)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
@@ -135,29 +166,18 @@ fun AzkarCardReader(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+                .padding(horizontal = 12.dp, vertical = 4.dp),
         ) {
-            Text(
-                stringResource(R.string.azkar_nav_label),
-                style = MaterialTheme.typography.labelMedium,
-                color = GreenPrimaryDark,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 4.dp),
-            )
             Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Slider(
-                    value = currentIndex.toFloat(),
-                    onValueChange = {
-                        currentIndex = it.toInt().coerceIn(0, items.lastIndex)
-                        counter = 0
-                        virtueExpanded = false
-                    },
-                    valueRange = 0f..items.lastIndex.toFloat().coerceAtLeast(0f),
-                    steps = (items.size - 2).coerceAtLeast(0),
-                    modifier = Modifier.weight(1f),
+                Text(
+                    stringResource(R.string.azkar_nav_label),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontWeight = FontWeight.Bold,
                 )
                 Text(
                     stringResourceDigits(R.string.azkar_card_progress, currentIndex + 1, items.size),
@@ -166,93 +186,139 @@ fun AzkarCardReader(
                     fontWeight = FontWeight.Bold,
                 )
             }
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 6.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = AppCardColors(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 2.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    IconButton(
+                        onClick = { goPrevious() },
+                        enabled = currentIndex > 0,
+                        modifier = Modifier.size(48.dp),
+                    ) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                            contentDescription = null,
+                            modifier = Modifier.size(32.dp),
+                            tint = if (currentIndex > 0) GreenPrimary else GreenPrimary.copy(alpha = 0.3f),
+                        )
+                    }
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .then(
+                                if (nextItem != null) {
+                                    Modifier.clickable { goNext() }
+                                } else {
+                                    Modifier
+                                }
+                            )
+                            .padding(horizontal = 4.dp),
+                    ) {
+                        if (nextItem != null) {
+                            Text(
+                                text = stringResource(
+                                    R.string.azkar_card_next_preview,
+                                    azkarPreview(nextItem.localizedText(lang)),
+                                ),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onBackground,
+                                maxLines = 4,
+                                overflow = TextOverflow.Ellipsis,
+                                lineHeight = 22.sp,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        } else {
+                            Text(
+                                stringResource(R.string.azkar_card_last_item),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
+                    }
+                    IconButton(
+                        onClick = { goNext() },
+                        enabled = nextItem != null,
+                        modifier = Modifier.size(48.dp),
+                    ) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            contentDescription = null,
+                            modifier = Modifier.size(32.dp),
+                            tint = if (nextItem != null) GreenPrimary else GreenPrimary.copy(alpha = 0.3f),
+                        )
+                    }
+                }
+            }
         }
 
         Card(
             modifier = Modifier
                 .weight(1f)
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = 12.dp)
                 .fillMaxWidth(),
             shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = AppCardColors(),
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
+            val textScroll = rememberScrollState()
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(16.dp)
+                    .padding(12.dp)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    IconButton(onClick = { showInfoDialog = true }) {
-                        Icon(
-                            Icons.Default.Info,
-                            contentDescription = stringResource(R.string.azkar_card_info),
-                            tint = GreenPrimary.copy(alpha = 0.6f)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        IconButton(
+                            onClick = { showInfoDialog = true },
+                            modifier = Modifier.size(36.dp),
+                        ) {
+                            Icon(
+                                Icons.Default.Info,
+                                contentDescription = stringResource(R.string.azkar_card_info),
+                                tint = GreenPrimary.copy(alpha = 0.6f)
+                            )
+                        }
+                        AzkarFontSizeButtons(
+                            fontSp = cardFontSp,
+                            minSp = AzkarCardText.MIN_FONT_SP,
+                            maxSp = AzkarCardText.MAX_FONT_SP,
+                            onDecrease = { changeCardFont(-AzkarCardText.STEP_SP) },
+                            onIncrease = { changeCardFont(AzkarCardText.STEP_SP) },
                         )
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         IconButton(
-                            onClick = { onPlayItem(item) },
-                            enabled = !isPlayingThis,
-                            modifier = Modifier.size(40.dp),
+                            onClick = { if (isPlayingThis) onStopPlayback() else onPlayItem(item) },
+                            modifier = Modifier.size(36.dp),
                             colors = IconButtonDefaults.iconButtonColors(
                                 contentColor = GreenPrimary,
-                                disabledContentColor = GreenPrimary.copy(alpha = 0.35f),
                             ),
                         ) {
                             Icon(
-                                Icons.Default.PlayArrow,
-                                contentDescription = stringResource(R.string.azkar_play_item),
+                                if (isPlayingThis) Icons.Default.Stop else Icons.Default.PlayArrow,
+                                contentDescription = stringResource(
+                                    if (isPlayingThis) R.string.azkar_stop else R.string.azkar_play_item
+                                ),
                             )
                         }
-                        IconButton(
-                            onClick = onPause,
-                            enabled = canPauseThis,
-                            modifier = Modifier.size(40.dp),
-                            colors = IconButtonDefaults.iconButtonColors(
-                                contentColor = GreenPrimaryDark,
-                                disabledContentColor = GreenPrimaryDark.copy(alpha = 0.35f),
-                            ),
-                        ) {
-                            Icon(
-                                Icons.Default.Pause,
-                                contentDescription = stringResource(R.string.azkar_pause),
-                            )
-                        }
-                        IconButton(
-                            onClick = onResume,
-                            enabled = canResumeThis,
-                            modifier = Modifier.size(40.dp),
-                            colors = IconButtonDefaults.iconButtonColors(
-                                contentColor = GreenPrimary,
-                                disabledContentColor = GreenPrimary.copy(alpha = 0.35f),
-                            ),
-                        ) {
-                            Icon(
-                                Icons.Default.PlayArrow,
-                                contentDescription = stringResource(R.string.azkar_resume),
-                            )
-                        }
-                        IconButton(
-                            onClick = onStopPlayback,
-                            enabled = isPlayingThis,
-                            modifier = Modifier.size(40.dp),
-                            colors = IconButtonDefaults.iconButtonColors(
-                                contentColor = GreenPrimaryDark,
-                                disabledContentColor = GreenPrimaryDark.copy(alpha = 0.35f),
-                            ),
-                        ) {
-                            Icon(
-                                Icons.Default.Stop,
-                                contentDescription = stringResource(R.string.azkar_stop),
-                            )
-                        }
-                        AzkarTextMenu(text = item.textAr)
+                        AzkarTextMenu(text = item.localizedText(lang))
                         IconButton(onClick = { onToggleFavorite(item) }) {
                             Icon(
                                 imageVector = if (isFavorite(item)) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
@@ -265,29 +331,43 @@ fun AzkarCardReader(
                     }
                 }
 
-                ArabicText(
-                    text = item.textAr,
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontSize = 22.sp,
-                        lineHeight = 36.sp
-                    ),
-                    color = GreenPrimaryDark,
-                    textAlign = TextAlign.Center,
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
-                )
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    val displayText = item.localizedText(lang)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .verticalScroll(textScroll),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        ArabicText(
+                            text = displayText,
+                            style = MaterialTheme.typography.titleLarge.copy(
+                                fontSize = cardFontSp.sp,
+                                lineHeight = (cardFontSp * AzkarCardText.LINE_HEIGHT_RATIO).sp,
+                            ),
+                            color = MaterialTheme.colorScheme.onBackground,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
 
-                if (item.virtueAr.isNotBlank()) {
+                val virtueText = item.localizedVirtue(lang)
+                if (virtueText.isNotBlank()) {
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 12.dp),
+                            .padding(top = 8.dp),
                         shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFFF0F0F0))
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                     ) {
                         Row(
-                            modifier = Modifier.padding(12.dp),
+                            modifier = Modifier.padding(10.dp),
                             verticalAlignment = Alignment.Top
                         ) {
                             Icon(
@@ -295,18 +375,18 @@ fun AzkarCardReader(
                                 contentDescription = null,
                                 tint = GreenPrimary.copy(alpha = 0.5f),
                                 modifier = Modifier
-                                    .size(20.dp)
+                                    .size(18.dp)
                                     .padding(top = 2.dp)
                             )
                             Column(modifier = Modifier.padding(start = 8.dp).weight(1f)) {
                                 Text(
-                                    if (virtueExpanded) item.virtueAr else item.virtueAr.take(120) +
-                                        if (item.virtueAr.length > 120) "…" else "",
+                                    if (virtueExpanded) virtueText else virtueText.take(120) +
+                                        if (virtueText.length > 120) "…" else "",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = GreenPrimaryDark.copy(alpha = 0.8f),
-                                    lineHeight = 20.sp
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    lineHeight = 18.sp
                                 )
-                                if (item.virtueAr.length > 120) {
+                                if (virtueText.length > 120) {
                                     TextButton(
                                         onClick = { virtueExpanded = !virtueExpanded },
                                         modifier = Modifier.padding(top = 0.dp)
@@ -327,32 +407,32 @@ fun AzkarCardReader(
                     }
                 }
 
-                Spacer(Modifier.height(16.dp))
-
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             azkarRepeatLabel(item.repeatCount),
-                            style = MaterialTheme.typography.headlineSmall,
+                            style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = GreenPrimaryDark
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                         Text(
                             stringResource(R.string.azkar_card_tap_hint),
                             style = MaterialTheme.typography.bodySmall,
-                            color = GreenPrimaryDark.copy(alpha = 0.6f),
-                            modifier = Modifier.padding(top = 4.dp)
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                            modifier = Modifier.padding(top = 2.dp)
                         )
                     }
                     CircularCounter(
                         count = counter,
                         target = target,
                         progress = progress,
-                        modifier = Modifier.size(72.dp)
+                        modifier = Modifier.size(64.dp)
                     )
                 }
             }
@@ -363,7 +443,7 @@ fun AzkarCardReader(
             enabled = currentIndex < items.lastIndex,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(horizontal = 12.dp, vertical = 8.dp),
             shape = RoundedCornerShape(14.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = GreenPrimary,
@@ -399,13 +479,14 @@ private fun CircularCounter(
     progress: Float,
     modifier: Modifier = Modifier
 ) {
+    val trackColor = MaterialTheme.colorScheme.outlineVariant
     Box(modifier = modifier, contentAlignment = Alignment.Center) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             val strokeWidth = size.minDimension * 0.08f
             val arcSize = Size(size.width - strokeWidth, size.height - strokeWidth)
             val topLeft = Offset(strokeWidth / 2f, strokeWidth / 2f)
             drawArc(
-                color = Color(0xFFE0E0E0),
+                color = trackColor,
                 startAngle = -90f,
                 sweepAngle = 360f,
                 useCenter = false,
@@ -427,14 +508,14 @@ private fun CircularCounter(
             modifier = Modifier
                 .size(52.dp)
                 .clip(CircleShape)
-                .background(Color.White),
+                .background(MaterialTheme.colorScheme.surface),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 count.formatLocalizedDigits(),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                color = GreenPrimaryDark
+                color = MaterialTheme.colorScheme.onBackground
             )
         }
     }
@@ -445,4 +526,9 @@ private fun azkarRepeatLabel(count: Int): String = when {
     count <= 1 -> stringResource(R.string.azkar_repeat_once)
     count == 2 -> stringResource(R.string.azkar_repeat_twice)
     else -> stringResourceDigits(R.string.azkar_repeat_n_times, count)
+}
+
+private fun azkarPreview(text: String, maxLength: Int = 110): String {
+    val normalized = text.trim().replace(Regex("\\s+"), " ")
+    return if (normalized.length <= maxLength) normalized else normalized.take(maxLength) + "…"
 }

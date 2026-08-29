@@ -6,7 +6,6 @@ import android.os.Build
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 data class AppUpdateInfo(
     val versionName: String,
@@ -37,12 +36,7 @@ object AppUpdateInfoProvider {
 
     private fun formatUpdateDate(timeMs: Long, lang: String): String {
         if (timeMs <= 0L) return "—"
-        val locale = when (lang) {
-            "ar" -> Locale.forLanguageTag("ar-u-nu-latn")
-            "fr" -> Locale.FRENCH
-            "es" -> Locale.forLanguageTag("es")
-            else -> Locale.ENGLISH
-        }
+        val locale = AppLanguages.locale(lang)
         val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm", locale)
         return formatter.format(Instant.ofEpochMilli(timeMs).atZone(ZoneId.systemDefault()))
     }

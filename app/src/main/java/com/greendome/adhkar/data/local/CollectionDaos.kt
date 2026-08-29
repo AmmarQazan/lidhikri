@@ -69,6 +69,9 @@ interface AzkarItemDao {
     @Query("SELECT * FROM azkar_item ORDER BY sortOrder, id")
     suspend fun getAll(): List<AzkarItemEntity>
 
+    @Query("SELECT * FROM azkar_item ORDER BY collectionId, sortOrder, id")
+    fun observeAll(): Flow<List<AzkarItemEntity>>
+
     @Query("SELECT sourceItemId FROM azkar_item WHERE collectionId = :collectionId AND sourceItemId IS NOT NULL")
     fun observeFavoriteSourceIds(collectionId: String): Flow<List<Long>>
 
