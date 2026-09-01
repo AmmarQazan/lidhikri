@@ -1,5 +1,7 @@
 package com.greendome.adhkar.ui.screens
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,12 +20,21 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.zIndex
+import com.greendome.adhkar.util.AzkarHubOrder
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
@@ -51,6 +62,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -66,8 +78,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.greendome.adhkar.R
+import com.greendome.adhkar.ui.azkarHubSectionIcon
 import androidx.compose.runtime.rememberCoroutineScope
+import com.greendome.adhkar.data.AdhanAzkar
+import com.greendome.adhkar.data.AutoAzkarCatalog
 import com.greendome.adhkar.data.AzkarFavorites
+import com.greendome.adhkar.data.BlessedDaysAzkar
+import com.greendome.adhkar.data.FridayAzkar
+import com.greendome.adhkar.data.HomeAzkar
+import com.greendome.adhkar.data.RidingAzkar
+import com.greendome.adhkar.data.model.CollectionDayMode
 import com.greendome.adhkar.audio.AzkarPlaybackResolver
 import com.greendome.adhkar.audio.DhikrAudioPlayer
 import com.greendome.adhkar.audio.playAzkarItemsOrdered
@@ -84,6 +104,12 @@ import com.greendome.adhkar.data.local.AdhkarCollectionEntity
 import com.greendome.adhkar.data.local.AzkarItemEntity
 import com.greendome.adhkar.data.local.DhikrEntity
 import com.greendome.adhkar.prayer.PrayerRespectGate
+import com.greendome.adhkar.service.AdhkarReminderService
+import com.greendome.adhkar.service.AfterPrayerAlarmScheduler
+import com.greendome.adhkar.service.HomeGeofenceScheduler
+import com.greendome.adhkar.service.ReminderScheduler
+import com.greendome.adhkar.service.VehicleActivityScheduler
+import com.greendome.adhkar.util.RuntimePermissions
 import com.greendome.adhkar.ui.components.AzkarTextMenu
 import com.greendome.adhkar.ui.theme.AppCardColors
 import com.greendome.adhkar.ui.theme.ArabicText
@@ -124,6 +150,8 @@ fun AzkarHubScreen(
     onOpenCollection: (AdhkarCollectionEntity) -> Unit,
     onOpenItem: (AdhkarCollectionEntity, AzkarItemEntity) -> Unit,
     onOpenMyDhikr: () -> Unit,
+    savedOrder: List<String> = emptyList(),
+    onReorder: (List<String>) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val focusManager = LocalFocusManager.current
@@ -276,62 +304,187 @@ fun AzkarHubScreen(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onBackground
             )
-            LazyColumn(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                item {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onOpenMyDhikr() },
-                        shape = RoundedCornerShape(14.dp),
-                        colors = AppCardColors()
-                    ) {
-                        Column(Modifier.padding(16.dp)) {
-                            Text(
-                                stringResource(R.string.my_dhikr_section),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            Text(
-                                stringResource(R.string.my_dhikr_hint),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = GreenPrimary,
-                                modifier = Modifier.padding(top = 4.dp)
+            Text(
+                stringResource(R.string.azkar_hub_reorder_hint),
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 0.dp),
+                style = MaterialTheme.typography.labelSmall,
+                color = GreenPrimary
+            )
+            AzkarHubSectionsList(
+                collections = collections,
+                lang = lang,
+                savedOrder = savedOrder,
+                onOpenCollection = onOpenCollection,
+                onOpenMyDhikr = onOpenMyDhikr,
+                onReorder = onReorder,
+                modifier = Modifier.weight(1f),
+            )
+        }
+    }
+}
+
+@Composable
+private fun AzkarHubSectionsList(
+    collections: List<AdhkarCollectionEntity>,
+    lang: String,
+    savedOrder: List<String>,
+    onOpenCollection: (AdhkarCollectionEntity) -> Unit,
+    onOpenMyDhikr: () -> Unit,
+    onReorder: (List<String>) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val titleArById = remember(collections) { collections.associate { it.id to it.titleAr } }
+    val collectionsById = remember(collections) { collections.associateBy { it.id } }
+    val presentIds = remember(collections) { AzkarHubOrder.presentIds(collections) }
+    val merged = remember(collections, savedOrder) {
+        AzkarHubOrder.merge(savedOrder, presentIds, titleArById)
+    }
+    val orderedIds = remember { mutableStateListOf<String>() }
+    LaunchedEffect(merged) {
+        if (orderedIds.toList() != merged) {
+            orderedIds.clear()
+            orderedIds.addAll(merged)
+        }
+    }
+    val listState = rememberLazyListState()
+    val reorderableState = rememberReorderableLazyListState(listState) { from, to ->
+        val next = AzkarHubOrder.moved(orderedIds.toList(), from.index, to.index)
+        orderedIds.clear()
+        orderedIds.addAll(next)
+        onReorder(next)
+    }
+    val context = LocalContext.current
+    val settings = remember { SettingsRepository(context) }
+    val eventFlags = AutoAzkarCatalog.EventAutoFlags(
+        afterPrayer = settings.afterPrayerFromSalahEnabled,
+        afterAdhan = settings.afterAdhanAzkarEnabled,
+        home = settings.homeAzkarEnabled,
+        riding = settings.ridingAzkarEnabled,
+    )
+    val myDhikrTitle = stringResource(R.string.my_dhikr_section)
+    val myDhikrHint = stringResource(R.string.my_dhikr_hint)
+    val dragHandleDesc = stringResource(R.string.azkar_hub_drag_handle)
+
+    LazyColumn(
+        state = listState,
+        modifier = modifier.padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        contentPadding = PaddingValues(top = 8.dp, bottom = 16.dp),
+    ) {
+        items(orderedIds, key = { it }) { id ->
+            ReorderableItem(reorderableState, key = id) { isDragging ->
+                val collection = collectionsById[id]
+                val title = if (id == AzkarHubOrder.MY_DHIKR_ID) {
+                    myDhikrTitle
+                } else {
+                    collection?.let { azkarCollectionTitle(it, lang) }.orEmpty()
+                }
+                val autoKind = collection?.let { AutoAzkarCatalog.hubAutoKind(it, eventFlags) }
+                val subtitle = when {
+                    id == AzkarHubOrder.MY_DHIKR_ID -> myDhikrHint
+                    autoKind == AutoAzkarCatalog.HubAutoKind.CLOCK ->
+                        collection?.let {
+                            stringResourceDigits(
+                                R.string.azkar_auto_on,
+                                CollectionScheduleHelper.formatSchedule(it, lang),
                             )
                         }
-                    }
+                    autoKind == AutoAzkarCatalog.HubAutoKind.AFTER_PRAYER ->
+                        stringResource(R.string.azkar_hub_auto_after_prayer)
+                    autoKind == AutoAzkarCatalog.HubAutoKind.AFTER_ADHAN ->
+                        stringResource(R.string.azkar_hub_auto_after_adhan)
+                    autoKind == AutoAzkarCatalog.HubAutoKind.HOME ->
+                        stringResource(R.string.azkar_hub_auto_home)
+                    autoKind == AutoAzkarCatalog.HubAutoKind.RIDING ->
+                        stringResource(R.string.azkar_hub_auto_riding)
+                    else -> null
                 }
-                items(collections, key = { it.id }) { collection ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onOpenCollection(collection) },
-                        shape = RoundedCornerShape(14.dp),
-                        colors = AppCardColors()
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .zIndex(if (isDragging) 1f else 0f)
+                        .shadow(if (isDragging) 8.dp else 0.dp, RoundedCornerShape(16.dp))
+                        .longPressDraggableHandle()
+                        .clickable {
+                            if (id == AzkarHubOrder.MY_DHIKR_ID) onOpenMyDhikr()
+                            else collection?.let(onOpenCollection)
+                        },
+                    shape = RoundedCornerShape(16.dp),
+                    colors = AppCardColors(),
+                ) {
+                    Row(
+                        modifier = Modifier.padding(start = 12.dp, end = 8.dp, top = 14.dp, bottom = 14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Column(Modifier.padding(16.dp)) {
-                            Text(
-                                azkarCollectionTitle(collection, lang),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            if (collection.autoPlayAllowed && collection.autoPlayEnabled) {
+                        AzkarHubSectionIcon(sectionId = id)
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(start = 10.dp, end = 4.dp),
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            ) {
                                 Text(
-                                    stringResourceDigits(R.string.azkar_auto_on, CollectionScheduleHelper.formatSchedule(collection, lang)),
+                                    title,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.weight(1f, fill = false),
+                                )
+                                if (autoKind != null) {
+                                    Icon(
+                                        Icons.Default.Schedule,
+                                        contentDescription = null,
+                                        tint = GreenPrimary,
+                                        modifier = Modifier.size(16.dp),
+                                    )
+                                }
+                            }
+                            if (subtitle != null) {
+                                Text(
+                                    subtitle,
                                     style = MaterialTheme.typography.labelSmall,
                                     color = GreenPrimary,
-                                    modifier = Modifier.padding(top = 4.dp)
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.padding(top = 2.dp),
                                 )
                             }
                         }
+                        Icon(
+                            Icons.Default.DragHandle,
+                            contentDescription = dragHandleDesc,
+                            modifier = Modifier.draggableHandle(),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun AzkarHubSectionIcon(
+    sectionId: String,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .size(48.dp)
+            .background(GreenPrimary.copy(alpha = 0.16f), CircleShape),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            imageVector = azkarHubSectionIcon(sectionId),
+            contentDescription = null,
+            tint = GreenPrimary,
+            modifier = Modifier.size(26.dp),
+        )
     }
 }
 
@@ -348,13 +501,22 @@ fun AzkarCollectionScreen(
     onSaveSchedule: (AdhkarCollectionEntity) -> Unit,
     onToggleFavorite: (AzkarItemEntity) -> Unit,
     onOpenAfterPrayerSettings: () -> Unit = {},
+    onOpenHomeAzkarSettings: () -> Unit = {},
+    onOpenAdhanSettings: () -> Unit = {},
     initialItemId: Long? = null,
     modifier: Modifier = Modifier,
 ) {
     var autoPlay by remember(collection.id) { mutableStateOf(collection.autoPlayEnabled) }
     var hour by remember(collection.id) { mutableFloatStateOf(collection.scheduleHour.toFloat()) }
     var minute by remember(collection.id) { mutableFloatStateOf(collection.scheduleMinute.toFloat()) }
-    var weekMask by remember(collection.id) { mutableIntStateOf(collection.weekDaysMask) }
+    var weekMask by remember(collection.id) {
+        mutableIntStateOf(
+            when (collection.id) {
+                FridayAzkar.COLLECTION_ID -> FridayAzkar.fridayOnlyMask()
+                else -> collection.weekDaysMask
+            }
+        )
+    }
     var scheduleExpanded by remember(collection.id) { mutableStateOf(false) }
     var selectedItem by remember(collection.id) { mutableStateOf<AzkarItemEntity?>(null) }
     var counter by remember { mutableIntStateOf(0) }
@@ -369,6 +531,21 @@ fun AzkarCollectionScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val settings = remember { SettingsRepository(context) }
+    var afterPrayerOn by remember(collection.id) { mutableStateOf(settings.afterPrayerFromSalahEnabled) }
+    var afterAdhanOn by remember(collection.id) { mutableStateOf(settings.afterAdhanAzkarEnabled) }
+    var homeAzkarOn by remember(collection.id) { mutableStateOf(settings.homeAzkarEnabled) }
+    var ridingAzkarOn by remember(collection.id) { mutableStateOf(settings.ridingAzkarEnabled) }
+    val ridingPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            VehicleActivityScheduler.register(context)
+        } else {
+            ridingAzkarOn = false
+            settings.ridingAzkarEnabled = false
+            VehicleActivityScheduler.unregister(context)
+        }
+    }
     val audioPlayer = remember { DhikrAudioPlayer(context) }
     var listFontSp by remember { mutableIntStateOf(settings.azkarListFontSizeSp) }
     val listTextStyle = MaterialTheme.typography.titleMedium.copy(
@@ -470,9 +647,61 @@ fun AzkarCollectionScreen(
                 autoPlayEnabled = collection.autoPlayAllowed && autoPlay,
                 scheduleHour = hour.toInt(),
                 scheduleMinute = minute.toInt(),
-                weekDaysMask = weekMask
+                weekDaysMask = when (collection.id) {
+                    FridayAzkar.COLLECTION_ID -> FridayAzkar.fridayOnlyMask()
+                    BlessedDaysAzkar.COLLECTION_ID -> 127
+                    else -> weekMask
+                },
+                dayMode = when (collection.id) {
+                    BlessedDaysAzkar.COLLECTION_ID -> CollectionDayMode.ITEM_HIJRI
+                    else -> collection.dayMode
+                },
+                hijriMonth = collection.hijriMonth,
+                hijriDayStart = collection.hijriDayStart,
+                hijriDayEnd = collection.hijriDayEnd,
             )
         )
+    }
+
+    fun persistAfterPrayer(enabled: Boolean) {
+        afterPrayerOn = enabled
+        settings.afterPrayerFromSalahEnabled = enabled
+        if (enabled) settings.respectPrayerTime = true
+        AfterPrayerAlarmScheduler.reschedule(context)
+        if (settings.isServiceEnabled) {
+            ReminderScheduler.scheduleNext(context)
+            AdhkarReminderService.refreshNotification(context)
+        }
+    }
+
+    fun persistAfterAdhan(enabled: Boolean) {
+        afterAdhanOn = enabled
+        settings.afterAdhanAzkarEnabled = enabled
+    }
+
+    fun persistHomeAzkar(enabled: Boolean) {
+        homeAzkarOn = enabled
+        settings.homeAzkarEnabled = enabled
+        if (enabled) {
+            HomeGeofenceScheduler.register(context)
+        } else {
+            HomeGeofenceScheduler.unregister(context)
+        }
+    }
+
+    fun persistRidingAzkar(enabled: Boolean) {
+        ridingAzkarOn = enabled
+        settings.ridingAzkarEnabled = enabled
+        if (!enabled) {
+            VehicleActivityScheduler.unregister(context)
+            return
+        }
+        val permission = RuntimePermissions.activityRecognitionPermission()
+        if (permission != null && !RuntimePermissions.hasActivityRecognition(context)) {
+            ridingPermissionLauncher.launch(permission)
+        } else {
+            VehicleActivityScheduler.register(context)
+        }
     }
 
     @Composable
@@ -591,6 +820,14 @@ fun AzkarCollectionScreen(
                     color = GreenPrimaryDark,
                     modifier = Modifier.fillMaxWidth()
                 )
+                if (selectedItem!!.hasOwnHijri()) {
+                    Text(
+                        CollectionScheduleHelper.hijriSummaryAr(selectedItem!!),
+                        modifier = Modifier.padding(top = 8.dp),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = GreenPrimary
+                    )
+                }
                 if (selectedItem!!.virtueAr.isNotBlank()) {
                     Text(
                         selectedItem!!.localizedVirtue(lang),
@@ -626,16 +863,15 @@ fun AzkarCollectionScreen(
             ) {
                 item {
                     val isAfterPrayer = collection.id == PrayerRespectGate.AFTER_PRAYER_COLLECTION_ID
+                    val isAfterAdhan = collection.id == AdhanAzkar.COLLECTION_ID
+                    val isHome = collection.id == HomeAzkar.COLLECTION_ID
+                    val isRiding = collection.id == RidingAzkar.COLLECTION_ID
                     when {
                         isAfterPrayer -> {
-                            val afterPrayerOn = settings.respectPrayerTime && settings.afterPrayerFromSalahEnabled
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable(onClick = onOpenAfterPrayerSettings)
-                            ) {
-                                SettingRow(stringResource(R.string.azkar_auto_enable), afterPrayerOn) {
-                                    onOpenAfterPrayerSettings()
+                            Column(modifier = Modifier.fillMaxWidth()) {
+                                SettingRow(stringResource(R.string.azkar_auto_enable), afterPrayerOn) { on ->
+                                    persistAfterPrayer(on)
+                                    if (on && !settings.hasPrayerLocation) onOpenAfterPrayerSettings()
                                 }
                                 Text(
                                     stringResource(
@@ -644,11 +880,75 @@ fun AzkarCollectionScreen(
                                     ),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(top = 4.dp, bottom = 8.dp)
+                                )
+                                SettingsNavCard(
+                                    title = stringResource(R.string.azkar_after_prayer_configure_title),
+                                    subtitle = stringResource(R.string.azkar_after_prayer_configure_subtitle),
+                                    onClick = onOpenAfterPrayerSettings
+                                )
+                            }
+                        }
+                        isAfterAdhan -> {
+                            Column(modifier = Modifier.fillMaxWidth()) {
+                                SettingRow(stringResource(R.string.azkar_auto_enable), afterAdhanOn) { on ->
+                                    persistAfterAdhan(on)
+                                    if (on && !settings.hasPrayerLocation) onOpenAdhanSettings()
+                                }
+                                Text(
+                                    stringResource(
+                                        if (afterAdhanOn) R.string.azkar_after_adhan_auto_on_hint
+                                        else R.string.azkar_after_adhan_auto_hint
+                                    ),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(top = 4.dp, bottom = 8.dp)
+                                )
+                            }
+                        }
+                        isHome -> {
+                            Column(modifier = Modifier.fillMaxWidth()) {
+                                SettingRow(stringResource(R.string.azkar_auto_enable), homeAzkarOn) { on ->
+                                    persistHomeAzkar(on)
+                                    if (on && !settings.hasHomeLocation) onOpenHomeAzkarSettings()
+                                }
+                                Text(
+                                    stringResource(
+                                        if (homeAzkarOn) R.string.azkar_home_auto_on_hint
+                                        else R.string.azkar_home_auto_hint
+                                    ),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(top = 4.dp, bottom = 8.dp)
+                                )
+                                SettingsNavCard(
+                                    title = stringResource(R.string.home_azkar_settings_title),
+                                    subtitle = stringResource(R.string.home_azkar_settings_subtitle),
+                                    onClick = onOpenHomeAzkarSettings
+                                )
+                            }
+                        }
+                        isRiding -> {
+                            Column(modifier = Modifier.fillMaxWidth()) {
+                                SettingRow(stringResource(R.string.azkar_auto_enable), ridingAzkarOn) { on ->
+                                    persistRidingAzkar(on)
+                                }
+                                Text(
+                                    stringResource(
+                                        if (ridingAzkarOn) R.string.azkar_riding_auto_on_hint
+                                        else R.string.azkar_riding_auto_hint
+                                    ),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.padding(top = 4.dp)
                                 )
                             }
                         }
                         collection.autoPlayAllowed -> {
+                            SettingRow(stringResource(R.string.azkar_auto_enable), autoPlay) {
+                                autoPlay = it
+                                persist()
+                            }
                             OutlinedButton(
                                 onClick = { scheduleExpanded = !scheduleExpanded },
                                 modifier = Modifier.fillMaxWidth()
@@ -666,40 +966,72 @@ fun AzkarCollectionScreen(
                             if (scheduleExpanded) {
                                 SectionTitle(
                                     title = stringResource(R.string.azkar_schedule_section),
-                                    subtitle = stringResource(R.string.azkar_schedule_hint)
+                                    subtitle = stringResource(
+                                        when (collection.id) {
+                                            FridayAzkar.COLLECTION_ID -> R.string.azkar_friday_schedule_hint
+                                            BlessedDaysAzkar.COLLECTION_ID -> R.string.azkar_blessed_days_schedule_hint
+                                            else -> R.string.azkar_schedule_hint
+                                        }
+                                    )
                                 )
-                                SettingRow(stringResource(R.string.azkar_auto_enable), autoPlay) {
-                                    autoPlay = it
-                                    persist()
-                                }
-                                Text(stringResource(R.string.azkar_time_label), modifier = Modifier.padding(top = 8.dp))
+                                Text(
+                                    stringResource(
+                                        when (collection.id) {
+                                            FridayAzkar.COLLECTION_ID -> R.string.azkar_friday_kahf_time_label
+                                            BlessedDaysAzkar.COLLECTION_ID -> R.string.azkar_blessed_days_time_label
+                                            else -> R.string.azkar_time_label
+                                        }
+                                    ),
+                                    modifier = Modifier.padding(top = 8.dp)
+                                )
                                 Text(
                                     "${hour.toInt().toString().padStart(2, '0')}:${minute.toInt().toString().padStart(2, '0')}"
                                         .formatLocalizedDigits()
                                 )
                                 Slider(value = hour, onValueChange = { hour = it; persist() }, valueRange = 0f..23f, steps = 22)
                                 Slider(value = minute, onValueChange = { minute = it; persist() }, valueRange = 0f..59f, steps = 58)
-                                Text(stringResource(R.string.azkar_days_label), modifier = Modifier.padding(top = 8.dp))
-                                val days = CollectionScheduleHelper.dayLabels(lang)
-                                val dayConstants = listOf(
-                                    Calendar.SUNDAY, Calendar.MONDAY, Calendar.TUESDAY, Calendar.WEDNESDAY,
-                                    Calendar.THURSDAY, Calendar.FRIDAY, Calendar.SATURDAY
-                                )
-                                FlowRow(
-                                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                    modifier = Modifier.padding(vertical = 4.dp)
+                                if (collection.dayMode == CollectionDayMode.HIJRI ||
+                                    collection.dayMode == CollectionDayMode.ITEM_HIJRI
                                 ) {
-                                    days.forEachIndexed { index, label ->
-                                        val day = dayConstants[index]
-                                        val selected = CollectionScheduleHelper.isDayEnabled(weekMask, day)
-                                        FilterChip(
-                                            selected = selected,
-                                            onClick = {
-                                                weekMask = CollectionScheduleHelper.toggleDay(weekMask, day, !selected)
-                                                persist()
-                                            },
-                                            label = { Text(label) }
-                                        )
+                                    val hijriLabel = if (collection.dayMode == CollectionDayMode.ITEM_HIJRI) {
+                                        items.map { CollectionScheduleHelper.hijriSummaryAr(it) }
+                                            .filter { it.isNotBlank() }
+                                            .distinct()
+                                            .joinToString("، ")
+                                            .ifBlank { stringResource(R.string.schedule_hijri) }
+                                    } else {
+                                        CollectionScheduleHelper.hijriSummaryAr(collection)
+                                            .ifBlank { stringResource(R.string.schedule_hijri) }
+                                    }
+                                    Text(
+                                        stringResource(R.string.azkar_hijri_days_locked, hijriLabel),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.padding(top = 8.dp)
+                                    )
+                                } else if (collection.id != FridayAzkar.COLLECTION_ID) {
+                                    Text(stringResource(R.string.azkar_days_label), modifier = Modifier.padding(top = 8.dp))
+                                    val days = CollectionScheduleHelper.dayLabels(lang)
+                                    val dayConstants = listOf(
+                                        Calendar.SUNDAY, Calendar.MONDAY, Calendar.TUESDAY, Calendar.WEDNESDAY,
+                                        Calendar.THURSDAY, Calendar.FRIDAY, Calendar.SATURDAY
+                                    )
+                                    FlowRow(
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                        modifier = Modifier.padding(vertical = 4.dp)
+                                    ) {
+                                        days.forEachIndexed { index, label ->
+                                            val day = dayConstants[index]
+                                            val selected = CollectionScheduleHelper.isDayEnabled(weekMask, day)
+                                            FilterChip(
+                                                selected = selected,
+                                                onClick = {
+                                                    weekMask = CollectionScheduleHelper.toggleDay(weekMask, day, !selected)
+                                                    persist()
+                                                },
+                                                label = { Text(label) }
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -807,6 +1139,14 @@ fun AzkarCollectionScreen(
                                     overflow = TextOverflow.Ellipsis,
                                     style = listTextStyle,
                                 )
+                                if (item.hasOwnHijri()) {
+                                    Text(
+                                        CollectionScheduleHelper.hijriSummaryAr(item),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = GreenPrimary,
+                                        modifier = Modifier.padding(top = 2.dp)
+                                    )
+                                }
                                 if (item.repeatCount > 1) {
                                     Text(
                                         stringResourceDigits(R.string.azkar_repeat_label, item.repeatCount),

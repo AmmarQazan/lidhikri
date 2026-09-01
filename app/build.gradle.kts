@@ -14,8 +14,8 @@ android {
         applicationId = "com.greendome.adhkar"
         minSdk = 26
         targetSdk = 35
-        versionCode = 8
-        versionName = "1.0.7"
+        versionCode = 9
+        versionName = "1.0.8"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField(
             "String",
@@ -53,8 +53,12 @@ android {
             assets.srcDirs("src/main/assets")
         }
         getByName("release") {
-            assets.srcDirs("src/release/assets")
+            assets.srcDirs("src/main/assets", "src/release/assets")
         }
+    }
+
+    androidResources {
+        noCompress += "mp3"
     }
 
     packaging {
@@ -85,6 +89,7 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.navigation:navigation-compose:2.8.4")
+    implementation("sh.calvin.reorderable:reorderable:2.4.3")
 
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
@@ -93,7 +98,7 @@ dependencies {
     implementation("androidx.work:work-runtime-ktx:2.10.0")
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.9.0")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
     implementation("com.google.android.play:review-ktx:2.0.2")
     implementation("com.google.android.play:app-update-ktx:2.1.0")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")

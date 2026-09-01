@@ -30,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.greendome.adhkar.R
+import com.greendome.adhkar.ui.theme.AppAccentGreen
 import com.greendome.adhkar.ui.theme.CreamBackground
 import com.greendome.adhkar.ui.theme.GreenLight
 import com.greendome.adhkar.ui.theme.GreenPrimary
@@ -75,7 +76,7 @@ fun TasbihActivityLogSheet(
                     text = stringResource(R.string.activity_log_title),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = GreenPrimaryDark,
+                    color = AppAccentGreen(),
                 )
                 FilterChip(
                     selected = true,

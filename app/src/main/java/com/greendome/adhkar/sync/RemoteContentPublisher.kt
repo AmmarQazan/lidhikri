@@ -89,6 +89,7 @@ object RemoteContentPublisher {
             AudioUploadKind.RECITER_AUDIO -> database.reciterAudioDao().updateRemoteUrl(upload.sourceId, url)
             AudioUploadKind.RECITER_AZKAR_AUDIO ->
                 database.reciterAzkarAudioDao().updateRemoteUrl(upload.sourceId, url)
+            AudioUploadKind.ADHAN_AUDIO -> database.adhanAudioDao().updateRemoteUrl(upload.sourceId, url)
         }
     }
 }

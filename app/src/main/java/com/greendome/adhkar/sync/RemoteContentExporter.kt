@@ -2,6 +2,7 @@ package com.greendome.adhkar.sync
 
 import android.content.Context
 import com.greendome.adhkar.data.AzkarFavorites
+import com.greendome.adhkar.data.local.AdhanAudioEntity
 import com.greendome.adhkar.data.local.AdhkarCollectionEntity
 import com.greendome.adhkar.data.local.AdhkarDatabase
 import com.greendome.adhkar.data.local.AzkarItemEntity
@@ -52,6 +53,8 @@ class RemoteContentExporter(
             .filter { it.dhikrId in dhikrIds }
         val reciterAzkarAudio = db.reciterAzkarAudioDao().getAll()
             .filter { it.azkarItemId in azkarIds }
+        val adhanAudio = db.adhanAudioDao().getAll()
+            .filter { it.assetPath.isNullOrBlank() || !it.remoteUrl.isNullOrBlank() || !it.localPath.isNullOrBlank() }
 
         val generatedAt = Instant.now().toString()
         val bundle = JSONObject().apply {
@@ -61,6 +64,7 @@ class RemoteContentExporter(
             put("reciters", JSONArray(reciters.map { it.toExportJson() }))
             put("reciterAudio", JSONArray(reciterAudio.map { it.toExportJson(audioUploads, pending) }))
             put("reciterAzkarAudio", JSONArray(reciterAzkarAudio.map { it.toExportJson(audioUploads, pending) }))
+            put("adhanAudio", JSONArray(adhanAudio.map { it.toExportJson(audioUploads, pending) }))
             put("collections", JSONArray(collections.map { it.toExportJson() }))
             put("azkarItems", JSONArray(azkarItems.map { it.toExportJson() }))
         }
@@ -210,6 +214,36 @@ class RemoteContentExporter(
         put("isDownloaded", false)
     }
 
+    private fun AdhanAudioEntity.toExportJson(
+        audioUploads: LinkedHashMap<String, AudioUpload>,
+        pending: PendingPublishSet
+    ): JSONObject = JSONObject().apply {
+        put("id", id)
+        put("nameAr", nameAr)
+        put("nameEn", nameEn)
+        put("muezzinAr", muezzinAr)
+        put("muezzinEn", muezzinEn)
+        put("countryAr", countryAr)
+        put("countryEn", countryEn)
+        put("cityAr", cityAr)
+        put("cityEn", cityEn)
+        put("maqamAr", maqamAr)
+        put("maqamEn", maqamEn)
+        put("suitableForFajr", suitableForFajr)
+        put("isActive", isActive)
+        put("sortOrder", sortOrder)
+        put("assetPath", assetPath ?: JSONObject.NULL)
+        val remote = resolveAudioRemoteUrl(
+            assetPath, localPath, remoteUrl, audioUploads,
+            pending.shouldUploadAdhanAudio(id),
+            AudioUploadKind.ADHAN_AUDIO,
+            id
+        )
+        put("remoteUrl", remote ?: JSONObject.NULL)
+        put("localPath", JSONObject.NULL)
+        put("isDownloaded", false)
+    }
+
     private fun resolveAudioRemoteUrl(
         assetPath: String?,
         localPath: String?,
@@ -298,6 +332,10 @@ class RemoteContentExporter(
         put("scheduleHour", scheduleHour)
         put("scheduleMinute", scheduleMinute)
         put("weekDaysMask", weekDaysMask)
+        put("dayMode", dayMode.name)
+        put("hijriMonth", hijriMonth)
+        put("hijriDayStart", hijriDayStart)
+        put("hijriDayEnd", hijriDayEnd)
         put("useTtsAutoPlay", useTtsAutoPlay)
     }
 
@@ -309,5 +347,13 @@ class RemoteContentExporter(
         put("repeatCount", repeatCount)
         put("sortOrder", sortOrder)
         put("sourceItemId", sourceItemId ?: JSONObject.NULL)
+        put("scheduleHour", scheduleHour)
+        put("scheduleMinute", scheduleMinute)
+        put("prayerAnchor", prayerAnchor)
+        put("prayerOffsetMinutes", prayerOffsetMinutes)
+        put("skipQuietWindow", skipQuietWindow)
+        put("hijriMonth", hijriMonth)
+        put("hijriDayStart", hijriDayStart)
+        put("hijriDayEnd", hijriDayEnd)
     }
 }

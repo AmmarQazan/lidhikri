@@ -8,15 +8,16 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
@@ -24,6 +25,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,9 +36,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.greendome.adhkar.R
-import com.greendome.adhkar.ui.theme.AppAccentGreen
-import com.greendome.adhkar.ui.theme.GreenPrimary
-import com.greendome.adhkar.ui.theme.GreenPrimaryDark
+import com.greendome.adhkar.ui.theme.AppCardColors
+import com.greendome.adhkar.ui.theme.AppCardElevation
+import com.greendome.adhkar.ui.theme.AppCardOutline
+import com.greendome.adhkar.ui.theme.AppCardShape
+import com.greendome.adhkar.ui.theme.AppOnCardColor
 import com.greendome.adhkar.ui.theme.formatLocalizedDigits
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -88,8 +92,10 @@ fun SettingsNavCard(
         modifier = modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        shape = RoundedCornerShape(14.dp)
+        colors = AppCardColors(),
+        elevation = AppCardElevation(),
+        border = AppCardOutline(),
+        shape = AppCardShape()
     ) {
         Row(
             modifier = Modifier
@@ -103,13 +109,13 @@ fun SettingsNavCard(
                     title,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = AppAccentGreen()
+                    color = AppOnCardColor()
                 )
                 if (!subtitle.isNullOrBlank()) {
                     Text(
                         subtitle,
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = AppOnCardColor(),
                         modifier = Modifier.padding(top = 4.dp)
                     )
                 }
@@ -117,7 +123,7 @@ fun SettingsNavCard(
             Icon(
                 Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = null,
-                tint = GreenPrimary
+                tint = MaterialTheme.colorScheme.primary
             )
         }
     }
@@ -133,6 +139,7 @@ fun SettingSwitch(label: String, checked: Boolean, onChange: (Boolean) -> Unit) 
         Text(
             label,
             style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f).padding(end = 8.dp)
         )
         Switch(checked = checked, onCheckedChange = onChange)
@@ -148,49 +155,69 @@ fun ExpandableSettingsCard(
     content: @Composable () -> Unit
 ) {
     var expanded by remember { mutableStateOf(initiallyExpanded) }
+    val onCard = AppOnCardColor()
     Card(
-        colors = CardDefaults.cardColors(containerColor = GreenPrimary.copy(alpha = 0.08f)),
-        shape = RoundedCornerShape(12.dp),
+        colors = AppCardColors(),
+        elevation = AppCardElevation(),
+        border = AppCardOutline(),
+        shape = AppCardShape(),
         modifier = modifier.fillMaxWidth()
     ) {
-        Column(modifier = Modifier.padding(14.dp)) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { expanded = !expanded },
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        title,
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = GreenPrimaryDark
-                    )
-                    if (!subtitle.isNullOrBlank()) {
+        CompositionLocalProvider(LocalContentColor provides onCard) {
+            Column(modifier = Modifier.padding(14.dp)) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { expanded = !expanded },
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            subtitle,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = GreenPrimaryDark.copy(alpha = 0.7f),
-                            modifier = Modifier.padding(top = 2.dp)
+                            title,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = onCard
                         )
+                        if (!subtitle.isNullOrBlank()) {
+                            Text(
+                                subtitle,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = onCard,
+                                modifier = Modifier.padding(top = 2.dp)
+                            )
+                        }
                     }
+                    SettingsCardExpandHint(expanded = expanded)
                 }
-                Text(
-                    if (expanded) stringResource(R.string.auto_azkar_schedule_collapse)
-                    else stringResource(R.string.auto_azkar_schedule_expand),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = GreenPrimary,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-            }
-            AnimatedVisibility(visible = expanded) {
-                Column(modifier = Modifier.padding(top = 10.dp)) {
-                    content()
+                AnimatedVisibility(visible = expanded) {
+                    Column(modifier = Modifier.padding(top = 10.dp)) {
+                        content()
+                    }
                 }
             }
         }
+    }
+}
+
+@Composable
+fun SettingsCardExpandHint(expanded: Boolean) {
+    val hintColor = MaterialTheme.colorScheme.primary
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(start = 8.dp)
+    ) {
+        Text(
+            if (expanded) stringResource(R.string.auto_azkar_schedule_collapse)
+            else stringResource(R.string.auto_azkar_schedule_expand),
+            style = MaterialTheme.typography.labelSmall,
+            color = hintColor
+        )
+        Icon(
+            imageVector = if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+            contentDescription = null,
+            tint = hintColor
+        )
     }
 }
 
@@ -212,13 +239,14 @@ fun TimeOfDaySetting(
             Text(
                 label,
                 style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f).padding(end = 8.dp)
             )
             Text(
                 "%02d:%02d".format(hour, minute).formatLocalizedDigits(),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
-                color = GreenPrimaryDark
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
         Slider(

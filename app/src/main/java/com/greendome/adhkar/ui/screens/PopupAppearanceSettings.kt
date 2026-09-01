@@ -7,9 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Slider
@@ -29,8 +27,11 @@ import com.greendome.adhkar.data.SettingsRepository
 import com.greendome.adhkar.data.model.PopupAppearance
 import com.greendome.adhkar.data.model.PopupSettingsTarget
 import com.greendome.adhkar.ui.overlay.OverlayWindow
-import com.greendome.adhkar.ui.theme.GreenPrimary
-import com.greendome.adhkar.ui.theme.GreenPrimaryDark
+import com.greendome.adhkar.ui.theme.AppCardColors
+import com.greendome.adhkar.ui.theme.AppCardElevation
+import com.greendome.adhkar.ui.theme.AppCardOutline
+import com.greendome.adhkar.ui.theme.AppCardShape
+import com.greendome.adhkar.ui.theme.AppOnCardColor
 import com.greendome.adhkar.ui.theme.stringResourceDigits
 
 @Composable
@@ -61,9 +62,12 @@ fun PopupAppearanceSettings(
         PopupSettingsTarget.AZKAR -> stringResource(R.string.azkar_popup_preview_sample)
     }
 
+    val onCard = AppOnCardColor()
     Card(
-        colors = CardDefaults.cardColors(containerColor = GreenPrimary.copy(alpha = 0.08f)),
-        shape = RoundedCornerShape(12.dp),
+        colors = AppCardColors(),
+        elevation = AppCardElevation(),
+        border = AppCardOutline(),
+        shape = AppCardShape(),
         modifier = modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(14.dp)) {
@@ -77,26 +81,20 @@ fun PopupAppearanceSettings(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         title,
-                        style = MaterialTheme.typography.titleSmall,
+                        style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = GreenPrimaryDark
+                        color = onCard
                     )
                     if (!subtitle.isNullOrBlank()) {
                         Text(
                             subtitle,
                             style = MaterialTheme.typography.bodySmall,
-                            color = GreenPrimaryDark.copy(alpha = 0.7f),
+                            color = onCard,
                             modifier = Modifier.padding(top = 2.dp)
                         )
                     }
                 }
-                Text(
-                    if (expanded) stringResource(R.string.auto_azkar_schedule_collapse)
-                    else stringResource(R.string.auto_azkar_schedule_expand),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = GreenPrimary,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
+                SettingsCardExpandHint(expanded = expanded)
             }
 
             AnimatedVisibility(visible = expanded) {

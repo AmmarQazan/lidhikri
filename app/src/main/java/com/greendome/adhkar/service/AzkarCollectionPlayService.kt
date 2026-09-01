@@ -88,11 +88,20 @@ class AzkarCollectionPlayService : Service() {
                 stopSelf()
                 return@launch
             }
+            val itemId = incoming.getLongExtra(EXTRA_ITEM_ID, 0L)
+            val inheritGroup = incoming.getBooleanExtra(EXTRA_INHERIT, false)
+            val now = System.currentTimeMillis()
+            val scoped = when {
+                itemId > 0L -> items.filter { it.id == itemId }
+                inheritGroup -> items.filter { it.inheritsCollectionTime() }.ifEmpty { items }
+                else -> items
+            }
+            val candidates = scoped.filter { !it.hasOwnHijri() || it.matchesHijri(now) }
             val picked = AzkarDailyPicker.pick(
                 this@AzkarCollectionPlayService,
-                collectionId,
-                items,
-                settings.autoAzkarRandomMode
+                collectionId + if (itemId > 0L) "#$itemId" else if (inheritGroup) "#inherit" else "",
+                candidates,
+                settings.autoAzkarRandomMode && itemId <= 0L
             ) ?: run {
                 stopSelf()
                 return@launch
@@ -202,6 +211,8 @@ class AzkarCollectionPlayService : Service() {
 
     companion object {
         const val EXTRA_COLLECTION_ID = "collection_id"
+        const val EXTRA_ITEM_ID = "item_id"
+        const val EXTRA_INHERIT = "inherit_group"
         const val EXTRA_FORCE_PLAY = "force_play"
         const val ACTION_STOP_AUTO_AZKAR = "stop_auto_azkar"
 

@@ -48,6 +48,7 @@ import com.greendome.adhkar.ui.theme.GreenPrimary
 import com.greendome.adhkar.ui.theme.stringResourceDigits
 import com.greendome.adhkar.util.formatDigits
 import com.greendome.adhkar.widget.MisbahaWidgetManager
+import com.greendome.adhkar.widget.PrayerTimesWidgetManager
 
 @Composable
 fun WidgetsSettingsScreen(
@@ -57,6 +58,7 @@ fun WidgetsSettingsScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     SettingsSubScreenScaffold(
         title = stringResource(R.string.settings_widgets_title),
         onBack = onBack,
@@ -79,6 +81,22 @@ fun WidgetsSettingsScreen(
                     title = stringResource(R.string.settings_dhikr_of_day_title),
                     subtitle = stringResource(R.string.settings_dhikr_of_day_subtitle),
                     onClick = onOpenDhikrOfDay
+                )
+            }
+            item {
+                SettingsNavCard(
+                    title = stringResource(R.string.prayer_widget_title),
+                    subtitle = stringResource(R.string.prayer_widget_subtitle),
+                    onClick = {
+                        val pinned = PrayerTimesWidgetManager.requestPin(context)
+                        if (!pinned) {
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.prayer_widget_manual_hint),
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
                 )
             }
             item {

@@ -17,9 +17,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.greendome.adhkar.R
 import com.greendome.adhkar.data.model.AzkarDisplayMode
+import com.greendome.adhkar.ui.theme.AppAccentGreen
 import com.greendome.adhkar.ui.theme.GoldDome
-import com.greendome.adhkar.ui.theme.GreenPrimary
-import com.greendome.adhkar.ui.theme.GreenPrimaryDark
 
 @Composable
 fun DisplayModeToggle(
@@ -27,6 +26,12 @@ fun DisplayModeToggle(
     onSelected: (AzkarDisplayMode) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val selectedContent = AppAccentGreen()
+    val chipColors = FilterChipDefaults.filterChipColors(
+        selectedContainerColor = GoldDome.copy(alpha = 0.22f),
+        selectedLabelColor = selectedContent,
+        selectedLeadingIconColor = selectedContent,
+    )
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -47,11 +52,7 @@ fun DisplayModeToggle(
                     modifier = Modifier.size(18.dp),
                 )
             },
-            colors = FilterChipDefaults.filterChipColors(
-                selectedContainerColor = GoldDome.copy(alpha = 0.22f),
-                selectedLabelColor = GreenPrimaryDark,
-                selectedLeadingIconColor = GreenPrimaryDark,
-            ),
+            colors = chipColors,
         )
         FilterChip(
             selected = selected == AzkarDisplayMode.CARD,
@@ -69,11 +70,7 @@ fun DisplayModeToggle(
                     modifier = Modifier.size(18.dp),
                 )
             },
-            colors = FilterChipDefaults.filterChipColors(
-                selectedContainerColor = GoldDome.copy(alpha = 0.22f),
-                selectedLabelColor = GreenPrimaryDark,
-                selectedLeadingIconColor = GreenPrimaryDark,
-            ),
+            colors = chipColors,
         )
     }
 }

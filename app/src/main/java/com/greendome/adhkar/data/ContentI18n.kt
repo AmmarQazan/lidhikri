@@ -37,6 +37,11 @@ object ContentI18n {
             "امسينا علي فطره الاسلام" in n -> FITRA_EVENING[lang]
             "علما نافعا" in n && "رزقا طيبا" in n -> ILM_NAFI[lang]
             "استغفر الله العظيم الذي لا اله الا هو الحي القيوم" in n -> ISTIGHFAR_AZIM[lang]
+            "ساعة لا يوافقها" in n -> FRIDAY_HOUR_HADITH[lang]
+            "سورة الكهف يوم الجمعه" in n -> FRIDAY_KAHF_HADITH[lang]
+            "عفو تحب العفو" in n -> QADR_DUA[lang]
+            "الله اكبر الله اكبر لا اله الا الله" in n ||
+                ("الله اكبر الله اكبر" in n && "ولله الحمد" in n) -> EID_TAKBIR[lang]
             "عده خلقه" in n && "عرشه" in n && "كلماته" in n -> TASBIH_COUNT[lang]
             "لا اله الا الله وحده لا شريك له" in n && "له الملك وله الحمد" in n -> TAWHID[lang]
             "خلقت نفسي وانت توفاها" in n -> SLEEP_TAWAFFA[lang]
@@ -47,6 +52,7 @@ object ContentI18n {
             "رب هذه الدعوه التامه" in n -> ADHAN_WASILA[lang]
             "خير المولج" in n -> HOME_ENTER[lang]
             "ان اضل او اضل" in n -> HOME_LEAVE[lang]
+            "سخر لنا هذا" in n && "مقرنين" in n -> RIDING_DUA[lang]
             else -> null
         }
     }
@@ -75,6 +81,15 @@ object ContentI18n {
             "ذوات السموم" in n -> VIRTUE_SAMM[lang]
             "ختم اليوم بالثبات" in n -> VIRTUE_THABAT[lang]
             "المعوذات بعد الصلاه" in n -> VIRTUE_MUAWWIDHAT[lang]
+            "يستحب الاكثار منها طوال يوم الجمعه" in n -> VIRTUE_FRIDAY_SALAWAT[lang]
+            "ساعة الاجابه" in n || "اخر ساعة بعد العصر" in n -> VIRTUE_FRIDAY_HOUR[lang]
+            "من مغرب الخميس الى مغرب الجمعه" in n -> VIRTUE_FRIDAY_KAHF[lang]
+            "العشر الاواخر من رمضان" in n -> VIRTUE_QADR[lang]
+            "يوم عرفه" in n && "خير الدعاء" in n -> VIRTUE_ARAFAH[lang]
+            "عشر ذي الحجه" in n || "ايام التشريق" in n -> VIRTUE_TAKBIR_DAYS[lang]
+            "ثم يسلم على اهله" in n || "عند دخول المنزل" in n -> VIRTUE_HOME_ENTER[lang]
+            "هديت وكفيت ووقيت" in n -> VIRTUE_HOME_LEAVE_ANGELS[lang]
+            "عند ركوب المركبة" in n -> VIRTUE_RIDING[lang]
             else -> null
         }
     }
@@ -154,12 +169,12 @@ object ContentI18n {
             "hi" to "जागने के अज़कार",
         ),
         "adhan" to mapOf(
-            "fr" to "En entendant l'adhan",
-            "es" to "Al oír el adhan",
-            "tr" to "Ezan duyunca",
-            "ur" to "اذان سن کر",
-            "id" to "Saat mendengar adzan",
-            "hi" to "अज़ान सुनते समय",
+            "fr" to "Après l'adhan",
+            "es" to "Después del adhan",
+            "tr" to "Ezan sonrası",
+            "ur" to "اذان کے بعد کے اذکار",
+            "id" to "Dzikir setelah adzan",
+            "hi" to "अज़ान के बाद के अज़कार",
         ),
         "home" to mapOf(
             "fr" to "Entrer et sortir de chez soi",
@@ -168,6 +183,30 @@ object ContentI18n {
             "ur" to "گھر میں داخلے اور خروج",
             "id" to "Masuk dan keluar rumah",
             "hi" to "घर में प्रवेश और निर्गमन",
+        ),
+        "riding" to mapOf(
+            "fr" to "Adhkar en véhicule",
+            "es" to "Adhkar al montar",
+            "tr" to "Bineğe binince",
+            "ur" to "سواری کے اذکار",
+            "id" to "Dzikir saat berkendara",
+            "hi" to "सवारी के अज़कार",
+        ),
+        "friday" to mapOf(
+            "fr" to "Adhkar du vendredi",
+            "es" to "Adhkar del viernes",
+            "tr" to "Cuma zikirleri",
+            "ur" to "جمعہ کے اذکار",
+            "id" to "Dzikir hari Jumat",
+            "hi" to "जुमे के अज़कार",
+        ),
+        "blessed_days" to mapOf(
+            "fr" to "Adhkar des jours bénis",
+            "es" to "Adhkar de los días benditos",
+            "tr" to "Mübarek günlerin zikirleri",
+            "ur" to "مبارک دنوں کے اذکار",
+            "id" to "Dzikir hari-hari penuh berkah",
+            "hi" to "बरकत वाले दिनों के अज़कार",
         ),
         "jawami" to mapOf(
             "fr" to "Jawami du tasbih",
@@ -534,6 +573,24 @@ object ContentI18n {
             "id" to "Wahai Yang Mahahidup, wahai Yang Maha Berdiri sendiri, dengan rahmat-Mu aku memohon pertolongan. Perbaikilah seluruh urusanku, dan jangan biarkan aku pada diriku meski sekejap mata.",
             "hi" to "ऐ हय्य, ऐ क़य्यूम, तेरी रहमत से फ़रियाद करता हूँ। मेरे सारे काम सुधार दे, और मुझे पलक झपकने जितनी देर भी मेरे नफ्स के हवाले न कर।",
         ),
+        "قال صلى الله عليه وسلم: «فيه ساعة لا يوافقها عبد مسلم وهو قائم يصلي يسأل الله شيئاً إلا أعطاه إياه». صدق رسول الله" to mapOf(
+            "en" to "The Prophet ﷺ said: “On Friday there is an hour when no Muslim servant stands in prayer asking Allah for something except that He grants it to him.” The Messenger of Allah spoke the truth.",
+            "fr" to "Le Prophète ﷺ a dit : « Le vendredi, il y a une heure où tout serviteur musulman qui prie et demande quelque chose à Allah l’obtient. » Le Messager d’Allah a dit vrai.",
+            "es" to "El Profeta ﷺ dijo: «El viernes hay una hora en la que ningún siervo musulmán está en oración pidiendo a Allah algo sin que Él se lo conceda». El Mensajero de Allah dijo la verdad.",
+            "tr" to "Peygamber ﷺ buyurdu: “Cuma gününde bir saat vardır ki, o anda namaz kılan mümin bir kul Allah’tan bir şey dilerse Allah onu verir.” Allah’ın Elçisi doğru söyledi.",
+            "ur" to "نبی ﷺ نے فرمایا: «جمعہ میں ایک گھڑی ہے کہ کوئی مسلمان بندہ نماز میں کھڑا ہو کر اللہ سے کچھ مانگے تو اللہ اسے عطا فرماتا ہے۔» رسول اللہ نے سچ فرمایا۔",
+            "id" to "Nabi ﷺ bersabda: “Pada hari Jumat ada suatu saat, tidaklah seorang hamba muslim berdiri shalat memohon sesuatu kepada Allah kecuali Dia mengabulkannya.” Rasulullah telah berkata benar.",
+            "hi" to "नबी ﷺ ने फ़रमाया: «जुमे में एक घड़ी है कि कोई मुसलमान बंदा नमाज़ में खड़ा अल्लाह से कुछ माँगे तो अल्लाह उसे दे देता है।» रसूलल्लाह ने सच फ़रमाया।",
+        ),
+        "قال صلى الله عليه وسلم: «من قرأ سورة الكهف يوم الجمعة أضاء له من النور ما بين الجمعتين». صدق رسول الله" to mapOf(
+            "en" to "The Prophet ﷺ said: “Whoever recites Surat al-Kahf on Friday, a light will shine for him between the two Fridays.” The Messenger of Allah spoke the truth.",
+            "fr" to "Le Prophète ﷺ a dit : « Quiconque récite la sourate al-Kahf le vendredi, une lumière lui brillera d’un vendredi à l’autre. » Le Messager d’Allah a dit vrai.",
+            "es" to "El Profeta ﷺ dijo: «Quien recita la sura al-Kahf el viernes, una luz le brillará entre los dos viernes». El Mensajero de Allah dijo la verdad.",
+            "tr" to "Peygamber ﷺ buyurdu: “Cuma günü Kehf suresini okuyana, iki Cuma arasında bir nur parlar.” Allah’ın Elçisi doğru söyledi.",
+            "ur" to "نبی ﷺ نے فرمایا: «جس نے جمعہ کے دن سورہ کہف پڑھی، اسے دو جمعوں کے درمیان نور دیا جاتا ہے۔» رسول اللہ نے سچ فرمایا۔",
+            "id" to "Nabi ﷺ bersabda: “Siapa yang membaca Surah al-Kahf pada hari Jumat, cahaya akan menyinarinya di antara dua Jumat.” Rasulullah telah berkata benar.",
+            "hi" to "नबी ﷺ ने फ़रमाया: «जिसने जुमे के दिन सूरह कहफ़ पढ़ी, उसे दो जुमों के बीच नूर दिया जाता है।» रसूलल्लाह ने सच फ़रमाया।",
+        ),
     )
 
     private val VIRTUES = mapOf(
@@ -663,14 +720,59 @@ object ContentI18n {
             "id" to "Saat masuk.",
             "hi" to "दाख़िल होते समय।",
         ),
-        "عند الخروج." to mapOf(
-            "en" to "Upon leaving.",
-            "fr" to "En sortant.",
-            "es" to "Al salir.",
-            "tr" to "Çıkarken.",
-            "ur" to "نکلتے وقت۔",
-            "id" to "Saat keluar.",
-            "hi" to "निकलते समय।",
+        "عند الخروج من المنزل." to mapOf(
+            "en" to "Upon leaving the home.",
+            "fr" to "En sortant de chez soi.",
+            "es" to "Al salir de casa.",
+            "tr" to "Evden çıkarken.",
+            "ur" to "گھر سے نکلتے وقت۔",
+            "id" to "Saat keluar rumah.",
+            "hi" to "घर से निकलते समय।",
+        ),
+        "عند ركوب المركبة. من حصن المسلم." to mapOf(
+            "en" to "When riding a vehicle. From Hisn al-Muslim.",
+            "fr" to "En montant un véhicule. D'après Hisn al-Muslim.",
+            "es" to "Al montar un vehículo. De Hisn al-Muslim.",
+            "tr" to "Bineğe binerken. Hisnü'l-Müslim'den.",
+            "ur" to "سواری پر سوار ہوتے وقت۔ حصن المسلم سے۔",
+            "id" to "Saat naik kendaraan. Dari Hisn al-Muslim.",
+            "hi" to "सवारी पर चढ़ते समय। हिसनुल मुस्लिम से।",
+        ),
+        "آية الركوب. تُقال عند ركوب المركبة." to mapOf(
+            "en" to "The riding verse. Said when mounting a vehicle.",
+            "fr" to "Le verset du voyage. Se dit en montant un véhicule.",
+            "es" to "El versículo del viaje. Se dice al montar un vehículo.",
+            "tr" to "Biniş ayeti. Bineğe binerken söylenir.",
+            "ur" to "سواری کی آیت۔ سواری پر سوار ہوتے وقت کہی جاتی ہے۔",
+            "id" to "Ayat berkendara. Diucapkan saat naik kendaraan.",
+            "hi" to "सवारी की आयत। सवारी पर चढ़ते समय कही जाती है।",
+        ),
+        "عند دخول المنزل. ثم يسلّم على أهله." to mapOf(
+            "en" to "When entering the home. Then greet the family.",
+            "fr" to "En entrant chez soi. Puis saluer la famille.",
+            "es" to "Al entrar en casa. Luego saludar a la familia.",
+            "tr" to "Eve girerken. Sonra ehline selam verir.",
+            "ur" to "گھر میں داخل ہوتے وقت۔ پھر گھر والوں کو سلام کہے۔",
+            "id" to "Saat masuk rumah. Lalu memberi salam kepada keluarga.",
+            "hi" to "घर में दाख़िल होते समय। फिर घरवालों को सलाम कहे।",
+        ),
+        "عند دخول المنزل." to mapOf(
+            "en" to "When entering the home.",
+            "fr" to "En entrant chez soi.",
+            "es" to "Al entrar en casa.",
+            "tr" to "Eve girerken.",
+            "ur" to "گھر میں داخل ہوتے وقت۔",
+            "id" to "Saat masuk rumah.",
+            "hi" to "घर में दाख़िल होते समय।",
+        ),
+        "عند الخروج. يُقال له: هُدِيتَ وَكُفِيتَ وَوُقِيتَ، وتنحّى عنه الشيطان." to mapOf(
+            "en" to "When leaving. It is said to him: You have been guided, sufficed, and protected, and Satan turns away.",
+            "fr" to "En sortant. On lui dit : tu as été guidé, suffi et protégé, et Satan s'écarte.",
+            "es" to "Al salir. Se le dice: has sido guiado, bastado y protegido, y Satanás se aleja.",
+            "tr" to "Çıkarken. Ona denir: hidayete erdirildin, kifayet olundun, korundun; şeytan da uzaklaşır.",
+            "ur" to "نکلتے وقت۔ اسے کہا جاتا ہے: تم ہدایت، کفایت اور حفاظت پا گئے، اور شیطان ہٹ جاتا ہے۔",
+            "id" to "Saat keluar. Dikatakan kepadanya: engkau diberi petunjuk, dicukupi, dan dilindungi, dan setan menjauh.",
+            "hi" to "निकलते समय। कहा जाता है: तुम्हें हिदायत, किफ़ायत और हिफ़ाज़त मिली, और शैतान हट जाता है।",
         ),
         "من قرأ آية الكرسي دبر كل صلاة مكتوبة لم يمنعه من دخول الجنة إلا الموت." to mapOf(
             "en" to "Whoever recites Ayat al-Kursi after every obligatory prayer, nothing will keep him from Paradise except death.",
@@ -680,6 +782,33 @@ object ContentI18n {
             "ur" to "جو ہر فرض نماز کے بعد آیت الکرسی پڑھے، اسے جنت میں داخل ہونے سے صرف موت روکے گی۔",
             "id" to "Siapa yang membaca Ayat Kursi setelah setiap shalat wajib, tidak ada yang menghalanginya masuk surga kecuali kematian.",
             "hi" to "जो हर फ़र्ज़ नमाज़ के बाद आयतुल कुर्सी पढ़े, उसे जन्नत में जाने से केवल मृत्यु रोकेगी।",
+        ),
+        "يُستحب الإكثار منها طوال يوم الجمعة." to mapOf(
+            "en" to "It is recommended to say it often throughout Friday.",
+            "fr" to "Il est recommandé de la multiplier tout au long du vendredi.",
+            "es" to "Se recomienda repetirla a lo largo del viernes.",
+            "tr" to "Cuma günü boyunca bolca söylemek müstehaptır.",
+            "ur" to "جمعہ بھر اس کا کثرت سے پڑھنا مستحب ہے۔",
+            "id" to "Dianjurkan memperbanyaknya sepanjang hari Jumat.",
+            "hi" to "जुमे भर इसे अधिक कहना मुस्तहब है।",
+        ),
+        "ساعة الإجابة؛ أرجحها آخر ساعة بعد العصر إلى المغرب." to mapOf(
+            "en" to "The hour of response; the strongest view is the last hour after Asr until Maghrib.",
+            "fr" to "L’heure d’exaucement ; l’avis le plus fort est la dernière heure après Asr jusqu’au Maghrib.",
+            "es" to "La hora de la respuesta; la opinión más fuerte es la última hora después del Asr hasta el Magrib.",
+            "tr" to "İcabet saati; en güçlü görüş ikindiden sonra Magrib’e kadar son saattir.",
+            "ur" to "ساعتِ اجابت؛ راجح قول عصر کے بعد مغرب تک آخری گھڑی ہے۔",
+            "id" to "Waktu ijabah; pendapat terkuat adalah jam terakhir setelah Asar hingga Magrib.",
+            "hi" to "इजाबत की घड़ी; सबसे पुख़्ता क़ौल अस्र के बाद मगरिब तक आख़िरी घंटा है।",
+        ),
+        "تُقرأ من مغرب الخميس إلى مغرب الجمعة." to mapOf(
+            "en" to "It is recited from Thursday Maghrib until Friday Maghrib.",
+            "fr" to "Elle se lit du Maghrib du jeudi au Maghrib du vendredi.",
+            "es" to "Se recita desde el Magrib del jueves hasta el Magrib del viernes.",
+            "tr" to "Perşembe Magrib’inden Cuma Magrib’ine kadar okunur.",
+            "ur" to "جمعرات کے مغرب سے جمعہ کے مغرب تک پڑھی جاتی ہے۔",
+            "id" to "Dibaca dari Magrib Kamis hingga Magrib Jumat.",
+            "hi" to "गुरुवार के मगरिब से जुमे के मगरिब तक पढ़ी जाती है।",
         ),
     )
 }

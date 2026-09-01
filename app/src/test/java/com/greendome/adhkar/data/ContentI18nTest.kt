@@ -31,6 +31,18 @@ class ContentI18nTest {
         assertEquals("Dzikir pagi", morning.localizedTitle("id"))
         assertEquals("प्रातःकालीन अज़कार", morning.localizedTitle("hi"))
         assertEquals("أذكار الصباح", morning.localizedTitle("ar"))
+        val blessed = AdhkarCollectionEntity(
+            id = "blessed_days",
+            titleAr = "أذكار الأيام المباركة",
+            titleEn = "Blessed days adhkar",
+        )
+        assertEquals("Mübarek günlerin zikirleri", blessed.localizedTitle("tr"))
+        assertEquals("مبارک دنوں کے اذکار", blessed.localizedTitle("ur"))
+        assertEquals("أذكار الأيام المباركة", blessed.localizedTitle("ar"))
+        val riding = AdhkarCollectionEntity(id = "riding", titleAr = "أذكار الركوب", titleEn = "Riding adhkar")
+        assertEquals("Bineğe binince", riding.localizedTitle("tr"))
+        assertEquals("أذكار الركوب", riding.localizedTitle("ar"))
+        assertEquals("Riding adhkar", riding.localizedTitle("en"))
     }
 
     @Test

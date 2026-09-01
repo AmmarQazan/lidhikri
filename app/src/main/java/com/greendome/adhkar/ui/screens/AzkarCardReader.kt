@@ -62,6 +62,7 @@ import com.greendome.adhkar.audio.TtsPlaybackState
 import com.greendome.adhkar.data.SettingsRepository
 import com.greendome.adhkar.data.local.AzkarItemEntity
 import com.greendome.adhkar.data.model.AzkarCardText
+import com.greendome.adhkar.util.CollectionScheduleHelper
 import com.greendome.adhkar.ui.components.AzkarFontSizeButtons
 import com.greendome.adhkar.ui.components.AzkarTextMenu
 import com.greendome.adhkar.ui.theme.AppCardColors
@@ -355,6 +356,18 @@ fun AzkarCardReader(
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
+                }
+
+                if (item.hasOwnHijri()) {
+                    Text(
+                        CollectionScheduleHelper.hijriSummaryAr(item),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = GreenPrimary,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp),
+                        textAlign = TextAlign.Center,
+                    )
                 }
 
                 val virtueText = item.localizedVirtue(lang)

@@ -185,6 +185,62 @@ data class ReciterAzkarAudioEntity(
     val isDownloaded: Boolean = false
 )
 
+/** كتالوج أذان يُنشر من المدير عبر فايربيس. suitableForFajr = فيه «الصلاة خير من النوم». */
+@Entity(tableName = "adhan_audio")
+data class AdhanAudioEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val nameAr: String,
+    val nameEn: String = "",
+    val muezzinAr: String = "",
+    val muezzinEn: String = "",
+    val countryAr: String = "",
+    val countryEn: String = "",
+    val cityAr: String = "",
+    val cityEn: String = "",
+    val maqamAr: String = "",
+    val maqamEn: String = "",
+    val localPath: String? = null,
+    val remoteUrl: String? = null,
+    val assetPath: String? = null,
+    val suitableForFajr: Boolean = false,
+    val isActive: Boolean = true,
+    val sortOrder: Int = 0,
+    val isDownloaded: Boolean = false,
+) {
+    fun localizedName(lang: String): String =
+        if (lang != "ar" && nameEn.isNotBlank()) nameEn else nameAr
+
+    fun localizedMuezzin(lang: String): String =
+        if (lang != "ar" && muezzinEn.isNotBlank()) muezzinEn else muezzinAr
+
+    fun localizedCountry(lang: String): String =
+        if (lang != "ar" && countryEn.isNotBlank()) countryEn else countryAr
+
+    fun localizedCity(lang: String): String =
+        if (lang != "ar" && cityEn.isNotBlank()) cityEn else cityAr
+
+    fun localizedMaqam(lang: String): String =
+        if (lang != "ar" && maqamEn.isNotBlank()) maqamEn else maqamAr
+
+    fun displayMuezzin(lang: String): String =
+        localizedMuezzin(lang).ifBlank { localizedName(lang) }
+
+    fun catalogLabel(lang: String): String {
+        val who = displayMuezzin(lang)
+        val place = listOf(localizedCity(lang), localizedCountry(lang))
+            .filter { it.isNotBlank() }
+            .distinct()
+            .joinToString(" — ")
+        return if (place.isBlank()) who else "$who — $place"
+    }
+
+    fun isBundled(): Boolean = !assetPath.isNullOrBlank()
+
+    fun isReadyToPlay(): Boolean = isBundled() || isDownloaded
+
+    fun needsDownload(): Boolean = !isReadyToPlay() && !remoteUrl.isNullOrBlank()
+}
+
 @Entity(tableName = "daily_stats")
 data class DailyStatsEntity(
     @PrimaryKey val dateKey: String,

@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.greendome.adhkar.R
 import com.greendome.adhkar.data.model.ArabicFontStyle
-import com.greendome.adhkar.ui.theme.GreenPrimaryDark
+import com.greendome.adhkar.ui.theme.AppOnCardColor
 import com.greendome.adhkar.ui.theme.arabicFontFamily
 
 @Composable
@@ -63,7 +63,7 @@ private fun FontStyleOption(
                     lineHeight = 28.sp,
                     textAlign = TextAlign.Start
                 ),
-                color = GreenPrimaryDark,
+                color = AppOnCardColor(),
                 modifier = Modifier.padding(top = 4.dp)
             )
         }

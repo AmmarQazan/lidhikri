@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,7 +25,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -170,26 +170,10 @@ fun AutoAzkarOverlayCard(
                         )
                     }
                 }
-                TextButton(onClick = { expanded = !expanded }) {
-                    Icon(
-                        imageVector = if (expanded) Icons.Default.CloseFullscreen else Icons.Default.OpenInFull,
-                        contentDescription = null,
-                        tint = GreenPrimary
-                    )
-                    Spacer(Modifier.width(6.dp))
-                    Text(
-                        text = stringResource(
-                            if (expanded) R.string.overlay_collapse_popup
-                            else R.string.overlay_expand_popup
-                        ),
-                        color = GreenPrimary,
-                        style = MaterialTheme.typography.labelMedium
-                    )
-                }
-                Spacer(Modifier.height(6.dp))
+                Spacer(Modifier.height(8.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Button(
@@ -197,16 +181,48 @@ fun AutoAzkarOverlayCard(
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFFC62828)
                         ),
-                        modifier = Modifier.heightIn(min = 34.dp, max = 38.dp),
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
+                        modifier = Modifier
+                            .weight(1f)
+                            .heightIn(min = 34.dp, max = 38.dp),
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
                     ) {
                         Text(
                             stringResource(R.string.overlay_stop_auto_azkar),
                             color = Color.White,
-                            style = MaterialTheme.typography.labelMedium
+                            style = MaterialTheme.typography.labelMedium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
-                    Spacer(Modifier.width(8.dp))
+                    Button(
+                        onClick = { expanded = !expanded },
+                        colors = ButtonDefaults.buttonColors(containerColor = GoldDome),
+                        modifier = Modifier
+                            .weight(1.15f)
+                            .heightIn(min = 34.dp, max = 38.dp),
+                        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 4.dp)
+                    ) {
+                        Icon(
+                            imageVector = if (expanded) Icons.Default.CloseFullscreen else Icons.Default.OpenInFull,
+                            contentDescription = stringResource(
+                                if (expanded) R.string.overlay_collapse_popup
+                                else R.string.overlay_expand_popup
+                            ),
+                            tint = Color.White,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        Text(
+                            text = stringResource(
+                                if (expanded) R.string.overlay_collapse_popup
+                                else R.string.overlay_expand_popup
+                            ),
+                            color = Color.White,
+                            style = MaterialTheme.typography.labelMedium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                     Button(
                         onClick = onDismiss,
                         colors = ButtonDefaults.buttonColors(containerColor = GreenPrimary),
@@ -217,7 +233,9 @@ fun AutoAzkarOverlayCard(
                         Text(
                             stringResource(R.string.overlay_dismiss),
                             color = Color.White,
-                            style = MaterialTheme.typography.labelMedium
+                            style = MaterialTheme.typography.labelMedium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                 }

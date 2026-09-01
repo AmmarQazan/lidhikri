@@ -14,16 +14,22 @@ object SilentNotificationChannels {
     const val TEXT_REMINDER = "adhkar_text_reminder_v2"
     const val DHIKR_OF_DAY = "dhikr_of_day_v2"
     const val LOCK_SCREEN = "adhkar_lock_screen_v1"
+    const val NEXT_ADHAN = "next_adhan_status_v1"
 
     const val SERVICE_NOTIFICATION_ID = 42
     const val AZKAR_PLAY_NOTIFICATION_ID = 77
     const val DHIKR_OF_DAY_NOTIFICATION_ID = 88
+    const val NEXT_ADHAN_NOTIFICATION_ID = 8_901
     const val LOCK_SCREEN_NOTIFICATION_ID_BASE = 9_000
 
     private val PROTECTED_NOTIFICATION_IDS = setOf(
         SERVICE_NOTIFICATION_ID,
         AZKAR_PLAY_NOTIFICATION_ID,
         DHIKR_OF_DAY_NOTIFICATION_ID,
+        NEXT_ADHAN_NOTIFICATION_ID,
+        AdhanAlertNotifier.NOTIF_ADHAN,
+        AdhanAlertNotifier.NOTIF_PRE,
+        AdhanAlertNotifier.NOTIF_IQAMA,
     )
 
     private val REMOVED_CHANNEL_IDS = listOf(
@@ -100,6 +106,20 @@ object SilentNotificationChannels {
                 setShowBadge(false)
                 lockscreenVisibility = Notification.VISIBILITY_PUBLIC
                 description = context.getString(com.greendome.adhkar.R.string.lock_screen_channel_hint)
+            }
+        )
+        mgr.createNotificationChannel(
+            NotificationChannel(
+                NEXT_ADHAN,
+                context.getString(com.greendome.adhkar.R.string.next_adhan_channel),
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                setSound(null, null)
+                enableVibration(false)
+                enableLights(false)
+                setShowBadge(false)
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                description = context.getString(com.greendome.adhkar.R.string.next_adhan_channel_hint)
             }
         )
     }

@@ -9,6 +9,7 @@ object PendingPublishType {
     const val RECITER = "RECITER"
     const val RECITER_AUDIO = "RECITER_AUDIO"
     const val RECITER_AZKAR_AUDIO = "RECITER_AZKAR_AUDIO"
+    const val ADHAN_AUDIO = "ADHAN_AUDIO"
     const val COLLECTION = "COLLECTION"
     const val AZKAR_ITEM = "AZKAR_ITEM"
 }
@@ -21,7 +22,8 @@ object PendingPublishAction {
 enum class AudioUploadKind {
     DHIKR,
     RECITER_AUDIO,
-    RECITER_AZKAR_AUDIO
+    RECITER_AZKAR_AUDIO,
+    ADHAN_AUDIO
 }
 
 data class PendingPublishSet(
@@ -29,6 +31,7 @@ data class PendingPublishSet(
     val reciterIds: Set<Long> = emptySet(),
     val reciterAudioIds: Set<Long> = emptySet(),
     val reciterAzkarAudioIds: Set<Long> = emptySet(),
+    val adhanAudioIds: Set<Long> = emptySet(),
     val collectionIds: Set<String> = emptySet(),
     val azkarItemIds: Set<Long> = emptySet()
 ) {
@@ -37,6 +40,7 @@ data class PendingPublishSet(
             reciterIds.isEmpty() &&
             reciterAudioIds.isEmpty() &&
             reciterAzkarAudioIds.isEmpty() &&
+            adhanAudioIds.isEmpty() &&
             collectionIds.isEmpty() &&
             azkarItemIds.isEmpty()
 
@@ -46,12 +50,15 @@ data class PendingPublishSet(
 
     fun shouldUploadReciterAzkarAudio(id: Long): Boolean = id in reciterAzkarAudioIds
 
+    fun shouldUploadAdhanAudio(id: Long): Boolean = id in adhanAudioIds
+
     companion object {
         fun from(changes: List<PendingPublishChangeEntity>): PendingPublishSet {
             val dhikr = mutableSetOf<Long>()
             val reciters = mutableSetOf<Long>()
             val reciterAudio = mutableSetOf<Long>()
             val reciterAzkarAudio = mutableSetOf<Long>()
+            val adhanAudio = mutableSetOf<Long>()
             val collections = mutableSetOf<String>()
             val azkarItems = mutableSetOf<Long>()
             for (change in changes) {
@@ -61,6 +68,7 @@ data class PendingPublishSet(
                     PendingPublishType.RECITER -> reciters += change.entityId
                     PendingPublishType.RECITER_AUDIO -> if (upsert) reciterAudio += change.entityId
                     PendingPublishType.RECITER_AZKAR_AUDIO -> if (upsert) reciterAzkarAudio += change.entityId
+                    PendingPublishType.ADHAN_AUDIO -> if (upsert) adhanAudio += change.entityId
                     PendingPublishType.COLLECTION -> collections += change.entityKey
                     PendingPublishType.AZKAR_ITEM -> if (upsert) azkarItems += change.entityId
                 }
@@ -70,6 +78,7 @@ data class PendingPublishSet(
                 reciterIds = reciters,
                 reciterAudioIds = reciterAudio,
                 reciterAzkarAudioIds = reciterAzkarAudio,
+                adhanAudioIds = adhanAudio,
                 collectionIds = collections,
                 azkarItemIds = azkarItems
             )
@@ -99,7 +108,8 @@ data class PendingPublishCounts(
                     PendingPublishType.DHIKR -> dhikr++
                     PendingPublishType.RECITER -> reciters++
                     PendingPublishType.RECITER_AUDIO,
-                    PendingPublishType.RECITER_AZKAR_AUDIO -> audio++
+                    PendingPublishType.RECITER_AZKAR_AUDIO,
+                    PendingPublishType.ADHAN_AUDIO -> audio++
                     PendingPublishType.COLLECTION -> collections++
                     PendingPublishType.AZKAR_ITEM -> azkarItems++
                 }

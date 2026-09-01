@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.greendome.adhkar.R
-import com.greendome.adhkar.ui.theme.GreenPrimaryDark
+import com.greendome.adhkar.ui.theme.AppAccentGreen
 
 @Composable
 fun AzkarFontSizeButtons(
@@ -25,7 +25,7 @@ fun AzkarFontSizeButtons(
     onIncrease: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val colors = IconButtonDefaults.iconButtonColors(contentColor = GreenPrimaryDark)
+    val colors = IconButtonDefaults.iconButtonColors(contentColor = AppAccentGreen())
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         IconButton(
             onClick = onDecrease,

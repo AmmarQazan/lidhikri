@@ -38,7 +38,8 @@ import com.greendome.adhkar.prayer.DeviceLocation
 import com.greendome.adhkar.prayer.LocationMode
 import com.greendome.adhkar.prayer.PrayerLocation
 import com.greendome.adhkar.prayer.searchKnownCities
-import com.greendome.adhkar.ui.theme.GreenPrimaryDark
+import com.greendome.adhkar.ui.theme.AppAccentGreen
+import com.greendome.adhkar.ui.theme.AppFilledButtonColors
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -123,7 +124,7 @@ fun PrayerCityPicker(
                     }
                 },
                 style = MaterialTheme.typography.titleMedium,
-                color = GreenPrimaryDark
+                color = AppAccentGreen()
             )
         } else {
             Text(
@@ -164,6 +165,7 @@ fun PrayerCityPicker(
         Button(
             onClick = { runFullSearch() },
             enabled = query.trim().length >= 2 && !searching,
+            colors = AppFilledButtonColors(),
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(stringResource(R.string.prayer_city_find))
@@ -177,6 +179,7 @@ fun PrayerCityPicker(
                     permissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
                 }
             },
+            colors = AppFilledButtonColors(),
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(stringResource(R.string.prayer_use_gps))

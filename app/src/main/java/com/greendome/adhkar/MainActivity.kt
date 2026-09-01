@@ -21,6 +21,9 @@ import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -31,8 +34,7 @@ import com.greendome.adhkar.ui.adaptive.rememberAppWindowWidth
 import com.greendome.adhkar.ui.adaptive.useNavigationRail
 import com.greendome.adhkar.ui.components.AudioUnavailableDialog
 import com.greendome.adhkar.ui.components.AzkarNavIcon
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
+import com.greendome.adhkar.ui.components.HomeNavIcon
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -60,10 +62,13 @@ import com.greendome.adhkar.data.local.DhikrEntity
 import com.greendome.adhkar.data.local.ReciterEntity
 import com.greendome.adhkar.data.model.DhikrCategory
 import com.greendome.adhkar.service.AdhkarReminderService
+import com.greendome.adhkar.service.NextAdhanService
 import com.greendome.adhkar.service.SilentNotificationChannels
+import com.greendome.adhkar.service.VehicleActivityScheduler
 import com.greendome.adhkar.ui.MainViewModel
 import com.greendome.adhkar.ui.screens.AddEditDhikrScreen
 import com.greendome.adhkar.ui.screens.AppSplashScreen
+import com.greendome.adhkar.ui.screens.AdminAdhanAudioScreen
 import com.greendome.adhkar.ui.screens.AdminAzkarCollectionsScreen
 import com.greendome.adhkar.ui.screens.AdminAzkarItemsScreen
 import com.greendome.adhkar.ui.screens.AdminDhikrBrowseScreen
@@ -80,12 +85,14 @@ import com.greendome.adhkar.ui.screens.AzkarHubScreen
 import com.greendome.adhkar.ui.screens.MyDhikrScreen
 import com.greendome.adhkar.ui.screens.HomeScreen
 import com.greendome.adhkar.ui.screens.MisbahaScreen
+import com.greendome.adhkar.ui.screens.QiblaSettingsScreen
 import com.greendome.adhkar.ui.components.MisbahaNavIcon
 import com.greendome.adhkar.ui.screens.SettingsScreen
 import com.greendome.adhkar.ui.screens.OnboardingFlow
 import com.greendome.adhkar.ui.screens.OnboardingResult
 import com.greendome.adhkar.ui.theme.AppArabicFont
 import com.greendome.adhkar.ui.theme.AppFontScale
+import com.greendome.adhkar.ui.theme.effectiveAppFontScale
 import com.greendome.adhkar.data.model.ArabicFontStyle
 import com.greendome.adhkar.data.model.NumberDigitStyle
 import com.greendome.adhkar.ui.theme.LocalNumberDigitStyle
@@ -138,8 +145,27 @@ class MainActivity : ComponentActivity() {
             var showOnboarding by remember { mutableStateOf(!settings.onboardingCompleted) }
             var arabicFontStyle by remember { mutableStateOf(settings.arabicFontStyle) }
             var pendingOnboardingServiceEnable by remember { mutableStateOf(false) }
+            var pendingOnboardingRiding by remember { mutableStateOf(false) }
             val layoutDirection = if (AppLanguages.isRtl(lang)) LayoutDirection.Rtl else LayoutDirection.Ltr
             val splashDurationMs = if (showOnboarding) 900L else 1400L
+
+            val activityPermissionLauncher = rememberLauncherForActivityResult(
+                ActivityResultContracts.RequestPermission()
+            ) { granted ->
+                if (granted) {
+                    VehicleActivityScheduler.register(this@MainActivity)
+                }
+            }
+
+            fun requestRidingPermissionIfNeeded(ridingEnabled: Boolean) {
+                if (!ridingEnabled) return
+                val permission = RuntimePermissions.activityRecognitionPermission()
+                if (permission != null && !RuntimePermissions.hasActivityRecognition(this@MainActivity)) {
+                    activityPermissionLauncher.launch(permission)
+                } else {
+                    VehicleActivityScheduler.register(this@MainActivity)
+                }
+            }
 
             val notificationPermissionLauncher = rememberLauncherForActivityResult(
                 ActivityResultContracts.RequestPermission()
@@ -148,24 +174,36 @@ class MainActivity : ComponentActivity() {
                     pendingOnboardingServiceEnable = false
                     startAutoTasbih()
                 }
+                if (pendingOnboardingRiding) {
+                    pendingOnboardingRiding = false
+                    requestRidingPermissionIfNeeded(true)
+                }
             }
 
             fun enableDefaultAutoFeatures(result: OnboardingResult) {
                 settings.isServiceEnabled = result.autoTasbihEnabled
+                val ridingOn = result.ridingAzkarEnabled
                 val needsNotifications = result.autoTasbihEnabled || result.autoAzkarEnabled
-                if (!needsNotifications) return
+                if (!needsNotifications) {
+                    requestRidingPermissionIfNeeded(ridingOn)
+                    return
+                }
                 val permission = RuntimePermissions.postNotificationsPermission()
                 if (permission != null && !RuntimePermissions.hasPostNotifications(this)) {
                     pendingOnboardingServiceEnable = result.autoTasbihEnabled
+                    pendingOnboardingRiding = ridingOn
                     notificationPermissionLauncher.launch(permission)
-                } else if (result.autoTasbihEnabled) {
-                    startAutoTasbih()
+                } else {
+                    if (result.autoTasbihEnabled) startAutoTasbih()
+                    requestRidingPermissionIfNeeded(ridingOn)
                 }
             }
 
             fun finishOnboarding(result: OnboardingResult) {
                 settings.appLanguage = result.language
                 settings.arabicFontStyle = result.arabicFontStyle
+                settings.azkarCardFontSizeSp = result.azkarCardFontSizeSp
+                settings.azkarListFontSizeSp = result.azkarListFontSizeSp
                 settings.appThemeMode = result.themeMode
                 settings.onboardingStep = 0
                 settings.onboardingCompleted = true
@@ -231,6 +269,10 @@ class MainActivity : ComponentActivity() {
                                         settings.appLanguage = newLang
                                         recreate()
                                     },
+                                    onThemeChange = { newTheme ->
+                                        settings.appThemeMode = newTheme
+                                        themeMode = newTheme
+                                    },
                                     onStepChange = { settings.onboardingStep = it },
                                     onComplete = { finishOnboarding(it) }
                                 )
@@ -258,6 +300,7 @@ class MainActivity : ComponentActivity() {
                 }
             )
         }
+        NextAdhanService.sync(this)
         lifecycleScope.launch {
             TravelLocationUpdater.maybeRefresh(this@MainActivity)
         }
@@ -289,6 +332,10 @@ class MainActivity : ComponentActivity() {
         var openAzkarCollection by remember { mutableStateOf<AdhkarCollectionEntity?>(null) }
         var openAzkarItemId by remember { mutableStateOf<Long?>(null) }
         var openPrayerRespectSettings by remember { mutableStateOf(false) }
+        var openHomeAzkarSettings by remember { mutableStateOf(false) }
+        var openAdhanSettings by remember { mutableStateOf(false) }
+        var showQiblaScreen by remember { mutableStateOf(false) }
+        var settingsReturnToHome by remember { mutableStateOf(false) }
         var azkarSearchQuery by remember { mutableStateOf("") }
         var showMyDhikr by remember { mutableStateOf(false) }
         var adminAzkarBrowse by remember { mutableStateOf(false) }
@@ -298,6 +345,7 @@ class MainActivity : ComponentActivity() {
         var adminEditingAzkarCollection by remember { mutableStateOf<AdhkarCollectionEntity?>(null) }
         var adminAddingAzkarCollection by remember { mutableStateOf(false) }
         var adminRecitersBrowse by remember { mutableStateOf(false) }
+        var adminAdhanAudio by remember { mutableStateOf(false) }
         var adminPrayerDefaults by remember { mutableStateOf(false) }
         var adminAddingReciter by remember { mutableStateOf(false) }
         var adminEditingReciter by remember { mutableStateOf<ReciterEntity?>(null) }
@@ -382,8 +430,10 @@ class MainActivity : ComponentActivity() {
         val longForm by vm.longFormList.collectAsState()
         val reciters by vm.reciters.collectAsState()
         val allReciters by vm.allReciters.collectAsState()
+        val allAdhanAudio by vm.allAdhanAudio.collectAsState()
         val azkarCollections by vm.azkarCollections.collectAsState()
         val allAzkarItems by vm.allAzkarItems.collectAsState()
+        val azkarHubOrder by vm.azkarHubOrder.collectAsState()
         val favoriteSourceIds by vm.favoriteSourceIdsFlow()
             .collectAsState(initial = emptySet())
         val azkarItems by vm.collectionItemsFlow(openAzkarCollection?.id ?: adminAzkarCollection?.id ?: "")
@@ -409,8 +459,14 @@ class MainActivity : ComponentActivity() {
         val selectedReciterName = reciters.find { it.id == settings.selectedReciterId }
             ?.localizedName(lang) ?: ""
 
-        AppFontScale(fontScale) {
+        AppFontScale(effectiveAppFontScale(fontScale)) {
         CompositionLocalProvider(LocalNumberDigitStyle provides numberDigitStyle) {
+        fun goHome() {
+            tab = 0
+            showQiblaScreen = false
+            settingsReturnToHome = false
+        }
+
         fun finishAdminDhikrEditor() {
             val returnBucket = adminReturnDhikrBucket
             val openedFromAdmin = adminAddDefault || adminEditing || returnBucket != null
@@ -439,6 +495,7 @@ class MainActivity : ComponentActivity() {
             adminEditingReciter != null ||
             adminReciterAudio != null ||
             adminRecitersBrowse ||
+            adminAdhanAudio ||
             adminPrayerDefaults ||
             showAddScreen ||
             editingDhikr != null ||
@@ -478,6 +535,10 @@ class MainActivity : ComponentActivity() {
                     adminRecitersBrowse = false
                     showAdminScreen = true
                 }
+                adminAdhanAudio -> {
+                    adminAdhanAudio = false
+                    showAdminScreen = true
+                }
                 adminPrayerDefaults -> {
                     adminPrayerDefaults = false
                     showAdminScreen = true
@@ -493,7 +554,7 @@ class MainActivity : ComponentActivity() {
                     openAzkarCollection = null
                     openAzkarItemId = null
                 }
-                else -> tab = 0
+                else -> goHome()
             }
         }
 
@@ -646,6 +707,20 @@ class MainActivity : ComponentActivity() {
             return@CompositionLocalProvider
         }
 
+        if (adminAdhanAudio) {
+            AdminAdhanAudioScreen(
+                items = allAdhanAudio,
+                lang = lang,
+                onSave = { entity -> vm.saveAdhanAudio(entity) },
+                onDelete = { entity -> vm.deleteAdhanAudio(entity) },
+                onBack = {
+                    adminAdhanAudio = false
+                    showAdminScreen = true
+                }
+            )
+            return@CompositionLocalProvider
+        }
+
         if (adminPrayerDefaults) {
             AdminPrayerDefaultsScreen(
                 settings = settings,
@@ -786,6 +861,10 @@ class MainActivity : ComponentActivity() {
                     adminRecitersBrowse = true
                     showAdminScreen = false
                 },
+                onManageAdhanAudio = {
+                    adminAdhanAudio = true
+                    showAdminScreen = false
+                },
                 onManagePrayerDefaults = {
                     adminPrayerDefaults = true
                     showAdminScreen = false
@@ -827,28 +906,45 @@ class MainActivity : ComponentActivity() {
         @Composable
         fun MainTabs(padding: androidx.compose.foundation.layout.PaddingValues) {
             when (tab) {
-                0 -> HomeScreen(
-                    isServiceOn = isServiceOn,
-                    todayTasbihCount = todayTasbihCount,
-                    todayAzkarCount = todayAzkarCount,
-                    todayMisbahaCount = todayMisbahaCount,
-                    minutesUntilNext = minutesUntil,
-                    isPrayerQuiet = isPrayerQuiet,
-                    autoAzkarEnabled = autoAzkarEnabled,
-                    azkarCollections = azkarCollections,
-                    prayerConfig = settings.prayerConfig(),
-                    clockHourFormat = settings.azkarClockHourFormat,
-                    appLang = lang,
-                    onToggleService = {
-                        if (isServiceOn) stopAutoTasbih() else requestEnableAutoTasbih()
-                    },
-                    onToggleAutoAzkar = {
-                        autoAzkarEnabled = it
-                        vm.setAutoAzkarEnabled(it)
-                    },
-                    modifier = Modifier.padding(padding),
-                    onAdminSecretTap = { showAdminScreen = true }
-                )
+                0 -> if (showQiblaScreen) {
+                    BackHandler { showQiblaScreen = false }
+                    QiblaSettingsScreen(
+                        settings = settings,
+                        onBack = { showQiblaScreen = false },
+                        modifier = Modifier.padding(padding)
+                    )
+                } else {
+                    HomeScreen(
+                        isServiceOn = isServiceOn,
+                        todayTasbihCount = todayTasbihCount,
+                        todayAzkarCount = todayAzkarCount,
+                        todayMisbahaCount = todayMisbahaCount,
+                        minutesUntilNext = minutesUntil,
+                        isPrayerQuiet = isPrayerQuiet,
+                        autoAzkarEnabled = autoAzkarEnabled,
+                        azkarCollections = azkarCollections,
+                        azkarItems = allAzkarItems,
+                        prayerConfig = settings.prayerConfig(),
+                        clockHourFormat = settings.azkarClockHourFormat,
+                        appLang = lang,
+                        onToggleService = {
+                            if (isServiceOn) stopAutoTasbih() else requestEnableAutoTasbih()
+                        },
+                        onToggleAutoAzkar = {
+                            autoAzkarEnabled = it
+                            vm.setAutoAzkarEnabled(it)
+                        },
+                        modifier = Modifier.padding(padding),
+                        onOpenPrayerSettings = {
+                            settingsReturnToHome = true
+                            tab = 3
+                            openPrayerRespectSettings = true
+                        },
+                        onOpenQibla = { showQiblaScreen = true },
+                        homeSectionOrder = settings.homeSectionOrder,
+                        homeHiddenSections = settings.homeHiddenSections,
+                    )
+                }
                 1 -> MisbahaScreen(
                     items = dhikrList.filter { it.isBuiltinShortTasbih() }
                         .distinctBy { it.textAr.trim() },
@@ -902,7 +998,22 @@ class MainActivity : ComponentActivity() {
                                 onOpenAfterPrayerSettings = {
                                     openAzkarCollection = null
                                     openAzkarItemId = null
+                                    settingsReturnToHome = false
                                     openPrayerRespectSettings = true
+                                    tab = 3
+                                },
+                                onOpenHomeAzkarSettings = {
+                                    openAzkarCollection = null
+                                    openAzkarItemId = null
+                                    settingsReturnToHome = false
+                                    openHomeAzkarSettings = true
+                                    tab = 3
+                                },
+                                onOpenAdhanSettings = {
+                                    openAzkarCollection = null
+                                    openAzkarItemId = null
+                                    settingsReturnToHome = false
+                                    openAdhanSettings = true
                                     tab = 3
                                 },
                                 initialItemId = openAzkarItemId,
@@ -925,6 +1036,8 @@ class MainActivity : ComponentActivity() {
                                 openAzkarCollection = collection
                             },
                             onOpenMyDhikr = { showMyDhikr = true },
+                            savedOrder = azkarHubOrder,
+                            onReorder = { vm.saveAzkarHubOrder(it) },
                             modifier = Modifier.padding(padding),
                         )
                     }
@@ -967,9 +1080,16 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         }
+                        NextAdhanService.sync(context)
                     },
                     openPrayerRespect = openPrayerRespectSettings,
                     onOpenPrayerRespectConsumed = { openPrayerRespectSettings = false },
+                    openHomeAzkar = openHomeAzkarSettings,
+                    onOpenHomeAzkarConsumed = { openHomeAzkarSettings = false },
+                    openAdhan = openAdhanSettings,
+                    onOpenAdhanConsumed = { openAdhanSettings = false },
+                    returnToHomeOnHubBack = settingsReturnToHome,
+                    onReturnHome = { goHome() },
                     modifier = Modifier.padding(padding)
                 )
             }
@@ -980,10 +1100,11 @@ class MainActivity : ComponentActivity() {
                 MainNavigationRail(
                     tab = tab,
                     colors = navRailColors,
-                    onHome = { tab = 0 },
-                    onMisbaha = { tab = 1 },
-                    onAzkar = { tab = 2; openAzkarCollection = null; showMyDhikr = false },
-                    onSettings = { tab = 3 },
+                    onHome = { goHome() },
+                    onHomeLongPress = { showAdminScreen = true },
+                    onMisbaha = { tab = 1; settingsReturnToHome = false },
+                    onAzkar = { tab = 2; openAzkarCollection = null; showMyDhikr = false; settingsReturnToHome = false },
+                    onSettings = { tab = 3; settingsReturnToHome = false },
                 )
                 AdaptiveContentContainer(Modifier.weight(1f)) {
                     Scaffold { padding -> MainTabs(padding) }
@@ -1000,14 +1121,20 @@ class MainActivity : ComponentActivity() {
                 ) {
                     NavigationBarItem(
                         selected = tab == 0,
-                        onClick = { tab = 0 },
-                        icon = { Icon(Icons.Default.Home, null) },
+                        onClick = { goHome() },
+                        icon = {
+                            HomeTabIcon(
+                                selected = tab == 0,
+                                onClick = { goHome() },
+                                onLongPress = { showAdminScreen = true },
+                            )
+                        },
                         label = { Text(stringResource(R.string.nav_home)) },
                         colors = navBarColors
                     )
                     NavigationBarItem(
                         selected = tab == 1,
-                        onClick = { tab = 1 },
+                        onClick = { tab = 1; settingsReturnToHome = false },
                         icon = {
                             val tint = if (tab == 1) GreenPrimary else MaterialTheme.colorScheme.onSurfaceVariant
                             MisbahaNavIcon(tint = tint)
@@ -1017,7 +1144,7 @@ class MainActivity : ComponentActivity() {
                     )
                     NavigationBarItem(
                         selected = tab == 2,
-                        onClick = { tab = 2; openAzkarCollection = null; showMyDhikr = false },
+                        onClick = { tab = 2; openAzkarCollection = null; showMyDhikr = false; settingsReturnToHome = false },
                         icon = {
                             val tint = if (tab == 2) GreenPrimary else MaterialTheme.colorScheme.onSurfaceVariant
                             AzkarNavIcon(tint = tint)
@@ -1027,7 +1154,7 @@ class MainActivity : ComponentActivity() {
                     )
                     NavigationBarItem(
                         selected = tab == 3,
-                        onClick = { tab = 3 },
+                        onClick = { tab = 3; settingsReturnToHome = false },
                         icon = { Icon(Icons.Default.Settings, null) },
                         label = { Text(stringResource(R.string.nav_settings)) },
                         colors = navBarColors
@@ -1057,11 +1184,32 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun HomeTabIcon(
+    selected: Boolean,
+    onClick: () -> Unit,
+    onLongPress: () -> Unit,
+) {
+    val tint = if (selected) GreenPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+    Box(
+        modifier = Modifier.combinedClickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = null,
+            onClick = onClick,
+            onLongClick = onLongPress,
+        )
+    ) {
+        HomeNavIcon(tint = tint)
+    }
+}
+
 @Composable
 private fun MainNavigationRail(
     tab: Int,
     colors: androidx.compose.material3.NavigationRailItemColors,
     onHome: () -> Unit,
+    onHomeLongPress: () -> Unit,
     onMisbaha: () -> Unit,
     onAzkar: () -> Unit,
     onSettings: () -> Unit,
@@ -1074,7 +1222,13 @@ private fun MainNavigationRail(
         NavigationRailItem(
             selected = tab == 0,
             onClick = onHome,
-            icon = { Icon(Icons.Default.Home, null) },
+            icon = {
+                HomeTabIcon(
+                    selected = tab == 0,
+                    onClick = onHome,
+                    onLongPress = onHomeLongPress,
+                )
+            },
             label = { Text(stringResource(R.string.nav_home)) },
             colors = colors
         )

@@ -200,6 +200,39 @@ interface ReciterAzkarAudioDao {
 }
 
 @Dao
+interface AdhanAudioDao {
+    @Query("SELECT * FROM adhan_audio WHERE isActive = 1 ORDER BY sortOrder, id")
+    fun observeActive(): Flow<List<AdhanAudioEntity>>
+
+    @Query("SELECT * FROM adhan_audio ORDER BY sortOrder, id")
+    fun observeAll(): Flow<List<AdhanAudioEntity>>
+
+    @Query("SELECT * FROM adhan_audio ORDER BY sortOrder, id")
+    suspend fun getAll(): List<AdhanAudioEntity>
+
+    @Query("SELECT * FROM adhan_audio WHERE id = :id")
+    suspend fun getById(id: Long): AdhanAudioEntity?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(entity: AdhanAudioEntity): Long
+
+    @Update
+    suspend fun update(entity: AdhanAudioEntity)
+
+    @Query("DELETE FROM adhan_audio WHERE id = :id")
+    suspend fun delete(id: Long)
+
+    @Query("SELECT * FROM adhan_audio WHERE isDownloaded = 0 AND remoteUrl IS NOT NULL")
+    suspend fun getPendingDownloads(): List<AdhanAudioEntity>
+
+    @Query("UPDATE adhan_audio SET isDownloaded = 1, localPath = :path WHERE id = :id")
+    suspend fun markDownloaded(id: Long, path: String)
+
+    @Query("UPDATE adhan_audio SET remoteUrl = :url WHERE id = :id")
+    suspend fun updateRemoteUrl(id: Long, url: String)
+}
+
+@Dao
 interface PendingPublishDao {
     @Query("SELECT * FROM pending_publish_change ORDER BY createdAt, changeKey")
     fun observeAll(): Flow<List<PendingPublishChangeEntity>>
@@ -237,11 +270,11 @@ interface CatalogSyncDao {
     @Query("DELETE FROM reciter_audio")
     suspend fun deleteAllReciterAudio()
 
-    @Query("DELETE FROM azkar_item WHERE collectionId != :preserveCollectionId")
-    suspend fun deleteCatalogAzkarExcept(preserveCollectionId: String)
+    @Query("DELETE FROM azkar_item WHERE collectionId NOT IN (:preserveCollectionIds)")
+    suspend fun deleteCatalogAzkarExcept(preserveCollectionIds: List<String>)
 
-    @Query("DELETE FROM adhkar_collection WHERE id != :preserveCollectionId")
-    suspend fun deleteCatalogCollectionsExcept(preserveCollectionId: String)
+    @Query("DELETE FROM adhkar_collection WHERE id NOT IN (:preserveCollectionIds)")
+    suspend fun deleteCatalogCollectionsExcept(preserveCollectionIds: List<String>)
 
     @Query("DELETE FROM dhikr WHERE isDefault = 1")
     suspend fun deleteDefaultDhikr()
@@ -249,12 +282,20 @@ interface CatalogSyncDao {
     @Query("DELETE FROM reciter")
     suspend fun deleteAllReciters()
 
+    @Query("DELETE FROM adhan_audio")
+    suspend fun deleteAllAdhanAudio()
+
+    @Query("DELETE FROM adhan_audio WHERE ifnull(assetPath, '') = ''")
+    suspend fun deleteRemoteAdhanAudio()
+
     @Transaction
-    suspend fun clearCatalogForSync(preserveCollectionId: String) {
+    suspend fun clearCatalogForSync(preserveCollectionIds: List<String>) {
+        val preserved = preserveCollectionIds.ifEmpty { listOf("") }
         deleteAllReciterAzkarAudio()
         deleteAllReciterAudio()
-        deleteCatalogAzkarExcept(preserveCollectionId)
-        deleteCatalogCollectionsExcept(preserveCollectionId)
+        deleteRemoteAdhanAudio()
+        deleteCatalogAzkarExcept(preserved)
+        deleteCatalogCollectionsExcept(preserved)
         deleteDefaultDhikr()
         deleteAllReciters()
     }

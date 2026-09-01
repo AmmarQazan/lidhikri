@@ -54,7 +54,13 @@ object PrayerTimesCalculator {
                 .plus(config.offset(prayer).toLong(), ChronoUnit.MINUTES)
             PrayerInstant(prayer, adjusted.toEpochMilli())
         }
-        return DailyPrayerTimes(dayStart, prayers)
+        val sunrise = applyDst(times.sunrise.toInstant(), zone, dstMode).toEpochMilli()
+        val fajrAt = prayers.first { it.prayer == PrayerName.FAJR }.epochMillis
+        val imsak = fajrAt - config.imsakOffsetMinutes.coerceIn(
+            PrayerConfig.IMSAK_MIN,
+            PrayerConfig.IMSAK_MAX
+        ) * 60_000L
+        return DailyPrayerTimes(dayStart, prayers, sunriseMillis = sunrise, imsakMillis = imsak)
     }
 
     fun timesAround(
@@ -68,6 +74,14 @@ object PrayerTimesCalculator {
             timesFor(config, atMillis + dayMs)
         )
     }
+
+    fun nextPrayer(
+        config: PrayerConfig,
+        fromMillis: Long = System.currentTimeMillis()
+    ): PrayerInstant? = timesAround(config, fromMillis)
+        .flatMap { it.prayers }
+        .filter { it.epochMillis > fromMillis }
+        .minByOrNull { it.epochMillis }
 
     private fun parameters(config: PrayerConfig, location: PrayerLocation): CalculationParameters {
         val methodPref = if (config.method == CalculationMethodPref.AUTO) {

@@ -78,14 +78,27 @@ object DeviceAudioGate {
     }
 
     /**
+     * صامت أو عدم الإزعاج — للتذكير التلقائي فقط، وليس التشغيل اليدوي من داخل التطبيق.
+     */
+    fun shouldSuppressQuietMode(context: Context, settings: SettingsRepository): Boolean {
+        if (!settings.respectQuietMode) return false
+        return isRingerMuted(context) || isDndBlocking(context)
+    }
+
+    /**
      * لا تشغّل صوت التطبيق عند:
-     * - الصامت / عدم الإزعاج (حسب الإعداد)
+     * - الصامت / عدم الإزعاج (حسب الإعداد) — للتذكير التلقائي فقط
      * - مكالمة هاتف أو صوت/فيديو (إعداد «إيقاف أثناء المكالمات»)
      * - صوت من تطبيق آخر: يوتيوب، تسجيلات، مكالمات التطبيقات (إعداد التخطي)
+     *
+     * [userInitiated]: تشغيل من زر داخل التطبيق؛ لا يُمنع بالصامت أو عدم الإزعاج.
      */
-    fun shouldSuppressPlayback(context: Context, settings: SettingsRepository): Boolean {
-        if (isRingerMuted(context)) return true
-        if (settings.respectQuietMode && isDndBlocking(context)) return true
+    fun shouldSuppressPlayback(
+        context: Context,
+        settings: SettingsRepository,
+        userInitiated: Boolean = false,
+    ): Boolean {
+        if (!userInitiated && shouldSuppressQuietMode(context, settings)) return true
         if (settings.pauseDuringCalls && isCallOrCommunicationActive(context)) return true
         if (settings.pauseDuringMedia && isOtherAppAudioPlaying(context)) return true
         return false
@@ -93,8 +106,8 @@ object DeviceAudioGate {
 
     @Deprecated("Use shouldSuppressPlayback(context, settings)")
     fun shouldSuppressPlayback(context: Context, respectQuietMode: Boolean = true): Boolean {
-        if (isRingerMuted(context)) return true
-        return respectQuietMode && isDndBlocking(context)
+        if (!respectQuietMode) return false
+        return isRingerMuted(context) || isDndBlocking(context)
     }
 
     private fun hasActiveUsage(audioManager: AudioManager, vararg usages: Int): Boolean {

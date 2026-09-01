@@ -81,11 +81,10 @@ import com.greendome.adhkar.data.model.MisbahaBeadTheme
 import com.greendome.adhkar.data.model.MisbahaStyle
 import com.greendome.adhkar.util.MisbahaFeedback
 import com.greendome.adhkar.ui.components.AudioUnavailableDialog
+import com.greendome.adhkar.ui.theme.AppAccentGreen
 import com.greendome.adhkar.ui.theme.AppCardColors
 import com.greendome.adhkar.ui.theme.formatLocalizedDigits
 import com.greendome.adhkar.ui.theme.stringResourceDigits
-import com.greendome.adhkar.ui.theme.GreenPrimary
-import com.greendome.adhkar.ui.theme.GreenPrimaryDark
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.PI
@@ -233,7 +232,7 @@ fun MisbahaScreen(
                     Icon(
                         imageVector = Icons.Default.BarChart,
                         contentDescription = stringResource(R.string.activity_log_title),
-                        tint = GreenPrimaryDark,
+                        tint = AppAccentGreen(),
                     )
                 }
             }
@@ -291,7 +290,7 @@ fun MisbahaScreen(
                         }
                     ),
                     style = MaterialTheme.typography.bodySmall,
-                    color = GreenPrimaryDark,
+                    color = AppAccentGreen(),
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
@@ -403,7 +402,7 @@ fun MisbahaScreen(
                 Text(
                     stringResource(R.string.misbaha_repeat_hint),
                     style = MaterialTheme.typography.labelSmall,
-                    color = GreenPrimary,
+                    color = AppAccentGreen(),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = 12.dp),
@@ -549,7 +548,7 @@ private fun ElectronicMisbahaCounter(
         Text(
             text = stringResourceDigits(R.string.misbaha_remaining, remaining),
             style = MaterialTheme.typography.labelMedium,
-            color = palette.activeShadow,
+            color = AppAccentGreen(),
             textAlign = TextAlign.Center
         )
     }
@@ -580,7 +579,7 @@ private fun TraditionalMisbahaCounter(
         Box(
             modifier = Modifier
                 .clip(RoundedCornerShape(12.dp))
-                .background(GreenPrimary.copy(alpha = 0.08f))
+                .background(AppAccentGreen().copy(alpha = 0.16f))
                 .padding(horizontal = 28.dp, vertical = 10.dp)
         ) {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
@@ -588,7 +587,7 @@ private fun TraditionalMisbahaCounter(
                     text = counter.formatLocalizedDigits(),
                     style = MaterialTheme.typography.headlineLarge,
                     fontWeight = FontWeight.Bold,
-                    color = GreenPrimaryDark,
+                    color = AppAccentGreen(),
                     textAlign = TextAlign.Center
                 )
             }
@@ -601,14 +600,14 @@ private fun TraditionalMisbahaCounter(
                 target,
             ),
             style = MaterialTheme.typography.bodySmall,
-            color = GreenPrimary,
+            color = AppAccentGreen(),
             modifier = Modifier.padding(top = 6.dp),
             textAlign = TextAlign.Center
         )
         Text(
             text = stringResourceDigits(R.string.misbaha_remaining, remaining),
             style = MaterialTheme.typography.labelSmall,
-            color = GreenPrimaryDark,
+            color = AppAccentGreen(),
             modifier = Modifier.padding(top = 2.dp, bottom = 8.dp),
             textAlign = TextAlign.Center
         )
@@ -643,7 +642,7 @@ private fun MisbahaPlayButton(
             contentDescription = stringResource(
                 if (isPlaying) R.string.stop else R.string.misbaha_play_dhikr
             ),
-            tint = GreenPrimaryDark,
+            tint = AppAccentGreen(),
         )
     }
 }

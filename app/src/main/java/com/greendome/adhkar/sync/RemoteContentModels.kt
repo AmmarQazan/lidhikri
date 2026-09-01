@@ -23,6 +23,7 @@ data class RemoteContentBundle(
     val reciters: JSONArray,
     val reciterAudio: JSONArray,
     val reciterAzkarAudio: JSONArray,
+    val adhanAudio: JSONArray,
     val collections: JSONArray,
     val azkarItems: JSONArray
 ) {
@@ -33,6 +34,7 @@ data class RemoteContentBundle(
             reciters = json.getJSONArray("reciters"),
             reciterAudio = json.getJSONArray("reciterAudio"),
             reciterAzkarAudio = json.getJSONArray("reciterAzkarAudio"),
+            adhanAudio = json.optJSONArray("adhanAudio") ?: JSONArray(),
             collections = json.getJSONArray("collections"),
             azkarItems = json.getJSONArray("azkarItems")
         )

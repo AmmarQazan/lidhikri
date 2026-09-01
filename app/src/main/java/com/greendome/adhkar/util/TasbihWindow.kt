@@ -62,6 +62,7 @@ data class TasbihWindow(
         const val DEFAULT_SLEEP_MINUTE = 0
         const val DEFAULT_WAKE_HOUR = 8
         const val DEFAULT_WAKE_MINUTE = 0
+        const val DEFAULT_INTERVAL_MINUTES = 25
 
         fun from(settings: SettingsRepository) = TasbihWindow(
             startHour = settings.tasbihStartHour,

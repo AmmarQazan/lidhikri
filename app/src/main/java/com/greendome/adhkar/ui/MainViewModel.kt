@@ -3,12 +3,14 @@ package com.greendome.adhkar.ui
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.greendome.adhkar.data.AdhanAudioRepository
 import com.greendome.adhkar.data.CollectionRepository
 import com.greendome.adhkar.data.DailyStatsRepository
 import com.greendome.adhkar.data.DhikrRepository
 import com.greendome.adhkar.data.ReciterRepository
 import com.greendome.adhkar.data.SettingsRepository
 import com.greendome.adhkar.data.local.AdhkarDatabase
+import com.greendome.adhkar.data.local.AdhanAudioEntity
 import com.greendome.adhkar.data.local.AdhkarCollectionEntity
 import com.greendome.adhkar.data.local.AzkarItemEntity
 import com.greendome.adhkar.data.local.DhikrEntity
@@ -33,6 +35,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     private val settings = SettingsRepository(app)
     private val dhikrRepo = DhikrRepository(db)
     private val reciterRepo = ReciterRepository(db)
+    private val adhanAudioRepo = AdhanAudioRepository(db)
     private val collectionRepo = CollectionRepository(db, app)
     private val pendingPublishRepo = PendingPublishRepository(db)
 
@@ -40,10 +43,14 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     val longFormList = dhikrRepo.observeLongForm().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     val reciters = reciterRepo.observeActive().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     val allReciters = reciterRepo.observeAll().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val allAdhanAudio = adhanAudioRepo.observeAll().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     val azkarCollections = collectionRepo.observeCollections()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     val allAzkarItems = collectionRepo.observeAllItems()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    private val _azkarHubOrder = MutableStateFlow(settings.azkarHubOrder)
+    val azkarHubOrder: StateFlow<List<String>> = _azkarHubOrder.asStateFlow()
     val pendingPublishChanges = pendingPublishRepo.observeAll()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
@@ -140,6 +147,11 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch { collectionRepo.rescheduleAllAlarms() }
     }
 
+    fun saveAzkarHubOrder(ids: List<String>) {
+        settings.azkarHubOrder = ids
+        _azkarHubOrder.value = ids
+    }
+
     fun applyOnboardingReminders(result: OnboardingResult) {
         settings.autoAzkarEnabled = result.autoAzkarEnabled
         settings.azkarClockHourFormat = result.clockHourFormat
@@ -162,7 +174,11 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                 sleepHour = result.sleepHour,
                 sleepMinute = result.sleepMinute,
                 enabledCollectionIds = result.enabledAzkarCollectionIds,
-                afterPrayerEnabled = result.afterPrayerAzkarEnabled
+                afterPrayerEnabled = result.afterPrayerAzkarEnabled,
+                afterAdhanEnabled = result.afterAdhanAzkarEnabled,
+                homeAzkarEnabled = result.homeAzkarEnabled,
+                homeLocation = result.homeLocation,
+                ridingAzkarEnabled = result.ridingAzkarEnabled,
             )
         }
     }
@@ -239,6 +255,22 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             reciterRepo.deleteReciterAzkarAudio(id, localPath)
             pendingPublishRepo.recordDelete(PendingPublishType.RECITER_AZKAR_AUDIO, id)
+            onDone()
+        }
+    }
+
+    fun saveAdhanAudio(entity: AdhanAudioEntity, onDone: () -> Unit = {}) {
+        viewModelScope.launch {
+            val id = adhanAudioRepo.save(entity)
+            pendingPublishRepo.recordUpsert(PendingPublishType.ADHAN_AUDIO, id)
+            onDone()
+        }
+    }
+
+    fun deleteAdhanAudio(entity: AdhanAudioEntity, onDone: () -> Unit = {}) {
+        viewModelScope.launch {
+            adhanAudioRepo.delete(entity)
+            pendingPublishRepo.recordDelete(PendingPublishType.ADHAN_AUDIO, entity.id)
             onDone()
         }
     }

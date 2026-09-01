@@ -2,6 +2,7 @@ package com.greendome.adhkar.prayer
 
 import android.content.Context
 import com.greendome.adhkar.data.SettingsRepository
+import com.greendome.adhkar.service.AdhanAlarmScheduler
 import com.greendome.adhkar.service.AfterPrayerAlarmScheduler
 import com.greendome.adhkar.service.ReminderScheduler
 import kotlinx.coroutines.Dispatchers
@@ -11,7 +12,7 @@ object TravelLocationUpdater {
     suspend fun maybeRefresh(context: Context) = withContext(Dispatchers.IO) {
         val settings = SettingsRepository(context)
         val config = settings.prayerConfig()
-        if (!config.enabled || !config.travelAutoUpdate || config.locationMode != LocationMode.GPS) {
+        if (!config.hasTimes || !config.travelAutoUpdate || config.locationMode != LocationMode.GPS) {
             return@withContext
         }
         if (!DeviceLocation.hasPermission(context)) return@withContext
@@ -33,5 +34,6 @@ object TravelLocationUpdater {
         settings.setPrayerLocation(resolved, LocationMode.GPS)
         ReminderScheduler.scheduleNext(context)
         AfterPrayerAlarmScheduler.reschedule(context)
+        AdhanAlarmScheduler.reschedule(context)
     }
 }

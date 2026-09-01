@@ -1,6 +1,7 @@
 package com.greendome.adhkar.data
 
 import android.content.Context
+import com.greendome.adhkar.data.local.AdhanAudioEntity
 import com.greendome.adhkar.data.local.AdhkarDatabase
 import com.greendome.adhkar.data.local.DhikrEntity
 import com.greendome.adhkar.data.local.ReciterAudioEntity
@@ -23,16 +24,20 @@ import com.greendome.adhkar.data.model.NumberDigitStyle
 import com.greendome.adhkar.data.model.AudioSourceType
 import com.greendome.adhkar.data.model.DhikrCategory
 import com.greendome.adhkar.data.model.ScheduleType
+import com.greendome.adhkar.prayer.AdhanAudioResolver
+import com.greendome.adhkar.prayer.AdhanSoundMode
 import com.greendome.adhkar.prayer.AsrMadhabPref
 import com.greendome.adhkar.prayer.CalculationMethodPref
 import com.greendome.adhkar.prayer.DstMode
 import com.greendome.adhkar.prayer.LocationMode
+import com.greendome.adhkar.prayer.PrayerAlertSettings
 import com.greendome.adhkar.prayer.PrayerConfig
 import com.greendome.adhkar.prayer.PrayerLocation
 import com.greendome.adhkar.prayer.PrayerName
 import com.greendome.adhkar.prayer.TimezoneMode
 import com.greendome.adhkar.util.AppLanguages
 import com.greendome.adhkar.util.DhikrScheduleMatcher
+import com.greendome.adhkar.util.HomeLayout
 import com.greendome.adhkar.util.TasbihWindow
 import com.greendome.adhkar.data.model.PopupAppearance
 import com.greendome.adhkar.data.model.PopupSettingsTarget
@@ -53,7 +58,7 @@ class SettingsRepository(context: Context) {
     }
 
     var intervalMinutes: Int
-        get() = prefs.getInt("interval_minutes", 15)
+        get() = prefs.getInt("interval_minutes", TasbihWindow.DEFAULT_INTERVAL_MINUTES)
         set(v) = prefs.edit().putInt("interval_minutes", v).apply()
 
     var tasbihStartHour: Int
@@ -178,6 +183,114 @@ class SettingsRepository(context: Context) {
         get() = prefs.getBoolean("after_prayer_from_salah", true)
         set(v) = prefs.edit().putBoolean("after_prayer_from_salah", v).apply()
 
+    var afterAdhanAzkarEnabled: Boolean
+        get() = prefs.getBoolean("after_adhan_azkar_enabled", true)
+        set(v) = prefs.edit().putBoolean("after_adhan_azkar_enabled", v).apply()
+
+    var prayerImsakOffsetMinutes: Int
+        get() = prefs.getInt("prayer_imsak_offset", PrayerConfig.DEFAULT_IMSAK)
+            .coerceIn(PrayerConfig.IMSAK_MIN, PrayerConfig.IMSAK_MAX)
+        set(v) = prefs.edit().putInt(
+            "prayer_imsak_offset",
+            v.coerceIn(PrayerConfig.IMSAK_MIN, PrayerConfig.IMSAK_MAX)
+        ).apply()
+
+    var homeAzkarEnabled: Boolean
+        get() = prefs.getBoolean("home_azkar_enabled", false)
+        set(v) = prefs.edit().putBoolean("home_azkar_enabled", v).apply()
+
+    var ridingAzkarEnabled: Boolean
+        get() = prefs.getBoolean("riding_azkar_enabled", false)
+        set(v) = prefs.edit().putBoolean("riding_azkar_enabled", v).apply()
+
+    var ridingLastPlayAt: Long
+        get() = prefs.getLong("riding_last_play_at", 0L)
+        set(v) = prefs.edit().putLong("riding_last_play_at", v).apply()
+
+    var ridingInTrip: Boolean
+        get() = prefs.getBoolean("riding_in_trip", false)
+        set(v) = prefs.edit().putBoolean("riding_in_trip", v).apply()
+
+    fun ridingItemKeys(): Set<String> {
+        val raw = prefs.getString("riding_item_keys", null) ?: return RidingAzkar.ids()
+        if (raw.isBlank()) return emptySet()
+        return raw.split(',').map { it.trim() }.filter { it.isNotBlank() }.toSet()
+    }
+
+    fun setRidingItemKeys(ids: Set<String>) {
+        prefs.edit().putString("riding_item_keys", ids.joinToString(",")).apply()
+    }
+
+    var homeLatitude: Double
+        get() = java.lang.Double.longBitsToDouble(prefs.getLong("home_lat", 0L))
+        set(v) = prefs.edit().putLong("home_lat", java.lang.Double.doubleToRawLongBits(v)).apply()
+
+    var homeLongitude: Double
+        get() = java.lang.Double.longBitsToDouble(prefs.getLong("home_lng", 0L))
+        set(v) = prefs.edit().putLong("home_lng", java.lang.Double.doubleToRawLongBits(v)).apply()
+
+    var homeLabel: String
+        get() = prefs.getString("home_label", "").orEmpty()
+        set(v) = prefs.edit().putString("home_label", v).apply()
+
+    var homeCountry: String
+        get() = prefs.getString("home_country", "").orEmpty()
+        set(v) = prefs.edit().putString("home_country", v).apply()
+
+    var homeLastEnterAt: Long
+        get() = prefs.getLong("home_last_enter_at", 0L)
+        set(v) = prefs.edit().putLong("home_last_enter_at", v).apply()
+
+    var homeLastExitAt: Long
+        get() = prefs.getLong("home_last_exit_at", 0L)
+        set(v) = prefs.edit().putLong("home_last_exit_at", v).apply()
+
+    val hasHomeLocation: Boolean
+        get() = homeLabel.isNotBlank() &&
+            !(homeLatitude == 0.0 && homeLongitude == 0.0) &&
+            homeLatitude in -90.0..90.0 &&
+            homeLongitude in -180.0..180.0
+
+    fun homeLocation(): PrayerLocation? {
+        if (!hasHomeLocation) return null
+        return PrayerLocation(
+            latitude = homeLatitude,
+            longitude = homeLongitude,
+            cityName = homeLabel,
+            countryName = homeCountry,
+        )
+    }
+
+    fun setHomeLocation(location: PrayerLocation) {
+        prefs.edit()
+            .putLong("home_lat", java.lang.Double.doubleToRawLongBits(location.latitude))
+            .putLong("home_lng", java.lang.Double.doubleToRawLongBits(location.longitude))
+            .putString("home_label", location.cityName)
+            .putString("home_country", location.countryName)
+            .commit()
+    }
+
+    fun clearHomeLocation() {
+        prefs.edit()
+            .remove("home_lat")
+            .remove("home_lng")
+            .remove("home_label")
+            .remove("home_country")
+            .apply()
+    }
+
+    fun homeEventKeys(event: HomeAzkar.Event): Set<String> {
+        val key = if (event == HomeAzkar.Event.ENTER) "home_enter_keys" else "home_exit_keys"
+        val raw = prefs.getString(key, null) ?: return HomeAzkar.idsFor(event)
+        if (raw.isBlank()) return emptySet()
+        return raw.split(',').map { it.trim() }.filter { it.isNotBlank() }.toSet()
+    }
+
+    fun setHomeEventKeys(event: HomeAzkar.Event, ids: Set<String>) {
+        val key = if (event == HomeAzkar.Event.ENTER) "home_enter_keys" else "home_exit_keys"
+        prefs.edit().putString(key, ids.joinToString(",")).apply()
+    }
+
     var prayerLocationMode: LocationMode
         get() = enumPref("prayer_location_mode", LocationMode.MANUAL)
         set(v) = prefs.edit().putString("prayer_location_mode", v.name).apply()
@@ -274,6 +387,66 @@ class SettingsRepository(context: Context) {
         ).apply()
     }
 
+    fun adhanAlert(prayer: PrayerName): PrayerAlertSettings {
+        val def = PrayerConfig.defaultAlert(prayer)
+        return PrayerAlertSettings(
+            adhanEnabled = prefs.getBoolean("adhan_on_${prayer.name}", true),
+            soundMode = enumPref("adhan_sound_${prayer.name}", def.soundMode),
+            customPath = prefs.getString("adhan_custom_${prayer.name}", "").orEmpty(),
+            catalogId = prefs.getLong("adhan_catalog_${prayer.name}", 0L),
+            notifyBeforeMinutes = prefs.getInt("adhan_before_${prayer.name}", 0)
+                .coerceIn(0, PrayerConfig.PRE_ADHAN_MAX),
+            iqamaMinutes = prefs.getInt("adhan_iqama_${prayer.name}", 0)
+                .coerceIn(0, PrayerConfig.IQAMA_MAX),
+            afterAdhanAzkar = prefs.getBoolean("adhan_after_azkar_${prayer.name}", true),
+            overrideSilent = prefs.getBoolean(
+                "adhan_override_silent_${prayer.name}",
+                prayer == PrayerName.FAJR
+            ),
+        )
+    }
+
+    fun setAdhanAlert(prayer: PrayerName, alert: PrayerAlertSettings) {
+        prefs.edit()
+            .putBoolean("adhan_on_${prayer.name}", alert.adhanEnabled)
+            .putString("adhan_sound_${prayer.name}", alert.soundMode.name)
+            .putString("adhan_custom_${prayer.name}", alert.customPath)
+            .putLong("adhan_catalog_${prayer.name}", alert.catalogId)
+            .putInt(
+                "adhan_before_${prayer.name}",
+                alert.notifyBeforeMinutes.coerceIn(0, PrayerConfig.PRE_ADHAN_MAX)
+            )
+            .putInt(
+                "adhan_iqama_${prayer.name}",
+                alert.iqamaMinutes.coerceIn(0, PrayerConfig.IQAMA_MAX)
+            )
+            .putBoolean("adhan_after_azkar_${prayer.name}", alert.afterAdhanAzkar)
+            .putBoolean("adhan_override_silent_${prayer.name}", alert.overrideSilent)
+            .apply()
+    }
+
+    fun applyAdhanSoundToAll(from: PrayerName, catalog: List<AdhanAudioEntity> = emptyList()) {
+        val source = adhanAlert(from)
+        val file = catalog.firstOrNull { it.id == source.catalogId }
+        PrayerName.entries.forEach { prayer ->
+            if (source.soundMode == AdhanSoundMode.CATALOG &&
+                file != null &&
+                !AdhanAudioResolver.isSuitable(file, prayer)
+            ) {
+                return@forEach
+            }
+            val current = adhanAlert(prayer)
+            setAdhanAlert(
+                prayer,
+                current.copy(
+                    soundMode = source.soundMode,
+                    customPath = source.customPath,
+                    catalogId = source.catalogId,
+                )
+            )
+        }
+    }
+
     var prayerJumuahAfterDelayMinutes: Int
         get() {
             val fallback = prayerJumuahQuietMinutes
@@ -331,7 +504,11 @@ class SettingsRepository(context: Context) {
             quietMinutes = PrayerName.entries.associateWith { prayerQuietMinutes(it) },
             jumuahQuietMinutes = prayerJumuahQuietMinutes,
             afterPrayerMinutes = PrayerName.entries.associateWith { prayerAfterDelayMinutes(it) },
-            jumuahAfterPrayerMinutes = prayerJumuahAfterDelayMinutes
+            jumuahAfterPrayerMinutes = prayerJumuahAfterDelayMinutes,
+            timesEnabled = true,
+            adhanEnabled = true,
+            imsakOffsetMinutes = prayerImsakOffsetMinutes,
+            alerts = PrayerName.entries.associateWith { adhanAlert(it) },
         )
     }
 
@@ -415,6 +592,14 @@ class SettingsRepository(context: Context) {
         )
         set(v) = prefs.edit().putBoolean("azkar_auto_lock_screen", v).apply()
 
+    var adhanAutoLockScreenEnabled: Boolean
+        get() = prefs.getBoolean("adhan_auto_lock_screen", true)
+        set(v) = prefs.edit().putBoolean("adhan_auto_lock_screen", v).apply()
+
+    var adhanVibrate: Boolean
+        get() = prefs.getBoolean("adhan_vibrate", true)
+        set(v) = prefs.edit().putBoolean("adhan_vibrate", v).apply()
+
     @Deprecated("Use tasbihAutoLockScreenEnabled or azkarAutoLockScreenEnabled")
     var autoReminderLockScreenEnabled: Boolean
         get() = tasbihAutoLockScreenEnabled
@@ -474,6 +659,35 @@ class SettingsRepository(context: Context) {
     var seedVersion: Int
         get() = prefs.getInt("seed_version", 0)
         set(v) = prefs.edit().putInt("seed_version", v).apply()
+
+    var azkarHubOrder: List<String>
+        get() = prefs.getString("azkar_hub_order", "")
+            .orEmpty()
+            .split(",")
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+        set(v) = prefs.edit().putString("azkar_hub_order", v.joinToString(",")).apply()
+
+    var homeSectionOrder: List<String>
+        get() = prefs.getString("home_section_order", "")
+            .orEmpty()
+            .split(",")
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+        set(v) = prefs.edit().putString("home_section_order", v.joinToString(",")).apply()
+
+    var homeHiddenSections: Set<String>
+        get() {
+            val present = prefs.contains("home_hidden_sections")
+            val saved = prefs.getString("home_hidden_sections", "")
+                .orEmpty()
+                .split(",")
+                .map { it.trim() }
+                .filter { it.isNotEmpty() }
+                .toSet()
+            return HomeLayout.hidden(saved, present)
+        }
+        set(v) = prefs.edit().putString("home_hidden_sections", v.joinToString(",")).apply()
 
     var remoteContentVersion: Int
         get() = prefs.getInt("remote_content_version", 0)
@@ -537,6 +751,10 @@ class SettingsRepository(context: Context) {
     var afterPrayerPresentation: AutoReminderPresentation
         get() = presentationPref("after_prayer_presentation", AutoReminderPresentation.POPUP_AND_AUDIO)
         set(v) = prefs.edit().putString("after_prayer_presentation", v.name).apply()
+
+    var adhanPresentation: AutoReminderPresentation
+        get() = presentationPref("adhan_presentation", AutoReminderPresentation.POPUP_AND_AUDIO)
+        set(v) = prefs.edit().putString("adhan_presentation", v.name).apply()
 
     private fun presentationPref(
         key: String,
@@ -989,6 +1207,27 @@ class ReciterRepository(private val db: AdhkarDatabase) {
     }
 }
 
+class AdhanAudioRepository(private val db: AdhkarDatabase) {
+    fun observeAll() = db.adhanAudioDao().observeAll()
+    fun observeActive() = db.adhanAudioDao().observeActive()
+
+    suspend fun save(entity: AdhanAudioEntity): Long {
+        return if (entity.id > 0L) {
+            db.adhanAudioDao().update(entity)
+            entity.id
+        } else {
+            db.adhanAudioDao().insert(entity)
+        }
+    }
+
+    suspend fun delete(entity: AdhanAudioEntity) {
+        entity.localPath?.let { path ->
+            try { java.io.File(path).takeIf { it.exists() }?.delete() } catch (_: Exception) { }
+        }
+        db.adhanAudioDao().delete(entity.id)
+    }
+}
+
 class SeedData(private val db: AdhkarDatabase, private val settings: SettingsRepository) {
     suspend fun seedIfEmpty() {
         val catalogEmpty = db.isOfficialCatalogEmpty()
@@ -1165,6 +1404,11 @@ class SeedData(private val db: AdhkarDatabase, private val settings: SettingsRep
             settings.seedVersion = 22
         }
         ReciterLibrariesMigration.apply(db, settings)
+        FridayAzkar.ensure(db)
+        BlessedDaysAzkar.ensure(db)
+        HomeAzkar.ensure(db)
+        RidingAzkar.ensure(db)
+        AdhanAzkar.ensure(db)
         if (settings.seedVersion < 23) {
             settings.seedVersion = 23
         }
@@ -1179,6 +1423,31 @@ class SeedData(private val db: AdhkarDatabase, private val settings: SettingsRep
         if (settings.seedVersion < 26) {
             settings.seedVersion = 26
         }
+        if (settings.seedVersion < 27) {
+            FridayAzkar.ensure(db)
+            settings.seedVersion = 27
+        }
+        if (settings.seedVersion < 28) {
+            FridayAzkar.ensure(db)
+            settings.seedVersion = 28
+        }
+        if (settings.seedVersion < 29) {
+            BlessedDaysAzkar.ensure(db)
+            settings.seedVersion = 29
+        }
+        if (settings.seedVersion < 30) {
+            HomeAzkar.ensure(db)
+            settings.seedVersion = 30
+        }
+        if (settings.seedVersion < 31) {
+            RidingAzkar.ensure(db)
+            settings.seedVersion = 31
+        }
+        BundledAdhanSeed.ensure(db)
+        if (settings.seedVersion < 32) {
+            settings.seedVersion = 32
+        }
+        applyDefaultWakeHourIfUnchanged()
         applyEidTakbirSingleHijriDay()
     }
 
@@ -1208,7 +1477,7 @@ class SeedData(private val db: AdhkarDatabase, private val settings: SettingsRep
     }
 
     private suspend fun applyUserToggleableAzkarSections() {
-        listOf("home", JawamiAzkarSeed.COLLECTION_ID, AzkarFavorites.COLLECTION_ID).forEach { id ->
+        listOf(HomeAzkar.COLLECTION_ID, JawamiAzkarSeed.COLLECTION_ID, AzkarFavorites.COLLECTION_ID).forEach { id ->
             val existing = db.collectionDao().getById(id)
             val allowed = AutoAzkarCatalog.entityAutoPlayAllowed(id)
             if (existing != null) {
@@ -1225,17 +1494,34 @@ class SeedData(private val db: AdhkarDatabase, private val settings: SettingsRep
     }
 
     private suspend fun applyDefaultAzkarHoursIfUnchanged() {
-        suspend fun updateIfUnchanged(id: String, oldHour: Int, oldMinute: Int, newHour: Int, newMinute: Int) {
-            val collection = db.collectionDao().getById(id) ?: return
-            if (collection.scheduleHour == oldHour && collection.scheduleMinute == oldMinute) {
-                db.collectionDao().update(
-                    collection.copy(scheduleHour = newHour, scheduleMinute = newMinute)
-                )
-            }
+        updateCollectionHourIfUnchanged(
+            "morning", 6, 0, TasbihWindow.DEFAULT_MORNING_HOUR, TasbihWindow.DEFAULT_MORNING_MINUTE
+        )
+        updateCollectionHourIfUnchanged(
+            "sleep", 22, 0, TasbihWindow.DEFAULT_SLEEP_HOUR, TasbihWindow.DEFAULT_SLEEP_MINUTE
+        )
+        applyDefaultWakeHourIfUnchanged()
+    }
+
+    private suspend fun applyDefaultWakeHourIfUnchanged() {
+        updateCollectionHourIfUnchanged(
+            "wake_up", 6, 0, TasbihWindow.DEFAULT_WAKE_HOUR, TasbihWindow.DEFAULT_WAKE_MINUTE
+        )
+    }
+
+    private suspend fun updateCollectionHourIfUnchanged(
+        id: String,
+        oldHour: Int,
+        oldMinute: Int,
+        newHour: Int,
+        newMinute: Int
+    ) {
+        val collection = db.collectionDao().getById(id) ?: return
+        if (collection.scheduleHour == oldHour && collection.scheduleMinute == oldMinute) {
+            db.collectionDao().update(
+                collection.copy(scheduleHour = newHour, scheduleMinute = newMinute)
+            )
         }
-        updateIfUnchanged("morning", 6, 0, TasbihWindow.DEFAULT_MORNING_HOUR, TasbihWindow.DEFAULT_MORNING_MINUTE)
-        updateIfUnchanged("sleep", 22, 0, TasbihWindow.DEFAULT_SLEEP_HOUR, TasbihWindow.DEFAULT_SLEEP_MINUTE)
-        updateIfUnchanged("wake_up", 6, 0, TasbihWindow.DEFAULT_WAKE_HOUR, TasbihWindow.DEFAULT_WAKE_MINUTE)
     }
 
     private suspend fun ensureBuiltinDhikrAndCollections() {
@@ -1260,6 +1546,8 @@ class SeedData(private val db: AdhkarDatabase, private val settings: SettingsRep
             IslambookAzkarSeed.seed(db)
         }
         JawamiAzkarSeed.seed(db) { jawamiTasbihDhikr() }
+        FridayAzkar.ensure(db)
+        BlessedDaysAzkar.ensure(db)
         seedBuiltinReciterAudio(db)
     }
 

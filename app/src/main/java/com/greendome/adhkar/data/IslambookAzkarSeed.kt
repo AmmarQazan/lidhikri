@@ -33,8 +33,9 @@ object IslambookAzkarSeed {
                 "wake_up", "أذكار الاستيقاظ من النوم", "Waking up", 5,
                 TasbihWindow.DEFAULT_WAKE_HOUR, TasbihWindow.DEFAULT_WAKE_MINUTE
             ),
-            collection("adhan", "أذكار عند سماع الأذان", "When hearing the adhan", 6, 12, 0),
-            collection("home", "أذكار دخول وخروج المنزل", "Entering and leaving home", 7, 8, 0)
+            AdhanAzkar.entity(),
+            collection(HomeAzkar.COLLECTION_ID, "أذكار دخول وخروج المنزل", "Entering and leaving home", 7, 8, 0),
+            collection(RidingAzkar.COLLECTION_ID, "أذكار الركوب", "Riding adhkar", RidingAzkar.SORT_ORDER, 8, 0),
         )
         db.collectionDao().insertAll(collections)
         AzkarFavorites.ensureCollection(db)
@@ -44,8 +45,9 @@ object IslambookAzkarSeed {
         db.azkarItemDao().insertAll(afterPrayerItems())
         db.azkarItemDao().insertAll(sleepItems())
         db.azkarItemDao().insertAll(wakeUpItems())
-        db.azkarItemDao().insertAll(adhanItems())
-        db.azkarItemDao().insertAll(homeItems())
+        db.azkarItemDao().insertAll(AdhanAzkar.toEntities())
+        db.azkarItemDao().insertAll(HomeAzkar.toEntities())
+        db.azkarItemDao().insertAll(RidingAzkar.toEntities())
         ReciterLibrariesMigration.ensureMixedVoicesReciter(db)
         seedQurantimeAudio(db)
     }
@@ -253,15 +255,4 @@ object IslambookAzkarSeed {
         ItemSeed("الْحَمْدُ لِلَّهِ الَّذِي عَافَانِي فِي جَسَدِي وَرَدَّ عَلَيَّ رُوحِي وَأَذِنَ لِي بِذِكْرِهِ.")
     ))
 
-    private fun adhanItems(): List<AzkarItemEntity> = toEntities("adhan", listOf(
-        ItemSeed("تقول مثل ما يقول المؤذن إلا في حيعلتين فيقول: لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللهِ."),
-        ItemSeed("اللَّهُمَّ رَبَّ هَذِهِ الدَّعْوَةِ التَّامَّةِ، وَالصَّلَاةِ الْقَائِمَةِ، آتِ مُحَمَّدًا الْوَسِيلَةَ وَالْفَضِيلَةَ، وَابْعَثْهُ مَقَامًا مَحْمُودًا الَّذِي وَعَدْتَهُ.")
-    ))
-
-    private fun homeItems(): List<AzkarItemEntity> = toEntities("home", listOf(
-        ItemSeed("بِسْمِ اللهِ وَلَجْنَا، وَبِسْمِ اللهِ خَرَجْنَا، وَعَلَى رَبِّنَا تَوَكَّلْنَا.", "عند الدخول والخروج."),
-        ItemSeed("اللَّهُمَّ إِنِّي أَسْأَلُكَ خَيْرَ الْمَوْلِجِ وَخَيْرَ الْمَخْرَجِ …", "عند الدخول."),
-        ItemSeed("بِسْمِ اللهِ، تَوَكَّلْتُ عَلَى اللهِ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللهِ.", "عند الخروج."),
-        ItemSeed("اللَّهُمَّ إِنِّي أَعُوذُ بِكَ أَنْ أَضِلَّ أَوْ أُضَلَّ، أَوْ أَزِلَّ أَوْ أُزَلَّ …", "عند الخروج.")
-    ))
 }

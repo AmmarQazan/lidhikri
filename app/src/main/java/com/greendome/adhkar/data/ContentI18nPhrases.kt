@@ -244,22 +244,58 @@ internal val ADHAN_WASILA = mapOf(
     "hi" to "ऐ अल्लाह, इस पूर्ण दावत और क़ायम नमाज़ के रब! मुहम्मद को वसीला और फ़ज़ीलत दे, और जिस मक़ाम महमूद का तूने वादा किया वहाँ उन्हें पहुँचा।",
 )
 internal val HOME_ENTER = mapOf(
-    "en" to "O Allah, I ask You for the best of entering and the best of leaving.",
-    "fr" to "Ô Allah, je Te demande le meilleur de l'entrée et le meilleur de la sortie.",
-    "es" to "Oh Allah, Te pido lo mejor de entrar y lo mejor de salir.",
-    "tr" to "Allahım! Girişin de çıkışın da hayırlısını isterim.",
-    "ur" to "اے اللہ! میں تجھ سے داخلے کی بھلائی اور نکلنے کی بھلائی مانگتا ہوں۔",
-    "id" to "Ya Allah, aku memohon kepada-Mu kebaikan masuk dan kebaikan keluar.",
-    "hi" to "ऐ अल्लाह, मैं तुझसे दाख़िल होने की भलाई और निकलने की भलाई माँगता हूँ।",
+    "en" to "O Allah, I ask You for the best of entering and the best of leaving. In the name of Allah we enter, in the name of Allah we leave, and upon Allah our Lord we rely.",
+    "fr" to "Ô Allah, je Te demande le meilleur de l'entrée et le meilleur de la sortie. Au nom d'Allah nous entrons, au nom d'Allah nous sortons, et c'est en Allah notre Seigneur que nous plaçons notre confiance.",
+    "es" to "Oh Allah, Te pido lo mejor de entrar y lo mejor de salir. En el nombre de Allah entramos, en el nombre de Allah salimos, y en Allah nuestro Señor confiamos.",
+    "tr" to "Allahım! Girişin de çıkışın da hayırlısını isterim. Allah'ın adıyla girdik, Allah'ın adıyla çıktık ve Rabbimiz Allah'a tevekkül ettik.",
+    "ur" to "اے اللہ! میں تجھ سے داخلے کی بھلائی اور نکلنے کی بھلائی مانگتا ہوں۔ اللہ کے نام سے ہم داخل ہوئے، اللہ کے نام سے نکلے، اور اپنے رب اللہ پر بھروسہ کیا۔",
+    "id" to "Ya Allah, aku memohon kepada-Mu kebaikan masuk dan kebaikan keluar. Dengan nama Allah kami masuk, dengan nama Allah kami keluar, dan kepada Allah Tuhan kamilah kami bertawakal.",
+    "hi" to "ऐ अल्लाह, मैं तुझसे दाख़िल होने की भलाई और निकलने की भलाई माँगता हूँ। अल्लाह के नाम से हम दाख़िल हुए, अल्लाह के नाम से निकले, और अपने रब अल्लाह पर भरोसा किया।",
 )
 internal val HOME_LEAVE = mapOf(
-    "en" to "O Allah, I seek refuge in You from going astray or being led astray, from slipping or being caused to slip.",
-    "fr" to "Ô Allah, je cherche protection contre m'égarer ou être égaré, contre glisser ou être poussé à glisser.",
-    "es" to "Oh Allah, me refugio en Ti de extraviarme o ser extraviado, de resbalar o ser hecho resbalar.",
-    "tr" to "Allahım! Sapmaktan veya saptırılmaktan, kaymaktan veya kaydırılmaktan Sana sığınırım.",
-    "ur" to "اے اللہ! میں گمراہ ہونے یا گمراہ کیے جانے، پھسلنے یا پھسلائے جانے سے تیری پناہ مانگتا ہوں۔",
-    "id" to "Ya Allah, aku berlindung kepada-Mu dari tersesat atau disesatkan, dari tergelincir atau digelincirkan.",
-    "hi" to "ऐ अल्लाह, मैं गुमराह होने या गुमराह किए जाने, फिसलने या फिसलाए जाने से तेरी पनाह लेता हूँ।",
+    "en" to "O Allah, I seek refuge in You from going astray or being led astray, from slipping or being caused to slip, from wronging or being wronged, from acting ignorantly or being treated ignorantly.",
+    "fr" to "Ô Allah, je cherche protection contre m'égarer ou être égaré, contre glisser ou être poussé à glisser, contre léser ou être lésé, contre l'ignorance ou qu'on l'exerce contre moi.",
+    "es" to "Oh Allah, me refugio en Ti de extraviarme o ser extraviado, de resbalar o ser hecho resbalar, de oprimir o ser oprimido, de ignorar o que se ignore contra mí.",
+    "tr" to "Allahım! Sapmaktan veya saptırılmaktan, kaymaktan veya kaydırılmaktan, zulmetmekten veya zulme uğramaktan, cahillik etmekten veya cahillik edilmekten Sana sığınırım.",
+    "ur" to "اے اللہ! میں گمراہ ہونے یا گمراہ کیے جانے، پھسلنے یا پھسلائے جانے، ظلم کرنے یا ظلم سہنے، جہالت کرنے یا جہالت سہنے سے تیری پناہ مانگتا ہوں۔",
+    "id" to "Ya Allah, aku berlindung kepada-Mu dari tersesat atau disesatkan, dari tergelincir atau digelincirkan, dari menzalimi atau dizalimi, dari berlaku bodoh atau dibodohi.",
+    "hi" to "ऐ अल्लाह, मैं गुमराह होने या गुमराह किए जाने, फिसलने या फिसलाए जाने, ज़ुल्म करने या ज़ुल्म सहने, जहालत करने या जहालत सहने से तेरी पनाह लेता हूँ।",
+)
+internal val RIDING_DUA = mapOf(
+    "en" to "Glory be to Him who subjected this to us, and we could not have done it by ourselves. Indeed, to our Lord we will return.",
+    "fr" to "Gloire à Celui qui nous a soumis ceci, alors que nous n'étions pas capables de le maîtriser. C'est vers notre Seigneur que nous retournerons.",
+    "es" to "Gloria a Quien nos sometió esto, pues no éramos capaces de dominarlo. Ciertamente, a nuestro Señor regresaremos.",
+    "tr" to "Bunu bizim hizmetimize veren Allah'ı tesbih ederiz. Yoksa biz buna güç yetiremezdik. Şüphesiz Rabbimize döneceğiz.",
+    "ur" to "پاک ہے وہ جس نے اسے ہمارے بس میں دیا، حالانکہ ہم اس کے قابو میں لانے والے نہ تھے۔ اور ہم اپنے رب کی طرف لوٹنے والے ہیں۔",
+    "id" to "Mahasuci Dia yang menundukkan ini bagi kami, padahal kami tidak mampu menguasainya. Sesungguhnya kepada Tuhan kamilah kami kembali.",
+    "hi" to "पाक है वह जिसने इसे हमारे बस में किया, हम इसे काबू में न ला सकते थे। और हम अपने रब की तरफ़ लौटने वाले हैं।",
+)
+internal val VIRTUE_RIDING = mapOf(
+    "en" to "When riding a vehicle. From Hisn al-Muslim.",
+    "fr" to "En montant un véhicule. D'après Hisn al-Muslim.",
+    "es" to "Al montar un vehículo. De Hisn al-Muslim.",
+    "tr" to "Bineğe binerken. Hisnü'l-Müslim'den.",
+    "ur" to "سواری پر سوار ہوتے وقت۔ حصن المسلم سے۔",
+    "id" to "Saat naik kendaraan. Dari Hisn al-Muslim.",
+    "hi" to "सवारी पर चढ़ते समय। हिसनुल मुस्लिम से।",
+)
+internal val VIRTUE_HOME_ENTER = mapOf(
+    "en" to "When entering the home. Then greet the family.",
+    "fr" to "En entrant chez soi. Puis saluer la famille.",
+    "es" to "Al entrar en casa. Luego saludar a la familia.",
+    "tr" to "Eve girerken. Sonra ehline selam verir.",
+    "ur" to "گھر میں داخل ہوتے وقت۔ پھر گھر والوں کو سلام کہے۔",
+    "id" to "Saat masuk rumah. Lalu memberi salam kepada keluarga.",
+    "hi" to "घर में दाख़िल होते समय। फिर घरवालों को सलाम कहे।",
+)
+internal val VIRTUE_HOME_LEAVE_ANGELS = mapOf(
+    "en" to "When leaving. It is said to him: You have been guided, sufficed, and protected, and Satan turns away.",
+    "fr" to "En sortant. On lui dit : tu as été guidé, suffi et protégé, et Satan s'écarte.",
+    "es" to "Al salir. Se le dice: has sido guiado, bastado y protegido, y Satanás se aleja.",
+    "tr" to "Çıkarken. Ona denir: hidayete erdirildin, kifayet olundun, korundun; şeytan da uzaklaşır.",
+    "ur" to "نکلتے وقت۔ اسے کہا جاتا ہے: تم ہدایت، کفایت اور حفاظت پا گئے، اور شیطان ہٹ جاتا ہے۔",
+    "id" to "Saat keluar. Dikatakan kepadanya: engkau diberi petunjuk, dicukupi, dan dilindungi, dan setan menjauh.",
+    "hi" to "निकलते समय। कहा जाता है: तुम्हें हिदायत, किफ़ायत और हिफ़ाज़त मिली, और शैतान हट जाता है।",
 )
 internal val VIRTUE_KHAIR_YAWM = mapOf(
     "en" to "Asking for the good of the day, and seeking refuge from its evil, laziness, and the punishment of the grave.",
@@ -440,4 +476,94 @@ internal val VIRTUE_MUAWWIDHAT = mapOf(
     "ur" to "نماز کے بعد معوذات۔",
     "id" to "Al-Muawwidzat setelah shalat.",
     "hi" to "नमाज़ के बाद मुअव्विज़ात।",
+)
+internal val VIRTUE_FRIDAY_SALAWAT = mapOf(
+    "en" to "It is recommended to say it often throughout Friday.",
+    "fr" to "Il est recommandé de la multiplier tout au long du vendredi.",
+    "es" to "Se recomienda repetirla a lo largo del viernes.",
+    "tr" to "Cuma günü boyunca bolca söylemek müstehaptır.",
+    "ur" to "جمعہ بھر اس کا کثرت سے پڑھنا مستحب ہے۔",
+    "id" to "Dianjurkan memperbanyaknya sepanjang hari Jumat.",
+    "hi" to "जुमे भर इसे अधिक कहना मुस्तहब है।",
+)
+internal val VIRTUE_FRIDAY_HOUR = mapOf(
+    "en" to "The hour of response; the strongest view is the last hour after Asr until Maghrib.",
+    "fr" to "L’heure d’exaucement ; l’avis le plus fort est la dernière heure après Asr jusqu’au Maghrib.",
+    "es" to "La hora de la respuesta; la opinión más fuerte es la última hora después del Asr hasta el Magrib.",
+    "tr" to "İcabet saati; en güçlü görüş ikindiden sonra Magrib’e kadar son saattir.",
+    "ur" to "ساعتِ اجابت؛ راجح قول عصر کے بعد مغرب تک آخری گھڑی ہے۔",
+    "id" to "Waktu ijabah; pendapat terkuat adalah jam terakhir setelah Asar hingga Magrib.",
+    "hi" to "इजाबत की घड़ी; सबसे पुख़्ता क़ौल अस्र के बाद मगरिब तक आख़िरी घंटा है।",
+)
+internal val VIRTUE_FRIDAY_KAHF = mapOf(
+    "en" to "It is recited from Thursday Maghrib until Friday Maghrib.",
+    "fr" to "Elle se lit du Maghrib du jeudi au Maghrib du vendredi.",
+    "es" to "Se recita desde el Magrib del jueves hasta el Magrib del viernes.",
+    "tr" to "Perşembe Magrib’inden Cuma Magrib’ine kadar okunur.",
+    "ur" to "جمعرات کے مغرب سے جمعہ کے مغرب تک پڑھی جاتی ہے۔",
+    "id" to "Dibaca dari Magrib Kamis hingga Magrib Jumat.",
+    "hi" to "गुरुवार के मगरिब से जुमे के मगरिब तक पढ़ी जाती है।",
+)
+internal val FRIDAY_HOUR_HADITH = mapOf(
+    "en" to "The Prophet ﷺ said: “On Friday there is an hour when no Muslim servant stands in prayer asking Allah for something except that He grants it to him.” The Messenger of Allah spoke the truth.",
+    "fr" to "Le Prophète ﷺ a dit : « Le vendredi, il y a une heure où tout serviteur musulman qui prie et demande quelque chose à Allah l’obtient. » Le Messager d’Allah a dit vrai.",
+    "es" to "El Profeta ﷺ dijo: «El viernes hay una hora en la que ningún siervo musulmán está en oración pidiendo a Allah algo sin que Él se lo conceda». El Mensajero de Allah dijo la verdad.",
+    "tr" to "Peygamber ﷺ buyurdu: “Cuma gününde bir saat vardır ki, o anda namaz kılan mümin bir kul Allah’tan bir şey dilerse Allah onu verir.” Allah’ın Elçisi doğru söyledi.",
+    "ur" to "نبی ﷺ نے فرمایا: «جمعہ میں ایک گھڑی ہے کہ کوئی مسلمان بندہ نماز میں کھڑا ہو کر اللہ سے کچھ مانگے تو اللہ اسے عطا فرماتا ہے۔» رسول اللہ نے سچ فرمایا۔",
+    "id" to "Nabi ﷺ bersabda: “Pada hari Jumat ada suatu saat, tidaklah seorang hamba muslim berdiri shalat memohon sesuatu kepada Allah kecuali Dia mengabulkannya.” Rasulullah telah berkata benar.",
+    "hi" to "नबी ﷺ ने फ़रमाया: «जुमे में एक घड़ी है कि कोई मुसलमान बंदा नमाज़ में खड़ा अल्लाह से कुछ माँगे तो अल्लाह उसे दे देता है।» रसूलल्लाह ने सच फ़रमाया।",
+)
+internal val FRIDAY_KAHF_HADITH = mapOf(
+    "en" to "The Prophet ﷺ said: “Whoever recites Surat al-Kahf on Friday, a light will shine for him between the two Fridays.” The Messenger of Allah spoke the truth.",
+    "fr" to "Le Prophète ﷺ a dit : « Quiconque récite la sourate al-Kahf le vendredi, une lumière lui brillera d’un vendredi à l’autre. » Le Messager d’Allah a dit vrai.",
+    "es" to "El Profeta ﷺ dijo: «Quien recita la sura al-Kahf el viernes, una luz le brillará entre los dos viernes». El Mensajero de Allah dijo la verdad.",
+    "tr" to "Peygamber ﷺ buyurdu: “Cuma günü Kehf suresini okuyana, iki Cuma arasında bir nur parlar.” Allah’ın Elçisi doğru söyledi.",
+    "ur" to "نبی ﷺ نے فرمایا: «جس نے جمعہ کے دن سورہ کہف پڑھی، اسے دو جمعوں کے درمیان نور دیا جاتا ہے۔» رسول اللہ نے سچ فرمایا۔",
+    "id" to "Nabi ﷺ bersabda: “Siapa yang membaca Surah al-Kahf pada hari Jumat, cahaya akan menyinarinya di antara dua Jumat.” Rasulullah telah berkata benar.",
+    "hi" to "नबी ﷺ ने फ़रमाया: «जिसने जुमे के दिन सूरह कहफ़ पढ़ी, उसे दो जुमों के बीच नूर दिया जाता है।» रसूलल्लाह ने सच फ़रमाया।",
+)
+internal val QADR_DUA = mapOf(
+    "en" to "O Allah, You are Pardoning and You love to pardon, so pardon me.",
+    "fr" to "Ô Allah, Tu es Pardonneur et Tu aimes pardonner, alors pardonne-moi.",
+    "es" to "Oh Allah, Tú eres Perdonador y amas perdonar, así que perdóname.",
+    "tr" to "Allahım! Sen affedicisin, affetmeyi seversin; beni affet.",
+    "ur" to "اے اللہ! تو معاف فرمانے والا ہے، معافی کو پسند کرتا ہے، پس مجھے معاف فرما۔",
+    "id" to "Ya Allah, Engkau Maha Pemaaf dan mencintai maaf, maka maafkanlah aku.",
+    "hi" to "ऐ अल्लाह, तू माफ़ करने वाला है और माफ़ी को पसंद करता है, तो मुझे माफ़ कर।",
+)
+internal val EID_TAKBIR = mapOf(
+    "en" to "Allah is the Greatest, Allah is the Greatest. There is no god but Allah. Allah is the Greatest, Allah is the Greatest, and to Allah belongs all praise.",
+    "fr" to "Allah est le Plus Grand, Allah est le Plus Grand. Nulle divinité qu’Allah. Allah est le Plus Grand, Allah est le Plus Grand, et à Allah la louange.",
+    "es" to "Allah es el Más Grande, Allah es el Más Grande. No hay dios sino Allah. Allah es el Más Grande, Allah es el Más Grande, y para Allah es la alabanza.",
+    "tr" to "Allah en büyüktür, Allah en büyüktür. Allah’tan başka ilah yoktur. Allah en büyüktür, Allah en büyüktür. Hamd Allah’adır.",
+    "ur" to "اللہ سب سے بڑا ہے، اللہ سب سے بڑا ہے۔ اللہ کے سوا کوئی معبود نہیں۔ اللہ سب سے بڑا ہے، اللہ سب سے بڑا ہے، اور تعریف اللہ ہی کے لیے ہے۔",
+    "id" to "Allah Mahabesar, Allah Mahabesar. Tidak ada tuhan selain Allah. Allah Mahabesar, Allah Mahabesar, dan segala puji bagi Allah.",
+    "hi" to "अल्लाह सबसे बड़ा है, अल्लाह सबसे बड़ा है। अल्लाह के सिवा कोई माबूद नहीं। अल्लाह सबसे बड़ा है, अल्लाह सबसे बड़ा है, और स्तुति अल्लाह ही के लिए है।",
+)
+internal val VIRTUE_QADR = mapOf(
+    "en" to "The last ten nights of Ramadan — the Prophet ﷺ taught this to Aisha (Tirmidhi).",
+    "fr" to "Les dix dernières nuits de Ramadan — le Prophète ﷺ l’a enseigné à Aïcha (Tirmidhi).",
+    "es" to "Las últimas diez noches de Ramadán — el Profeta ﷺ se lo enseñó a Aisha (Tirmidhi).",
+    "tr" to "Ramazan’ın son on gecesi — Peygamber ﷺ bunu Aişe’ye öğretti (Tirmizî).",
+    "ur" to "رمضان کی آخری دس راتیں — نبی ﷺ نے یہ دعا عائشہ رضی اللہ عنہا کو سکھائی (ترمذی).",
+    "id" to "Sepuluh malam terakhir Ramadan — Nabi ﷺ mengajarkannya kepada Aisyah (Tirmidzi).",
+    "hi" to "रमज़ान की आख़िरी दस रातें — नबी ﷺ ने यह आयशा को सिखाया (तिर्मिज़ी)।",
+)
+internal val VIRTUE_ARAFAH = mapOf(
+    "en" to "The Day of Arafah — the best dua is the dua of Arafah, and this dhikr is the best that was said that day.",
+    "fr" to "Le jour de Arafah — la meilleure invocation est celle de ce jour, et ce dhikr est le meilleur qui y fut dit.",
+    "es" to "El día de Arafat — la mejor súplica es la de ese día, y este dhikr es lo mejor que se dijo entonces.",
+    "tr" to "Arefe günü — en hayırlı dua Arefe duasıdır; bu zikir o gün söylenenlerin en hayırlısıdır.",
+    "ur" to "یوم عرفہ — بہترین دعا عرفہ کی دعا ہے، اور یہ ذکر اس دن کہا گیا سب سے بہتر ذکر ہے۔",
+    "id" to "Hari Arafah — doa terbaik adalah doa hari Arafah, dan zikir ini adalah yang terbaik yang diucapkan hari itu.",
+    "hi" to "अरफ़ा का दिन — सबसे बेहतर दुआ अरफ़ा की दुआ है, और यह ज़िक्र उस दिन कहा गया सबसे बेहतर है।",
+)
+internal val VIRTUE_TAKBIR_DAYS = mapOf(
+    "en" to "The first ten days of Dhul Hijjah and the days of Tashreeq — the takbir reported from Ibn Mas’ud.",
+    "fr" to "Les dix premiers jours de Dhul Hijjah et les jours de Tashreeq — le takbir rapporté d’Ibn Mas’ud.",
+    "es" to "Los diez primeros días de Dul Hiyya y los días de Tashriq — el takbir transmitido de Ibn Masud.",
+    "tr" to "Zilhicce’nin ilk on günü ve teşrik günleri — İbn Mesud’dan nakledilen tekbir.",
+    "ur" to "ذو الحجہ کے پہلے دس دن اور ایامِ تشریق — ابن مسعود رضی اللہ عنہ سے منقول تکبیر۔",
+    "id" to "Sepuluh hari pertama Zulhijah dan hari Tasyriq — takbir yang diriwayatkan dari Ibnu Mas’ud.",
+    "hi" to "ज़ुल-हिज्जा के पहले दस दिन और तशरीक़ के दिन — इब्न मसऊद से वर्णित तकबीर।",
 )

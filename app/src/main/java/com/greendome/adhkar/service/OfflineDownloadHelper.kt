@@ -100,4 +100,13 @@ object OfflineDownloadHelper {
         }
         return count
     }
+
+    suspend fun downloadAdhan(context: Context, audioId: Long, remoteUrl: String): String? =
+        withContext(Dispatchers.IO) {
+            val path = AudioDownloadManager(context).download(remoteUrl, "adhan_catalog_${audioId}.mp3")
+            if (path != null) {
+                AdhkarDatabase.get(context).adhanAudioDao().markDownloaded(audioId, path)
+            }
+            path
+        }
 }

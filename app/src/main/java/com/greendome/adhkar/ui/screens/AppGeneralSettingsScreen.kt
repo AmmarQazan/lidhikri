@@ -6,7 +6,6 @@ import android.net.Uri
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -44,7 +43,6 @@ import kotlinx.coroutines.launch
 fun AppGeneralSettingsScreen(
     settings: SettingsRepository,
     onLanguageChanged: () -> Unit,
-    onOpenPrayerRespect: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -53,7 +51,6 @@ fun AppGeneralSettingsScreen(
     var pauseCalls by remember { mutableStateOf(settings.pauseDuringCalls) }
     var pauseMedia by remember { mutableStateOf(settings.pauseDuringMedia) }
     var respectQuiet by remember { mutableStateOf(settings.respectQuietMode) }
-    var respectPrayer by remember { mutableStateOf(settings.respectPrayerTime) }
     var flipToStop by remember { mutableStateOf(settings.flipToStopPlayback) }
     var langExpanded by remember { mutableStateOf(false) }
     val languages = AppLanguages.pickerPairs()
@@ -156,29 +153,6 @@ fun AppGeneralSettingsScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(start = 4.dp, top = 2.dp)
                 )
-            }
-            item {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable(onClick = onOpenPrayerRespect)
-                ) {
-                    SettingSwitch(stringResource(R.string.prayer_respect_section), respectPrayer) {
-                        onOpenPrayerRespect()
-                    }
-                    Text(
-                        stringResource(R.string.prayer_respect_subtitle),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(start = 4.dp, top = 2.dp)
-                    )
-                    Text(
-                        stringResource(R.string.prayer_respect_configure),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(start = 4.dp, top = 4.dp)
-                    )
-                }
             }
             item {
                 SettingSwitch(stringResource(R.string.flip_to_stop_playback), flipToStop) {

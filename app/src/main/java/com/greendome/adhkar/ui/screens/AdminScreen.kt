@@ -70,6 +70,7 @@ fun AdminScreen(
     onOpenDhikrSection: (AdminDhikrBucket) -> Unit,
     onManageAzkar: () -> Unit,
     onManageReciters: () -> Unit,
+    onManageAdhanAudio: () -> Unit,
     onManagePrayerDefaults: () -> Unit,
     dhikrList: List<DhikrEntity>,
     azkarCollectionCount: Int,
@@ -294,6 +295,9 @@ fun AdminScreen(
 
             Button(onClick = onManageReciters, modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.admin_manage_reciters))
+            }
+            Button(onClick = onManageAdhanAudio, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(R.string.admin_manage_adhan))
             }
             Button(onClick = onManagePrayerDefaults, modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.admin_prayer_defaults))

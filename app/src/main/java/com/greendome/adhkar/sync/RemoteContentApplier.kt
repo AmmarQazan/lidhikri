@@ -2,6 +2,10 @@ package com.greendome.adhkar.sync
 
 import androidx.room.withTransaction
 import com.greendome.adhkar.data.AzkarFavorites
+import com.greendome.adhkar.data.BlessedDaysAzkar
+import com.greendome.adhkar.data.BundledAdhanSeed
+import com.greendome.adhkar.data.FridayAzkar
+import com.greendome.adhkar.data.local.AdhanAudioEntity
 import com.greendome.adhkar.data.local.AdhkarCollectionEntity
 import com.greendome.adhkar.data.local.AdhkarDatabase
 import com.greendome.adhkar.data.local.AzkarItemEntity
@@ -11,6 +15,7 @@ import com.greendome.adhkar.data.local.ReciterAudioEntity
 import com.greendome.adhkar.data.local.ReciterAzkarAudioEntity
 import com.greendome.adhkar.data.local.ReciterEntity
 import com.greendome.adhkar.data.model.AudioSourceType
+import com.greendome.adhkar.data.model.CollectionDayMode
 import com.greendome.adhkar.data.model.DhikrCategory
 import com.greendome.adhkar.data.model.ReciterVoiceScope
 import com.greendome.adhkar.data.model.ScheduleType
@@ -21,7 +26,13 @@ class RemoteContentApplier(private val db: AdhkarDatabase) {
 
     suspend fun apply(bundle: RemoteContentBundle) {
         db.withTransaction {
-            db.catalogSyncDao().clearCatalogForSync(AzkarFavorites.COLLECTION_ID)
+            db.catalogSyncDao().clearCatalogForSync(
+                listOf(
+                    AzkarFavorites.COLLECTION_ID,
+                    FridayAzkar.COLLECTION_ID,
+                    BlessedDaysAzkar.COLLECTION_ID,
+                )
+            )
 
             insertReciters(bundle.reciters)
             insertDhikr(bundle.dhikr)
@@ -29,6 +40,7 @@ class RemoteContentApplier(private val db: AdhkarDatabase) {
             insertAzkarItems(bundle.azkarItems)
             insertReciterAudio(bundle.reciterAudio)
             insertReciterAzkarAudio(bundle.reciterAzkarAudio)
+            insertAdhanAudio(bundle.adhanAudio)
         }
     }
 
@@ -137,6 +149,10 @@ class RemoteContentApplier(private val db: AdhkarDatabase) {
                     scheduleHour = o.optInt("scheduleHour", 7),
                     scheduleMinute = o.optInt("scheduleMinute", 0),
                     weekDaysMask = o.optInt("weekDaysMask", 127),
+                    dayMode = enumValue(o.optString("dayMode", CollectionDayMode.WEEKDAYS.name)),
+                    hijriMonth = o.optInt("hijriMonth", -1),
+                    hijriDayStart = o.optInt("hijriDayStart", -1),
+                    hijriDayEnd = o.optInt("hijriDayEnd", -1),
                     useTtsAutoPlay = o.optBoolean("useTtsAutoPlay", true)
                 )
             )
@@ -154,7 +170,15 @@ class RemoteContentApplier(private val db: AdhkarDatabase) {
                     virtueAr = o.optString("virtueAr", ""),
                     repeatCount = o.optInt("repeatCount", 1),
                     sortOrder = o.optInt("sortOrder", 0),
-                    sourceItemId = o.optLong("sourceItemId", -1L).takeIf { it >= 0L }
+                    sourceItemId = o.optLong("sourceItemId", -1L).takeIf { it >= 0L },
+                    scheduleHour = o.optInt("scheduleHour", -1),
+                    scheduleMinute = o.optInt("scheduleMinute", 0),
+                    prayerAnchor = o.optString("prayerAnchor", ""),
+                    prayerOffsetMinutes = o.optInt("prayerOffsetMinutes", 0),
+                    skipQuietWindow = o.optBoolean("skipQuietWindow", false),
+                    hijriMonth = o.optInt("hijriMonth", -1),
+                    hijriDayStart = o.optInt("hijriDayStart", -1),
+                    hijriDayEnd = o.optInt("hijriDayEnd", -1),
                 )
             )
         }
@@ -193,6 +217,51 @@ class RemoteContentApplier(private val db: AdhkarDatabase) {
                     isDownloaded = remoteUrl == null && o.optString("localPath", "").isNotBlank()
                 )
             )
+        }
+    }
+
+    private suspend fun insertAdhanAudio(array: JSONArray) {
+        for (i in 0 until array.length()) {
+            val o = array.getJSONObject(i)
+            val id = o.getLong("id")
+            val remoteUrl = o.optString("remoteUrl", "").takeIf { it.isNotBlank() }
+            val existing = db.adhanAudioDao().getById(id)
+            val incomingAsset = o.optString("assetPath", "").takeIf { it.isNotBlank() }
+            val bundled = BundledAdhanSeed.specs.any { it.id == id }
+            db.adhanAudioDao().insert(
+                AdhanAudioEntity(
+                    id = id,
+                    nameAr = o.getString("nameAr"),
+                    nameEn = o.optString("nameEn", ""),
+                    muezzinAr = o.optString("muezzinAr", ""),
+                    muezzinEn = o.optString("muezzinEn", ""),
+                    countryAr = o.optString("countryAr", ""),
+                    countryEn = o.optString("countryEn", ""),
+                    cityAr = o.optString("cityAr", ""),
+                    cityEn = o.optString("cityEn", ""),
+                    maqamAr = o.optString("maqamAr", ""),
+                    maqamEn = o.optString("maqamEn", ""),
+                    localPath = existing?.localPath,
+                    remoteUrl = remoteUrl,
+                    assetPath = incomingAsset ?: existing?.assetPath?.takeIf { bundled },
+                    suitableForFajr = jsonFlag(o, "suitableForFajr", false),
+                    isActive = jsonFlag(o, "isActive", true),
+                    sortOrder = o.optInt("sortOrder", i),
+                    isDownloaded = existing?.isDownloaded == true &&
+                        !existing.localPath.isNullOrBlank() &&
+                        existing.remoteUrl == remoteUrl
+                )
+            )
+        }
+    }
+
+    private fun jsonFlag(o: JSONObject, key: String, default: Boolean): Boolean {
+        if (!o.has(key) || o.isNull(key)) return default
+        return when (val value = o.opt(key)) {
+            is Boolean -> value
+            is Number -> value.toInt() != 0
+            is String -> value.equals("true", ignoreCase = true) || value == "1"
+            else -> default
         }
     }
 

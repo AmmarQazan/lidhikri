@@ -69,6 +69,13 @@ enum class ScheduleType {
     TIME_AND_HIJRI
 }
 
+/** أيام ظهور قسم الأذكار التلقائي: أيام أسبوع أو نطاق هجري أو أيام كل ذكر */
+enum class CollectionDayMode {
+    WEEKDAYS,
+    HIJRI,
+    ITEM_HIJRI
+}
+
 /** جنس صوت القراءة الآلية (TTS) للأذكار */
 enum class TtsVoiceGender {
     MALE, FEMALE
@@ -129,6 +136,12 @@ object AzkarCardText {
     const val DEFAULT_FONT_SP = 21
     const val STEP_SP = 1
     const val LINE_HEIGHT_RATIO = 34f / 21f
+}
+
+fun azkarListFontSpMatchingCard(cardSp: Int): Int {
+    val delta = cardSp - AzkarCardText.DEFAULT_FONT_SP
+    return (AzkarListText.DEFAULT_FONT_SP + delta)
+        .coerceIn(AzkarListText.MIN_FONT_SP, AzkarListText.MAX_FONT_SP)
 }
 
 /** ردّة فعل ضغط خرزة المسبحة */

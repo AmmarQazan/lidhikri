@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,7 +15,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.greendome.adhkar.R
 import com.greendome.adhkar.data.model.ClockHourFormat
-import com.greendome.adhkar.ui.theme.GreenPrimaryDark
 
 @Composable
 fun ClockHourFormatSelector(
@@ -36,6 +36,11 @@ fun ClockHourFormatSelector(
                     modifier = Modifier.fillMaxWidth()
                 )
             },
+            colors = FilterChipDefaults.filterChipColors(
+                selectedContainerColor = MaterialTheme.colorScheme.primary,
+                selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                labelColor = MaterialTheme.colorScheme.onSurface
+            ),
             modifier = Modifier.weight(1f)
         )
         FilterChip(
@@ -48,6 +53,11 @@ fun ClockHourFormatSelector(
                     modifier = Modifier.fillMaxWidth()
                 )
             },
+            colors = FilterChipDefaults.filterChipColors(
+                selectedContainerColor = MaterialTheme.colorScheme.primary,
+                selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                labelColor = MaterialTheme.colorScheme.onSurface
+            ),
             modifier = Modifier.weight(1f)
         )
     }
@@ -58,7 +68,7 @@ fun ClockHourFormatLabel(modifier: Modifier = Modifier) {
     Text(
         stringResource(R.string.azkar_clock_format_label),
         style = MaterialTheme.typography.labelMedium,
-        color = GreenPrimaryDark,
+        color = MaterialTheme.colorScheme.onSurface,
         modifier = modifier.padding(top = 4.dp)
     )
 }

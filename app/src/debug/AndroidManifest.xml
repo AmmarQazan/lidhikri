@@ -14,5 +14,9 @@
             android:name=".service.AzkarCollectionPlayService"
             android:exported="true"
             tools:replace="android:exported" />
+        <service
+            android:name=".service.NextAdhanService"
+            android:exported="true"
+            tools:replace="android:exported" />
     </application>
 </manifest>

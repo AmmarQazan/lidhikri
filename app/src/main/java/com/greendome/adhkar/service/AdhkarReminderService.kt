@@ -25,6 +25,7 @@ import com.greendome.adhkar.data.local.AdhkarDatabase
 import com.greendome.adhkar.data.local.DhikrEntity
 import com.greendome.adhkar.prayer.PrayerRespectGate
 import com.greendome.adhkar.util.CollectionScheduleHelper
+import com.greendome.adhkar.util.NextAzkarSchedule
 import com.greendome.adhkar.util.DeviceAudioGate
 import com.greendome.adhkar.data.model.VoiceSettingsTarget
 import com.greendome.adhkar.ui.overlay.OverlayActivity
@@ -255,15 +256,17 @@ class AdhkarReminderService : Service() {
             if (pausedForPrayer) R.string.auto_tasbih_paused_prayer
             else R.string.auto_tasbih_on
         )
+        val tasbihLine = localized.getString(
+            R.string.next_reminder,
+            ReminderScheduler.minutesUntilNext(this)
+        ).formatDigits(settings.numberDigitStyle)
+        val azkarLine = NextAzkarSchedule.notificationLine(localized)
+        val body = if (azkarLine.isNullOrBlank()) tasbihLine else "$tasbihLine\n$azkarLine"
         var builder = NotificationCompat.Builder(this, SilentNotificationChannels.SERVICE)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title)
-            .setContentText(
-                localized.getString(
-                    R.string.next_reminder,
-                    ReminderScheduler.minutesUntilNext(this)
-                ).formatDigits(settings.numberDigitStyle)
-            )
+            .setContentText(body)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(body))
             .setContentIntent(open)
             .setOngoing(true)
         return SilentNotificationChannels.applySilentDefaults(builder).build()

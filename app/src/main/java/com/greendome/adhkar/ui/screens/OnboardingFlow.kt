@@ -22,21 +22,15 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FormatSize
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Mosque
 import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material.icons.filled.TouchApp
-import androidx.compose.material.icons.filled.ToggleOff
-import androidx.compose.material.icons.filled.Widgets
+import androidx.compose.material.icons.filled.VolumeUp
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -52,7 +46,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -62,46 +55,68 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.greendome.adhkar.R
 import com.greendome.adhkar.data.AutoAzkarCatalog
+import com.greendome.adhkar.data.BlessedDaysAzkar
+import com.greendome.adhkar.data.FridayAzkar
 import com.greendome.adhkar.data.local.AdhkarCollectionEntity
 import com.greendome.adhkar.data.model.AppThemeMode
 import com.greendome.adhkar.data.model.ArabicFontStyle
+import com.greendome.adhkar.data.model.AzkarCardText
+import com.greendome.adhkar.data.model.AzkarListText
 import com.greendome.adhkar.data.model.ClockHourFormat
-import com.greendome.adhkar.ui.theme.ArabicText
-import com.greendome.adhkar.ui.theme.CreamBackground
+import com.greendome.adhkar.data.model.azkarListFontSpMatchingCard
+import com.greendome.adhkar.ui.components.AzkarFontSizeButtons
+import com.greendome.adhkar.ui.theme.AppAccentGreen
 import com.greendome.adhkar.ui.theme.GoldDome
-import com.greendome.adhkar.ui.theme.GreenPrimary
-import com.greendome.adhkar.ui.theme.GreenPrimaryDark
 import com.greendome.adhkar.ui.theme.arabicFontFamily
 import com.greendome.adhkar.ui.theme.formatLocalizedDigits
 import com.greendome.adhkar.ui.theme.stringResourceDigits
 import com.greendome.adhkar.prayer.LocationMode
 import com.greendome.adhkar.prayer.PrayerLocation
 import com.greendome.adhkar.util.AppLanguages
-import com.greendome.adhkar.util.LocaleHelper
 import com.greendome.adhkar.util.TasbihWindow
 import com.greendome.adhkar.util.formatClockHourCompact
 
-private const val ONBOARDING_STEPS = 8
+private enum class OnboardingPage {
+    WELCOME,
+    LANGUAGE,
+    APPEARANCE,
+    TASBIH,
+    REMINDERS,
+}
+
+private fun onboardingPages(): List<OnboardingPage> = buildList {
+    add(OnboardingPage.WELCOME)
+    if (AppLanguages.pickerPairs().size > 1) add(OnboardingPage.LANGUAGE)
+    add(OnboardingPage.APPEARANCE)
+    add(OnboardingPage.TASBIH)
+    add(OnboardingPage.REMINDERS)
+}
 
 data class OnboardingResult(
     val language: String,
     val arabicFontStyle: ArabicFontStyle,
     val themeMode: AppThemeMode,
+    val azkarCardFontSizeSp: Int = AzkarCardText.DEFAULT_FONT_SP,
+    val azkarListFontSizeSp: Int = AzkarListText.DEFAULT_FONT_SP,
     val autoTasbihEnabled: Boolean = true,
-    val autoAzkarEnabled: Boolean = false,
+    val autoAzkarEnabled: Boolean = true,
     val morningHour: Int = TasbihWindow.DEFAULT_MORNING_HOUR,
     val morningMinute: Int = TasbihWindow.DEFAULT_MORNING_MINUTE,
     val sleepHour: Int = TasbihWindow.DEFAULT_SLEEP_HOUR,
     val sleepMinute: Int = TasbihWindow.DEFAULT_SLEEP_MINUTE,
-    val tasbihStartHour: Int = TasbihWindow.FALLBACK_START_HOUR,
-    val tasbihStartMinute: Int = TasbihWindow.FALLBACK_START_MINUTE,
-    val tasbihEndHour: Int = TasbihWindow.FALLBACK_END_HOUR,
-    val tasbihEndMinute: Int = TasbihWindow.FALLBACK_END_MINUTE,
-    val respectPrayerTime: Boolean = false,
+    val tasbihStartHour: Int = TasbihWindow.DEFAULT_MORNING_HOUR,
+    val tasbihStartMinute: Int = TasbihWindow.DEFAULT_MORNING_MINUTE,
+    val tasbihEndHour: Int = TasbihWindow.DEFAULT_SLEEP_HOUR,
+    val tasbihEndMinute: Int = TasbihWindow.DEFAULT_SLEEP_MINUTE,
+    val respectPrayerTime: Boolean = true,
     val prayerLocation: PrayerLocation? = null,
     val prayerLocationMode: LocationMode = LocationMode.MANUAL,
     val enabledAzkarCollectionIds: Set<String> = AutoAzkarCatalog.defaultEnabledClockIds(),
-    val afterPrayerAzkarEnabled: Boolean = false,
+    val afterPrayerAzkarEnabled: Boolean = true,
+    val afterAdhanAzkarEnabled: Boolean = true,
+    val homeAzkarEnabled: Boolean = true,
+    val homeLocation: PrayerLocation? = null,
+    val ridingAzkarEnabled: Boolean = true,
     val clockHourFormat: ClockHourFormat = ClockHourFormat.HOUR_24
 )
 
@@ -112,31 +127,43 @@ fun OnboardingFlow(
     initialThemeMode: AppThemeMode,
     initialStep: Int = 0,
     onLanguageChange: (String) -> Unit,
+    onThemeChange: (AppThemeMode) -> Unit,
     onStepChange: (Int) -> Unit,
     onComplete: (OnboardingResult) -> Unit,
     azkarCollections: List<AdhkarCollectionEntity> = emptyList(),
     modifier: Modifier = Modifier
 ) {
-    var step by remember { mutableIntStateOf(initialStep.coerceIn(0, ONBOARDING_STEPS - 1)) }
+    val pages = remember { onboardingPages() }
+    val totalSteps = pages.size
+    var step by remember { mutableIntStateOf(initialStep.coerceIn(0, totalSteps - 1)) }
     var selectedLanguage by remember { mutableStateOf(AppLanguages.coerce(initialLanguage)) }
     var selectedFont by remember { mutableStateOf(initialFontStyle) }
+    var selectedFontSp by remember { mutableIntStateOf(AzkarCardText.DEFAULT_FONT_SP) }
     var selectedTheme by remember { mutableStateOf(initialThemeMode) }
     var wantAutoTasbih by remember { mutableStateOf(true) }
-    var wantAutoAzkar by remember { mutableStateOf(false) }
+    var wantAutoAzkar by remember { mutableStateOf(true) }
     var morningHour by remember { mutableIntStateOf(TasbihWindow.DEFAULT_MORNING_HOUR) }
     var morningMinute by remember { mutableIntStateOf(TasbihWindow.DEFAULT_MORNING_MINUTE) }
     var sleepHour by remember { mutableIntStateOf(TasbihWindow.DEFAULT_SLEEP_HOUR) }
     var sleepMinute by remember { mutableIntStateOf(TasbihWindow.DEFAULT_SLEEP_MINUTE) }
-    var tasbihStartHour by remember { mutableIntStateOf(TasbihWindow.FALLBACK_START_HOUR) }
-    var tasbihStartMinute by remember { mutableIntStateOf(TasbihWindow.FALLBACK_START_MINUTE) }
-    var tasbihEndHour by remember { mutableIntStateOf(TasbihWindow.FALLBACK_END_HOUR) }
-    var tasbihEndMinute by remember { mutableIntStateOf(TasbihWindow.FALLBACK_END_MINUTE) }
-    var wantRespectPrayer by remember { mutableStateOf(false) }
-    var afterPrayerAzkar by remember { mutableStateOf(false) }
+    var tasbihStartHour by remember { mutableIntStateOf(TasbihWindow.DEFAULT_MORNING_HOUR) }
+    var tasbihStartMinute by remember { mutableIntStateOf(TasbihWindow.DEFAULT_MORNING_MINUTE) }
+    var tasbihEndHour by remember { mutableIntStateOf(TasbihWindow.DEFAULT_SLEEP_HOUR) }
+    var tasbihEndMinute by remember { mutableIntStateOf(TasbihWindow.DEFAULT_SLEEP_MINUTE) }
+    var wantRespectPrayer by remember { mutableStateOf(true) }
+    var afterPrayerAzkar by remember { mutableStateOf(true) }
+    var afterAdhanAzkar by remember { mutableStateOf(true) }
+    var homeAzkar by remember { mutableStateOf(true) }
+    var ridingAzkar by remember { mutableStateOf(true) }
+    var homeLocation by remember { mutableStateOf<PrayerLocation?>(null) }
     var enabledAzkarIds by remember { mutableStateOf(AutoAzkarCatalog.defaultEnabledClockIds()) }
     var clockHourFormat by remember { mutableStateOf(ClockHourFormat.HOUR_24) }
     var prayerLocation by remember { mutableStateOf<PrayerLocation?>(null) }
     var prayerLocationMode by remember { mutableStateOf(LocationMode.MANUAL) }
+    var showHomeAddressRequired by remember { mutableStateOf(false) }
+
+    fun homeAzkarNeedsAddress(): Boolean =
+        wantAutoAzkar && homeAzkar && homeLocation == null
 
     fun syncTasbihDefaults(enabled: Boolean) {
         if (enabled) {
@@ -157,6 +184,8 @@ fun OnboardingFlow(
             OnboardingResult(
                 language = selectedLanguage,
                 arabicFontStyle = selectedFont,
+                azkarCardFontSizeSp = selectedFontSp,
+                azkarListFontSizeSp = azkarListFontSpMatchingCard(selectedFontSp),
                 themeMode = selectedTheme,
                 autoTasbihEnabled = wantAutoTasbih,
                 autoAzkarEnabled = wantAutoAzkar,
@@ -173,19 +202,31 @@ fun OnboardingFlow(
                 prayerLocationMode = prayerLocationMode,
                 enabledAzkarCollectionIds = enabledAzkarIds,
                 afterPrayerAzkarEnabled = afterPrayerAzkar,
+                afterAdhanAzkarEnabled = afterAdhanAzkar,
+                homeAzkarEnabled = homeAzkar,
+                homeLocation = homeLocation,
+                ridingAzkarEnabled = ridingAzkar,
                 clockHourFormat = clockHourFormat
             )
         )
     }
 
     fun goNext() {
-        if (step == 1 && selectedLanguage != initialLanguage) {
+        val page = pages[step]
+        if (page == OnboardingPage.REMINDERS && homeAzkarNeedsAddress()) {
+            showHomeAddressRequired = true
+            return
+        }
+        if (page == OnboardingPage.APPEARANCE) {
+            onThemeChange(selectedTheme)
+        }
+        if (page == OnboardingPage.LANGUAGE && selectedLanguage != initialLanguage) {
             onStepChange(step + 1)
             onLanguageChange(selectedLanguage)
             return
         }
         val nextStep = step + 1
-        if (step < ONBOARDING_STEPS - 1) {
+        if (step < totalSteps - 1) {
             step = nextStep
             onStepChange(nextStep)
         } else {
@@ -203,10 +244,14 @@ fun OnboardingFlow(
 
     BackHandler(enabled = step > 0) { goBack() }
 
+    Surface(
+        modifier = modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background,
+        contentColor = MaterialTheme.colorScheme.onSurface
+    ) {
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
-            .background(CreamBackground)
             .statusBarsPadding()
             .navigationBarsPadding()
     ) {
@@ -215,21 +260,24 @@ fun OnboardingFlow(
                 .weight(1f)
                 .fillMaxWidth()
         ) {
-            when (step) {
-                0 -> OnboardingWelcomeStep()
-                1 -> OnboardingLanguageStep(
+            when (pages[step]) {
+                OnboardingPage.WELCOME -> OnboardingWelcomeStep()
+                OnboardingPage.LANGUAGE -> OnboardingLanguageStep(
                     selected = selectedLanguage,
                     onSelect = { selectedLanguage = it }
                 )
-                2 -> OnboardingFontStep(
-                    selected = selectedFont,
-                    onSelect = { selectedFont = it }
+                OnboardingPage.APPEARANCE -> OnboardingAppearanceStep(
+                    selectedFont = selectedFont,
+                    onSelectFont = { selectedFont = it },
+                    fontSp = selectedFontSp,
+                    onFontSpChange = { selectedFontSp = it },
+                    selectedTheme = selectedTheme,
+                    onSelectTheme = {
+                        selectedTheme = it
+                        onThemeChange(it)
+                    }
                 )
-                3 -> OnboardingThemeStep(
-                    selected = selectedTheme,
-                    onSelect = { selectedTheme = it }
-                )
-                4 -> OnboardingTasbihStep(
+                OnboardingPage.TASBIH -> OnboardingTasbihStep(
                     wantAutoTasbih = wantAutoTasbih,
                     onWantAutoTasbihChange = { enabled ->
                         wantAutoTasbih = enabled
@@ -255,7 +303,7 @@ fun OnboardingFlow(
                         prayerLocationMode = mode
                     }
                 )
-                5 -> OnboardingRemindersStep(
+                OnboardingPage.REMINDERS -> OnboardingRemindersStep(
                     language = selectedLanguage,
                     azkarCollections = azkarCollections,
                     wantAutoAzkar = wantAutoAzkar,
@@ -268,67 +316,55 @@ fun OnboardingFlow(
                     onEnabledAzkarIdsChange = { enabledAzkarIds = it },
                     afterPrayerAzkar = afterPrayerAzkar,
                     onAfterPrayerAzkarChange = { afterPrayerAzkar = it },
+                    afterAdhanAzkar = afterAdhanAzkar,
+                    onAfterAdhanAzkarChange = { afterAdhanAzkar = it },
+                    homeAzkar = homeAzkar,
+                    onHomeAzkarChange = { homeAzkar = it },
+                    ridingAzkar = ridingAzkar,
+                    onRidingAzkarChange = { ridingAzkar = it },
+                    homeLocation = homeLocation,
+                    onHomeLocationPicked = { homeLocation = it },
                     prayerTimesOn = wantAutoTasbih && wantRespectPrayer,
-                    morningHour = morningHour,
-                    morningMinute = morningMinute,
-                    onMorningHourChange = {
-                        morningHour = it
-                        if (wantAutoAzkar && wantAutoTasbih) tasbihStartHour = it
-                    },
-                    onMorningMinuteChange = {
-                        morningMinute = it
-                        if (wantAutoAzkar && wantAutoTasbih) tasbihStartMinute = it
-                    },
-                    sleepHour = sleepHour,
-                    sleepMinute = sleepMinute,
-                    onSleepHourChange = {
-                        sleepHour = it
-                        if (wantAutoAzkar && wantAutoTasbih) tasbihEndHour = it
-                    },
-                    onSleepMinuteChange = {
-                        sleepMinute = it
-                        if (wantAutoAzkar && wantAutoTasbih) tasbihEndMinute = it
-                    },
                     clockHourFormat = clockHourFormat,
                     onClockHourFormatChange = { clockHourFormat = it }
-                )
-                6 -> OnboardingSettingsGuideStep()
-                7 -> OnboardingReadyStep(
-                    autoTasbihEnabled = wantAutoTasbih,
-                    autoAzkarEnabled = wantAutoAzkar
                 )
             }
         }
 
         OnboardingFooter(
             step = step,
-            totalSteps = ONBOARDING_STEPS,
-            isLastStep = step == ONBOARDING_STEPS - 1,
+            totalSteps = totalSteps,
+            isLastStep = step == totalSteps - 1,
             canGoBack = step > 0,
             onNext = { goNext() },
             onBack = { goBack() },
-            onSkip = { finish() }
+            onSkip = {
+                if (pages[step] == OnboardingPage.REMINDERS && homeAzkarNeedsAddress()) {
+                    showHomeAddressRequired = true
+                } else {
+                    finish()
+                }
+            }
+        )
+    }
+    }
+
+    if (showHomeAddressRequired) {
+        AlertDialog(
+            onDismissRequest = { showHomeAddressRequired = false },
+            title = { Text(stringResource(R.string.onboarding_home_address_required_title)) },
+            text = { Text(stringResource(R.string.onboarding_home_address_required_message)) },
+            confirmButton = {
+                TextButton(onClick = { showHomeAddressRequired = false }) {
+                    Text(stringResource(R.string.ok))
+                }
+            }
         )
     }
 }
 
-private data class OnboardingWelcomeCopy(
-    val title: String,
-    val subtitle: String
-)
-
 @Composable
 private fun OnboardingWelcomeStep() {
-    val context = LocalContext.current
-    val copies = remember(context) {
-        AppLanguages.codes.map { code ->
-            OnboardingWelcomeCopy(
-                title = LocaleHelper.string(context, code, R.string.onboarding_welcome_title),
-                subtitle = LocaleHelper.string(context, code, R.string.onboarding_welcome_subtitle)
-            )
-        }
-    }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -346,46 +382,45 @@ private fun OnboardingWelcomeStep() {
                 .height(128.dp)
         )
         Spacer(Modifier.height(20.dp))
-        copies.forEachIndexed { index, copy ->
-            if (index == 1) {
-                Spacer(Modifier.height(16.dp))
-                Box(
-                    modifier = Modifier
-                        .width(48.dp)
-                        .height(4.dp)
-                        .clip(RoundedCornerShape(2.dp))
-                        .background(GoldDome)
-                )
-                Spacer(Modifier.height(16.dp))
-            } else if (index > 1) {
-                Spacer(Modifier.height(10.dp))
-            }
-            Text(
-                text = copy.title,
-                style = if (index == 0) {
-                    MaterialTheme.typography.headlineSmall
-                } else {
-                    MaterialTheme.typography.titleMedium
-                },
-                color = GreenPrimaryDark,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
-            )
-            if (index <= 1) {
-                Spacer(Modifier.height(6.dp))
-                Text(
-                    text = copy.subtitle,
-                    style = if (index == 0) {
-                        MaterialTheme.typography.bodyLarge
-                    } else {
-                        MaterialTheme.typography.bodyMedium
-                    },
-                    color = GreenPrimaryDark.copy(alpha = if (index == 0) 0.75f else 0.65f),
-                    textAlign = TextAlign.Center,
-                    lineHeight = if (index == 0) 26.sp else 22.sp
-                )
-            }
-        }
+        Text(
+            text = stringResource(R.string.onboarding_welcome_title),
+            style = MaterialTheme.typography.headlineSmall,
+            color = AppAccentGreen(),
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center
+        )
+        Spacer(Modifier.height(6.dp))
+        Text(
+            text = stringResource(R.string.onboarding_welcome_subtitle),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f),
+            textAlign = TextAlign.Center,
+            lineHeight = 26.sp
+        )
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = stringResource(R.string.onboarding_settings_subtitle),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f),
+            textAlign = TextAlign.Center,
+            lineHeight = 22.sp
+        )
+        Spacer(Modifier.height(24.dp))
+        OnboardingFeatureRow(
+            icon = Icons.Default.Mosque,
+            title = stringResource(R.string.onboarding_feature_prayer_title),
+            subtitle = stringResource(R.string.onboarding_feature_prayer_subtitle)
+        )
+        OnboardingFeatureRow(
+            icon = Icons.Default.VolumeUp,
+            title = stringResource(R.string.onboarding_feature_adhan_title),
+            subtitle = stringResource(R.string.onboarding_feature_adhan_subtitle)
+        )
+        OnboardingFeatureRow(
+            icon = Icons.Default.Schedule,
+            title = stringResource(R.string.onboarding_feature_after_prayer_title),
+            subtitle = stringResource(R.string.onboarding_feature_after_prayer_subtitle)
+        )
         Spacer(Modifier.height(12.dp))
     }
 }
@@ -412,36 +447,51 @@ private fun OnboardingLanguageStep(
 }
 
 @Composable
-private fun OnboardingFontStep(
-    selected: ArabicFontStyle,
-    onSelect: (ArabicFontStyle) -> Unit
+private fun OnboardingAppearanceStep(
+    selectedFont: ArabicFontStyle,
+    onSelectFont: (ArabicFontStyle) -> Unit,
+    fontSp: Int,
+    onFontSpChange: (Int) -> Unit,
+    selectedTheme: AppThemeMode,
+    onSelectTheme: (AppThemeMode) -> Unit
 ) {
     OnboardingStepScaffold(
-        title = stringResource(R.string.onboarding_font_title),
-        subtitle = stringResource(R.string.onboarding_font_subtitle)
+        title = stringResource(R.string.onboarding_appearance_title),
+        subtitle = stringResource(R.string.onboarding_appearance_subtitle)
     ) {
+        OnboardingFontSizeRow(
+            fontSp = fontSp,
+            onDecrease = {
+                onFontSpChange((fontSp - AzkarCardText.STEP_SP)
+                    .coerceAtLeast(AzkarCardText.MIN_FONT_SP))
+            },
+            onIncrease = {
+                onFontSpChange((fontSp + AzkarCardText.STEP_SP)
+                    .coerceAtMost(AzkarCardText.MAX_FONT_SP))
+            }
+        )
+        Spacer(Modifier.height(12.dp))
         ArabicFontStyle.entries.forEach { style ->
             OnboardingFontOptionRow(
                 style = style,
-                selected = selected == style,
-                onSelect = { onSelect(style) }
+                selected = selectedFont == style,
+                fontSp = fontSp,
+                onSelect = { onSelectFont(style) }
             )
         }
-    }
-}
-
-@Composable
-private fun OnboardingThemeStep(
-    selected: AppThemeMode,
-    onSelect: (AppThemeMode) -> Unit
-) {
-    OnboardingStepScaffold(
-        title = stringResource(R.string.onboarding_theme_title),
-        subtitle = stringResource(R.string.onboarding_theme_subtitle)
-    ) {
+        Spacer(Modifier.height(20.dp))
+        Text(
+            text = stringResource(R.string.onboarding_theme_title),
+            style = MaterialTheme.typography.titleMedium,
+            color = AppAccentGreen(),
+            fontWeight = FontWeight.SemiBold,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(Modifier.height(8.dp))
         AppThemeModeSelector(
-            selected = selected,
-            onSelected = onSelect
+            selected = selectedTheme,
+            onSelected = onSelectTheme
         )
     }
 }
@@ -492,7 +542,7 @@ private fun OnboardingTasbihStep(
             Text(
                 text = stringResource(R.string.onboarding_tasbih_window_title),
                 style = MaterialTheme.typography.titleMedium,
-                color = GreenPrimaryDark,
+                color = AppAccentGreen(),
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
@@ -505,7 +555,7 @@ private fun OnboardingTasbihStep(
                     endLabel
                 ),
                 style = MaterialTheme.typography.bodyMedium,
-                color = GreenPrimaryDark,
+                color = AppAccentGreen(),
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -513,7 +563,7 @@ private fun OnboardingTasbihStep(
             Text(
                 text = stringResource(R.string.onboarding_tasbih_window_hint),
                 style = MaterialTheme.typography.bodySmall,
-                color = GreenPrimaryDark.copy(alpha = 0.65f),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -521,7 +571,7 @@ private fun OnboardingTasbihStep(
             Text(
                 text = stringResource(R.string.onboarding_prayer_title),
                 style = MaterialTheme.typography.titleMedium,
-                color = GreenPrimaryDark,
+                color = AppAccentGreen(),
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
@@ -530,7 +580,7 @@ private fun OnboardingTasbihStep(
             Text(
                 text = stringResource(R.string.onboarding_prayer_subtitle),
                 style = MaterialTheme.typography.bodySmall,
-                color = GreenPrimaryDark.copy(alpha = 0.65f),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -550,7 +600,7 @@ private fun OnboardingTasbihStep(
                 Text(
                     text = stringResource(R.string.onboarding_prayer_what_happens),
                     style = MaterialTheme.typography.bodySmall,
-                    color = GreenPrimaryDark.copy(alpha = 0.8f),
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -576,15 +626,15 @@ private fun OnboardingRemindersStep(
     onEnabledAzkarIdsChange: (Set<String>) -> Unit,
     afterPrayerAzkar: Boolean,
     onAfterPrayerAzkarChange: (Boolean) -> Unit,
+    afterAdhanAzkar: Boolean,
+    onAfterAdhanAzkarChange: (Boolean) -> Unit,
+    homeAzkar: Boolean,
+    onHomeAzkarChange: (Boolean) -> Unit,
+    ridingAzkar: Boolean,
+    onRidingAzkarChange: (Boolean) -> Unit,
+    homeLocation: PrayerLocation?,
+    onHomeLocationPicked: (PrayerLocation) -> Unit,
     prayerTimesOn: Boolean,
-    morningHour: Int,
-    morningMinute: Int,
-    onMorningHourChange: (Int) -> Unit,
-    onMorningMinuteChange: (Int) -> Unit,
-    sleepHour: Int,
-    sleepMinute: Int,
-    onSleepHourChange: (Int) -> Unit,
-    onSleepMinuteChange: (Int) -> Unit,
     clockHourFormat: ClockHourFormat,
     onClockHourFormatChange: (ClockHourFormat) -> Unit
 ) {
@@ -610,23 +660,25 @@ private fun OnboardingRemindersStep(
             Text(
                 text = stringResource(R.string.onboarding_azkar_sections_title),
                 style = MaterialTheme.typography.titleSmall,
-                color = GreenPrimaryDark,
+                color = AppAccentGreen(),
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.fillMaxWidth()
             )
             Text(
                 text = stringResource(R.string.onboarding_azkar_sections_hint),
                 style = MaterialTheme.typography.bodySmall,
-                color = GreenPrimaryDark.copy(alpha = 0.65f),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 4.dp, bottom = 8.dp)
             )
             AutoAzkarCatalog.onboardingSpecs().forEach { spec ->
-                val checked = if (spec.trigger == AutoAzkarCatalog.Trigger.PRAYER) {
-                    afterPrayerAzkar
-                } else {
-                    spec.id in enabledAzkarIds
+                val checked = when (spec.trigger) {
+                    AutoAzkarCatalog.Trigger.PRAYER -> afterPrayerAzkar
+                    AutoAzkarCatalog.Trigger.ADHAN -> afterAdhanAzkar
+                    AutoAzkarCatalog.Trigger.LOCATION -> homeAzkar
+                    AutoAzkarCatalog.Trigger.ACTIVITY -> ridingAzkar
+                    AutoAzkarCatalog.Trigger.CLOCK -> spec.id in enabledAzkarIds
                 }
                 val collection = azkarCollections.find { it.id == spec.id }
                 val label = if (collection != null) {
@@ -637,53 +689,71 @@ private fun OnboardingRemindersStep(
                 OnboardingSectionToggle(
                     label = label,
                     checked = checked,
-                    hint = if (spec.trigger == AutoAzkarCatalog.Trigger.PRAYER) {
-                        stringResource(
+                    hint = when {
+                        spec.trigger == AutoAzkarCatalog.Trigger.PRAYER -> stringResource(
                             if (prayerTimesOn) R.string.onboarding_azkar_after_prayer_hint
                             else R.string.onboarding_azkar_after_prayer_needs_prayer
                         )
-                    } else {
-                        null
+                        spec.trigger == AutoAzkarCatalog.Trigger.ADHAN ->
+                            stringResource(R.string.onboarding_azkar_after_adhan_hint)
+                        spec.trigger == AutoAzkarCatalog.Trigger.LOCATION -> stringResource(
+                            if (homeLocation != null) R.string.onboarding_azkar_home_hint
+                            else R.string.onboarding_azkar_home_needs_location
+                        )
+                        spec.trigger == AutoAzkarCatalog.Trigger.ACTIVITY ->
+                            stringResource(R.string.onboarding_azkar_riding_hint)
+                        spec.id == FridayAzkar.COLLECTION_ID -> stringResource(R.string.onboarding_azkar_friday_hint)
+                        spec.id == BlessedDaysAzkar.COLLECTION_ID -> stringResource(R.string.onboarding_azkar_blessed_days_hint)
+                        else -> null
                     },
                     onCheckedChange = { on ->
-                        if (spec.trigger == AutoAzkarCatalog.Trigger.PRAYER) {
-                            onAfterPrayerAzkarChange(on)
-                        } else if (on) {
-                            onEnabledAzkarIdsChange(enabledAzkarIds + spec.id)
-                        } else {
-                            onEnabledAzkarIdsChange(enabledAzkarIds - spec.id)
+                        when (spec.trigger) {
+                            AutoAzkarCatalog.Trigger.PRAYER -> onAfterPrayerAzkarChange(on)
+                            AutoAzkarCatalog.Trigger.ADHAN -> onAfterAdhanAzkarChange(on)
+                            AutoAzkarCatalog.Trigger.LOCATION -> onHomeAzkarChange(on)
+                            AutoAzkarCatalog.Trigger.ACTIVITY -> onRidingAzkarChange(on)
+                            AutoAzkarCatalog.Trigger.CLOCK -> {
+                                if (on) onEnabledAzkarIdsChange(enabledAzkarIds + spec.id)
+                                else onEnabledAzkarIdsChange(enabledAzkarIds - spec.id)
+                            }
                         }
                     }
                 )
             }
-            Spacer(Modifier.height(16.dp))
-            TimeOfDaySetting(
-                label = stringResource(R.string.onboarding_morning_time),
-                hour = morningHour,
-                minute = morningMinute,
-                onHourChange = onMorningHourChange,
-                onMinuteChange = onMorningMinuteChange
-            )
-            Spacer(Modifier.height(8.dp))
-            TimeOfDaySetting(
-                label = stringResource(R.string.onboarding_sleep_time),
-                hour = sleepHour,
-                minute = sleepMinute,
-                onHourChange = onSleepHourChange,
-                onMinuteChange = onSleepMinuteChange
-            )
+            if (homeAzkar) {
+                Spacer(Modifier.height(16.dp))
+                Text(
+                    text = stringResource(R.string.home_azkar_location_section),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = AppAccentGreen(),
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Text(
+                    text = stringResource(R.string.home_azkar_location_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp, bottom = 8.dp)
+                )
+                HomeAddressPicker(
+                    current = homeLocation,
+                    onPicked = onHomeLocationPicked
+                )
+            }
             Spacer(Modifier.height(16.dp))
             Text(
                 text = stringResource(R.string.azkar_clock_format_label),
                 style = MaterialTheme.typography.titleSmall,
-                color = GreenPrimaryDark,
+                color = AppAccentGreen(),
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.fillMaxWidth()
             )
             Text(
                 text = stringResource(R.string.azkar_clock_format_hint),
                 style = MaterialTheme.typography.bodySmall,
-                color = GreenPrimaryDark.copy(alpha = 0.65f),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 4.dp, bottom = 8.dp)
@@ -693,162 +763,6 @@ private fun OnboardingRemindersStep(
                 onSelected = onClockHourFormatChange
             )
         }
-    }
-}
-
-@Composable
-private fun OnboardingSettingsGuideStep() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 24.dp, vertical = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(Modifier.height(8.dp))
-        Icon(
-            imageVector = Icons.Default.Schedule,
-            contentDescription = null,
-            tint = GreenPrimary,
-            modifier = Modifier.size(56.dp)
-        )
-        Spacer(Modifier.height(16.dp))
-        Text(
-            text = stringResource(R.string.onboarding_settings_title),
-            style = MaterialTheme.typography.headlineSmall,
-            color = GreenPrimaryDark,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
-        )
-        Spacer(Modifier.height(8.dp))
-        Text(
-            text = stringResource(R.string.onboarding_settings_subtitle),
-            style = MaterialTheme.typography.bodyMedium,
-            color = GreenPrimaryDark.copy(alpha = 0.7f),
-            textAlign = TextAlign.Center
-        )
-        Spacer(Modifier.height(24.dp))
-        OnboardingFeatureRow(
-            icon = Icons.Default.Notifications,
-            title = stringResource(R.string.onboarding_settings_tasbih_title),
-            subtitle = stringResource(R.string.onboarding_settings_tasbih_subtitle)
-        )
-        OnboardingFeatureRow(
-            icon = Icons.AutoMirrored.Filled.MenuBook,
-            title = stringResource(R.string.onboarding_settings_azkar_title),
-            subtitle = stringResource(R.string.onboarding_settings_azkar_subtitle)
-        )
-        OnboardingFeatureRow(
-            icon = Icons.Default.LocationOn,
-            title = stringResource(R.string.onboarding_settings_prayer_title),
-            subtitle = stringResource(R.string.onboarding_settings_prayer_subtitle)
-        )
-        OnboardingFeatureRow(
-            icon = Icons.Default.Schedule,
-            title = stringResource(R.string.onboarding_settings_schedule_title),
-            subtitle = stringResource(R.string.onboarding_settings_schedule_subtitle)
-        )
-        OnboardingFeatureRow(
-            icon = Icons.Default.ToggleOff,
-            title = stringResource(R.string.onboarding_settings_disable_title),
-            subtitle = stringResource(R.string.onboarding_settings_disable_subtitle)
-        )
-        OnboardingFeatureRow(
-            icon = Icons.Default.Favorite,
-            title = stringResource(R.string.onboarding_settings_favorites_title),
-            subtitle = stringResource(R.string.onboarding_settings_favorites_subtitle)
-        )
-        OnboardingFeatureRow(
-            icon = Icons.Default.FormatSize,
-            title = stringResource(R.string.onboarding_settings_display_title),
-            subtitle = stringResource(R.string.onboarding_settings_display_subtitle)
-        )
-        OnboardingFeatureRow(
-            icon = Icons.Default.TouchApp,
-            title = stringResource(R.string.onboarding_settings_misbaha_title),
-            subtitle = stringResource(R.string.onboarding_settings_misbaha_subtitle)
-        )
-        OnboardingFeatureRow(
-            icon = Icons.Default.Widgets,
-            title = stringResource(R.string.onboarding_settings_widgets_title),
-            subtitle = stringResource(R.string.onboarding_settings_widgets_subtitle)
-        )
-    }
-}
-
-@Composable
-private fun OnboardingReadyStep(
-    autoTasbihEnabled: Boolean,
-    autoAzkarEnabled: Boolean
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 24.dp, vertical = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Spacer(Modifier.height(12.dp))
-        Icon(
-            imageVector = Icons.Default.CheckCircle,
-            contentDescription = null,
-            tint = GreenPrimary,
-            modifier = Modifier.size(64.dp)
-        )
-        Spacer(Modifier.height(20.dp))
-        Text(
-            text = stringResource(R.string.onboarding_ready_title),
-            style = MaterialTheme.typography.headlineSmall,
-            color = GreenPrimaryDark,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
-        )
-        Spacer(Modifier.height(8.dp))
-        Text(
-            text = stringResource(
-                when {
-                    autoTasbihEnabled && autoAzkarEnabled -> R.string.onboarding_ready_subtitle
-                    autoTasbihEnabled -> R.string.onboarding_ready_subtitle_tasbih_only
-                    autoAzkarEnabled -> R.string.onboarding_ready_subtitle_azkar_only
-                    else -> R.string.onboarding_ready_subtitle_none
-                }
-            ),
-            style = MaterialTheme.typography.bodyMedium,
-            color = GreenPrimaryDark.copy(alpha = 0.7f),
-            textAlign = TextAlign.Center
-        )
-        Spacer(Modifier.height(28.dp))
-        ArabicText(
-            text = stringResource(R.string.onboarding_font_preview),
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontSize = 24.sp,
-                lineHeight = 38.sp
-            ),
-            color = GreenPrimaryDark,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(Modifier.height(32.dp))
-        OnboardingFeatureRow(
-            icon = Icons.Default.TouchApp,
-            title = stringResource(R.string.onboarding_feature_tasbih_title),
-            subtitle = stringResource(R.string.onboarding_feature_tasbih_subtitle)
-        )
-        OnboardingFeatureRow(
-            icon = Icons.AutoMirrored.Filled.MenuBook,
-            title = stringResource(R.string.onboarding_feature_azkar_title),
-            subtitle = stringResource(R.string.onboarding_feature_azkar_subtitle)
-        )
-        OnboardingFeatureRow(
-            icon = Icons.Default.Notifications,
-            title = stringResource(R.string.onboarding_feature_reminder_title),
-            subtitle = stringResource(R.string.onboarding_feature_reminder_subtitle)
-        )
-        OnboardingFeatureRow(
-            icon = Icons.Default.AutoAwesome,
-            title = stringResource(R.string.onboarding_feature_misbaha_title),
-            subtitle = stringResource(R.string.onboarding_feature_misbaha_subtitle)
-        )
     }
 }
 
@@ -868,7 +782,7 @@ private fun OnboardingStepScaffold(
         Text(
             text = title,
             style = MaterialTheme.typography.titleLarge,
-            color = GreenPrimaryDark,
+            color = AppAccentGreen(),
             fontWeight = FontWeight.SemiBold,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
@@ -877,7 +791,7 @@ private fun OnboardingStepScaffold(
         Text(
             text = subtitle,
             style = MaterialTheme.typography.bodyMedium,
-            color = GreenPrimaryDark.copy(alpha = 0.65f),
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.72f),
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
         )
@@ -893,7 +807,7 @@ private fun OnboardingSelectionRow(
     enabled: Boolean = true,
     onSelect: () -> Unit
 ) {
-    val background = if (selected) Color.White else Color.Transparent
+    val background = if (selected) MaterialTheme.colorScheme.surface else Color.Transparent
 
     Row(
         modifier = Modifier
@@ -910,9 +824,9 @@ private fun OnboardingSelectionRow(
             text = label,
             style = MaterialTheme.typography.titleMedium,
             color = when {
-                selected -> GreenPrimaryDark
-                !enabled -> Color(0xFF555555).copy(alpha = 0.4f)
-                else -> Color(0xFF555555)
+                selected -> AppAccentGreen()
+                !enabled -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                else -> MaterialTheme.colorScheme.onSurface
             },
             fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal
         )
@@ -921,7 +835,7 @@ private fun OnboardingSelectionRow(
                 modifier = Modifier
                     .size(10.dp)
                     .clip(CircleShape)
-                    .background(GreenPrimary)
+                    .background(MaterialTheme.colorScheme.primary)
             )
         }
     }
@@ -939,7 +853,7 @@ private fun OnboardingSectionToggle(
             .fillMaxWidth()
             .padding(vertical = 4.dp)
             .clip(RoundedCornerShape(14.dp))
-            .background(if (checked) Color.White else Color.Transparent)
+            .background(if (checked) MaterialTheme.colorScheme.surface else Color.Transparent)
             .clickable { onCheckedChange(!checked) }
             .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -948,14 +862,14 @@ private fun OnboardingSectionToggle(
             Text(
                 text = label,
                 style = MaterialTheme.typography.titleSmall,
-                color = GreenPrimaryDark,
+                color = if (checked) AppAccentGreen() else MaterialTheme.colorScheme.onSurface,
                 fontWeight = if (checked) FontWeight.SemiBold else FontWeight.Normal
             )
             if (!hint.isNullOrBlank()) {
                 Text(
                     text = hint,
                     style = MaterialTheme.typography.bodySmall,
-                    color = GreenPrimaryDark.copy(alpha = 0.6f),
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f),
                     modifier = Modifier.padding(top = 2.dp)
                 )
             }
@@ -965,12 +879,46 @@ private fun OnboardingSectionToggle(
 }
 
 @Composable
+private fun OnboardingFontSizeRow(
+    fontSp: Int,
+    onDecrease: () -> Unit,
+    onIncrease: () -> Unit
+) {
+    val percent = ((fontSp * 100f) / AzkarCardText.DEFAULT_FONT_SP).toInt()
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(horizontal = 8.dp, vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        AzkarFontSizeButtons(
+            fontSp = fontSp,
+            minSp = AzkarCardText.MIN_FONT_SP,
+            maxSp = AzkarCardText.MAX_FONT_SP,
+            onDecrease = onDecrease,
+            onIncrease = onIncrease
+        )
+        Text(
+            text = stringResourceDigits(R.string.onboarding_font_size_value, percent),
+            style = MaterialTheme.typography.titleSmall,
+            color = AppAccentGreen(),
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(end = 10.dp)
+        )
+    }
+}
+
+@Composable
 private fun OnboardingFontOptionRow(
     style: ArabicFontStyle,
     selected: Boolean,
+    fontSp: Int,
     onSelect: () -> Unit
 ) {
-    val background = if (selected) Color.White else Color.Transparent
+    val background = if (selected) MaterialTheme.colorScheme.surface else Color.Transparent
 
     Column(
         modifier = Modifier
@@ -984,18 +932,18 @@ private fun OnboardingFontOptionRow(
         Text(
             text = stringResource(onboardingFontStyleLabelRes(style)),
             style = MaterialTheme.typography.labelLarge,
-            color = if (selected) GreenPrimary else Color.Gray
+            color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(Modifier.height(6.dp))
         Text(
             text = stringResource(R.string.onboarding_font_preview),
             style = TextStyle(
                 fontFamily = arabicFontFamily(style),
-                fontSize = 22.sp,
-                lineHeight = 34.sp,
+                fontSize = fontSp.sp,
+                lineHeight = (fontSp * AzkarCardText.LINE_HEIGHT_RATIO).sp,
                 textAlign = TextAlign.Start
             ),
-            color = GreenPrimaryDark,
+            color = AppAccentGreen(),
             modifier = Modifier.fillMaxWidth()
         )
     }
@@ -1012,7 +960,7 @@ private fun OnboardingFeatureRow(
             .fillMaxWidth()
             .padding(vertical = 8.dp)
             .clip(RoundedCornerShape(12.dp))
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.surface)
             .padding(14.dp),
         verticalAlignment = Alignment.Top
     ) {
@@ -1027,13 +975,13 @@ private fun OnboardingFeatureRow(
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleSmall,
-                color = GreenPrimaryDark,
+                color = AppAccentGreen(),
                 fontWeight = FontWeight.SemiBold
             )
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.bodySmall,
-                color = GreenPrimaryDark.copy(alpha = 0.65f),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
                 modifier = Modifier.padding(top = 2.dp)
             )
         }
@@ -1071,7 +1019,7 @@ private fun OnboardingFooter(
                     TextButton(onClick = onBack) {
                         Text(
                             text = stringResource(R.string.onboarding_back),
-                            color = GreenPrimaryDark,
+                            color = AppAccentGreen(),
                             style = MaterialTheme.typography.titleMedium
                         )
                     }
@@ -1079,7 +1027,7 @@ private fun OnboardingFooter(
                 Button(
                     onClick = onNext,
                     modifier = if (canGoBack) Modifier else Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = GreenPrimary)
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
                     Text(
                         text = stringResource(R.string.onboarding_start),
@@ -1091,7 +1039,7 @@ private fun OnboardingFooter(
                     TextButton(onClick = onSkip) {
                         Text(
                             text = stringResource(R.string.onboarding_skip),
-                            color = Color.Gray,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             style = MaterialTheme.typography.titleMedium
                         )
                     }
@@ -1099,7 +1047,7 @@ private fun OnboardingFooter(
                         TextButton(onClick = onBack) {
                             Text(
                                 text = stringResource(R.string.onboarding_back),
-                                color = GreenPrimaryDark,
+                                color = AppAccentGreen(),
                                 style = MaterialTheme.typography.titleMedium
                             )
                         }
@@ -1107,7 +1055,7 @@ private fun OnboardingFooter(
                 }
                 Button(
                     onClick = onNext,
-                    colors = ButtonDefaults.buttonColors(containerColor = GreenPrimary)
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
                     Text(
                         text = stringResource(R.string.onboarding_next),
@@ -1142,7 +1090,7 @@ private fun OnboardingPageIndicator(
                     )
                     .clip(CircleShape)
                     .background(
-                        if (active) GreenPrimary else GreenPrimary.copy(alpha = 0.25f)
+                        if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)
                     )
             )
         }

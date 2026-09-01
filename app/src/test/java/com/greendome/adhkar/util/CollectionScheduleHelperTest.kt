@@ -91,6 +91,25 @@ class CollectionScheduleHelperTest {
     }
 
     @Test
+    fun fridayOnlySkipsOtherWeekdays() {
+        val friday = collection("friday", hour = 8, minute = 0).copy(
+            weekDaysMask = CollectionScheduleHelper.fridayOnlyMask()
+        )
+        val thursdayEvening = Calendar.getInstance().apply {
+            timeInMillis = fromBase()
+            set(Calendar.DAY_OF_WEEK, Calendar.THURSDAY)
+            set(Calendar.HOUR_OF_DAY, 22)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+        val next = CollectionScheduleHelper.nextTriggerAt(friday, thursdayEvening)
+        val cal = Calendar.getInstance().apply { timeInMillis = next }
+        assertEquals(Calendar.FRIDAY, cal.get(Calendar.DAY_OF_WEEK))
+        assertEquals(8, cal.get(Calendar.HOUR_OF_DAY))
+    }
+
+    @Test
     fun pastExtraTriggerIsIgnored() {
         val evening = collection("evening", hour = 19, minute = 0)
         val afterPrayer = collection(

@@ -9,10 +9,13 @@ import com.greendome.adhkar.data.ReciterRepository
 import com.greendome.adhkar.data.SeedData
 import com.greendome.adhkar.data.SettingsRepository
 import com.greendome.adhkar.data.isOfficialCatalogEmpty
+import com.greendome.adhkar.service.AdhanAlarmScheduler
+import com.greendome.adhkar.service.AdhanAlertNotifier
+import com.greendome.adhkar.service.AfterPrayerAlarmScheduler
+import com.greendome.adhkar.service.NextAdhanService
 import com.greendome.adhkar.service.OfflineDownloadHelper
 import com.greendome.adhkar.service.SilentNotificationChannels
 import com.greendome.adhkar.prayer.PrayerCountryDefaults
-import com.greendome.adhkar.sync.PrayerDefaultsSync
 import com.greendome.adhkar.sync.RemoteContentSync
 import com.greendome.adhkar.sync.RemoteSyncResult
 import com.greendome.adhkar.data.local.AdhkarDatabase
@@ -46,30 +49,29 @@ class AdhkarApplication : Application() {
         dhikrRepo = DhikrRepository(database)
         reciterRepo = ReciterRepository(database)
         SilentNotificationChannels.ensureCreated(this)
+        AdhanAlertNotifier.ensureChannel(this)
         SilentNotificationChannels.cancelLegacyAlertIds(this)
+        NextAdhanService.sync(this)
         appScope.launch {
             val catalogEmpty = database.isOfficialCatalogEmpty()
             SeedData(database, settings).seedIfEmpty()
             val forceRemote = CatalogRecovery.shouldForceRemoteSync(catalogEmpty)
-            val needsInitialContentSync = forceRemote || settings.remoteContentVersion <= 0
-            if (needsInitialContentSync) {
-                val syncResult = RemoteContentSync.syncIfNeeded(
-                    this@AdhkarApplication,
-                    settings,
-                    database,
-                    force = forceRemote
-                )
-                if (syncResult is RemoteSyncResult.Updated) {
-                    settings.seedVersion = maxOf(settings.seedVersion, 19)
-                    SeedData(database, settings).seedIfEmpty()
-                    OfflineDownloadHelper.downloadAllPending(this@AdhkarApplication)
-                }
-            } else {
-                runCatching { PrayerDefaultsSync.syncIfNeeded(this@AdhkarApplication, settings) }
+            val syncResult = RemoteContentSync.syncIfNeeded(
+                this@AdhkarApplication,
+                settings,
+                database,
+                force = forceRemote
+            )
+            if (syncResult is RemoteSyncResult.Updated) {
+                settings.seedVersion = maxOf(settings.seedVersion, 19)
+                SeedData(database, settings).seedIfEmpty()
+                OfflineDownloadHelper.downloadAllPending(this@AdhkarApplication)
             }
             val collections = CollectionRepository(database, this@AdhkarApplication)
             collections.initializeTasbihWindowIfNeeded()
             collections.rescheduleAllAlarms()
+            AfterPrayerAlarmScheduler.reschedule(this@AdhkarApplication)
+            AdhanAlarmScheduler.reschedule(this@AdhkarApplication)
             DhikrOfDayManager.refresh(this@AdhkarApplication)
         }
     }

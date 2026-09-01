@@ -4,6 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,6 +21,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -33,6 +36,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -44,10 +48,14 @@ import androidx.compose.ui.unit.dp
 import com.greendome.adhkar.R
 import com.greendome.adhkar.data.local.AdhkarCollectionEntity
 import com.greendome.adhkar.data.local.AzkarItemEntity
+import com.greendome.adhkar.data.model.CollectionDayMode
+import com.greendome.adhkar.prayer.PrayerName
 import com.greendome.adhkar.ui.theme.GoldDome
 import com.greendome.adhkar.ui.theme.GreenPrimary
 import com.greendome.adhkar.ui.theme.formatLocalizedDigits
 import com.greendome.adhkar.ui.theme.stringResourceDigits
+import com.greendome.adhkar.util.CollectionScheduleHelper
+import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -206,7 +214,7 @@ fun AdminAzkarItemsScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun AdminEditAzkarItemScreen(
     collectionId: String,
@@ -219,6 +227,21 @@ fun AdminEditAzkarItemScreen(
     var textAr by remember { mutableStateOf(existing?.textAr ?: "") }
     var virtueAr by remember { mutableStateOf(existing?.virtueAr ?: "") }
     var repeatCount by remember { mutableFloatStateOf((existing?.repeatCount ?: 1).toFloat()) }
+    var customTime by remember { mutableStateOf((existing?.scheduleHour ?: -1) >= 0) }
+    var hour by remember { mutableFloatStateOf((existing?.scheduleHour?.takeIf { it >= 0 } ?: 8).toFloat()) }
+    var minute by remember { mutableFloatStateOf((existing?.scheduleMinute ?: 0).toFloat()) }
+    var prayerAnchor by remember { mutableStateOf(existing?.prayerAnchor.orEmpty()) }
+    var prayerOffset by remember { mutableFloatStateOf((existing?.prayerOffsetMinutes ?: 0).toFloat()) }
+    var skipQuiet by remember { mutableStateOf(existing?.skipQuietWindow ?: false) }
+    var hijriMonth by remember {
+        mutableStateOf(if ((existing?.hijriMonth ?: -1) > 0) existing!!.hijriMonth.toString() else "")
+    }
+    var hijriDayStart by remember {
+        mutableStateOf(if ((existing?.hijriDayStart ?: -1) > 0) existing!!.hijriDayStart.toString() else "")
+    }
+    var hijriDayEnd by remember {
+        mutableStateOf(if ((existing?.hijriDayEnd ?: -1) > 0) existing!!.hijriDayEnd.toString() else "")
+    }
     var error by remember { mutableStateOf<String?>(null) }
 
     Scaffold(
@@ -268,6 +291,91 @@ fun AdminEditAzkarItemScreen(
                 valueRange = 1f..300f,
                 steps = 20
             )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(stringResource(R.string.azkar_item_custom_time))
+                Switch(checked = customTime, onCheckedChange = { customTime = it })
+            }
+            if (customTime) {
+                Text(stringResource(R.string.azkar_time_label))
+                Text(
+                    "${hour.toInt().toString().padStart(2, '0')}:${minute.toInt().toString().padStart(2, '0')}"
+                        .formatLocalizedDigits()
+                )
+                Slider(value = hour, onValueChange = { hour = it }, valueRange = 0f..23f, steps = 22)
+                Slider(value = minute, onValueChange = { minute = it }, valueRange = 0f..59f, steps = 58)
+            } else {
+                Text(
+                    stringResource(R.string.azkar_item_inherit_time),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = GreenPrimary
+                )
+            }
+            Text(stringResource(R.string.azkar_item_prayer_anchor), modifier = Modifier.padding(top = 4.dp))
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                FilterChip(
+                    selected = prayerAnchor.isBlank(),
+                    onClick = { prayerAnchor = "" },
+                    label = { Text(stringResource(R.string.azkar_item_prayer_none)) }
+                )
+                PrayerName.entries.forEach { prayer ->
+                    FilterChip(
+                        selected = prayerAnchor == prayer.name,
+                        onClick = { prayerAnchor = if (prayerAnchor == prayer.name) "" else prayer.name },
+                        label = {
+                            Text(
+                                stringResource(
+                                    when (prayer) {
+                                        PrayerName.FAJR -> R.string.prayer_name_fajr
+                                        PrayerName.DHUHR -> R.string.prayer_name_dhuhr
+                                        PrayerName.ASR -> R.string.prayer_name_asr
+                                        PrayerName.MAGHRIB -> R.string.prayer_name_maghrib
+                                        PrayerName.ISHA -> R.string.prayer_name_isha
+                                    }
+                                )
+                            )
+                        }
+                    )
+                }
+            }
+            if (prayerAnchor.isNotBlank()) {
+                Text(stringResourceDigits(R.string.azkar_item_prayer_offset, prayerOffset.toInt()))
+                Slider(
+                    value = prayerOffset,
+                    onValueChange = { prayerOffset = it },
+                    valueRange = -120f..120f,
+                    steps = 47
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(stringResource(R.string.azkar_item_skip_quiet))
+                Switch(checked = skipQuiet, onCheckedChange = { skipQuiet = it })
+            }
+            OutlinedTextField(
+                value = hijriMonth,
+                onValueChange = { hijriMonth = it },
+                label = { Text(stringResource(R.string.hijri_month)) },
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                value = hijriDayStart,
+                onValueChange = { hijriDayStart = it },
+                label = { Text(stringResource(R.string.hijri_day_from)) },
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                value = hijriDayEnd,
+                onValueChange = { hijriDayEnd = it },
+                label = { Text(stringResource(R.string.hijri_day_to)) },
+                modifier = Modifier.fillMaxWidth()
+            )
             if (error != null) {
                 Text(error!!, color = MaterialTheme.colorScheme.error)
             }
@@ -286,7 +394,15 @@ fun AdminEditAzkarItemScreen(
                                 virtueAr = virtueAr.trim(),
                                 repeatCount = repeatCount.toInt().coerceAtLeast(1),
                                 sortOrder = existing?.sortOrder ?: nextSortOrder,
-                                sourceItemId = existing?.sourceItemId
+                                sourceItemId = existing?.sourceItemId,
+                                scheduleHour = if (customTime) hour.toInt() else -1,
+                                scheduleMinute = if (customTime) minute.toInt() else 0,
+                                prayerAnchor = prayerAnchor,
+                                prayerOffsetMinutes = if (prayerAnchor.isBlank()) 0 else prayerOffset.toInt(),
+                                skipQuietWindow = skipQuiet,
+                                hijriMonth = hijriMonth.toIntOrNull() ?: -1,
+                                hijriDayStart = hijriDayStart.toIntOrNull() ?: -1,
+                                hijriDayEnd = hijriDayEnd.toIntOrNull() ?: -1,
                             )
                         )
                     },
@@ -306,7 +422,7 @@ fun AdminEditAzkarItemScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun AdminEditAzkarCollectionScreen(
     existing: AdhkarCollectionEntity?,
@@ -320,6 +436,11 @@ fun AdminEditAzkarCollectionScreen(
     var autoPlay by remember { mutableStateOf(existing?.autoPlayEnabled ?: false) }
     var hour by remember { mutableFloatStateOf((existing?.scheduleHour ?: 7).toFloat()) }
     var minute by remember { mutableFloatStateOf((existing?.scheduleMinute ?: 0).toFloat()) }
+    var dayMode by remember { mutableStateOf(existing?.dayMode ?: CollectionDayMode.WEEKDAYS) }
+    var weekMask by remember { mutableIntStateOf(existing?.weekDaysMask ?: 127) }
+    var hijriMonth by remember { mutableStateOf(if ((existing?.hijriMonth ?: -1) > 0) existing!!.hijriMonth.toString() else "") }
+    var hijriDayStart by remember { mutableStateOf(if ((existing?.hijriDayStart ?: -1) > 0) existing!!.hijriDayStart.toString() else "") }
+    var hijriDayEnd by remember { mutableStateOf(if ((existing?.hijriDayEnd ?: -1) > 0) existing!!.hijriDayEnd.toString() else "") }
     var error by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -401,6 +522,75 @@ fun AdminEditAzkarCollectionScreen(
                 )
                 Slider(value = hour, onValueChange = { hour = it }, valueRange = 0f..23f, steps = 22)
                 Slider(value = minute, onValueChange = { minute = it }, valueRange = 0f..59f, steps = 58)
+                Text(stringResource(R.string.azkar_day_mode_label), modifier = Modifier.padding(top = 8.dp))
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    FilterChip(
+                        selected = dayMode == CollectionDayMode.WEEKDAYS,
+                        onClick = { dayMode = CollectionDayMode.WEEKDAYS },
+                        label = { Text(stringResource(R.string.azkar_day_mode_weekdays)) }
+                    )
+                    FilterChip(
+                        selected = dayMode == CollectionDayMode.HIJRI,
+                        onClick = { dayMode = CollectionDayMode.HIJRI },
+                        label = { Text(stringResource(R.string.azkar_day_mode_hijri)) }
+                    )
+                    FilterChip(
+                        selected = dayMode == CollectionDayMode.ITEM_HIJRI,
+                        onClick = { dayMode = CollectionDayMode.ITEM_HIJRI },
+                        label = { Text(stringResource(R.string.azkar_day_mode_item_hijri)) }
+                    )
+                }
+                when (dayMode) {
+                    CollectionDayMode.WEEKDAYS -> {
+                        Text(stringResource(R.string.azkar_days_label), modifier = Modifier.padding(top = 8.dp))
+                        val days = CollectionScheduleHelper.dayLabels("ar")
+                        val dayConstants = listOf(
+                            Calendar.SUNDAY, Calendar.MONDAY, Calendar.TUESDAY, Calendar.WEDNESDAY,
+                            Calendar.THURSDAY, Calendar.FRIDAY, Calendar.SATURDAY
+                        )
+                        FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            days.forEachIndexed { index, label ->
+                                val day = dayConstants[index]
+                                val selected = CollectionScheduleHelper.isDayEnabled(weekMask, day)
+                                FilterChip(
+                                    selected = selected,
+                                    onClick = {
+                                        weekMask = CollectionScheduleHelper.toggleDay(weekMask, day, !selected)
+                                    },
+                                    label = { Text(label) }
+                                )
+                            }
+                        }
+                    }
+                    CollectionDayMode.HIJRI -> {
+                        OutlinedTextField(
+                            value = hijriMonth,
+                            onValueChange = { hijriMonth = it },
+                            label = { Text(stringResource(R.string.hijri_month)) },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        OutlinedTextField(
+                            value = hijriDayStart,
+                            onValueChange = { hijriDayStart = it },
+                            label = { Text(stringResource(R.string.hijri_day_from)) },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        OutlinedTextField(
+                            value = hijriDayEnd,
+                            onValueChange = { hijriDayEnd = it },
+                            label = { Text(stringResource(R.string.hijri_day_to)) },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    CollectionDayMode.ITEM_HIJRI -> {
+                        Text(
+                            stringResource(R.string.azkar_blessed_days_schedule_hint),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = GreenPrimary,
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
+                    }
+                }
             }
             if (error) {
                 Text(
@@ -429,7 +619,12 @@ fun AdminEditAzkarCollectionScreen(
                                 autoPlayAllowed = autoPlayAllowed,
                                 autoPlayEnabled = autoPlayAllowed && autoPlay,
                                 scheduleHour = hour.toInt(),
-                                scheduleMinute = minute.toInt()
+                                scheduleMinute = minute.toInt(),
+                                weekDaysMask = weekMask,
+                                dayMode = dayMode,
+                                hijriMonth = hijriMonth.toIntOrNull() ?: -1,
+                                hijriDayStart = hijriDayStart.toIntOrNull() ?: -1,
+                                hijriDayEnd = hijriDayEnd.toIntOrNull() ?: -1,
                             )
                         )
                     },

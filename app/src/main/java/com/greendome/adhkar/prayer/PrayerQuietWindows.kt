@@ -5,6 +5,8 @@ import java.util.Calendar
 import java.util.TimeZone
 
 object PrayerQuietWindows {
+    const val AFTER_PRAYER_TASBIH_GRACE_MS = 30_000L
+
     fun windowsAround(
         config: PrayerConfig,
         atMillis: Long = System.currentTimeMillis()
@@ -68,16 +70,40 @@ object PrayerQuietWindows {
     fun nextAfterPrayerTriggerAt(
         config: PrayerConfig,
         fromMillis: Long = System.currentTimeMillis()
-    ): Long? {
-        if (!config.enabled || !config.afterPrayerReminder || !config.hasLocation) return null
+    ): Long? = afterPrayerTriggersAround(config, fromMillis)
+        .filter { it > fromMillis }
+        .minOrNull()
+
+    /**
+     * موعد التسبيح في نفس دقيقة أذكار ما بعد الصلاة، أو خلال مهلة قصيرة بعدها.
+     * يمنع انطلاق التسبيحة مع ذكر ما بعد الصلاة بعد انتهاء احترام الصلاة.
+     */
+    fun collidesWithAfterPrayer(
+        config: PrayerConfig,
+        triggerAt: Long,
+        graceAfterMs: Long = AFTER_PRAYER_TASBIH_GRACE_MS
+    ): Boolean {
+        val zoneId = PrayerTimesCalculator.zoneId(config)
+        val triggerLocal = Instant.ofEpochMilli(triggerAt).atZone(zoneId)
+        return afterPrayerTriggersAround(config, triggerAt).any { afterAt ->
+            if (triggerAt in afterAt..(afterAt + graceAfterMs)) return@any true
+            val afterLocal = Instant.ofEpochMilli(afterAt).atZone(zoneId)
+            triggerLocal.toLocalDate() == afterLocal.toLocalDate() &&
+                triggerLocal.hour == afterLocal.hour &&
+                triggerLocal.minute == afterLocal.minute
+        }
+    }
+
+    private fun afterPrayerTriggersAround(config: PrayerConfig, atMillis: Long): List<Long> {
+        if (!config.enabled || !config.afterPrayerReminder || !config.hasLocation) return emptyList()
         val zone = TimeZone.getTimeZone(PrayerTimesCalculator.zoneId(config))
-        return PrayerTimesCalculator.timesAround(config, fromMillis).flatMap { day ->
+        return PrayerTimesCalculator.timesAround(config, atMillis).flatMap { day ->
             val cal = Calendar.getInstance(zone).apply { timeInMillis = day.dayStartMillis }
             val friday = cal.get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY
             day.prayers.map { instant ->
                 instant.epochMillis + config.afterPrayerDelay(instant.prayer, friday) * 60_000L
             }
-        }.filter { it > fromMillis }.minOrNull()
+        }
     }
 }
 

@@ -27,6 +27,7 @@ fun DisplayAppearanceSettingsScreen(
     onArabicFontChanged: () -> Unit,
     onThemeModeChanged: () -> Unit,
     onNumberDigitStyleChanged: (NumberDigitStyle) -> Unit,
+    onOpenHomeLayout: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -46,6 +47,13 @@ fun DisplayAppearanceSettingsScreen(
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            item {
+                SettingsNavCard(
+                    title = stringResource(R.string.home_layout_customize),
+                    subtitle = stringResource(R.string.settings_home_layout_subtitle),
+                    onClick = onOpenHomeLayout
+                )
+            }
             item {
                 SectionTitle(
                     title = stringResource(R.string.reading_theme_section),

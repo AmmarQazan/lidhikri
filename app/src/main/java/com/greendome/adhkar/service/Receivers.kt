@@ -6,6 +6,7 @@ import android.content.Intent
 import com.greendome.adhkar.data.SettingsRepository
 import com.greendome.adhkar.prayer.PrayerRespectGate
 import com.greendome.adhkar.widget.DhikrOfDayManager
+import com.greendome.adhkar.widget.PrayerTimesWidgetManager
 
 class AlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent?) {
@@ -45,6 +46,10 @@ class BootReceiver : BroadcastReceiver() {
             )
         }
         AfterPrayerAlarmScheduler.reschedule(context)
+        AdhanAlarmScheduler.reschedule(context)
+        HomeGeofenceScheduler.register(context)
+        VehicleActivityScheduler.register(context)
         DhikrOfDayManager.refreshAsync(context)
+        PrayerTimesWidgetManager.updateAll(context)
     }
 }

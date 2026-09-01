@@ -10,6 +10,8 @@ import android.telephony.TelephonyCallback
 import android.telephony.TelephonyManager
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
+import androidx.media3.common.AudioAttributes
+import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
@@ -83,7 +85,7 @@ class DhikrAudioPlayer(private val context: Context) {
         onComplete: () -> Unit = {}
     ) {
         stop()
-        if (DeviceAudioGate.shouldSuppressPlayback(context, settings)) {
+        if (DeviceAudioGate.shouldSuppressPlayback(context, settings, userInitiated = true)) {
             onComplete()
             return
         }
@@ -120,7 +122,7 @@ class DhikrAudioPlayer(private val context: Context) {
         onComplete: () -> Unit = {}
     ) {
         stop()
-        if (DeviceAudioGate.shouldSuppressPlayback(context, settings)) {
+        if (DeviceAudioGate.shouldSuppressPlayback(context, settings, userInitiated = true)) {
             onComplete()
             return
         }
@@ -155,7 +157,7 @@ class DhikrAudioPlayer(private val context: Context) {
             onComplete()
             return
         }
-        if (DeviceAudioGate.shouldSuppressPlayback(context, settings)) {
+        if (DeviceAudioGate.shouldSuppressPlayback(context, settings, userInitiated = true)) {
             onComplete()
             return
         }
@@ -190,6 +192,50 @@ class DhikrAudioPlayer(private val context: Context) {
             }
         })
         markItemStarted(0)
+        startFlipMonitorIfEnabled(settings)
+        player.prepare()
+        player.play()
+    }
+
+    fun playAdhan(
+        pathOrUri: String,
+        settings: SettingsRepository,
+        overrideSilent: Boolean,
+        onComplete: () -> Unit = {},
+    ) {
+        stop()
+        if (settings.pauseDuringCalls && DeviceAudioGate.isCallOrCommunicationActive(context)) {
+            onComplete()
+            return
+        }
+        if (!overrideSilent && DeviceAudioGate.shouldSuppressQuietMode(context, settings)) {
+            onComplete()
+            return
+        }
+        val attrs = AudioAttributes.Builder()
+            .setUsage(C.USAGE_ALARM)
+            .setContentType(C.AUDIO_CONTENT_TYPE_SONIFICATION)
+            .build()
+        val player = ExoPlayer.Builder(context).build().also { player = it }
+        val uri = when {
+            pathOrUri.startsWith("content:") ||
+                pathOrUri.startsWith("file:") ||
+                pathOrUri.startsWith("asset:") ||
+                pathOrUri.startsWith("http://") ||
+                pathOrUri.startsWith("https://") -> Uri.parse(pathOrUri)
+            else -> Uri.fromFile(File(pathOrUri))
+        }
+        player.setAudioAttributes(attrs, false)
+        player.setMediaItem(MediaItem.fromUri(uri))
+        player.volume = 1f
+        player.addListener(object : Player.Listener {
+            override fun onPlaybackStateChanged(state: Int) {
+                if (state == Player.STATE_ENDED) {
+                    stopFlipMonitor()
+                    onComplete()
+                }
+            }
+        })
         startFlipMonitorIfEnabled(settings)
         player.prepare()
         player.play()

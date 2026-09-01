@@ -8,6 +8,7 @@ import android.os.Build
 import com.greendome.adhkar.data.SettingsRepository
 import com.greendome.adhkar.data.local.AdhkarCollectionEntity
 import com.greendome.adhkar.data.local.AdhkarDatabase
+import com.greendome.adhkar.prayer.PrayerQuietWindows
 import com.greendome.adhkar.prayer.PrayerRespectGate
 import com.greendome.adhkar.util.CollectionScheduleHelper
 import com.greendome.adhkar.util.TasbihWindow
@@ -59,7 +60,7 @@ object ReminderScheduler {
         }
     }
 
-    /** يتخطى فترات التسبيح التي تتزامن مع موعد ذكر تلقائي، ويحصر المواعيد داخل نافذة اليوم */
+    /** يتخطى فترات التسبيح التي تتزامن مع ذكر تلقائي أو أذكار ما بعد الصلاة */
     private fun nextTasbihTriggerAt(
         context: Context,
         fromMillis: Long,
@@ -68,12 +69,18 @@ object ReminderScheduler {
         val settings = SettingsRepository(context)
         val intervalMs = settings.intervalMinutes.coerceAtLeast(1) * 60_000L
         val window = TasbihWindow.from(settings)
+        val prayerConfig = settings.prayerConfig()
         var triggerAt = window.nextTriggerAfter(fromMillis, intervalMs)
         val maxSlots = (24 * 60 * 60 * 1000L / intervalMs).toInt().coerceAtMost(2000)
         repeat(maxSlots) {
             triggerAt = PrayerRespectGate.delayPastQuiet(context, triggerAt)
             val cal = Calendar.getInstance().apply { timeInMillis = triggerAt }
-            if (!CollectionScheduleHelper.isAnyDueAt(azkarCollections, cal)) return triggerAt
+            val blockedByAzkar = CollectionScheduleHelper.isAnyDueAt(azkarCollections, cal)
+            val blockedByAfterPrayer = PrayerQuietWindows.collidesWithAfterPrayer(
+                prayerConfig,
+                triggerAt
+            )
+            if (!blockedByAzkar && !blockedByAfterPrayer) return triggerAt
             triggerAt = window.nextTriggerAfter(triggerAt, intervalMs)
         }
         return triggerAt

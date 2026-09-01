@@ -34,6 +34,38 @@ enum class AsrMadhabPref {
     AUTO, SHAFI, HANAFI
 }
 
+enum class AdhanSoundMode {
+    DEFAULT, SHORT, SILENT, CUSTOM, CATALOG, RECORDED
+}
+
+enum class AdhanEventKind {
+    PRE, ADHAN, IQAMA
+}
+
+data class PrayerAlertSettings(
+    val adhanEnabled: Boolean = true,
+    val soundMode: AdhanSoundMode = AdhanSoundMode.DEFAULT,
+    val customPath: String = "",
+    val catalogId: Long = 0L,
+    val notifyBeforeMinutes: Int = 0,
+    val iqamaMinutes: Int = 0,
+    val afterAdhanAzkar: Boolean = true,
+    val overrideSilent: Boolean = false,
+) {
+    fun resolvedSoundMode(): AdhanSoundMode = when {
+        soundMode == AdhanSoundMode.CUSTOM && customPath.isBlank() -> AdhanSoundMode.DEFAULT
+        soundMode == AdhanSoundMode.RECORDED && customPath.isBlank() -> AdhanSoundMode.DEFAULT
+        soundMode == AdhanSoundMode.CATALOG && catalogId <= 0L -> AdhanSoundMode.DEFAULT
+        else -> soundMode
+    }
+}
+
+data class AdhanEvent(
+    val prayer: PrayerName,
+    val kind: AdhanEventKind,
+    val atMillis: Long,
+)
+
 data class PrayerLocation(
     val latitude: Double,
     val longitude: Double,
@@ -61,9 +93,18 @@ data class PrayerConfig(
     val quietMinutes: Map<PrayerName, Int>,
     val jumuahQuietMinutes: Int,
     val afterPrayerMinutes: Map<PrayerName, Int> = emptyMap(),
-    val jumuahAfterPrayerMinutes: Int = DEFAULT_JUMUAH_QUIET
+    val jumuahAfterPrayerMinutes: Int = DEFAULT_JUMUAH_QUIET,
+    val timesEnabled: Boolean = true,
+    val adhanEnabled: Boolean = true,
+    val imsakOffsetMinutes: Int = DEFAULT_IMSAK,
+    val alerts: Map<PrayerName, PrayerAlertSettings> = emptyMap(),
 ) {
     val hasLocation: Boolean get() = location?.isValid == true
+    val hasTimes: Boolean get() = timesEnabled && hasLocation
+    val adhanActive: Boolean get() = adhanEnabled && hasTimes
+
+    fun alert(prayer: PrayerName): PrayerAlertSettings =
+        alerts[prayer] ?: PrayerAlertSettings(overrideSilent = prayer == PrayerName.FAJR)
 
     fun offset(prayer: PrayerName): Int = minuteOffsets[prayer] ?: 0
 
@@ -88,8 +129,17 @@ data class PrayerConfig(
         const val QUIET_MIN = 5
         const val QUIET_MAX = 120
         const val DEFAULT_JUMUAH_QUIET = 55
+        const val DEFAULT_IMSAK = 10
+        const val IMSAK_MIN = 5
+        const val IMSAK_MAX = 30
+        const val PRE_ADHAN_MAX = 60
+        const val IQAMA_MAX = 60
         const val TRAVEL_DISTANCE_METERS = 50_000f
         const val TRAVEL_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000L
+
+        fun defaultAlert(prayer: PrayerName) = PrayerAlertSettings(
+            overrideSilent = prayer == PrayerName.FAJR
+        )
 
         fun defaultQuietMinutes(prayer: PrayerName): Int = when (prayer) {
             PrayerName.FAJR -> 55
@@ -112,7 +162,9 @@ data class PrayerConfig(
             madhab = AsrMadhabPref.AUTO,
             minuteOffsets = emptyMap(),
             quietMinutes = emptyMap(),
-            jumuahQuietMinutes = DEFAULT_JUMUAH_QUIET
+            jumuahQuietMinutes = DEFAULT_JUMUAH_QUIET,
+            timesEnabled = true,
+            adhanEnabled = true,
         )
     }
 }
@@ -132,7 +184,12 @@ data class QuietWindow(
 
 data class DailyPrayerTimes(
     val dayStartMillis: Long,
-    val prayers: List<PrayerInstant>
+    val prayers: List<PrayerInstant>,
+    val sunriseMillis: Long? = null,
+    val imsakMillis: Long? = null,
 ) {
     fun timeOf(prayer: PrayerName): Long? = prayers.firstOrNull { it.prayer == prayer }?.epochMillis
+
+    fun nextPrayer(fromMillis: Long): PrayerInstant? =
+        prayers.filter { it.epochMillis > fromMillis }.minByOrNull { it.epochMillis }
 }

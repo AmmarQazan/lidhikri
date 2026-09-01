@@ -28,7 +28,8 @@ import com.greendome.adhkar.data.model.NumberDigitStyle
 import com.greendome.adhkar.ui.theme.stringResourceDigits
 
 private enum class SettingsDestination {
-    HUB, AUTO_TASBIH, PRAYER_RESPECT, AUTO_AZKAR, DISPLAY, APP_GENERAL, MISBAHA, WIDGETS, DHIKR_OF_DAY, MISBAHA_WIDGET, VERSION
+    HUB, AUTO_TASBIH, PRAYER_HUB, PRAYER_TIMES, PRAYER_ADHAN, PRAYER_RESPECT, PRAYER_QIBLA,
+    AUTO_AZKAR, HOME_AZKAR, HOME_LAYOUT, DISPLAY, APP_GENERAL, MISBAHA, WIDGETS, DHIKR_OF_DAY, MISBAHA_WIDGET, VERSION
 }
 
 @Composable
@@ -51,28 +52,73 @@ fun SettingsScreen(
     onNumberDigitStyleChanged: (NumberDigitStyle) -> Unit = {},
     openPrayerRespect: Boolean = false,
     onOpenPrayerRespectConsumed: () -> Unit = {},
+    openHomeAzkar: Boolean = false,
+    onOpenHomeAzkarConsumed: () -> Unit = {},
+    openAdhan: Boolean = false,
+    onOpenAdhanConsumed: () -> Unit = {},
+    openHomeLayout: Boolean = false,
+    onOpenHomeLayoutConsumed: () -> Unit = {},
+    returnToHomeOnHubBack: Boolean = false,
+    onReturnHome: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     var destination by remember { mutableStateOf(SettingsDestination.HUB) }
-    var prayerRespectBack by remember { mutableStateOf(SettingsDestination.APP_GENERAL) }
+    var prayerRespectBack by remember { mutableStateOf(SettingsDestination.PRAYER_HUB) }
+    var homeAzkarBack by remember { mutableStateOf(SettingsDestination.AUTO_AZKAR) }
+    var adhanBack by remember { mutableStateOf(SettingsDestination.PRAYER_HUB) }
+    var homeLayoutBack by remember { mutableStateOf(SettingsDestination.DISPLAY) }
     LaunchedEffect(openPrayerRespect) {
         if (openPrayerRespect) {
-            prayerRespectBack = SettingsDestination.APP_GENERAL
-            destination = SettingsDestination.PRAYER_RESPECT
+            prayerRespectBack = SettingsDestination.HUB
+            destination = SettingsDestination.PRAYER_HUB
             onOpenPrayerRespectConsumed()
+        }
+    }
+    LaunchedEffect(openHomeAzkar) {
+        if (openHomeAzkar) {
+            homeAzkarBack = SettingsDestination.HUB
+            destination = SettingsDestination.HOME_AZKAR
+            onOpenHomeAzkarConsumed()
+        }
+    }
+    LaunchedEffect(openAdhan) {
+        if (openAdhan) {
+            adhanBack = SettingsDestination.HUB
+            destination = SettingsDestination.PRAYER_ADHAN
+            onOpenAdhanConsumed()
+        }
+    }
+    LaunchedEffect(openHomeLayout) {
+        if (openHomeLayout) {
+            homeLayoutBack = SettingsDestination.HUB
+            destination = SettingsDestination.HOME_LAYOUT
+            onOpenHomeLayoutConsumed()
         }
     }
 
     val backTarget = when (destination) {
         SettingsDestination.HUB -> null
-        SettingsDestination.PRAYER_RESPECT -> prayerRespectBack
+        SettingsDestination.PRAYER_HUB -> SettingsDestination.HUB
+        SettingsDestination.PRAYER_TIMES,
+        SettingsDestination.PRAYER_RESPECT,
+        SettingsDestination.PRAYER_QIBLA -> SettingsDestination.PRAYER_HUB
+        SettingsDestination.PRAYER_ADHAN -> adhanBack
+        SettingsDestination.HOME_AZKAR -> homeAzkarBack
+        SettingsDestination.HOME_LAYOUT -> homeLayoutBack
         SettingsDestination.DHIKR_OF_DAY,
         SettingsDestination.MISBAHA_WIDGET -> SettingsDestination.WIDGETS
         else -> SettingsDestination.HUB
     }
+    fun navigateBack(target: SettingsDestination) {
+        if (returnToHomeOnHubBack && target == SettingsDestination.HUB) {
+            onReturnHome()
+        } else {
+            destination = target
+        }
+    }
     if (backTarget != null) {
-        BackHandler { destination = backTarget }
+        BackHandler { navigateBack(backTarget) }
     }
 
     when (destination) {
@@ -80,6 +126,7 @@ fun SettingsScreen(
             settings = settings,
             onOpenAutoTasbih = { destination = SettingsDestination.AUTO_TASBIH },
             onOpenAutoAzkar = { destination = SettingsDestination.AUTO_AZKAR },
+            onOpenPrayer = { destination = SettingsDestination.PRAYER_HUB },
             onOpenDisplay = { destination = SettingsDestination.DISPLAY },
             onOpenAppGeneral = { destination = SettingsDestination.APP_GENERAL },
             onOpenMisbaha = { destination = SettingsDestination.MISBAHA },
@@ -94,12 +141,39 @@ fun SettingsScreen(
             isServiceOn = isServiceOn,
             onToggleService = onToggleService,
             onPreviewVoice = onPreviewVoice,
-            onBack = { destination = SettingsDestination.HUB },
+            onBack = { navigateBack(SettingsDestination.HUB) },
+            modifier = modifier
+        )
+        SettingsDestination.PRAYER_HUB -> PrayerSettingsHubScreen(
+            settings = settings,
+            onOpenTimes = { destination = SettingsDestination.PRAYER_TIMES },
+            onOpenAdhan = {
+                adhanBack = SettingsDestination.PRAYER_HUB
+                destination = SettingsDestination.PRAYER_ADHAN
+            },
+            onOpenRespect = { destination = SettingsDestination.PRAYER_RESPECT },
+            onOpenQibla = { destination = SettingsDestination.PRAYER_QIBLA },
+            onBack = { navigateBack(SettingsDestination.HUB) },
+            modifier = modifier
+        )
+        SettingsDestination.PRAYER_TIMES -> PrayerTimesSettingsScreen(
+            settings = settings,
+            onBack = { destination = SettingsDestination.PRAYER_HUB },
+            modifier = modifier
+        )
+        SettingsDestination.PRAYER_ADHAN -> AdhanSettingsScreen(
+            settings = settings,
+            onBack = { navigateBack(adhanBack) },
+            modifier = modifier
+        )
+        SettingsDestination.PRAYER_QIBLA -> QiblaSettingsScreen(
+            settings = settings,
+            onBack = { destination = SettingsDestination.PRAYER_HUB },
             modifier = modifier
         )
         SettingsDestination.PRAYER_RESPECT -> PrayerRespectSettingsScreen(
             settings = settings,
-            onBack = { destination = prayerRespectBack },
+            onBack = { destination = SettingsDestination.PRAYER_HUB },
             modifier = modifier
         )
         SettingsDestination.AUTO_AZKAR -> AutoAzkarSettingsScreen(
@@ -111,7 +185,17 @@ fun SettingsScreen(
             onToggleAutoAzkar = onToggleAutoAzkar,
             onAutoAzkarRandomChange = onAutoAzkarRandomChange,
             onPreviewVoice = onPreviewAzkarVoice,
-            onBack = { destination = SettingsDestination.HUB },
+            onBack = { navigateBack(SettingsDestination.HUB) },
+            modifier = modifier
+        )
+        SettingsDestination.HOME_AZKAR -> HomeAzkarSettingsScreen(
+            settings = settings,
+            onBack = { navigateBack(homeAzkarBack) },
+            modifier = modifier
+        )
+        SettingsDestination.HOME_LAYOUT -> HomeLayoutSettingsScreen(
+            settings = settings,
+            onBack = { navigateBack(homeLayoutBack) },
             modifier = modifier
         )
         SettingsDestination.DISPLAY -> DisplayAppearanceSettingsScreen(
@@ -120,29 +204,29 @@ fun SettingsScreen(
             onArabicFontChanged = onArabicFontChanged,
             onThemeModeChanged = onThemeModeChanged,
             onNumberDigitStyleChanged = onNumberDigitStyleChanged,
-            onBack = { destination = SettingsDestination.HUB },
+            onOpenHomeLayout = {
+                homeLayoutBack = SettingsDestination.DISPLAY
+                destination = SettingsDestination.HOME_LAYOUT
+            },
+            onBack = { navigateBack(SettingsDestination.HUB) },
             modifier = modifier
         )
-        SettingsDestination.APP_GENERAL -> AppGeneralSettingsScreen(
+        SettingsDestination.APP_GENERAL ->         AppGeneralSettingsScreen(
             settings = settings,
             onLanguageChanged = onLanguageChanged,
-            onOpenPrayerRespect = {
-                prayerRespectBack = SettingsDestination.APP_GENERAL
-                destination = SettingsDestination.PRAYER_RESPECT
-            },
-            onBack = { destination = SettingsDestination.HUB },
+            onBack = { navigateBack(SettingsDestination.HUB) },
             modifier = modifier
         )
         SettingsDestination.MISBAHA -> MisbahaSettingsScreen(
             settings = settings,
-            onBack = { destination = SettingsDestination.HUB },
+            onBack = { navigateBack(SettingsDestination.HUB) },
             modifier = modifier
         )
         SettingsDestination.WIDGETS -> WidgetsSettingsScreen(
             settings = settings,
             onOpenDhikrOfDay = { destination = SettingsDestination.DHIKR_OF_DAY },
             onOpenMisbahaWidget = { destination = SettingsDestination.MISBAHA_WIDGET },
-            onBack = { destination = SettingsDestination.HUB },
+            onBack = { navigateBack(SettingsDestination.HUB) },
             modifier = modifier
         )
         SettingsDestination.DHIKR_OF_DAY -> DhikrOfDaySettingsScreen(
@@ -158,7 +242,7 @@ fun SettingsScreen(
         SettingsDestination.VERSION -> VersionInfoScreen(
             settings = settings,
             lang = lang,
-            onBack = { destination = SettingsDestination.HUB },
+            onBack = { navigateBack(SettingsDestination.HUB) },
             onSyncContent = {
                 RemoteContentSync.syncIfNeeded(
                     context,
@@ -177,6 +261,7 @@ private fun SettingsHubScreen(
     settings: SettingsRepository,
     onOpenAutoTasbih: () -> Unit,
     onOpenAutoAzkar: () -> Unit,
+    onOpenPrayer: () -> Unit,
     onOpenDisplay: () -> Unit,
     onOpenAppGeneral: () -> Unit,
     onOpenMisbaha: () -> Unit,
@@ -213,6 +298,13 @@ private fun SettingsHubScreen(
                     title = stringResource(R.string.settings_auto_azkar_title),
                     subtitle = stringResource(R.string.settings_auto_azkar_subtitle),
                     onClick = onOpenAutoAzkar
+                )
+            }
+            item {
+                SettingsNavCard(
+                    title = stringResource(R.string.settings_prayer_title),
+                    subtitle = stringResource(R.string.settings_prayer_subtitle),
+                    onClick = onOpenPrayer
                 )
             }
             item {

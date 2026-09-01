@@ -57,7 +57,7 @@ class AzkarTtsPlayer(
     fun speakAll(texts: List<String>, onDone: () -> Unit = {}) {
         stop()
         if (texts.isEmpty()) return
-        if (DeviceAudioGate.shouldSuppressPlayback(appContext, settingsProvider())) {
+        if (DeviceAudioGate.shouldSuppressPlayback(appContext, settingsProvider(), userInitiated = true)) {
             onDone()
             return
         }

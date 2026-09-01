@@ -6,6 +6,7 @@ import com.greendome.adhkar.prayer.PrayerCountryDefaults
 import com.greendome.adhkar.prayer.PrayerDefaultsTable
 import com.greendome.adhkar.service.AdhkarReminderService
 import com.greendome.adhkar.service.AfterPrayerAlarmScheduler
+import com.greendome.adhkar.service.NextAdhanService
 import com.greendome.adhkar.service.ReminderScheduler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -66,6 +67,7 @@ object PrayerDefaultsSync {
                 ReminderScheduler.scheduleNext(context)
                 AdhkarReminderService.refreshNotification(context)
             }
+            NextAdhanService.sync(context)
         }
     }
 

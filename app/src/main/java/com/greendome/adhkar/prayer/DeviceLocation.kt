@@ -14,6 +14,12 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 
 object DeviceLocation {
+    fun hasFinePermission(context: Context): Boolean =
+        ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
     fun hasPermission(context: Context): Boolean {
         val coarse = ContextCompat.checkSelfPermission(
             context,

@@ -21,11 +21,13 @@ class PrayerTimesCalculatorTest {
         dst: DstMode = DstMode.AUTO,
         offsets: Map<PrayerName, Int> = emptyMap(),
         quiet: Map<PrayerName, Int> = emptyMap(),
+        afterPrayer: Map<PrayerName, Int> = emptyMap(),
         jumuah: Int = 75,
-        enabled: Boolean = true
+        enabled: Boolean = true,
+        afterPrayerReminder: Boolean = true
     ) = PrayerConfig(
         enabled = enabled,
-        afterPrayerReminder = true,
+        afterPrayerReminder = afterPrayerReminder,
         location = riyadh,
         locationMode = LocationMode.MANUAL,
         travelAutoUpdate = false,
@@ -36,7 +38,8 @@ class PrayerTimesCalculatorTest {
         madhab = AsrMadhabPref.SHAFI,
         minuteOffsets = offsets,
         quietMinutes = quiet,
-        jumuahQuietMinutes = jumuah
+        jumuahQuietMinutes = jumuah,
+        afterPrayerMinutes = afterPrayer
     )
 
     @Test
@@ -91,6 +94,63 @@ class PrayerTimesCalculatorTest {
         val asr = PrayerTimesCalculator.timesFor(cfg, noon)!!.timeOf(PrayerName.ASR)!!
         val delayed = PrayerQuietWindows.delayPastQuiet(cfg, asr + 60_000L)
         assertEquals(asr + 25 * 60_000L + 1_000L, delayed)
+    }
+
+    @Test
+    fun tasbihAtQuietEndCollidesWhenAfterPrayerDelayMatchesQuiet() {
+        val noon = Instant.parse("2026-06-15T09:00:00Z").toEpochMilli()
+        val cfg = config(quiet = mapOf(PrayerName.DHUHR to 30))
+        val dhuhr = PrayerTimesCalculator.timesFor(cfg, noon)!!.timeOf(PrayerName.DHUHR)!!
+        val delayed = PrayerQuietWindows.delayPastQuiet(cfg, dhuhr + 60_000L)
+        assertTrue(PrayerQuietWindows.collidesWithAfterPrayer(cfg, delayed))
+        assertFalse(PrayerQuietWindows.collidesWithAfterPrayer(cfg, delayed + 5 * 60_000L))
+    }
+
+    @Test
+    fun tasbihCollidesInSameMinuteAndGraceAfterAfterPrayer() {
+        val noon = Instant.parse("2026-06-15T09:00:00Z").toEpochMilli()
+        val cfg = config(
+            quiet = mapOf(PrayerName.ASR to 25),
+            afterPrayer = mapOf(PrayerName.ASR to 25)
+        )
+        val asr = PrayerTimesCalculator.timesFor(cfg, noon)!!.timeOf(PrayerName.ASR)!!
+        val afterAt = asr + 25 * 60_000L
+        val zone = ZoneId.of("Asia/Riyadh")
+        val minuteStart = Instant.ofEpochMilli(afterAt).atZone(zone)
+            .withSecond(0)
+            .withNano(0)
+            .toInstant()
+            .toEpochMilli()
+        assertTrue(PrayerQuietWindows.collidesWithAfterPrayer(cfg, afterAt))
+        assertTrue(PrayerQuietWindows.collidesWithAfterPrayer(cfg, minuteStart))
+        assertTrue(PrayerQuietWindows.collidesWithAfterPrayer(cfg, afterAt + 20_000L))
+        assertFalse(PrayerQuietWindows.collidesWithAfterPrayer(cfg, afterAt + 90_000L))
+    }
+
+    @Test
+    fun tasbihAtQuietEndDoesNotCollideWhenAfterPrayerIsLater() {
+        val noon = Instant.parse("2026-06-15T09:00:00Z").toEpochMilli()
+        val cfg = config(
+            quiet = mapOf(PrayerName.DHUHR to 20),
+            afterPrayer = mapOf(PrayerName.DHUHR to 45)
+        )
+        val dhuhr = PrayerTimesCalculator.timesFor(cfg, noon)!!.timeOf(PrayerName.DHUHR)!!
+        val delayed = PrayerQuietWindows.delayPastQuiet(cfg, dhuhr + 60_000L)
+        assertFalse(PrayerQuietWindows.collidesWithAfterPrayer(cfg, delayed))
+        val afterAt = dhuhr + 45 * 60_000L
+        assertTrue(PrayerQuietWindows.collidesWithAfterPrayer(cfg, afterAt + 1_000L))
+    }
+
+    @Test
+    fun afterPrayerCollisionDisabledWhenReminderOff() {
+        val noon = Instant.parse("2026-06-15T09:00:00Z").toEpochMilli()
+        val cfg = config(
+            quiet = mapOf(PrayerName.DHUHR to 30),
+            afterPrayerReminder = false
+        )
+        val dhuhr = PrayerTimesCalculator.timesFor(cfg, noon)!!.timeOf(PrayerName.DHUHR)!!
+        val delayed = PrayerQuietWindows.delayPastQuiet(cfg, dhuhr + 60_000L)
+        assertFalse(PrayerQuietWindows.collidesWithAfterPrayer(cfg, delayed))
     }
 
     @Test
