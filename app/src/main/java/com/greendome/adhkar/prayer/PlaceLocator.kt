@@ -39,9 +39,12 @@ object PlaceLocator {
     }
 
     suspend fun reverse(context: Context, latitude: Double, longitude: Double): PrayerLocation {
-        val fromGeo = reverseGeocode(context, latitude, longitude)
-        if (fromGeo != null) return fromGeo
+        val fromGeo = withTimeoutOrNull(3_500) { reverseGeocode(context, latitude, longitude) }
+        if (fromGeo != null) {
+            return fromGeo.copy(latitude = latitude, longitude = longitude)
+        }
         return CityLocator.reverse(context, latitude, longitude)
+            .copy(latitude = latitude, longitude = longitude)
     }
 
     private suspend fun searchPhoton(query: String, near: Location?): List<PrayerLocation> =

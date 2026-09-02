@@ -439,9 +439,9 @@
     <string name="onboarding_azkar_after_prayer_needs_prayer">Namaz vakitleri gerekir — önceki adımda veya sonra ayarlardan açın</string>
     <string name="onboarding_azkar_after_adhan_hint">Ezan bitince vesile duası</string>
     <string name="onboarding_azkar_home_hint">Ev konumunu kullanır — varışta rastgele bir zikir, çıkışta başka biri</string>
-    <string name="onboarding_azkar_home_needs_location">Konum gerekir — aşağıdan ev adresini seçin</string>
+    <string name="onboarding_azkar_home_needs_location">Konum gerekir — aşağıdan “Evdeyim”e dokunun</string>
     <string name="onboarding_home_address_required_title">Ev adresi gerekli</string>
-    <string name="onboarding_home_address_required_message">Eve giriş-çıkış zikirleri açık ama adres yok. Aşağıdan ev adresini seçin veya bu bölümü kapatıp devam edin.</string>
+    <string name="onboarding_home_address_required_message">Eve giriş-çıkış zikirleri açık ama adres yok. Aşağıdan mevcut konumu kullanın veya bu bölümü kapatıp devam edin.</string>
     <string name="onboarding_azkar_riding_hint">Araç hareketini kullanır — yolculuk başınca bir zikir</string>
     <string name="onboarding_azkar_friday_hint">Sadece Cuma — sabah Kehf, Cuma namazından önce salavat, ikindiden sonraki son saatte dua</string>
     <string name="onboarding_azkar_blessed_days_hint">Hicri günlerinde çalışır: Ramazan’ın son onu, Arefe ve Zilhicce’nin on günü</string>

@@ -421,9 +421,9 @@
     <string name="onboarding_azkar_after_prayer_needs_prayer">Necesita los horarios de oración — actívalos en el paso anterior o luego en ajustes</string>
     <string name="onboarding_azkar_after_adhan_hint">La súplica de la wasila al terminar el adhan</string>
     <string name="onboarding_azkar_home_hint">Usa la dirección de casa — un dhikr al azar al llegar, otro al salir</string>
-    <string name="onboarding_azkar_home_needs_location">Necesita ubicación — elige la dirección de casa abajo</string>
+    <string name="onboarding_azkar_home_needs_location">Necesita ubicación — toca “Estoy en casa” abajo</string>
     <string name="onboarding_home_address_required_title">Dirección de casa requerida</string>
-    <string name="onboarding_home_address_required_message">Los adhkar de entrar y salir de casa están activos sin dirección. Elige la dirección abajo, o desactiva esa sección, y continúa.</string>
+    <string name="onboarding_home_address_required_message">Los adhkar de entrar y salir de casa están activos sin dirección. Usa tu ubicación actual abajo, o desactiva esa sección, y continúa.</string>
     <string name="onboarding_azkar_riding_hint">Usa el movimiento del vehículo — un dhikr al empezar el viaje</string>
     <string name="onboarding_azkar_friday_hint">Solo viernes — Kahf por la mañana, salutaciones al Profeta antes del Jumuah, dua en la última hora después del Asr</string>
     <string name="onboarding_azkar_blessed_days_hint">Se activa en sus fechas hijri: últimos diez de Ramadán, Arafat y diez días de Dul Hiyya</string>

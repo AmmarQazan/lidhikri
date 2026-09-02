@@ -439,9 +439,9 @@
     <string name="onboarding_azkar_after_prayer_needs_prayer">Perlu waktu shalat — aktifkan di langkah sebelumnya atau nanti di pengaturan</string>
     <string name="onboarding_azkar_after_adhan_hint">Doa wasilah saat adzan selesai</string>
     <string name="onboarding_azkar_home_hint">Memakai lokasi rumah — satu zikir acak saat tiba, satu lagi saat pergi</string>
-    <string name="onboarding_azkar_home_needs_location">Perlu lokasi — pilih alamat rumah di bawah</string>
+    <string name="onboarding_azkar_home_needs_location">Perlu lokasi — ketuk “Saya di rumah” di bawah</string>
     <string name="onboarding_home_address_required_title">Alamat rumah diperlukan</string>
-    <string name="onboarding_home_address_required_message">Zikir masuk dan keluar rumah aktif tanpa alamat. Pilih alamat di bawah, atau matikan bagian itu, lalu lanjut.</string>
+    <string name="onboarding_home_address_required_message">Zikir masuk dan keluar rumah aktif tanpa alamat. Gunakan lokasi saat ini di bawah, atau matikan bagian itu, lalu lanjut.</string>
     <string name="onboarding_azkar_riding_hint">Memakai gerakan kendaraan — satu zikir saat perjalanan mulai</string>
     <string name="onboarding_azkar_friday_hint">Hanya Jumat — Kahf pagi, salawat sebelum Jumuah, doa di jam terakhir setelah Asar</string>
     <string name="onboarding_azkar_blessed_days_hint">Berjalan pada tanggal hijriah: sepuluh terakhir Ramadan, Arafah, dan sepuluh Zulhijah</string>

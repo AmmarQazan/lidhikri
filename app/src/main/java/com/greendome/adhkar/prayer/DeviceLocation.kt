@@ -45,15 +45,24 @@ object DeviceLocation {
         }.maxByOrNull { it.time }
     }
 
-    suspend fun requestCurrent(context: Context, timeoutMs: Long = 12_000L): Location? {
+    suspend fun requestCurrent(
+        context: Context,
+        timeoutMs: Long = 12_000L,
+        maxAgeMs: Long = 15 * 60_000L,
+        preferGps: Boolean = false,
+    ): Location? {
         if (!hasPermission(context)) return null
-        lastKnown(context)?.takeIf { System.currentTimeMillis() - it.time < 15 * 60_000L }?.let {
-            return it
+        if (maxAgeMs > 0L) {
+            lastKnown(context)?.takeIf { System.currentTimeMillis() - it.time < maxAgeMs }?.let {
+                return it
+            }
         }
         val manager = context.getSystemService(LocationManager::class.java) ?: return lastKnown(context)
+        val gpsReady = manager.isProviderEnabled(LocationManager.GPS_PROVIDER) && hasFinePermission(context)
         val provider = when {
+            preferGps && gpsReady -> LocationManager.GPS_PROVIDER
             manager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) -> LocationManager.NETWORK_PROVIDER
-            manager.isProviderEnabled(LocationManager.GPS_PROVIDER) -> LocationManager.GPS_PROVIDER
+            gpsReady -> LocationManager.GPS_PROVIDER
             else -> return lastKnown(context)
         }
         return suspendCancellableCoroutine { cont ->

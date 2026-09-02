@@ -421,9 +421,9 @@
     <string name="onboarding_azkar_after_prayer_needs_prayer">Nécessite les heures de prière — activez-les à l\'étape précédente ou plus tard dans les réglages</string>
     <string name="onboarding_azkar_after_adhan_hint">L\'invocation de la wasila à la fin de l\'adhan</string>
     <string name="onboarding_azkar_home_hint">Utilise l\'adresse du domicile — un dhikr au hasard à l\'arrivée, un autre au départ</string>
-    <string name="onboarding_azkar_home_needs_location">Nécessite la localisation — choisissez l\'adresse du domicile ci-dessous</string>
+    <string name="onboarding_azkar_home_needs_location">Nécessite la localisation — appuyez sur « Je suis à la maison » ci-dessous</string>
     <string name="onboarding_home_address_required_title">Adresse du domicile requise</string>
-    <string name="onboarding_home_address_required_message">Les adhkar d\'entrée et de sortie du domicile sont activés sans adresse. Choisissez l\'adresse ci-dessous, ou désactivez cette section, puis continuez.</string>
+    <string name="onboarding_home_address_required_message">Les adhkar d\'entrée et de sortie du domicile sont activés sans adresse. Utilisez votre position actuelle ci-dessous, ou désactivez cette section, puis continuez.</string>
     <string name="onboarding_azkar_riding_hint">Utilise le mouvement du véhicule — un dhikr au départ</string>
     <string name="onboarding_azkar_friday_hint">Vendredi seulement — Kahf le matin, prières sur le Prophète avant la Jumuah, invocation à la dernière heure après Asr</string>
     <string name="onboarding_azkar_blessed_days_hint">S’active aux dates hijri : dix dernières de Ramadan, Arafah, et dix jours de Dhul Hijjah</string>

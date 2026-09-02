@@ -439,9 +439,9 @@
     <string name="onboarding_azkar_after_prayer_needs_prayer">نماز کے اوقات درکار ہیں — پچھلے مرحلے یا بعد میں سیٹنگز سے چالو کریں</string>
     <string name="onboarding_azkar_after_adhan_hint">اذان ختم ہونے پر وسیلہ کی دعا</string>
     <string name="onboarding_azkar_home_hint">گھر کا مقام استعمال ہوتا ہے — آمد پر تصادفی ذکر، روانگی پر دوسرا</string>
-    <string name="onboarding_azkar_home_needs_location">مقام درکار ہے — نیچے گھر کا پتہ منتخب کریں</string>
+    <string name="onboarding_azkar_home_needs_location">مقام درکار ہے — نیچے «میں گھر پر ہوں» دبائیں</string>
     <string name="onboarding_home_address_required_title">گھر کا پتہ درکار ہے</string>
-    <string name="onboarding_home_address_required_message">گھر آنے جانے کے اذکار آن ہیں مگر پتہ نہیں۔ نیچے پتہ منتخب کریں، یا یہ قسم بند کر کے آگے بڑھیں۔</string>
+    <string name="onboarding_home_address_required_message">گھر آنے جانے کے اذکار آن ہیں مگر پتہ نہیں۔ نیچے موجودہ مقام استعمال کریں، یا یہ قسم بند کر کے آگے بڑھیں۔</string>
     <string name="onboarding_azkar_riding_hint">گاڑی کی حرکت استعمال ہوتی ہے — سفر شروع ہونے پر ایک ذکر</string>
     <string name="onboarding_azkar_friday_hint">صرف جمعہ — صبح کہف، جمعہ سے پہلے درود، عصر کے بعد آخری گھڑی میں دعا</string>
     <string name="onboarding_azkar_blessed_days_hint">اپنی ہجری تاریخوں پر چلتا ہے: رمضان کی آخری دس، عرفہ، اور ذو الحجہ کے دس دن</string>

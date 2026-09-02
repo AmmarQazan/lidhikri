@@ -439,9 +439,9 @@
     <string name="onboarding_azkar_after_prayer_needs_prayer">नमाज़ के समय चाहिए — पिछले चरण या बाद में सेटिंग में चालू करें</string>
     <string name="onboarding_azkar_after_adhan_hint">अज़ान ख़त्म होने पर वसीला की दुआ</string>
     <string name="onboarding_azkar_home_hint">घर की लोकेशन से — आने पर एक यादृच्छिक ज़िक्र, जाने पर दूसरा</string>
-    <string name="onboarding_azkar_home_needs_location">लोकेशन चाहिए — नीचे घर का पता चुनें</string>
+    <string name="onboarding_azkar_home_needs_location">लोकेशन चाहिए — नीचे «मैं घर पर हूँ» दबाएँ</string>
     <string name="onboarding_home_address_required_title">घर का पता आवश्यक है</string>
-    <string name="onboarding_home_address_required_message">घर आने-जाने के अज़कार चालू हैं, लेकिन पता नहीं है। नीचे पता चुनें, या यह खंड बंद करके आगे बढ़ें।</string>
+    <string name="onboarding_home_address_required_message">घर आने-जाने के अज़कार चालू हैं, लेकिन पता नहीं है। नीचे वर्तमान लोकेशन इस्तेमाल करें, या यह खंड बंद करके आगे बढ़ें।</string>
     <string name="onboarding_azkar_riding_hint">वाहन की गति से — यात्रा शुरू होते ही एक ज़िक्र</string>
     <string name="onboarding_azkar_friday_hint">केवल जुमा — सुबह कहफ़, जुमा से पहले दरूद, अस्र के बाद आख़िरी घंटे में दुआ</string>
     <string name="onboarding_azkar_blessed_days_hint">अपनी हिजरी तारीखों पर चलता है: रमज़ान की आख़िरी दस, अरफ़ा, और ज़ुल-हिज्जा के दस दिन</string>

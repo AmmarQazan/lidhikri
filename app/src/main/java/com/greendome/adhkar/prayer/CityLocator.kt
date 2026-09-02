@@ -20,8 +20,10 @@ object CityLocator {
     }
 
     suspend fun reverse(context: Context, latitude: Double, longitude: Double): PrayerLocation {
-        val fromGeo = reverseGeocode(context, latitude, longitude)
-        if (fromGeo != null) return fromGeo
+        val fromGeo = withTimeoutOrNull(3_500) { reverseGeocode(context, latitude, longitude) }
+        if (fromGeo != null) {
+            return fromGeo.copy(latitude = latitude, longitude = longitude)
+        }
         val nearest = KNOWN_CITIES.minByOrNull { city ->
             distanceMeters(latitude, longitude, city.latitude, city.longitude)
         }
