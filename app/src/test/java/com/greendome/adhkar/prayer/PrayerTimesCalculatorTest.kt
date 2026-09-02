@@ -24,7 +24,9 @@ class PrayerTimesCalculatorTest {
         afterPrayer: Map<PrayerName, Int> = emptyMap(),
         jumuah: Int = 75,
         enabled: Boolean = true,
-        afterPrayerReminder: Boolean = true
+        afterPrayerReminder: Boolean = true,
+        adhanEnabled: Boolean = true,
+        alerts: Map<PrayerName, PrayerAlertSettings> = emptyMap(),
     ) = PrayerConfig(
         enabled = enabled,
         afterPrayerReminder = afterPrayerReminder,
@@ -39,7 +41,9 @@ class PrayerTimesCalculatorTest {
         minuteOffsets = offsets,
         quietMinutes = quiet,
         jumuahQuietMinutes = jumuah,
-        afterPrayerMinutes = afterPrayer
+        afterPrayerMinutes = afterPrayer,
+        adhanEnabled = adhanEnabled,
+        alerts = alerts,
     )
 
     @Test
@@ -151,6 +155,47 @@ class PrayerTimesCalculatorTest {
         val dhuhr = PrayerTimesCalculator.timesFor(cfg, noon)!!.timeOf(PrayerName.DHUHR)!!
         val delayed = PrayerQuietWindows.delayPastQuiet(cfg, dhuhr + 60_000L)
         assertFalse(PrayerQuietWindows.collidesWithAfterPrayer(cfg, delayed))
+    }
+
+    @Test
+    fun tasbihAndAzkarYieldToExactAdhanMinute() {
+        val noon = Instant.parse("2026-06-15T09:00:00Z").toEpochMilli()
+        val cfg = config()
+        val dhuhr = PrayerTimesCalculator.timesFor(cfg, noon)!!.timeOf(PrayerName.DHUHR)!!
+        val zone = ZoneId.of("Asia/Riyadh")
+        val minuteStart = Instant.ofEpochMilli(dhuhr).atZone(zone)
+            .withSecond(0)
+            .withNano(0)
+            .toInstant()
+            .toEpochMilli()
+        assertTrue(PrayerQuietWindows.collidesWithAdhan(cfg, dhuhr))
+        assertTrue(PrayerQuietWindows.collidesWithAdhan(cfg, minuteStart))
+        assertTrue(PrayerQuietWindows.collidesWithAdhan(cfg, dhuhr - 2_000L))
+        assertTrue(PrayerQuietWindows.collidesWithAdhan(cfg, dhuhr + 20_000L))
+        assertFalse(PrayerQuietWindows.collidesWithAdhan(cfg, dhuhr + 90_000L))
+        val delayed = PrayerQuietWindows.delayPastAdhan(cfg, minuteStart)
+        assertTrue(delayed > dhuhr)
+        assertFalse(PrayerQuietWindows.collidesWithAdhan(cfg, delayed))
+    }
+
+    @Test
+    fun adhanCollisionOffWhenAdhanDisabled() {
+        val noon = Instant.parse("2026-06-15T09:00:00Z").toEpochMilli()
+        val cfg = config(adhanEnabled = false)
+        val dhuhr = PrayerTimesCalculator.timesFor(cfg, noon)!!.timeOf(PrayerName.DHUHR)!!
+        assertFalse(PrayerQuietWindows.collidesWithAdhan(cfg, dhuhr))
+    }
+
+    @Test
+    fun adhanCollisionOffWhenThatPrayerAdhanIsOff() {
+        val noon = Instant.parse("2026-06-15T09:00:00Z").toEpochMilli()
+        val cfg = config(
+            alerts = mapOf(PrayerName.DHUHR to PrayerAlertSettings(adhanEnabled = false)),
+        )
+        val dhuhr = PrayerTimesCalculator.timesFor(cfg, noon)!!.timeOf(PrayerName.DHUHR)!!
+        val asr = PrayerTimesCalculator.timesFor(cfg, noon)!!.timeOf(PrayerName.ASR)!!
+        assertFalse(PrayerQuietWindows.collidesWithAdhan(cfg, dhuhr))
+        assertTrue(PrayerQuietWindows.collidesWithAdhan(cfg, asr))
     }
 
     @Test

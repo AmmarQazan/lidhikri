@@ -60,7 +60,7 @@ object ReminderScheduler {
         }
     }
 
-    /** يتخطى فترات التسبيح التي تتزامن مع ذكر تلقائي أو أذكار ما بعد الصلاة */
+    /** يتخطى فترات التسبيح التي تتزامن مع أذان أو ذكر تلقائي أو أذكار ما بعد الصلاة */
     private fun nextTasbihTriggerAt(
         context: Context,
         fromMillis: Long,
@@ -80,7 +80,8 @@ object ReminderScheduler {
                 prayerConfig,
                 triggerAt
             )
-            if (!blockedByAzkar && !blockedByAfterPrayer) return triggerAt
+            val blockedByAdhan = PrayerQuietWindows.collidesWithAdhan(prayerConfig, triggerAt)
+            if (!blockedByAzkar && !blockedByAfterPrayer && !blockedByAdhan) return triggerAt
             triggerAt = window.nextTriggerAfter(triggerAt, intervalMs)
         }
         return triggerAt

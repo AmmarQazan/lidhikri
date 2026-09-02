@@ -190,6 +190,8 @@ class AdhkarReminderService : Service() {
         if (DeviceAudioGate.shouldSuppressPlayback(this, settings)) return true
         if (ReminderScheduler.isOutsideTasbihWindow(this)) return true
         if (PrayerRespectGate.isQuiet(this)) return true
+        if (PrayerRespectGate.collidesWithAdhan(this)) return true
+        if (AdhanPlaybackService.isPlaying()) return true
         return false
     }
 
@@ -251,7 +253,9 @@ class AdhkarReminderService : Service() {
             this, 0, Intent(this, MainActivity::class.java),
             PendingIntent.FLAG_IMMUTABLE
         )
-        val pausedForPrayer = PrayerRespectGate.isQuiet(this)
+        val pausedForPrayer = PrayerRespectGate.isQuiet(this) ||
+            PrayerRespectGate.collidesWithAdhan(this) ||
+            AdhanPlaybackService.isPlaying()
         val title = localized.getString(
             if (pausedForPrayer) R.string.auto_tasbih_paused_prayer
             else R.string.auto_tasbih_on

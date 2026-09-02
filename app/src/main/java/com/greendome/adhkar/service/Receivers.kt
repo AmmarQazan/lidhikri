@@ -16,7 +16,9 @@ class AlarmReceiver : BroadcastReceiver() {
             ReminderScheduler.scheduleNext(context)
             return
         }
-        if (PrayerRespectGate.isQuiet(context)) {
+        if (PrayerRespectGate.isQuiet(context) || PrayerRespectGate.collidesWithAdhan(context) ||
+            AdhanPlaybackService.isPlaying()
+        ) {
             ReminderScheduler.scheduleNext(context)
             AdhkarReminderService.refreshNotification(context)
             return

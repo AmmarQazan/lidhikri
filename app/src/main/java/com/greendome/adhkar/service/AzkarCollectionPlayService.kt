@@ -80,6 +80,14 @@ class AzkarCollectionPlayService : Service() {
                 stopSelf()
                 return@launch
             }
+            if (!forcePlay && PrayerRespectGate.collidesWithAdhan(this@AzkarCollectionPlayService)) {
+                stopSelf()
+                return@launch
+            }
+            if (!forcePlay && AdhanPlaybackService.isPlaying()) {
+                stopSelf()
+                return@launch
+            }
             val db = AdhkarDatabase.get(this@AzkarCollectionPlayService)
             val collection = withContext(Dispatchers.IO) { db.collectionDao().getById(collectionId) }
             val items = withContext(Dispatchers.IO) { db.azkarItemDao().getByCollection(collectionId) }

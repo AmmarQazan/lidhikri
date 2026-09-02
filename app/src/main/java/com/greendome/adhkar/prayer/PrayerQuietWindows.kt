@@ -1,11 +1,14 @@
 package com.greendome.adhkar.prayer
 
 import java.time.Instant
+import java.time.ZoneId
 import java.util.Calendar
 import java.util.TimeZone
 
 object PrayerQuietWindows {
     const val AFTER_PRAYER_TASBIH_GRACE_MS = 30_000L
+    const val ADHAN_PRIORITY_GRACE_BEFORE_MS = 5_000L
+    const val ADHAN_PRIORITY_GRACE_AFTER_MS = 30_000L
 
     fun windowsAround(
         config: PrayerConfig,
@@ -84,13 +87,85 @@ object PrayerQuietWindows {
         graceAfterMs: Long = AFTER_PRAYER_TASBIH_GRACE_MS
     ): Boolean {
         val zoneId = PrayerTimesCalculator.zoneId(config)
-        val triggerLocal = Instant.ofEpochMilli(triggerAt).atZone(zoneId)
         return afterPrayerTriggersAround(config, triggerAt).any { afterAt ->
-            if (triggerAt in afterAt..(afterAt + graceAfterMs)) return@any true
-            val afterLocal = Instant.ofEpochMilli(afterAt).atZone(zoneId)
-            triggerLocal.toLocalDate() == afterLocal.toLocalDate() &&
-                triggerLocal.hour == afterLocal.hour &&
-                triggerLocal.minute == afterLocal.minute
+            collidesWithClock(
+                triggerAt = triggerAt,
+                eventAt = afterAt,
+                zoneId = zoneId,
+                graceBeforeMs = 0L,
+                graceAfterMs = graceAfterMs,
+            )
+        }
+    }
+
+    /**
+     * نفس دقيقة الأذان، أو مهلة قصيرة قبله وبعده.
+     * يمنع انطلاق التسبيح أو الذكر التلقائي مع الأذان — الأولوية للأذان.
+     */
+    fun collidesWithAdhan(
+        config: PrayerConfig,
+        triggerAt: Long = System.currentTimeMillis(),
+        graceBeforeMs: Long = ADHAN_PRIORITY_GRACE_BEFORE_MS,
+        graceAfterMs: Long = ADHAN_PRIORITY_GRACE_AFTER_MS,
+    ): Boolean {
+        if (!config.adhanActive) return false
+        val zoneId = PrayerTimesCalculator.zoneId(config)
+        return adhanTimesAround(config, triggerAt).any { adhanAt ->
+            collidesWithClock(
+                triggerAt = triggerAt,
+                eventAt = adhanAt,
+                zoneId = zoneId,
+                graceBeforeMs = graceBeforeMs,
+                graceAfterMs = graceAfterMs,
+            )
+        }
+    }
+
+    /** أول لحظة بعد دقيقة الأذان ومهلة الأولوية. */
+    fun delayPastAdhan(
+        config: PrayerConfig,
+        triggerAt: Long,
+        graceBeforeMs: Long = ADHAN_PRIORITY_GRACE_BEFORE_MS,
+        graceAfterMs: Long = ADHAN_PRIORITY_GRACE_AFTER_MS,
+    ): Long {
+        if (!collidesWithAdhan(config, triggerAt, graceBeforeMs, graceAfterMs)) return triggerAt
+        val zoneId = PrayerTimesCalculator.zoneId(config)
+        val ends = adhanTimesAround(config, triggerAt).mapNotNull { adhanAt ->
+            if (!collidesWithClock(triggerAt, adhanAt, zoneId, graceBeforeMs, graceAfterMs)) {
+                return@mapNotNull null
+            }
+            val minuteEnd = Instant.ofEpochMilli(adhanAt).atZone(zoneId)
+                .plusMinutes(1)
+                .withSecond(0)
+                .withNano(0)
+                .toInstant()
+                .toEpochMilli()
+            maxOf(minuteEnd, adhanAt + graceAfterMs + 1L)
+        }
+        return ends.maxOrNull()?.coerceAtLeast(triggerAt + 1L) ?: triggerAt
+    }
+
+    private fun collidesWithClock(
+        triggerAt: Long,
+        eventAt: Long,
+        zoneId: ZoneId,
+        graceBeforeMs: Long,
+        graceAfterMs: Long,
+    ): Boolean {
+        if (triggerAt in (eventAt - graceBeforeMs)..(eventAt + graceAfterMs)) return true
+        val triggerLocal = Instant.ofEpochMilli(triggerAt).atZone(zoneId)
+        val eventLocal = Instant.ofEpochMilli(eventAt).atZone(zoneId)
+        return triggerLocal.toLocalDate() == eventLocal.toLocalDate() &&
+            triggerLocal.hour == eventLocal.hour &&
+            triggerLocal.minute == eventLocal.minute
+    }
+
+    private fun adhanTimesAround(config: PrayerConfig, atMillis: Long): List<Long> {
+        if (!config.adhanActive) return emptyList()
+        return PrayerTimesCalculator.timesAround(config, atMillis).flatMap { day ->
+            day.prayers.mapNotNull { instant ->
+                if (!config.alert(instant.prayer).adhanEnabled) null else instant.epochMillis
+            }
         }
     }
 

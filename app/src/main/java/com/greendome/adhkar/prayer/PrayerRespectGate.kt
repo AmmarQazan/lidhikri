@@ -11,6 +11,9 @@ object PrayerRespectGate {
     fun isQuiet(context: Context, atMillis: Long = System.currentTimeMillis()): Boolean =
         PrayerQuietWindows.isQuiet(config(context), atMillis)
 
+    fun collidesWithAdhan(context: Context, atMillis: Long = System.currentTimeMillis()): Boolean =
+        PrayerQuietWindows.collidesWithAdhan(config(context), atMillis)
+
     fun delayPastQuiet(context: Context, triggerAt: Long): Long =
         PrayerQuietWindows.delayPastQuiet(config(context), triggerAt)
 

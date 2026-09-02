@@ -8,6 +8,7 @@ import android.os.Build
 import com.greendome.adhkar.data.SettingsRepository
 import com.greendome.adhkar.data.local.AdhkarCollectionEntity
 import com.greendome.adhkar.data.local.AzkarItemEntity
+import com.greendome.adhkar.prayer.PrayerQuietWindows
 import com.greendome.adhkar.util.AzkarItemSchedule
 
 object CollectionAlarmScheduler {
@@ -36,10 +37,15 @@ object CollectionAlarmScheduler {
         val config = SettingsRepository(context).prayerConfig()
         AzkarItemSchedule.triggers(collection, items, config).forEachIndexed { index, trigger ->
             if (index >= MAX_TRIGGERS) return@forEachIndexed
+            val triggerAt = if (PrayerQuietWindows.collidesWithAdhan(config, trigger.at)) {
+                PrayerQuietWindows.delayPastAdhan(config, trigger.at)
+            } else {
+                trigger.at
+            }
             setAlarm(
                 context = context,
                 collectionId = collection.id,
-                triggerAt = trigger.at,
+                triggerAt = triggerAt,
                 postponed = false,
                 triggerIndex = index,
                 itemId = trigger.itemIds.singleOrNull() ?: 0L,

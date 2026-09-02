@@ -43,9 +43,17 @@ class CollectionAlarmReceiver : BroadcastReceiver() {
                     return@launch
                 }
 
-                if (!postponed && !skipQuiet && PrayerRespectGate.isQuiet(context)) {
-                    val resumeAt = (PrayerQuietWindows.nextQuietEndAfter(settings.prayerConfig())
-                        ?: System.currentTimeMillis()) + 2 * 60_000L
+                val now = System.currentTimeMillis()
+                val prayerConfig = settings.prayerConfig()
+                val adhanPlaying = AdhanPlaybackService.isPlaying()
+                val atAdhan = adhanPlaying || PrayerQuietWindows.collidesWithAdhan(prayerConfig, now)
+                val inQuiet = !skipQuiet && PrayerRespectGate.isQuiet(context, now)
+                if (!postponed && (atAdhan || inQuiet)) {
+                    val resumeAt = when {
+                        inQuiet -> (PrayerQuietWindows.nextQuietEndAfter(prayerConfig, now) ?: now) + 2 * 60_000L
+                        adhanPlaying -> now + 60_000L
+                        else -> PrayerQuietWindows.delayPastAdhan(prayerConfig, now)
+                    }
                     CollectionAlarmScheduler.schedulePostponed(
                         context,
                         collectionId,

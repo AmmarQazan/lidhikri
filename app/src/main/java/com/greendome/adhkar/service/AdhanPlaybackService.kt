@@ -33,6 +33,7 @@ class AdhanPlaybackService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        instance = this
         player = DhikrAudioPlayer(this)
     }
 
@@ -70,8 +71,17 @@ class AdhanPlaybackService : Service() {
             if (wantScreen) openScreen(prayer)
             return START_NOT_STICKY
         }
+        playingPrayer = prayer
+        yieldToAdhan()
         play(prayer, settings, modes, wantScreen)
         return START_NOT_STICKY
+    }
+
+    private fun yieldToAdhan() {
+        AdhkarReminderService.abortActiveReminder(this)
+        if (AzkarCollectionPlayService.isPlaying()) {
+            AzkarCollectionPlayService.stopAutoAzkar(this)
+        }
     }
 
     private fun play(
@@ -217,6 +227,7 @@ class AdhanPlaybackService : Service() {
     }
 
     override fun onDestroy() {
+        if (instance === this) instance = null
         cancelPendingAfterAzkar()
         playingPrayer = null
         player?.stop()
@@ -231,6 +242,11 @@ class AdhanPlaybackService : Service() {
         const val ACTION_STOP = "com.greendome.adhkar.ADHAN_STOP"
         const val ACTION_FINISHED = "com.greendome.adhkar.ADHAN_FINISHED"
         const val ADHAN_AZKAR_ID = AdhanAzkar.COLLECTION_ID
+
+        @Volatile
+        private var instance: AdhanPlaybackService? = null
+
+        fun isPlaying(): Boolean = instance?.playingPrayer != null
 
         fun stop(context: Context) {
             val app = context.applicationContext
