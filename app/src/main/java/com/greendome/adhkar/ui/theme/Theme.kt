@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import com.greendome.adhkar.R
 import com.greendome.adhkar.data.model.AppThemeMode
 
 private val LightColors = lightColorScheme(
@@ -102,6 +103,15 @@ fun AppOnCardColor(): Color =
         Color(0xFFF5F1E9)
     } else {
         TextPrimary
+    }
+
+/** شعار كامل: قوس أخضر نهاراً، قوس ذهبي ونص أبيض ليلاً */
+@Composable
+fun sabbihLogoRes(): Int =
+    if (MaterialTheme.colorScheme.background.luminance() < 0.4f) {
+        R.drawable.logo_sabbih_night
+    } else {
+        R.drawable.logo_sabbih
     }
 
 @Composable

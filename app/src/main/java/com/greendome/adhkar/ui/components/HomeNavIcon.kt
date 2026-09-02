@@ -17,7 +17,7 @@ fun HomeNavIcon(
     modifier: Modifier = Modifier
 ) {
     Image(
-        painter = painterResource(R.drawable.logo_sabbih),
+        painter = painterResource(R.drawable.ic_launcher_logo),
         contentDescription = null,
         contentScale = ContentScale.Fit,
         colorFilter = ColorFilter.tint(tint),

@@ -66,6 +66,7 @@ import com.greendome.adhkar.data.model.ClockHourFormat
 import com.greendome.adhkar.data.model.azkarListFontSpMatchingCard
 import com.greendome.adhkar.ui.components.AzkarFontSizeButtons
 import com.greendome.adhkar.ui.theme.AppAccentGreen
+import com.greendome.adhkar.ui.theme.sabbihLogoRes
 import com.greendome.adhkar.ui.theme.GoldDome
 import com.greendome.adhkar.ui.theme.arabicFontFamily
 import com.greendome.adhkar.ui.theme.formatLocalizedDigits
@@ -374,7 +375,7 @@ private fun OnboardingWelcomeStep() {
     ) {
         Spacer(Modifier.height(12.dp))
         Image(
-            painter = painterResource(R.drawable.logo_sabbih),
+            painter = painterResource(sabbihLogoRes()),
             contentDescription = null,
             contentScale = ContentScale.Fit,
             modifier = Modifier

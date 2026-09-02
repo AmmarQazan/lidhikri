@@ -9,14 +9,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.greendome.adhkar.R
-import com.greendome.adhkar.ui.theme.CreamBackground
+import com.greendome.adhkar.ui.theme.sabbihLogoRes
 
 /** شاشة بداية مخصصة — الشعار كاملاً بدون قص دائري */
 @Composable
@@ -24,14 +24,14 @@ fun AppSplashScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(CreamBackground)
+            .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding()
             .navigationBarsPadding(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(Modifier.weight(0.82f))
         Image(
-            painter = painterResource(R.drawable.logo_sabbih),
+            painter = painterResource(sabbihLogoRes()),
             contentDescription = null,
             contentScale = ContentScale.Fit,
             modifier = Modifier

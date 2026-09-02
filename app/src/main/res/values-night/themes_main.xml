@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.GreenDomeAdhkar.Main" parent="android:Theme.Material.NoActionBar">
+        <item name="android:statusBarColor">#1A1F1C</item>
+        <item name="android:navigationBarColor">#1A1F1C</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:windowBackground">#1A1F1C</item>
+    </style>
+</resources>

@@ -68,6 +68,7 @@ import com.greendome.adhkar.prayer.prayerTimesCardHighlightIndex
 import com.greendome.adhkar.ui.theme.AppCardColors
 import com.greendome.adhkar.ui.theme.AppMutedTextColor
 import com.greendome.adhkar.ui.theme.GreenPrimary
+import com.greendome.adhkar.ui.theme.sabbihLogoRes
 import com.greendome.adhkar.ui.theme.LocalNumberDigitStyle
 import com.greendome.adhkar.ui.theme.formatLocalizedDigits
 import com.greendome.adhkar.ui.theme.stringResourceDigits
@@ -138,7 +139,7 @@ fun HomeScreen(
             contentAlignment = Alignment.Center
         ) {
             Image(
-                painter = painterResource(R.drawable.logo_sabbih),
+                painter = painterResource(sabbihLogoRes()),
                 contentDescription = stringResource(R.string.app_name),
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
