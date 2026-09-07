@@ -60,12 +60,25 @@ object DeviceAudioGate {
      */
     fun isOtherAppAudioPlaying(context: Context): Boolean {
         val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        @Suppress("DEPRECATION")
-        if (audioManager.isMusicActive) return true
+        val myUid = android.os.Process.myUid()
         when (audioManager.mode) {
             AudioManager.MODE_IN_CALL,
             AudioManager.MODE_IN_COMMUNICATION -> return true
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            return hasActiveUsageFromOthers(
+                audioManager,
+                myUid,
+                AudioAttributes.USAGE_MEDIA,
+                AudioAttributes.USAGE_GAME,
+                AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE,
+                AudioAttributes.USAGE_ASSISTANT,
+                AudioAttributes.USAGE_VOICE_COMMUNICATION,
+                AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING,
+            ) || hasActiveSpeechPlaybackFromOthers(audioManager, myUid)
+        }
+        @Suppress("DEPRECATION")
+        if (audioManager.isMusicActive) return true
         return hasActiveUsage(
             audioManager,
             AudioAttributes.USAGE_MEDIA,
@@ -97,8 +110,9 @@ object DeviceAudioGate {
         context: Context,
         settings: SettingsRepository,
         userInitiated: Boolean = false,
+        ignoreQuietMode: Boolean = false,
     ): Boolean {
-        if (!userInitiated && shouldSuppressQuietMode(context, settings)) return true
+        if (!userInitiated && !ignoreQuietMode && shouldSuppressQuietMode(context, settings)) return true
         if (settings.pauseDuringCalls && isCallOrCommunicationActive(context)) return true
         if (settings.pauseDuringMedia && isOtherAppAudioPlaying(context)) return true
         return false
@@ -129,6 +143,38 @@ object DeviceAudioGate {
                 attrs.usage != AudioAttributes.USAGE_NOTIFICATION_EVENT &&
                 attrs.usage != AudioAttributes.USAGE_NOTIFICATION_RINGTONE
         }
+    }
+
+    private fun hasActiveUsageFromOthers(
+        audioManager: AudioManager,
+        myUid: Int,
+        vararg usages: Int,
+    ): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return false
+        val wanted = usages.toHashSet()
+        return audioManager.activePlaybackConfigurations.any { config ->
+            clientUidOf(config) != myUid && config.audioAttributes.usage in wanted
+        }
+    }
+
+    private fun hasActiveSpeechPlaybackFromOthers(audioManager: AudioManager, myUid: Int): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return false
+        return audioManager.activePlaybackConfigurations.any { config ->
+            if (clientUidOf(config) == myUid) return@any false
+            val attrs = config.audioAttributes
+            attrs.contentType == AudioAttributes.CONTENT_TYPE_SPEECH &&
+                attrs.usage != AudioAttributes.USAGE_ALARM &&
+                attrs.usage != AudioAttributes.USAGE_NOTIFICATION &&
+                attrs.usage != AudioAttributes.USAGE_NOTIFICATION_EVENT &&
+                attrs.usage != AudioAttributes.USAGE_NOTIFICATION_RINGTONE
+        }
+    }
+
+    private fun clientUidOf(config: android.media.AudioPlaybackConfiguration): Int {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return -1
+        return runCatching {
+            config.javaClass.getMethod("getClientUid").invoke(config) as Int
+        }.getOrDefault(-1)
     }
 
     private const val INTERRUPTION_FILTER_ALARMS_ONLY = 4

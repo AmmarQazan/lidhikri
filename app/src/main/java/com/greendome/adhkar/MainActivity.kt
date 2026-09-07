@@ -63,6 +63,7 @@ import com.greendome.adhkar.data.local.ReciterEntity
 import com.greendome.adhkar.data.model.DhikrCategory
 import com.greendome.adhkar.service.AdhkarReminderService
 import com.greendome.adhkar.service.NextAdhanService
+import com.greendome.adhkar.service.PrayerPhoneSilent
 import com.greendome.adhkar.service.SilentNotificationChannels
 import com.greendome.adhkar.service.VehicleActivityScheduler
 import com.greendome.adhkar.ui.MainViewModel
@@ -301,6 +302,7 @@ class MainActivity : ComponentActivity() {
             )
         }
         NextAdhanService.sync(this)
+        PrayerPhoneSilent.sync(this)
         lifecycleScope.launch {
             TravelLocationUpdater.maybeRefresh(this@MainActivity)
         }

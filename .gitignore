@@ -13,5 +13,8 @@ app/build
 *.aab
 keystore/
 *.keystore
+*.jks
+*.p12
+keystore.properties
 graphify-out/
 preview-apk/*.apk

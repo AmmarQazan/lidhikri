@@ -20,6 +20,7 @@ import com.greendome.adhkar.data.model.VolumeMode
 import com.greendome.adhkar.data.model.VoiceSettingsTarget
 import com.greendome.adhkar.util.DeviceAudioGate
 import com.greendome.adhkar.util.FlipToStopMonitor
+import com.greendome.adhkar.util.PlaybackRespectMonitor
 import java.io.File
 
 class CallStateMonitor(private val appContext: Context) {
@@ -77,6 +78,7 @@ class CallStateMonitor(private val appContext: Context) {
 class DhikrAudioPlayer(private val context: Context) {
     private var player: ExoPlayer? = null
     private val flipMonitor = FlipToStopMonitor(context) { stop() }
+    private var respectMonitor: PlaybackRespectMonitor? = null
 
     fun play(
         pathOrUri: String,
@@ -110,6 +112,7 @@ class DhikrAudioPlayer(private val context: Context) {
                 }
             }
         })
+        startRespectMonitor(settings, userInitiated = true)
         startFlipMonitorIfEnabled(settings)
         player.prepare()
         player.play()
@@ -140,6 +143,7 @@ class DhikrAudioPlayer(private val context: Context) {
                 }
             }
         })
+        startRespectMonitor(settings, userInitiated = true)
         startFlipMonitorIfEnabled(settings)
         player.prepare()
         player.play()
@@ -192,6 +196,7 @@ class DhikrAudioPlayer(private val context: Context) {
             }
         })
         markItemStarted(0)
+        startRespectMonitor(settings, userInitiated = true)
         startFlipMonitorIfEnabled(settings)
         player.prepare()
         player.play()
@@ -204,11 +209,13 @@ class DhikrAudioPlayer(private val context: Context) {
         onComplete: () -> Unit = {},
     ) {
         stop()
-        if (settings.pauseDuringCalls && DeviceAudioGate.isCallOrCommunicationActive(context)) {
-            onComplete()
-            return
-        }
-        if (!overrideSilent && DeviceAudioGate.shouldSuppressQuietMode(context, settings)) {
+        if (DeviceAudioGate.shouldSuppressPlayback(
+                context,
+                settings,
+                userInitiated = false,
+                ignoreQuietMode = overrideSilent,
+            )
+        ) {
             onComplete()
             return
         }
@@ -236,12 +243,14 @@ class DhikrAudioPlayer(private val context: Context) {
                 }
             }
         })
+        startRespectMonitor(settings, userInitiated = false, ignoreQuietMode = overrideSilent)
         startFlipMonitorIfEnabled(settings)
         player.prepare()
         player.play()
     }
 
     fun stop() {
+        stopRespectMonitor()
         stopFlipMonitor()
         player?.release()
         player = null
@@ -267,6 +276,28 @@ class DhikrAudioPlayer(private val context: Context) {
 
     private fun stopFlipMonitor() {
         flipMonitor.stop()
+    }
+
+    private fun startRespectMonitor(
+        settings: SettingsRepository,
+        userInitiated: Boolean,
+        ignoreQuietMode: Boolean = false,
+    ) {
+        stopRespectMonitor()
+        val monitor = PlaybackRespectMonitor(
+            context = context,
+            settings = settings,
+            userInitiated = userInitiated,
+            ignoreQuietMode = ignoreQuietMode,
+            onSuppress = { stop() },
+        )
+        respectMonitor = monitor
+        monitor.start()
+    }
+
+    private fun stopRespectMonitor() {
+        respectMonitor?.stop()
+        respectMonitor = null
     }
 }
 

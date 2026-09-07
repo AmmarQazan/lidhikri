@@ -22,7 +22,9 @@ object CityLocator {
     suspend fun reverse(context: Context, latitude: Double, longitude: Double): PrayerLocation {
         val fromGeo = withTimeoutOrNull(3_500) { reverseGeocode(context, latitude, longitude) }
         if (fromGeo != null) {
-            return fromGeo.copy(latitude = latitude, longitude = longitude)
+            return PrayerTimezones.withResolved(
+                fromGeo.copy(latitude = latitude, longitude = longitude)
+            )
         }
         val nearest = KNOWN_CITIES.minByOrNull { city ->
             distanceMeters(latitude, longitude, city.latitude, city.longitude)
@@ -36,7 +38,7 @@ object CityLocator {
             latitude = latitude,
             longitude = longitude,
             cityName = "%.2f, %.2f".format(latitude, longitude)
-        )
+        ).let(PrayerTimezones::withResolved)
     }
 
     @Suppress("DEPRECATION")
@@ -84,7 +86,7 @@ object CityLocator {
             cityName = city,
             countryName = countryName.orEmpty(),
             countryCode = countryCode.orEmpty()
-        )
+        ).let(PrayerTimezones::withResolved)
     }
 }
 

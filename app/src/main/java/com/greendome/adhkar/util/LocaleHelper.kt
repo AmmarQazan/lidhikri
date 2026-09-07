@@ -1,7 +1,9 @@
 package com.greendome.adhkar.util
 
+import android.app.LocaleManager
 import android.content.Context
 import android.content.res.Configuration
+import android.os.Build
 import android.os.LocaleList
 import androidx.annotation.StringRes
 import java.util.Locale
@@ -26,6 +28,20 @@ object LocaleHelper {
 
     fun wrapWithSavedLanguage(context: Context): Context =
         wrap(context, getLanguage(context))
+
+    fun applyAppLocales(context: Context, languageCode: String) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+        val code = AppLanguages.coerce(languageCode)
+        val tag = AppLanguages.locale(code).toLanguageTag()
+        val manager = context.getSystemService(LocaleManager::class.java) ?: return
+        val current = manager.applicationLocales.toLanguageTags()
+        if (current.equals(tag, ignoreCase = true) ||
+            current.split(",").any { it.equals(tag, ignoreCase = true) || it.startsWith("$code-") }
+        ) {
+            return
+        }
+        manager.applicationLocales = LocaleList.forLanguageTags(tag)
+    }
 
     fun string(context: Context, languageCode: String, @StringRes id: Int): String {
         val locale = AppLanguages.locale(languageCode)

@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import com.greendome.adhkar.R
 import com.greendome.adhkar.data.SettingsRepository
 import com.greendome.adhkar.service.OfflineDownloadHelper
+import com.greendome.adhkar.ui.overlay.OverlayWindow
 import com.greendome.adhkar.util.AppLanguages
 import com.greendome.adhkar.util.RuntimePermissions
 import kotlinx.coroutines.Dispatchers
@@ -90,10 +91,9 @@ fun AppGeneralSettingsScreen(
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            if (languages.size > 1) {
-                item { FieldLabel(stringResource(R.string.language)) }
-                item {
-                    ExposedDropdownMenuBox(expanded = langExpanded, onExpandedChange = { langExpanded = it }) {
+            item { FieldLabel(stringResource(R.string.language)) }
+            item {
+                ExposedDropdownMenuBox(expanded = langExpanded, onExpandedChange = { langExpanded = it }) {
                         OutlinedTextField(
                             value = languages.find { it.first == selectedLang }?.second ?: selectedLang,
                             onValueChange = {},
@@ -114,7 +114,6 @@ fun AppGeneralSettingsScreen(
                                         langExpanded = false
                                     }
                                 )
-                            }
                         }
                     }
                 }
@@ -181,11 +180,7 @@ fun AppGeneralSettingsScreen(
             }
             item {
                 Button(
-                    onClick = {
-                        context.startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION).apply {
-                            data = Uri.parse("package:${context.packageName}")
-                        })
-                    },
+                    onClick = { OverlayWindow.openPermissionSettings(context) },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(stringResource(R.string.permission_overlay))

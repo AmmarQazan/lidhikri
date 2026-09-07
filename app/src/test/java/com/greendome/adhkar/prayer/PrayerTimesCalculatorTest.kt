@@ -158,6 +158,20 @@ class PrayerTimesCalculatorTest {
     }
 
     @Test
+    fun phoneSilentEndMatchesAfterPrayerEvenIfReminderOff() {
+        val noon = Instant.parse("2026-06-15T09:00:00Z").toEpochMilli()
+        val cfg = config(
+            quiet = mapOf(PrayerName.DHUHR to 30),
+            afterPrayer = mapOf(PrayerName.DHUHR to 40),
+            afterPrayerReminder = false
+        )
+        val dhuhr = PrayerTimesCalculator.timesFor(cfg, noon)!!.timeOf(PrayerName.DHUHR)!!
+        val expected = dhuhr + 40 * 60_000L
+        assertEquals(expected, PrayerQuietWindows.nextPhoneSilentEndAt(cfg, dhuhr + 1_000L))
+        assertTrue(PrayerQuietWindows.nextAfterPrayerTriggerAt(cfg, dhuhr + 1_000L) == null)
+    }
+
+    @Test
     fun tasbihAndAzkarYieldToExactAdhanMinute() {
         val noon = Instant.parse("2026-06-15T09:00:00Z").toEpochMilli()
         val cfg = config()
@@ -210,6 +224,23 @@ class PrayerTimesCalculatorTest {
         assertEquals("Africa/Djibouti", PrayerCountryDefaults.timezoneIdFor("DJ"))
         assertEquals("Indian/Comoro", PrayerCountryDefaults.timezoneIdFor("KM"))
         assertEquals("Asia/Riyadh", PrayerCountryDefaults.timezoneIdFor("SA"))
+        assertEquals("Asia/Tokyo", PrayerCountryDefaults.timezoneIdFor("JP"))
+        assertEquals("Africa/Lagos", PrayerCountryDefaults.timezoneIdFor("NG"))
+        assertEquals("America/Sao_Paulo", PrayerCountryDefaults.timezoneIdFor("BR"))
+        assertEquals("Africa/Johannesburg", PrayerCountryDefaults.timezoneIdFor("ZA"))
+        assertEquals("Asia/Tashkent", PrayerCountryDefaults.timezoneIdFor("UZ"))
+        assertEquals(AsrMadhabPref.HANAFI, PrayerCountryDefaults.madhabFor("UZ"))
+        assertEquals(AsrMadhabPref.HANAFI, PrayerCountryDefaults.madhabFor("KZ"))
+        assertEquals(AsrMadhabPref.HANAFI, PrayerCountryDefaults.madhabFor("RU"))
+        assertEquals(AsrMadhabPref.HANAFI, PrayerCountryDefaults.madhabFor("BA"))
+        assertEquals(AsrMadhabPref.HANAFI, PrayerCountryDefaults.madhabFor("AL"))
+        assertEquals(AsrMadhabPref.HANAFI, PrayerCountryDefaults.madhabFor("XK"))
+        assertEquals(AsrMadhabPref.HANAFI, PrayerCountryDefaults.madhabFor("CN"))
+        assertEquals(AsrMadhabPref.SHAFI, PrayerCountryDefaults.madhabFor("EG"))
+        assertEquals(AsrMadhabPref.SHAFI, PrayerCountryDefaults.madhabFor("IR"))
+        assertEquals(AsrMadhabPref.SHAFI, PrayerCountryDefaults.madhabFor("GB"))
+        assertEquals(AsrMadhabPref.SHAFI, PrayerCountryDefaults.madhabFor("ID"))
+        assertEquals(CalculationMethodPref.MUSLIM_WORLD_LEAGUE, PrayerCountryDefaults.methodFor("JP"))
     }
 
     @Test
@@ -236,5 +267,47 @@ class PrayerTimesCalculatorTest {
         } finally {
             PrayerCountryDefaults.clearRemote()
         }
+    }
+
+    private fun autoConfig(location: PrayerLocation) = PrayerConfig(
+        enabled = true,
+        afterPrayerReminder = true,
+        location = location,
+        locationMode = LocationMode.MANUAL,
+        travelAutoUpdate = false,
+        timezoneMode = TimezoneMode.AUTO,
+        timezoneId = "",
+        dstMode = DstMode.AUTO,
+        method = CalculationMethodPref.AUTO,
+        madhab = AsrMadhabPref.AUTO,
+        minuteOffsets = emptyMap(),
+        quietMinutes = emptyMap(),
+        jumuahQuietMinutes = 55,
+    )
+
+    @Test
+    fun autoTimezoneUsesCityNotCountry() {
+        val tokyo = PrayerLocation(35.6762, 139.6503, "طوكيو", "اليابان", "JP")
+        val losAngeles = PrayerLocation(34.0522, -118.2437, "لوس أنجلوس", "أمريكا", "US")
+        val manaus = PrayerLocation(-3.1190, -60.0217, "ماناوس", "البرازيل", "BR")
+        assertEquals("Asia/Tokyo", PrayerTimesCalculator.zoneId(autoConfig(tokyo)).id)
+        assertEquals("America/Los_Angeles", PrayerTimesCalculator.zoneId(autoConfig(losAngeles)).id)
+        assertEquals("America/Manaus", PrayerTimesCalculator.zoneId(autoConfig(manaus)).id)
+        assertEquals("Africa/Lagos", PrayerTimezones.resolve(PrayerLocation(6.5244, 3.3792, "لاغوس", "نيجيريا", "NG")))
+        assertEquals("Africa/Johannesburg", PrayerTimezones.resolve(PrayerLocation(-33.9249, 18.4241, "كيب تاون", "جنوب أفريقيا", "ZA")))
+        assertEquals("Asia/Tashkent", PrayerTimezones.resolve(PrayerLocation(41.2995, 69.2401, "طشقند", "أوزبكستان", "UZ")))
+    }
+
+    @Test
+    fun tokyoLocalTimesAreNotShiftedToDeviceZone() {
+        val tokyo = PrayerLocation(35.6762, 139.6503, "طوكيو", "اليابان", "JP")
+        val noon = Instant.parse("2026-09-06T03:00:00Z").toEpochMilli()
+        val times = PrayerTimesCalculator.timesFor(autoConfig(tokyo), noon)!!
+        val zone = ZoneId.of("Asia/Tokyo")
+        val sunrise = Instant.ofEpochMilli(times.sunriseMillis!!).atZone(zone)
+        val maghrib = Instant.ofEpochMilli(times.timeOf(PrayerName.MAGHRIB)!!).atZone(zone)
+        assertEquals(5, sunrise.hour)
+        assertTrue(maghrib.hour in 17..19)
+        assertTrue(searchKnownCities("Tokyo").any { it.timezoneId == "Asia/Tokyo" })
     }
 }

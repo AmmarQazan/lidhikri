@@ -34,10 +34,12 @@ import com.greendome.adhkar.prayer.PrayerAlertSettings
 import com.greendome.adhkar.prayer.PrayerConfig
 import com.greendome.adhkar.prayer.PrayerLocation
 import com.greendome.adhkar.prayer.PrayerName
+import com.greendome.adhkar.prayer.PrayerTimezones
 import com.greendome.adhkar.prayer.TimezoneMode
 import com.greendome.adhkar.util.AppLanguages
 import com.greendome.adhkar.util.DhikrScheduleMatcher
 import com.greendome.adhkar.util.HomeLayout
+import com.greendome.adhkar.util.LocaleHelper
 import com.greendome.adhkar.util.TasbihWindow
 import com.greendome.adhkar.data.model.PopupAppearance
 import com.greendome.adhkar.data.model.PopupSettingsTarget
@@ -49,7 +51,8 @@ import com.greendome.adhkar.data.model.VolumeMode
 import kotlinx.coroutines.flow.Flow
 
 class SettingsRepository(context: Context) {
-    private val prefs = context.getSharedPreferences("adhkar_settings", Context.MODE_PRIVATE)
+    private val appContext = context.applicationContext
+    private val prefs = appContext.getSharedPreferences("adhkar_settings", Context.MODE_PRIVATE)
 
     companion object {
         const val DEFAULT_ADMIN_PIN = "23704660"
@@ -176,12 +179,29 @@ class SettingsRepository(context: Context) {
         set(v) = prefs.edit().putBoolean("respect_quiet_mode", v).apply()
 
     var respectPrayerTime: Boolean
-        get() = prefs.getBoolean("respect_prayer_time", false)
+        get() = prefs.getBoolean("respect_prayer_time", true)
         set(v) = prefs.edit().putBoolean("respect_prayer_time", v).apply()
 
     var afterPrayerFromSalahEnabled: Boolean
         get() = prefs.getBoolean("after_prayer_from_salah", true)
         set(v) = prefs.edit().putBoolean("after_prayer_from_salah", v).apply()
+
+    /** رجاج الهاتف من بعد الأذان وأذكار ما بعد الأذان حتى موعد أذكار ما بعد الصلاة. */
+    var silentDuringFardPrayer: Boolean
+        get() = prefs.getBoolean("silent_during_fard_prayer", false)
+        set(v) = prefs.edit().putBoolean("silent_during_fard_prayer", v).apply()
+
+    var prayerPhoneSilentActive: Boolean
+        get() = prefs.getBoolean("prayer_phone_silent_active", false)
+        set(v) = prefs.edit().putBoolean("prayer_phone_silent_active", v).apply()
+
+    var prayerPhoneSilentPrevFilter: Int
+        get() = prefs.getInt("prayer_phone_silent_prev_filter", -1)
+        set(v) = prefs.edit().putInt("prayer_phone_silent_prev_filter", v).apply()
+
+    var prayerPhoneSilentPrevRinger: Int
+        get() = prefs.getInt("prayer_phone_silent_prev_ringer", -1)
+        set(v) = prefs.edit().putInt("prayer_phone_silent_prev_ringer", v).apply()
 
     var afterAdhanAzkarEnabled: Boolean
         get() = prefs.getBoolean("after_adhan_azkar_enabled", true)
@@ -322,6 +342,10 @@ class SettingsRepository(context: Context) {
     var prayerCountryCode: String
         get() = prefs.getString("prayer_country_code", "").orEmpty()
         set(v) = prefs.edit().putString("prayer_country_code", v).apply()
+
+    var prayerLocationTimezoneId: String
+        get() = prefs.getString("prayer_location_tz", "").orEmpty()
+        set(v) = prefs.edit().putString("prayer_location_tz", v).apply()
 
     var prayerTimezoneMode: TimezoneMode
         get() = enumPref("prayer_tz_mode", TimezoneMode.AUTO)
@@ -467,12 +491,14 @@ class SettingsRepository(context: Context) {
             !(prayerLatitude == 0.0 && prayerLongitude == 0.0)
 
     fun setPrayerLocation(location: PrayerLocation, mode: LocationMode = prayerLocationMode) {
+        val resolved = PrayerTimezones.withResolved(location)
         prefs.edit()
-            .putLong("prayer_lat", java.lang.Double.doubleToRawLongBits(location.latitude))
-            .putLong("prayer_lng", java.lang.Double.doubleToRawLongBits(location.longitude))
-            .putString("prayer_city", location.cityName)
-            .putString("prayer_country", location.countryName)
-            .putString("prayer_country_code", location.countryCode)
+            .putLong("prayer_lat", java.lang.Double.doubleToRawLongBits(resolved.latitude))
+            .putLong("prayer_lng", java.lang.Double.doubleToRawLongBits(resolved.longitude))
+            .putString("prayer_city", resolved.cityName)
+            .putString("prayer_country", resolved.countryName)
+            .putString("prayer_country_code", resolved.countryCode)
+            .putString("prayer_location_tz", resolved.timezoneId)
             .putString("prayer_location_mode", mode.name)
             .commit()
     }
@@ -484,8 +510,9 @@ class SettingsRepository(context: Context) {
                 longitude = prayerLongitude,
                 cityName = prayerCityName,
                 countryName = prayerCountryName,
-                countryCode = prayerCountryCode
-            )
+                countryCode = prayerCountryCode,
+                timezoneId = prayerLocationTimezoneId
+            ).let(PrayerTimezones::withResolved)
         } else {
             null
         }
@@ -646,7 +673,11 @@ class SettingsRepository(context: Context) {
 
     var appLanguage: String
         get() = AppLanguages.coerce(prefs.getString("app_language", "ar") ?: "ar")
-        set(v) = prefs.edit().putString("app_language", AppLanguages.coerce(v)).apply()
+        set(v) {
+            val code = AppLanguages.coerce(v)
+            prefs.edit().putString("app_language", code).apply()
+            LocaleHelper.applyAppLocales(appContext, code)
+        }
 
     var sequentialIndex: Int
         get() = prefs.getInt("sequential_index", 0)
@@ -1017,9 +1048,9 @@ class SettingsRepository(context: Context) {
 
     var azkarDisplayMode: AzkarDisplayMode
         get() {
-            val raw = prefs.getString("azkar_display_mode", AzkarDisplayMode.CARD.name)
-                ?: AzkarDisplayMode.CARD.name
-            return runCatching { AzkarDisplayMode.valueOf(raw) }.getOrDefault(AzkarDisplayMode.CARD)
+            val raw = prefs.getString("azkar_display_mode", AzkarDisplayMode.LIST.name)
+                ?: AzkarDisplayMode.LIST.name
+            return runCatching { AzkarDisplayMode.valueOf(raw) }.getOrDefault(AzkarDisplayMode.LIST)
         }
         set(v) = prefs.edit().putString("azkar_display_mode", v.name).apply()
 

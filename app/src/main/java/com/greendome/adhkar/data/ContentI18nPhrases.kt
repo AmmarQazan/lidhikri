@@ -567,3 +567,129 @@ internal val VIRTUE_TAKBIR_DAYS = mapOf(
     "id" to "Sepuluh hari pertama Zulhijah dan hari Tasyriq — takbir yang diriwayatkan dari Ibnu Mas’ud.",
     "hi" to "ज़ुल-हिज्जा के पहले दस दिन और तशरीक़ के दिन — इब्न मसऊद से वर्णित तकबीर।",
 )
+internal val AFTER_PRAYER_LA_MANI = mapOf(
+    "en" to "There is no god but Allah, alone, without partner. His is the dominion and His is the praise, and He is over all things competent. O Allah, none can withhold what You give, none can give what You withhold, and no one's fortune avails against You.",
+    "fr" to "Nulle divinité qu'Allah, seul, sans associé. À Lui la royauté et la louange. Ô Allah, nul ne retient ce que Tu donnes, nul ne donne ce que Tu retiens, et la fortune n'est d'aucun secours contre Toi.",
+    "es" to "No hay dios sino Allah, solo, sin asociado. Suyo es el dominio y la alabanza. Oh Allah, nadie retiene lo que das, nadie da lo que retienes, y la fortuna de nadie sirve frente a Ti.",
+    "tr" to "Allah'tan başka ilah yoktur; O tektir, ortağı yoktur. Mülk O'nundur, hamd O'nadır. Allahım! Verdiğine engel olacak yoktur, engellediğini verecek yoktur; servet sahibine serveti Sana karşı fayda vermez.",
+    "ur" to "اللہ کے سوا کوئی معبود نہیں، وہ یکتا ہے بے شریک۔ بادشاہی اور تعریف اسی کی ہے۔ اے اللہ! جو تو دے اسے کوئی روک نہیں سکتا، جو تو روکے اسے کوئی دے نہیں سکتا، اور مال دار کو اس کا مال تیرے مقابلے میں نفع نہیں دیتا۔",
+    "id" to "Tidak ada tuhan selain Allah, Yang Maha Esa, tiada sekutu bagi-Nya. Bagi-Nya kerajaan dan pujian. Ya Allah, tidak ada yang menahan apa yang Engkau beri, tidak ada yang memberi apa yang Engkau tahan, dan kekayaan tidak bermanfaat di hadapan-Mu.",
+    "hi" to "अल्लाह के सिवा कोई माबूद नहीं, वह अकेला है बिना साझी। राज्य और स्तुति उसी की है। ऐ अल्लाह, जो तू दे उसे कोई रोक नहीं सकता, जो तू रोके उसे कोई दे नहीं सकता, और माल वाले को उसका माल तेरे सामने काम नहीं आता।",
+)
+internal val AFTER_PRAYER_LA_NAABUDU = mapOf(
+    "en" to "There is no god but Allah, alone, without partner. His is the dominion and His is the praise, and He is over all things competent. There is no power nor strength except with Allah. We worship none but Him. His is the blessing, the favor, and the fine praise. There is no god but Allah, making the religion sincerely His, even if the disbelievers dislike it.",
+    "fr" to "Nulle divinité qu'Allah, seul, sans associé. Nulle force ni puissance qu'en Allah. Nous n'adorons que Lui. À Lui le bienfait, la faveur et la belle louange, même si les mécréants le détestent.",
+    "es" to "No hay dios sino Allah, solo, sin asociado. No hay poder ni fuerza sino en Allah. No adoramos sino a Él. Suyo es el favor y la hermosa alabanza, aunque lo detesten los incrédulos.",
+    "tr" to "Allah'tan başka ilah yoktur; O tektir. Güç ve kuvvet ancak Allah iledir. O'ndan başkasına tapmayız. Nimet, lütuf ve güzel övgü O'nundur. Dini O'na halis kılarız; kâfirler hoşlanmasa da.",
+    "ur" to "اللہ کے سوا کوئی معبود نہیں، وہ یکتا ہے بے شریک۔ کوئی طاقت نہیں مگر اللہ کے ساتھ۔ ہم اسی کی عبادت کرتے ہیں۔ نعمت، فضل اور خوبصورت تعریف اسی کی ہے۔ دین اسی کے لیے خالص، چاہے کافر ناپسند کریں۔",
+    "id" to "Tidak ada tuhan selain Allah, Yang Maha Esa. Tidak ada daya dan kekuatan kecuali dengan Allah. Kami tidak menyembah kecuali Dia. Nikmat, karunia, dan pujian indah milik-Nya, meski orang kafir membencinya.",
+    "hi" to "अल्लाह के सिवा कोई माबूद नहीं, वह अकेला है। कोई शक्ति नहीं सिवा अल्लाह के। हम उसी की इबादत करते हैं। नेमत, फ़ज़्ल और ख़ूबसूरत हम्द उसी की है — चाहे काफ़िर नापसंद करें।",
+)
+internal val AFTER_PRAYER_TAHLIL_TEN = mapOf(
+    "en" to "There is no god but Allah, alone, without partner. His is the dominion and His is the praise. He gives life and causes death, and He is over all things competent.",
+    "fr" to "Nulle divinité qu'Allah, seul, sans associé. À Lui la royauté et la louange. Il fait vivre et Il fait mourir, et Il est capable de toute chose.",
+    "es" to "No hay dios sino Allah, solo, sin asociado. Suyo es el dominio y la alabanza. Él da la vida y causa la muerte, y es capaz de toda cosa.",
+    "tr" to "Allah'tan başka ilah yoktur; O tektir, ortağı yoktur. Mülk O'nundur, hamd O'nadır. Diriltir ve öldürür. O her şeye kadirdir.",
+    "ur" to "اللہ کے سوا کوئی معبود نہیں، وہ یکتا ہے بے شریک۔ بادشاہی اور تعریف اسی کی ہے۔ وہ زندہ کرتا اور مارتا ہے، اور ہر چیز پر قادر ہے۔",
+    "id" to "Tidak ada tuhan selain Allah, Yang Maha Esa, tiada sekutu bagi-Nya. Bagi-Nya kerajaan dan pujian. Dia menghidupkan dan mematikan, dan Dia Mahakuasa atas segala sesuatu.",
+    "hi" to "अल्लाह के सिवा कोई माबूद नहीं, वह अकेला है बिना साझी। राज्य और स्तुति उसी की है। वह ज़िंदा करता और मारता है, और हर चीज़ पर क़ादिर है।",
+)
+internal val AFTER_PRAYER_AINNI = mapOf(
+    "en" to "O Allah, help me to remember You, to thank You, and to worship You well.",
+    "fr" to "Ô Allah, aide-moi à T'évoquer, à Te remercier et à T'adorer de la meilleure façon.",
+    "es" to "Oh Allah, ayúdame a recordarte, a agradecerte y a adorarte bien.",
+    "tr" to "Allahım! Zikrine, şükrüne ve güzel ibadetine beni yardım et.",
+    "ur" to "اے اللہ! اپنے ذکر، شکر اور اچھی عبادت پر میری مدد فرما۔",
+    "id" to "Ya Allah, tolonglah aku untuk mengingat-Mu, bersyukur kepada-Mu, dan beribadah kepada-Mu dengan baik.",
+    "hi" to "ऐ अल्लाह, अपने ज़िक्र, शुक्र और अच्छी इबादत पर मेरी मदद कर।",
+)
+internal val AFTER_PRAYER_BUKHL = mapOf(
+    "en" to "O Allah, I seek refuge in You from miserliness, from cowardice, from being returned to the worst of old age, from the trial of this world, and from the punishment of the grave.",
+    "fr" to "Ô Allah, je cherche protection contre l'avarice, la lâcheté, le retour à l'âge le plus dégradé, la tentation de ce monde et le châtiment de la tombe.",
+    "es" to "Oh Allah, me refugio de la avaricia, la cobardía, ser devuelto a la peor vejez, la prueba de este mundo y el castigo de la tumba.",
+    "tr" to "Allahım! Cimrilikten, korkaklıktan, ömrün en düşkün çağına döndürülmekten, dünya fitnesinden ve kabir azabından Sana sığınırım.",
+    "ur" to "اے اللہ! میں بخل، بزدلی، عمر کی ذلت کی طرف لوٹائے جانے، دنیا کے فتنے اور قبر کے عذاب سے تیری پناہ مانگتا ہوں۔",
+    "id" to "Ya Allah, aku berlindung kepada-Mu dari kikir, pengecut, dikembalikan ke usia paling hina, fitnah dunia, dan azab kubur.",
+    "hi" to "ऐ अल्लाह, मैं कंजूसी, कायरता, उम्र की ज़िल्लत की तरफ़ लौटाए जाने, दुनिया के फ़ित्ने और क़ब्र के अज़ाब से तेरी पनाह लेता हूँ।",
+)
+internal val VIRTUE_AFTER_ISTIGHFAR = mapOf(
+    "en" to "Three times after the taslim. Narrated by Muslim.",
+    "fr" to "Trois fois après le taslim. Rapporté par Muslim.",
+    "es" to "Tres veces tras el taslim. Relatado por Muslim.",
+    "tr" to "Selamdan sonra üç kez. Müslim rivayet etti.",
+    "ur" to "سلام کے بعد تین بار۔ مسلم نے روایت کی۔",
+    "id" to "Tiga kali setelah salam. Diriwayatkan Muslim.",
+    "hi" to "सलाम के बाद तीन बार। मुस्लिम ने रिवायत की।",
+)
+internal val VIRTUE_AFTER_SALAM = mapOf(
+    "en" to "After seeking forgiveness. Narrated by Muslim.",
+    "fr" to "Après la demande de pardon. Rapporté par Muslim.",
+    "es" to "Tras pedir perdón. Relatado por Muslim.",
+    "tr" to "İstiğfardan sonra. Müslim rivayet etti.",
+    "ur" to "استغفار کے بعد۔ مسلم نے روایت کی۔",
+    "id" to "Setelah istighfar. Diriwayatkan Muslim.",
+    "hi" to "इस्तिग़फ़ार के बाद। मुस्लिम ने रिवायत की।",
+)
+internal val VIRTUE_AFTER_LA_MANI = mapOf(
+    "en" to "After every obligatory prayer. Narrated by Bukhari and Muslim.",
+    "fr" to "Après chaque prière obligatoire. Rapporté par Bukhari et Muslim.",
+    "es" to "Tras cada oración obligatoria. Relatado por Bujari y Muslim.",
+    "tr" to "Her farz namazın ardından. Buhârî ve Müslim rivayet etti.",
+    "ur" to "ہر فرض کے بعد۔ بخاری و مسلم نے روایت کی۔",
+    "id" to "Setelah setiap shalat wajib. Diriwayatkan Bukhari dan Muslim.",
+    "hi" to "हर फ़र्ज़ के बाद। बुख़ारी और मुस्लिम ने रिवायत की।",
+)
+internal val VIRTUE_AFTER_LA_NAABUDU = mapOf(
+    "en" to "After every obligatory prayer. Narrated by Muslim.",
+    "fr" to "Après chaque prière obligatoire. Rapporté par Muslim.",
+    "es" to "Tras cada oración obligatoria. Relatado por Muslim.",
+    "tr" to "Her farz namazın ardından. Müslim rivayet etti.",
+    "ur" to "ہر فرض کے بعد۔ مسلم نے روایت کی۔",
+    "id" to "Setelah setiap shalat wajib. Diriwayatkan Muslim.",
+    "hi" to "हर फ़र्ज़ के बाद। मुस्लिम ने रिवायत की।",
+)
+internal val VIRTUE_AFTER_TASBIH = mapOf(
+    "en" to "After every prayer. Narrated by Muslim.",
+    "fr" to "Après chaque prière. Rapporté par Muslim.",
+    "es" to "Tras cada oración. Relatado por Muslim.",
+    "tr" to "Her namazın ardından. Müslim rivayet etti.",
+    "ur" to "ہر نماز کے بعد۔ مسلم نے روایت کی۔",
+    "id" to "Setelah setiap shalat. Diriwayatkan Muslim.",
+    "hi" to "हर नमाज़ के बाद। मुस्लिम ने रिवायत की।",
+)
+internal val VIRTUE_AFTER_TAHLIL_HUNDRED = mapOf(
+    "en" to "Completing the hundred after the tasbih. Narrated by Muslim.",
+    "fr" to "Pour compléter la centaine après le tasbih. Rapporté par Muslim.",
+    "es" to "Para completar el ciento tras el tasbih. Relatado por Muslim.",
+    "tr" to "Tesbihten sonra yüzü tamamlamak. Müslim rivayet etti.",
+    "ur" to "تسبیح کے بعد سو پوری کرنا۔ مسلم نے روایت کی۔",
+    "id" to "Menyempurnakan seratus setelah tasbih. Diriwayatkan Muslim.",
+    "hi" to "तस्बीह के बाद सौ पूरा करना। मुस्लिम ने रिवायत की।",
+)
+internal val VIRTUE_AFTER_MAGHRIB_FAJR = mapOf(
+    "en" to "Ten times after Maghrib and Fajr.",
+    "fr" to "Dix fois après Maghrib et Fajr.",
+    "es" to "Diez veces tras el Magrib y el Fajr.",
+    "tr" to "Akşam ve sabah namazlarından sonra on kez.",
+    "ur" to "مغرب اور فجر کے بعد دس بار۔",
+    "id" to "Sepuluh kali setelah Magrib dan Subuh.",
+    "hi" to "मगरिब और फ़ज्र के बाद दस बार।",
+)
+internal val VIRTUE_AFTER_BUKHL = mapOf(
+    "en" to "After every prayer. Narrated by Bukhari.",
+    "fr" to "Après chaque prière. Rapporté par Bukhari.",
+    "es" to "Tras cada oración. Relatado por Bujari.",
+    "tr" to "Her namazın ardından. Buhârî rivayet etti.",
+    "ur" to "ہر نماز کے بعد۔ بخاری نے روایت کی۔",
+    "id" to "Setelah setiap shalat. Diriwayatkan Bukhari.",
+    "hi" to "हर नमाज़ के बाद। बुख़ारी ने रिवायत की।",
+)
+internal val VIRTUE_AFTER_AINNI = mapOf(
+    "en" to "After every prayer. Narrated by Abu Dawud and Ahmad.",
+    "fr" to "Après chaque prière. Rapporté par Abou Dawoud et Ahmad.",
+    "es" to "Tras cada oración. Relatado por Abu Dawud y Ahmad.",
+    "tr" to "Her namazın ardından. Ebû Dâvûd ve Ahmed rivayet etti.",
+    "ur" to "ہر نماز کے بعد۔ ابو داؤد اور احمد نے روایت کی۔",
+    "id" to "Setelah setiap shalat. Diriwayatkan Abu Dawud dan Ahmad.",
+    "hi" to "हर नमाज़ के बाद। अबू दाऊद और अहमद ने रिवायत की।",
+)

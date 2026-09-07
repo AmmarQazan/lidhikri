@@ -14,14 +14,15 @@ import java.util.TimeZone
 
 object PrayerTimesCalculator {
     fun zoneId(config: PrayerConfig): ZoneId {
-        val location = config.location
         val resolved = when (config.timezoneMode) {
             TimezoneMode.MANUAL -> config.timezoneId.ifBlank { TimeZone.getDefault().id }
             TimezoneMode.AUTO -> {
-                val fromCountry = location?.countryCode
-                    ?.takeIf { it.isNotBlank() }
-                    ?.let { PrayerCountryDefaults.timezoneIdFor(it) }
-                fromCountry ?: TimeZone.getDefault().id
+                val location = config.location
+                if (location?.isValid == true) {
+                    PrayerTimezones.resolve(location)
+                } else {
+                    TimeZone.getDefault().id
+                }
             }
         }
         return runCatching { ZoneId.of(resolved) }.getOrDefault(ZoneId.systemDefault())

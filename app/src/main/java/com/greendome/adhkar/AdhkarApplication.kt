@@ -14,6 +14,7 @@ import com.greendome.adhkar.service.AdhanAlertNotifier
 import com.greendome.adhkar.service.AfterPrayerAlarmScheduler
 import com.greendome.adhkar.service.NextAdhanService
 import com.greendome.adhkar.service.OfflineDownloadHelper
+import com.greendome.adhkar.service.PrayerPhoneSilent
 import com.greendome.adhkar.service.SilentNotificationChannels
 import com.greendome.adhkar.prayer.PrayerCountryDefaults
 import com.greendome.adhkar.sync.RemoteContentSync
@@ -45,6 +46,7 @@ class AdhkarApplication : Application() {
         super.onCreate()
         database = AdhkarDatabase.get(this)
         settings = SettingsRepository(this)
+        LocaleHelper.applyAppLocales(this, settings.appLanguage)
         PrayerCountryDefaults.loadCached(settings.prayerDefaultsJson)
         dhikrRepo = DhikrRepository(database)
         reciterRepo = ReciterRepository(database)
@@ -72,6 +74,7 @@ class AdhkarApplication : Application() {
             collections.rescheduleAllAlarms()
             AfterPrayerAlarmScheduler.reschedule(this@AdhkarApplication)
             AdhanAlarmScheduler.reschedule(this@AdhkarApplication)
+            PrayerPhoneSilent.reschedule(this@AdhkarApplication)
             DhikrOfDayManager.refresh(this@AdhkarApplication)
         }
     }

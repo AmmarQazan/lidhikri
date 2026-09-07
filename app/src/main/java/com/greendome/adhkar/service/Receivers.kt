@@ -49,6 +49,7 @@ class BootReceiver : BroadcastReceiver() {
         }
         AfterPrayerAlarmScheduler.reschedule(context)
         AdhanAlarmScheduler.reschedule(context)
+        PrayerPhoneSilent.sync(context)
         HomeGeofenceScheduler.register(context)
         VehicleActivityScheduler.register(context)
         DhikrOfDayManager.refreshAsync(context)

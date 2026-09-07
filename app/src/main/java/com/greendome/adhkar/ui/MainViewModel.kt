@@ -19,6 +19,7 @@ import com.greendome.adhkar.data.local.ReciterAudioEntity
 import com.greendome.adhkar.data.local.ReciterAzkarAudioEntity
 import com.greendome.adhkar.prayer.PrayerRespectGate
 import com.greendome.adhkar.review.InAppReviewTracker
+import com.greendome.adhkar.service.PrayerAlarms
 import com.greendome.adhkar.service.ReminderScheduler
 import com.greendome.adhkar.sync.PendingPublishRepository
 import com.greendome.adhkar.sync.PendingPublishType
@@ -163,6 +164,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         )
         viewModelScope.launch {
             settings.respectPrayerTime = result.respectPrayerTime
+            settings.silentDuringFardPrayer = result.silentDuringFardPrayer
             result.prayerLocation?.let { settings.setPrayerLocation(it, result.prayerLocationMode) }
             if (result.prayerLocationMode == com.greendome.adhkar.prayer.LocationMode.GPS) {
                 settings.prayerTravelAutoUpdate = true
@@ -180,6 +182,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                 homeLocation = result.homeLocation,
                 ridingAzkarEnabled = result.ridingAzkarEnabled,
             )
+            PrayerAlarms.rescheduleAll(getApplication())
         }
     }
 

@@ -8,6 +8,7 @@ object PrayerAlarms {
     fun rescheduleAll(context: Context) {
         AfterPrayerAlarmScheduler.reschedule(context)
         AdhanAlarmScheduler.reschedule(context)
+        PrayerPhoneSilent.reschedule(context)
         PrayerTimesWidgetManager.updateAll(context)
         val settings = SettingsRepository(context)
         if (settings.isServiceEnabled) {

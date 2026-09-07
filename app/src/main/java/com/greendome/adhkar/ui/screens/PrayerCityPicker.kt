@@ -103,11 +103,25 @@ fun PrayerCityPicker(
         }
     }
 
+    val gps = rememberGpsLocate(
+        locatingMessage = stringResource(R.string.prayer_gps_locating),
+        failedMessage = stringResource(R.string.prayer_gps_failed),
+        preferGps = false,
+        onStatus = { status = it },
+        onLocation = { location ->
+            val resolved = CityLocator.reverse(context, location.latitude, location.longitude)
+            pick(resolved, LocationMode.GPS)
+        }
+    )
+
     val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted ->
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { grants ->
+        val granted = grants[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+            grants[Manifest.permission.ACCESS_COARSE_LOCATION] == true ||
+            DeviceLocation.hasPermission(context)
         if (granted) {
-            scope.launch { resolveGps(context, { loc, mode -> pick(loc, mode) }) { status = it } }
+            gps.request()
         } else {
             status = context.getString(R.string.prayer_location_denied)
         }
@@ -174,9 +188,14 @@ fun PrayerCityPicker(
             onClick = {
                 status = null
                 if (DeviceLocation.hasPermission(context)) {
-                    scope.launch { resolveGps(context, { loc, mode -> pick(loc, mode) }) { status = it } }
+                    gps.request()
                 } else {
-                    permissionLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
+                    permissionLauncher.launch(
+                        arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                        )
+                    )
                 }
             },
             colors = AppFilledButtonColors(),
@@ -185,10 +204,13 @@ fun PrayerCityPicker(
             Text(stringResource(R.string.prayer_use_gps))
         }
         status?.let {
+            val failed = it == stringResource(R.string.prayer_gps_failed) ||
+                it == stringResource(R.string.prayer_location_denied)
             Text(
                 text = it,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = if (failed) MaterialTheme.colorScheme.error
+                else MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
         Spacer(Modifier.height(2.dp))
@@ -198,19 +220,4 @@ fun PrayerCityPicker(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
-}
-
-private suspend fun resolveGps(
-    context: android.content.Context,
-    onPicked: (PrayerLocation, LocationMode) -> Unit,
-    onStatus: (String?) -> Unit
-) {
-    onStatus(context.getString(R.string.prayer_gps_locating))
-    val location = DeviceLocation.requestCurrent(context)
-    if (location == null) {
-        onStatus(context.getString(R.string.prayer_gps_failed))
-        return
-    }
-    val resolved = CityLocator.reverse(context, location.latitude, location.longitude)
-    onPicked(resolved, LocationMode.GPS)
 }

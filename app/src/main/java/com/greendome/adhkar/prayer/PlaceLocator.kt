@@ -41,10 +41,14 @@ object PlaceLocator {
     suspend fun reverse(context: Context, latitude: Double, longitude: Double): PrayerLocation {
         val fromGeo = withTimeoutOrNull(3_500) { reverseGeocode(context, latitude, longitude) }
         if (fromGeo != null) {
-            return fromGeo.copy(latitude = latitude, longitude = longitude)
+            return PrayerTimezones.withResolved(
+                fromGeo.copy(latitude = latitude, longitude = longitude)
+            )
         }
-        return CityLocator.reverse(context, latitude, longitude)
-            .copy(latitude = latitude, longitude = longitude)
+        return PrayerTimezones.withResolved(
+            CityLocator.reverse(context, latitude, longitude)
+                .copy(latitude = latitude, longitude = longitude)
+        )
     }
 
     private suspend fun searchPhoton(query: String, near: Location?): List<PrayerLocation> =
@@ -178,7 +182,7 @@ object PlaceLocator {
             cityName = title,
             countryName = area,
             countryCode = countryCode.orEmpty()
-        )
+        ).let(PrayerTimezones::withResolved)
     }
 
     private val httpClient: OkHttpClient by lazy {
@@ -220,6 +224,6 @@ private data class PhotonHit(
             cityName = title,
             countryName = area,
             countryCode = countryCode
-        )
+        ).let(PrayerTimezones::withResolved)
     }
 }

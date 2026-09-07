@@ -52,7 +52,7 @@ FR_UPDATES = {
     "settings_misbaha_subtitle": "Type, apparence des perles ou électronique, son et vibration",
     "settings_widgets_title": "Widgets",
     "today_stats_azkar_title": "Adhkar auto aujourd'hui",
-    "today_stats_hint": "Les compteurs automatiques augmentent à chaque rappel réussi. La misbaha compte les appuis manuels. Remise à zéro chaque jour.",
+    "today_stats_misbaha_title": "Misbaha manuelle aujourd'hui",
 }
 
 ES_UPDATES = {
@@ -90,7 +90,7 @@ ES_UPDATES = {
     "settings_misbaha_subtitle": "Tipo, estilo de las cuentas o electrónico, sonido y vibración",
     "settings_widgets_title": "Widgets",
     "today_stats_azkar_title": "Adhkar automático hoy",
-    "today_stats_hint": "Los contadores automáticos suben con cada recordatorio correcto. La misbaha cuenta los toques manuales. Se reinicia cada día.",
+    "today_stats_misbaha_title": "Misbaha manual hoy",
 }
 
 

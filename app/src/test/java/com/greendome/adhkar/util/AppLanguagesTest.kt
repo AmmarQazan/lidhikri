@@ -32,22 +32,20 @@ class AppLanguagesTest {
     }
 
     @Test
-    fun onlyArabicIsEnabled() {
+    fun arabicIsDefaultAndOthersAreEnabled() {
         assertTrue(AppLanguages.isEnabled("ar"))
-        assertFalse(AppLanguages.isEnabled("en"))
-        assertFalse(AppLanguages.isEnabled("tr"))
-        assertFalse(AppLanguages.isEnabled("ur"))
-        assertFalse(AppLanguages.isEnabled("id"))
-        assertFalse(AppLanguages.isEnabled("hi"))
-        assertEquals("ar", AppLanguages.coerce("en"))
-        assertEquals("ar", AppLanguages.coerce("tr"))
+        assertTrue(AppLanguages.isEnabled("en"))
+        assertTrue(AppLanguages.isEnabled("tr"))
+        assertEquals("en", AppLanguages.coerce("en"))
+        assertEquals("ar", AppLanguages.coerce("xx"))
         assertEquals("ar", AppLanguages.coerce("ar"))
     }
 
     @Test
-    fun pickerPairsOnlyEnabledLanguages() {
+    fun pickerPairsIncludeArabicAndEnglish() {
         val pairs = AppLanguages.pickerPairs()
-        assertEquals(listOf("ar" to "العربية"), pairs)
-        assertFalse(pairs.any { it.first == "en" })
+        assertTrue(pairs.contains("ar" to "العربية"))
+        assertTrue(pairs.contains("en" to "English"))
+        assertEquals(8, pairs.size)
     }
 }

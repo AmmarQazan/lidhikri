@@ -203,13 +203,14 @@ object SubaihatReciterSeed {
         AzkarSpec("evening", "evening/salawat.mp3", listOf("بارك", "نبينا")),
         AzkarSpec("evening", "tasbih/subhan_bihamd.mp3", listOf("سبحان الله وبحمده"), exact = true),
         AzkarSpec("evening", "tasbih/tawhid.mp3", listOf("وحده لا شريك"), absent = listOf("اصبحنا", "امسينا", "اشهدك")),
-        AzkarSpec("after_prayer", "tasbih/istighfar.mp3", listOf("استغفر الله"), exact = true),
+        AzkarSpec("after_prayer", "after_prayer/istighfar_3.mp3", listOf("استغفر الله"), exact = true),
         AzkarSpec("after_prayer", "after_prayer/salam.mp3", listOf("السلام")),
         AzkarSpec(
             "after_prayer",
             "after_prayer/tawhid.mp3",
             listOf("وحده لا شريك"),
-            bindAll = true
+            bindAll = true,
+            absent = listOf("لا مانع", "لا حول", "نعبد"),
         ),
         AzkarSpec("after_prayer", "after_prayer/subhan.mp3", listOf("سبحان الله"), exact = true),
         AzkarSpec("after_prayer", "after_prayer/hamd.mp3", listOf("الحمد لله"), exact = true),
@@ -255,6 +256,15 @@ object SubaihatReciterSeed {
             }
         }
         return if (spec.bindAll) hits else hits.take(1)
+    }
+
+    internal fun matchedAzkarFile(collectionId: String, textAr: String): String? {
+        val item = AzkarItemEntity(collectionId = collectionId, textAr = textAr)
+        return azkarMaps().firstNotNullOfOrNull { spec ->
+            if (spec.collectionId != collectionId) return@firstNotNullOfOrNull null
+            if (matchAzkar(listOf(item), spec).isEmpty()) return@firstNotNullOfOrNull null
+            spec.file
+        }
     }
 
     internal fun normalizeAr(raw: String): String {

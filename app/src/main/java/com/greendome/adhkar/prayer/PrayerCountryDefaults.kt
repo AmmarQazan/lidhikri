@@ -14,7 +14,12 @@ object PrayerCountryDefaults {
         "MR", "SO", "DJ", "KM",
         "PK", "IN", "BD", "AF",
         "ID", "MY", "SG", "BN",
-        "GB", "FR", "DE", "US", "CA", "AU"
+        "GB", "FR", "DE", "US", "CA", "AU",
+        "JP", "NG", "BR", "ZA",
+        "UZ", "KZ", "KG", "TJ", "TM",
+        "NL", "RU",
+        "BA", "AL", "XK", "MK", "ME",
+        "CN"
     )
 
     fun loadCached(json: String) {
@@ -93,7 +98,12 @@ object PrayerCountryDefaults {
 
     internal fun builtinMadhab(countryCode: String): AsrMadhabPref {
         return when (countryCode.uppercase()) {
-            "PK", "IN", "BD", "AF", "TR", "IQ", "SY" -> AsrMadhabPref.HANAFI
+            "PK", "IN", "BD", "AF",
+            "TR", "IQ", "SY",
+            "UZ", "KZ", "KG", "TJ", "TM",
+            "RU",
+            "BA", "AL", "XK", "MK", "ME",
+            "CN" -> AsrMadhabPref.HANAFI
             else -> AsrMadhabPref.SHAFI
         }
     }
@@ -138,6 +148,23 @@ object PrayerCountryDefaults {
             "US" -> "America/New_York"
             "CA" -> "America/Toronto"
             "AU" -> "Australia/Sydney"
+            "JP" -> "Asia/Tokyo"
+            "NG" -> "Africa/Lagos"
+            "BR" -> "America/Sao_Paulo"
+            "ZA" -> "Africa/Johannesburg"
+            "UZ" -> "Asia/Tashkent"
+            "KZ" -> "Asia/Almaty"
+            "KG" -> "Asia/Bishkek"
+            "TJ" -> "Asia/Dushanbe"
+            "TM" -> "Asia/Ashgabat"
+            "NL" -> "Europe/Amsterdam"
+            "RU" -> "Europe/Moscow"
+            "BA" -> "Europe/Sarajevo"
+            "AL" -> "Europe/Tirane"
+            "XK" -> "Europe/Belgrade"
+            "MK" -> "Europe/Skopje"
+            "ME" -> "Europe/Podgorica"
+            "CN" -> "Asia/Shanghai"
             else -> fallback
         }
     }
@@ -195,7 +222,32 @@ object PrayerCountryDefaults {
         "Europe/Berlin",
         "America/New_York",
         "America/Chicago",
+        "America/Denver",
+        "America/Los_Angeles",
         "America/Toronto",
-        "Australia/Sydney"
+        "America/Vancouver",
+        "America/Sao_Paulo",
+        "America/Manaus",
+        "America/Fortaleza",
+        "Australia/Sydney",
+        "Australia/Perth",
+        "Asia/Tokyo",
+        "Asia/Makassar",
+        "Africa/Lagos",
+        "Africa/Johannesburg",
+        "Asia/Tashkent",
+        "Asia/Almaty",
+        "Asia/Bishkek",
+        "Asia/Dushanbe",
+        "Asia/Ashgabat",
+        "Europe/Amsterdam",
+        "Europe/Moscow",
+        "Europe/Sarajevo",
+        "Europe/Tirane",
+        "Europe/Belgrade",
+        "Europe/Skopje",
+        "Europe/Podgorica",
+        "Asia/Shanghai",
+        "Asia/Urumqi"
     )
 }

@@ -7,6 +7,10 @@ import android.content.Context
 import android.content.Intent
 import android.location.LocationManager
 import android.os.Build
+import com.google.android.gms.location.Geofence
+import com.google.android.gms.location.GeofencingEvent
+import com.google.android.gms.location.GeofencingRequest
+import com.google.android.gms.location.LocationServices
 import com.greendome.adhkar.data.HomeAzkar
 import com.greendome.adhkar.data.SettingsRepository
 import com.greendome.adhkar.data.local.AdhkarDatabase
@@ -19,6 +23,7 @@ import kotlinx.coroutines.withContext
 
 object HomeGeofenceScheduler {
     private const val REQUEST = 8101
+    private const val GEOFENCE_ID = "home_azkar"
     const val ACTION_PROXIMITY = "com.greendome.adhkar.HOME_PROXIMITY"
     const val COOLDOWN_MS = 3 * 60_000L
 
@@ -28,7 +33,11 @@ object HomeGeofenceScheduler {
         unregister(app)
         if (!shouldMonitor(settings) || !DeviceLocation.hasFinePermission(app)) return
         val location = settings.homeLocation() ?: return
-        registerProximity(app, location.latitude, location.longitude)
+        if (!DeviceLocation.isEnabled(app)) {
+            registerProximity(app, location.latitude, location.longitude)
+            return
+        }
+        registerGeofence(app, location.latitude, location.longitude)
     }
 
     fun unregister(context: Context) {
@@ -37,10 +46,42 @@ object HomeGeofenceScheduler {
             app.getSystemService(LocationManager::class.java)
                 ?.removeProximityAlert(pending(app))
         }
+        runCatching {
+            LocationServices.getGeofencingClient(app).removeGeofences(pending(app))
+        }
+        runCatching {
+            LocationServices.getGeofencingClient(app).removeGeofences(listOf(GEOFENCE_ID))
+        }
     }
 
     fun shouldMonitor(settings: SettingsRepository): Boolean =
         settings.homeAzkarEnabled && settings.hasHomeLocation
+
+    @SuppressLint("MissingPermission")
+    private fun registerGeofence(context: Context, lat: Double, lng: Double) {
+        val geofence = Geofence.Builder()
+            .setRequestId(GEOFENCE_ID)
+            .setCircularRegion(lat, lng, HomeAzkar.DEFAULT_RADIUS_METERS)
+            .setExpirationDuration(Geofence.NEVER_EXPIRE)
+            .setTransitionTypes(
+                Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT
+            )
+            .build()
+        val request = GeofencingRequest.Builder()
+            .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+            .addGeofence(geofence)
+            .build()
+        val pending = pending(context)
+        runCatching {
+            LocationServices.getGeofencingClient(context)
+                .addGeofences(request, pending)
+                .addOnFailureListener {
+                    registerProximity(context, lat, lng)
+                }
+        }.onFailure {
+            registerProximity(context, lat, lng)
+        }
+    }
 
     @SuppressLint("MissingPermission")
     private fun registerProximity(context: Context, lat: Double, lng: Double) {
@@ -75,12 +116,7 @@ class HomeGeofenceReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent?) {
         if (intent == null) return
-        if (!intent.hasExtra(LocationManager.KEY_PROXIMITY_ENTERING)) return
-        val event = if (intent.getBooleanExtra(LocationManager.KEY_PROXIMITY_ENTERING, false)) {
-            HomeAzkar.Event.ENTER
-        } else {
-            HomeAzkar.Event.EXIT
-        }
+        val event = parseEvent(intent) ?: return
         val pending = goAsync()
         scope.launch {
             try {
@@ -88,6 +124,23 @@ class HomeGeofenceReceiver : BroadcastReceiver() {
             } finally {
                 pending.finish()
             }
+        }
+    }
+
+    private fun parseEvent(intent: Intent): HomeAzkar.Event? {
+        val geo = runCatching { GeofencingEvent.fromIntent(intent) }.getOrNull()
+        if (geo != null && !geo.hasError()) {
+            return when (geo.geofenceTransition) {
+                Geofence.GEOFENCE_TRANSITION_ENTER -> HomeAzkar.Event.ENTER
+                Geofence.GEOFENCE_TRANSITION_EXIT -> HomeAzkar.Event.EXIT
+                else -> null
+            }
+        }
+        if (!intent.hasExtra(LocationManager.KEY_PROXIMITY_ENTERING)) return null
+        return if (intent.getBooleanExtra(LocationManager.KEY_PROXIMITY_ENTERING, false)) {
+            HomeAzkar.Event.ENTER
+        } else {
+            HomeAzkar.Event.EXIT
         }
     }
 
@@ -108,5 +161,18 @@ class HomeGeofenceReceiver : BroadcastReceiver() {
             putExtra(AzkarCollectionPlayService.EXTRA_FORCE_PLAY, true)
         }
         runCatching { context.startForegroundService(play) }
+    }
+}
+
+class LocationProvidersReceiver : BroadcastReceiver() {
+    override fun onReceive(context: Context, intent: Intent?) {
+        val action = intent?.action ?: return
+        if (action != LocationManager.MODE_CHANGED_ACTION &&
+            action != LocationManager.PROVIDERS_CHANGED_ACTION
+        ) {
+            return
+        }
+        HomeGeofenceScheduler.register(context)
+        VehicleActivityScheduler.register(context)
     }
 }

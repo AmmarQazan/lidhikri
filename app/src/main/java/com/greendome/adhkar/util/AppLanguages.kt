@@ -12,13 +12,13 @@ data class AppLanguage(
 object AppLanguages {
     val all: List<AppLanguage> = listOf(
         AppLanguage("ar", "العربية", true, enabled = true),
-        AppLanguage("en", "English", false, enabled = false),
-        AppLanguage("fr", "Français", false, enabled = false),
-        AppLanguage("es", "Español", false, enabled = false),
-        AppLanguage("tr", "Türkçe", false, enabled = false),
-        AppLanguage("ur", "اردو", true, enabled = false),
-        AppLanguage("id", "Bahasa Indonesia", false, enabled = false),
-        AppLanguage("hi", "हिन्दी", false, enabled = false),
+        AppLanguage("en", "English", false, enabled = true),
+        AppLanguage("fr", "Français", false, enabled = true),
+        AppLanguage("es", "Español", false, enabled = true),
+        AppLanguage("tr", "Türkçe", false, enabled = true),
+        AppLanguage("ur", "اردو", true, enabled = true),
+        AppLanguage("id", "Bahasa Indonesia", false, enabled = true),
+        AppLanguage("hi", "हिन्दी", false, enabled = true),
     )
 
     val codes: List<String> = all.map { it.code }

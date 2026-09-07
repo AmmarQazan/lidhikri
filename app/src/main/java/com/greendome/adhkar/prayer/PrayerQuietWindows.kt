@@ -77,6 +77,14 @@ object PrayerQuietWindows {
         .filter { it > fromMillis }
         .minOrNull()
 
+    /** نهاية فترة الفرض — موعد أذكار ما بعد الصلاة، حتى إن كان التذكير موقوفاً. */
+    fun nextPhoneSilentEndAt(
+        config: PrayerConfig,
+        fromMillis: Long = System.currentTimeMillis()
+    ): Long? = prayerPeriodEndsAround(config, fromMillis)
+        .filter { it > fromMillis }
+        .minOrNull()
+
     /**
      * موعد التسبيح في نفس دقيقة أذكار ما بعد الصلاة، أو خلال مهلة قصيرة بعدها.
      * يمنع انطلاق التسبيحة مع ذكر ما بعد الصلاة بعد انتهاء احترام الصلاة.
@@ -170,7 +178,12 @@ object PrayerQuietWindows {
     }
 
     private fun afterPrayerTriggersAround(config: PrayerConfig, atMillis: Long): List<Long> {
-        if (!config.enabled || !config.afterPrayerReminder || !config.hasLocation) return emptyList()
+        if (!config.afterPrayerReminder) return emptyList()
+        return prayerPeriodEndsAround(config, atMillis)
+    }
+
+    private fun prayerPeriodEndsAround(config: PrayerConfig, atMillis: Long): List<Long> {
+        if (!config.enabled || !config.hasLocation) return emptyList()
         val zone = TimeZone.getTimeZone(PrayerTimesCalculator.zoneId(config))
         return PrayerTimesCalculator.timesAround(config, atMillis).flatMap { day ->
             val cal = Calendar.getInstance(zone).apply { timeInMillis = day.dayStartMillis }

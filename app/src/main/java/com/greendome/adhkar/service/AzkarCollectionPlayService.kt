@@ -16,6 +16,7 @@ import com.greendome.adhkar.R
 import com.greendome.adhkar.audio.AzkarPlaybackResolver
 import com.greendome.adhkar.audio.DhikrAudioPlayer
 import com.greendome.adhkar.audio.playResolved
+import com.greendome.adhkar.data.AdhanAzkar
 import com.greendome.adhkar.data.DailyStatsRepository
 import com.greendome.adhkar.data.SettingsRepository
 import com.greendome.adhkar.data.local.AdhkarDatabase
@@ -34,6 +35,7 @@ import kotlinx.coroutines.withContext
 class AzkarCollectionPlayService : Service() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var audioPlayer: DhikrAudioPlayer? = null
+    private var playingCollectionId: String? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -63,6 +65,7 @@ class AzkarCollectionPlayService : Service() {
             stopSelf()
             return START_NOT_STICKY
         }
+        playingCollectionId = collectionId
         val forcePlay = incoming.getBooleanExtra(EXTRA_FORCE_PLAY, false)
         startForeground(
             NOTIF_ID,
@@ -196,9 +199,47 @@ class AzkarCollectionPlayService : Service() {
                 onDismiss = { OverlayWindow.dismiss(applicationContext) },
                 onStopAuto = onStop
             )
-        } else {
+            return
+        }
+        runCatching {
             startActivity(OverlayActivity.autoAzkarIntent(this, sectionTitle, text))
         }
+        showFullScreenAzkar(sectionTitle, text)
+    }
+
+    private fun showFullScreenAzkar(sectionTitle: String, text: String) {
+        if (!RuntimePermissions.hasPostNotifications(this)) return
+        val mgr = getSystemService(NotificationManager::class.java)
+        mgr.createNotificationChannel(
+            NotificationChannel(
+                FULLSCREEN_CHANNEL,
+                getString(R.string.azkar_play_channel),
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                setSound(null, null)
+                enableVibration(false)
+                lockscreenVisibility = android.app.Notification.VISIBILITY_PUBLIC
+            }
+        )
+        val screen = PendingIntent.getActivity(
+            this,
+            FULLSCREEN_REQUEST,
+            OverlayActivity.autoAzkarIntent(this, sectionTitle, text),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        val notification = NotificationCompat.Builder(this, FULLSCREEN_CHANNEL)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(sectionTitle)
+            .setContentText(text)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+            .setContentIntent(screen)
+            .setFullScreenIntent(screen, true)
+            .setCategory(NotificationCompat.CATEGORY_REMINDER)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setAutoCancel(true)
+            .setSilent(true)
+            .build()
+        mgr.notify(FULLSCREEN_NOTIF, notification)
     }
 
     private fun stopPlayback() {
@@ -209,10 +250,14 @@ class AzkarCollectionPlayService : Service() {
     }
 
     override fun onDestroy() {
+        val finishedAdhanAzkar = playingCollectionId == AdhanAzkar.COLLECTION_ID
         if (instance === this) instance = null
         audioPlayer?.stop()
         OverlayWindow.dismiss(applicationContext)
         super.onDestroy()
+        if (finishedAdhanAzkar) {
+            PrayerPhoneSilent.enter(this)
+        }
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -240,5 +285,8 @@ class AzkarCollectionPlayService : Service() {
 
         private const val CHANNEL = "azkar_play"
         private const val NOTIF_ID = 77
+        private const val FULLSCREEN_CHANNEL = "azkar_fullscreen"
+        private const val FULLSCREEN_NOTIF = 78
+        private const val FULLSCREEN_REQUEST = 811
     }
 }

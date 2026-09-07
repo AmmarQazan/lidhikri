@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -25,7 +24,6 @@ import com.greendome.adhkar.prayer.PlaceLocator
 import com.greendome.adhkar.prayer.PrayerLocation
 import com.greendome.adhkar.ui.theme.AppAccentGreen
 import com.greendome.adhkar.ui.theme.AppFilledButtonColors
-import kotlinx.coroutines.launch
 
 @Composable
 fun HomeAddressPicker(
@@ -34,22 +32,24 @@ fun HomeAddressPicker(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
     var status by remember { mutableStateOf<String?>(null) }
-    var locating by remember { mutableStateOf(false) }
+    val locatingLabel = stringResource(R.string.home_azkar_gps_locating)
+    val locating = status == locatingLabel || status == stringResource(R.string.prayer_turn_on_location)
 
-    fun locate() {
-        if (locating) return
-        locating = true
-        status = null
-        scope.launch {
-            try {
-                resolveHomeGps(context, onPicked) { status = it }
-            } finally {
-                locating = false
-            }
+    val gps = rememberGpsLocate(
+        locatingMessage = locatingLabel,
+        failedMessage = stringResource(R.string.home_azkar_gps_failed),
+        preferGps = true,
+        timeoutMs = 15_000L,
+        maxAgeMs = 60_000L,
+        onStatus = { status = it },
+        onLocation = { location ->
+            val resolved = PlaceLocator.reverse(context, location.latitude, location.longitude)
+                .copy(latitude = location.latitude, longitude = location.longitude)
+            onPicked(resolved)
+            status = context.getString(R.string.home_azkar_saved)
         }
-    }
+    )
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -57,7 +57,7 @@ fun HomeAddressPicker(
         val fine = grants[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
             DeviceLocation.hasFinePermission(context)
         when {
-            fine -> locate()
+            fine -> gps.request()
             DeviceLocation.hasPermission(context) -> {
                 status = context.getString(R.string.home_azkar_need_precise)
             }
@@ -89,7 +89,7 @@ fun HomeAddressPicker(
             onClick = {
                 status = null
                 if (DeviceLocation.hasFinePermission(context)) {
-                    locate()
+                    gps.request()
                 } else {
                     permissionLauncher.launch(
                         arrayOf(
@@ -111,33 +111,15 @@ fun HomeAddressPicker(
             )
         }
         status?.let {
+            val failed = it == stringResource(R.string.home_azkar_gps_failed) ||
+                it == stringResource(R.string.home_azkar_permission_denied) ||
+                it == stringResource(R.string.home_azkar_need_precise)
             Text(
                 text = it,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = if (failed) MaterialTheme.colorScheme.error
+                else MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
-}
-
-private suspend fun resolveHomeGps(
-    context: android.content.Context,
-    onPicked: (PrayerLocation) -> Unit,
-    onStatus: (String?) -> Unit
-) {
-    onStatus(context.getString(R.string.home_azkar_gps_locating))
-    val location = DeviceLocation.requestCurrent(
-        context,
-        timeoutMs = 20_000L,
-        maxAgeMs = 0L,
-        preferGps = true,
-    )
-    if (location == null) {
-        onStatus(context.getString(R.string.home_azkar_gps_failed))
-        return
-    }
-    val resolved = PlaceLocator.reverse(context, location.latitude, location.longitude)
-        .copy(latitude = location.latitude, longitude = location.longitude)
-    onPicked(resolved)
-    onStatus(context.getString(R.string.home_azkar_saved))
 }

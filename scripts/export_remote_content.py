@@ -38,6 +38,7 @@ TABLES = {
         WHERE collectionId != 'favorites'
         ORDER BY collectionId, sortOrder, id
     """,
+    "adhanAudio": "SELECT * FROM adhan_audio ORDER BY sortOrder, id",
 }
 
 
@@ -48,6 +49,7 @@ def row_to_dict(cursor: sqlite3.Cursor, row: sqlite3.Row) -> dict:
         "displayPopup", "displayNotification", "displayLockScreen",
         "displayAudioOnly", "displayAudioText", "isBuiltin", "isActive",
         "autoPlayAllowed", "autoPlayEnabled", "useTtsAutoPlay",
+        "suitableForFajr",
     }
     for key, value in list(item.items()):
         if isinstance(value, bytes):
@@ -92,7 +94,7 @@ def transform_rows(table: str, rows: list[dict], base_url: str) -> list[dict]:
             asset = item.get("audioPath")
             if asset and item.get("audioSourceType") in {"BUILTIN", "DOWNLOAD"}:
                 item["remoteAudioUrl"] = asset_to_remote_url(str(asset), base_url)
-        if table in {"reciterAudio", "reciterAzkarAudio"}:
+        if table in {"reciterAudio", "reciterAzkarAudio", "adhanAudio"}:
             asset = item.get("assetPath")
             if asset:
                 item["remoteUrl"] = asset_to_remote_url(str(asset), base_url)
@@ -146,7 +148,10 @@ def export_bundle(db_path: Path, base_url: str, version: int | None = None) -> i
     try:
         bundle = {"version": version, "generatedAt": datetime.now(timezone.utc).isoformat()}
         for key, query in TABLES.items():
-            rows = fetch_table(conn, query)
+            try:
+                rows = fetch_table(conn, query)
+            except sqlite3.OperationalError:
+                rows = []
             bundle[key] = transform_rows(key, rows, base_url)
         skipped_audio = _count_orphaned_reciter_audio(conn)
         if skipped_audio:

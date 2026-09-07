@@ -41,6 +41,7 @@ class AdhanPlaybackService : Service() {
         when (intent?.action) {
             ACTION_STOP -> {
                 finishPlayback()
+                PrayerPhoneSilent.enter(this)
                 return START_NOT_STICKY
             }
         }
@@ -127,6 +128,7 @@ class AdhanPlaybackService : Service() {
             stopForeground(STOP_FOREGROUND_DETACH)
         }
         playingPrayer = null
+        PrayerPhoneSilent.enter(this)
         stopSelf()
     }
 
@@ -142,6 +144,7 @@ class AdhanPlaybackService : Service() {
         cancelPendingAfterAzkar()
         if (!canPlayAfterAzkar(settings, enabled)) {
             finishPlayback()
+            PrayerPhoneSilent.enter(this)
             return
         }
         playingPrayer = null

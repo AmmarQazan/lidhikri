@@ -71,7 +71,8 @@ data class PrayerLocation(
     val longitude: Double,
     val cityName: String,
     val countryName: String = "",
-    val countryCode: String = ""
+    val countryCode: String = "",
+    val timezoneId: String = ""
 ) {
     val isValid: Boolean
         get() = latitude in -90.0..90.0 && longitude in -180.0..180.0 &&

@@ -115,12 +115,7 @@ fun PopupAppearanceSettings(
                                     )
                                 }
                             } else {
-                                context.startActivity(
-                                    android.content.Intent(
-                                        android.provider.Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                                        android.net.Uri.parse("package:${context.packageName}")
-                                    )
-                                )
+                                OverlayWindow.openPermissionSettings(context)
                             }
                         },
                         modifier = Modifier.fillMaxWidth()

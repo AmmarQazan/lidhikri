@@ -63,6 +63,7 @@ class AfterPrayerAlarmReceiver : BroadcastReceiver() {
                 val settings = SettingsRepository(context)
                 val config = settings.prayerConfig()
                 if (config.enabled && config.afterPrayerReminder) {
+                    PrayerPhoneSilent.exit(context)
                     val play = Intent(context, AzkarCollectionPlayService::class.java).apply {
                         putExtra(
                             AzkarCollectionPlayService.EXTRA_COLLECTION_ID,

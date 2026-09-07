@@ -1,7 +1,9 @@
 package com.greendome.adhkar.ui.overlay
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.PixelFormat
+import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import android.view.Gravity
@@ -54,6 +56,23 @@ object OverlayWindow {
 
     fun hasPermission(context: Context): Boolean =
         Build.VERSION.SDK_INT < Build.VERSION_CODES.M || Settings.canDrawOverlays(context)
+
+    fun needsOnboardingStep(sdkInt: Int = Build.VERSION.SDK_INT): Boolean =
+        sdkInt >= Build.VERSION_CODES.M
+
+    fun permissionSettingsIntent(context: Context): Intent =
+        Intent(
+            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+            Uri.parse("package:${context.packageName}")
+        )
+
+    fun openPermissionSettings(context: Context): Boolean =
+        runCatching {
+            context.startActivity(
+                permissionSettingsIntent(context).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+            true
+        }.getOrDefault(false)
 
     fun showTasbih(context: Context, text: String) {
         if (!hasPermission(context)) return

@@ -24,6 +24,7 @@ import com.greendome.adhkar.data.SettingsRepository
 import com.greendome.adhkar.prayer.PrayerConfig
 import com.greendome.adhkar.prayer.PrayerName
 import com.greendome.adhkar.service.PrayerAlarms
+import com.greendome.adhkar.service.PrayerPhoneSilent
 import com.greendome.adhkar.ui.theme.formatLocalizedDigits
 
 @Composable
@@ -35,6 +36,7 @@ fun PrayerRespectSettingsScreen(
     val context = LocalContext.current
     var enabled by remember { mutableStateOf(settings.respectPrayerTime) }
     var afterPrayer by remember { mutableStateOf(settings.afterPrayerFromSalahEnabled) }
+    var silentPhone by remember { mutableStateOf(settings.silentDuringFardPrayer) }
     var jumuahQuiet by remember { mutableIntStateOf(settings.prayerJumuahQuietMinutes) }
     var jumuahAfterDelay by remember { mutableIntStateOf(settings.prayerJumuahAfterDelayMinutes) }
     var timesTick by remember { mutableIntStateOf(0) }
@@ -71,6 +73,23 @@ fun PrayerRespectSettingsScreen(
                     settings.respectPrayerTime = it
                     persistAndReschedule()
                 }
+            }
+            item {
+                SettingSwitch(stringResource(R.string.prayer_silent_phone), silentPhone) {
+                    silentPhone = it
+                    settings.silentDuringFardPrayer = it
+                    if (it && !PrayerPhoneSilent.hasPolicyAccess(context)) {
+                        PrayerPhoneSilent.openPolicySettings(context)
+                    }
+                    persistAndReschedule()
+                    if (!it) PrayerPhoneSilent.exit(context)
+                }
+                Text(
+                    stringResource(R.string.prayer_silent_phone_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = 4.dp, top = 2.dp)
+                )
             }
             if (enabled || afterPrayer) {
                 item {

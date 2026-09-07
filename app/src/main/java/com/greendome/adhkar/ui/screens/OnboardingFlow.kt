@@ -1,6 +1,8 @@
 package com.greendome.adhkar.ui.screens
 
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,8 +24,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Layers
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Mosque
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Vibration
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -35,6 +42,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -46,6 +54,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -53,6 +62,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.greendome.adhkar.R
 import com.greendome.adhkar.data.AutoAzkarCatalog
 import com.greendome.adhkar.data.BlessedDaysAzkar
@@ -69,29 +81,35 @@ import com.greendome.adhkar.ui.theme.AppAccentGreen
 import com.greendome.adhkar.ui.theme.sabbihLogoRes
 import com.greendome.adhkar.ui.theme.GoldDome
 import com.greendome.adhkar.ui.theme.arabicFontFamily
-import com.greendome.adhkar.ui.theme.formatLocalizedDigits
 import com.greendome.adhkar.ui.theme.stringResourceDigits
+import com.greendome.adhkar.data.SettingsRepository
 import com.greendome.adhkar.prayer.LocationMode
 import com.greendome.adhkar.prayer.PrayerLocation
+import com.greendome.adhkar.service.PrayerPhoneSilent
+import com.greendome.adhkar.ui.overlay.OverlayWindow
 import com.greendome.adhkar.util.AppLanguages
+import com.greendome.adhkar.util.AppSetupNeeds
+import com.greendome.adhkar.util.LockScreenPermissions
+import com.greendome.adhkar.util.RuntimePermissions
 import com.greendome.adhkar.util.TasbihWindow
-import com.greendome.adhkar.util.formatClockHourCompact
 
 private enum class OnboardingPage {
     WELCOME,
     LANGUAGE,
     APPEARANCE,
-    TASBIH,
+    LOCATION,
     REMINDERS,
+    PERMISSIONS,
 }
 
-private fun onboardingPages(): List<OnboardingPage> = buildList {
-    add(OnboardingPage.WELCOME)
-    if (AppLanguages.pickerPairs().size > 1) add(OnboardingPage.LANGUAGE)
-    add(OnboardingPage.APPEARANCE)
-    add(OnboardingPage.TASBIH)
-    add(OnboardingPage.REMINDERS)
-}
+private fun onboardingPages(): List<OnboardingPage> = listOf(
+    OnboardingPage.WELCOME,
+    OnboardingPage.LANGUAGE,
+    OnboardingPage.APPEARANCE,
+    OnboardingPage.LOCATION,
+    OnboardingPage.REMINDERS,
+    OnboardingPage.PERMISSIONS,
+)
 
 data class OnboardingResult(
     val language: String,
@@ -118,6 +136,7 @@ data class OnboardingResult(
     val homeAzkarEnabled: Boolean = true,
     val homeLocation: PrayerLocation? = null,
     val ridingAzkarEnabled: Boolean = true,
+    val silentDuringFardPrayer: Boolean = true,
     val clockHourFormat: ClockHourFormat = ClockHourFormat.HOUR_24
 )
 
@@ -134,6 +153,7 @@ fun OnboardingFlow(
     azkarCollections: List<AdhkarCollectionEntity> = emptyList(),
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     val pages = remember { onboardingPages() }
     val totalSteps = pages.size
     var step by remember { mutableIntStateOf(initialStep.coerceIn(0, totalSteps - 1)) }
@@ -162,9 +182,12 @@ fun OnboardingFlow(
     var prayerLocation by remember { mutableStateOf<PrayerLocation?>(null) }
     var prayerLocationMode by remember { mutableStateOf(LocationMode.MANUAL) }
     var showHomeAddressRequired by remember { mutableStateOf(false) }
+    var showLocationRequired by remember { mutableStateOf(false) }
 
     fun homeAzkarNeedsAddress(): Boolean =
         wantAutoAzkar && homeAzkar && homeLocation == null
+
+    fun prayerNeedsLocation(): Boolean = prayerLocation == null
 
     fun syncTasbihDefaults(enabled: Boolean) {
         if (enabled) {
@@ -188,7 +211,7 @@ fun OnboardingFlow(
                 azkarCardFontSizeSp = selectedFontSp,
                 azkarListFontSizeSp = azkarListFontSpMatchingCard(selectedFontSp),
                 themeMode = selectedTheme,
-                autoTasbihEnabled = wantAutoTasbih,
+                autoTasbihEnabled = true,
                 autoAzkarEnabled = wantAutoAzkar,
                 morningHour = morningHour,
                 morningMinute = morningMinute,
@@ -198,7 +221,7 @@ fun OnboardingFlow(
                 tasbihStartMinute = tasbihStartMinute,
                 tasbihEndHour = tasbihEndHour,
                 tasbihEndMinute = tasbihEndMinute,
-                respectPrayerTime = wantAutoTasbih && wantRespectPrayer,
+                respectPrayerTime = true,
                 prayerLocation = prayerLocation,
                 prayerLocationMode = prayerLocationMode,
                 enabledAzkarCollectionIds = enabledAzkarIds,
@@ -207,6 +230,7 @@ fun OnboardingFlow(
                 homeAzkarEnabled = homeAzkar,
                 homeLocation = homeLocation,
                 ridingAzkarEnabled = ridingAzkar,
+                silentDuringFardPrayer = true,
                 clockHourFormat = clockHourFormat
             )
         )
@@ -214,6 +238,10 @@ fun OnboardingFlow(
 
     fun goNext() {
         val page = pages[step]
+        if (page == OnboardingPage.LOCATION && prayerNeedsLocation()) {
+            showLocationRequired = true
+            return
+        }
         if (page == OnboardingPage.REMINDERS && homeAzkarNeedsAddress()) {
             showHomeAddressRequired = true
             return
@@ -278,32 +306,14 @@ fun OnboardingFlow(
                         onThemeChange(it)
                     }
                 )
-                OnboardingPage.TASBIH -> OnboardingTasbihStep(
-                    wantAutoTasbih = wantAutoTasbih,
-                    onWantAutoTasbihChange = { enabled ->
-                        wantAutoTasbih = enabled
-                        if (!enabled) wantRespectPrayer = false
-                        if (enabled && wantAutoAzkar) {
-                            syncTasbihDefaults(true)
-                        } else if (!enabled) {
-                            syncTasbihDefaults(false)
-                        }
-                    },
-                    tasbihStartHour = tasbihStartHour,
-                    tasbihStartMinute = tasbihStartMinute,
-                    tasbihEndHour = tasbihEndHour,
-                    tasbihEndMinute = tasbihEndMinute,
-                    wantRespectPrayer = wantRespectPrayer,
-                    onWantRespectPrayerChange = {
-                        wantRespectPrayer = it
-                        if (it) afterPrayerAzkar = true
-                    },
+                OnboardingPage.LOCATION -> OnboardingLocationStep(
                     prayerLocation = prayerLocation,
                     onPrayerLocationPicked = { loc, mode ->
                         prayerLocation = loc
                         prayerLocationMode = mode
                     }
                 )
+                OnboardingPage.PERMISSIONS -> OnboardingPermissionsStep()
                 OnboardingPage.REMINDERS -> OnboardingRemindersStep(
                     language = selectedLanguage,
                     azkarCollections = azkarCollections,
@@ -325,7 +335,7 @@ fun OnboardingFlow(
                     onRidingAzkarChange = { ridingAzkar = it },
                     homeLocation = homeLocation,
                     onHomeLocationPicked = { homeLocation = it },
-                    prayerTimesOn = wantAutoTasbih && wantRespectPrayer,
+                    prayerTimesOn = prayerLocation != null,
                     clockHourFormat = clockHourFormat,
                     onClockHourFormatChange = { clockHourFormat = it }
                 )
@@ -340,14 +350,37 @@ fun OnboardingFlow(
             onNext = { goNext() },
             onBack = { goBack() },
             onSkip = {
-                if (pages[step] == OnboardingPage.REMINDERS && homeAzkarNeedsAddress()) {
-                    showHomeAddressRequired = true
-                } else {
-                    finish()
+                when {
+                    pages[step] == OnboardingPage.LOCATION && prayerNeedsLocation() -> {
+                        showLocationRequired = true
+                    }
+                    pages[step] == OnboardingPage.REMINDERS && homeAzkarNeedsAddress() -> {
+                        showHomeAddressRequired = true
+                    }
+                    pages[step] != OnboardingPage.PERMISSIONS &&
+                        !AppSetupNeeds.allReady(context) -> {
+                        val permissionsIndex = pages.indexOf(OnboardingPage.PERMISSIONS)
+                        step = permissionsIndex
+                        onStepChange(permissionsIndex)
+                    }
+                    else -> finish()
                 }
             }
         )
     }
+    }
+
+    if (showLocationRequired) {
+        AlertDialog(
+            onDismissRequest = { showLocationRequired = false },
+            title = { Text(stringResource(R.string.onboarding_location_required_title)) },
+            text = { Text(stringResource(R.string.onboarding_location_required_message)) },
+            confirmButton = {
+                TextButton(onClick = { showLocationRequired = false }) {
+                    Text(stringResource(R.string.ok))
+                }
+            }
+        )
     }
 
     if (showHomeAddressRequired) {
@@ -498,121 +531,178 @@ private fun OnboardingAppearanceStep(
 }
 
 @Composable
-private fun OnboardingTasbihStep(
-    wantAutoTasbih: Boolean,
-    onWantAutoTasbihChange: (Boolean) -> Unit,
-    tasbihStartHour: Int,
-    tasbihStartMinute: Int,
-    tasbihEndHour: Int,
-    tasbihEndMinute: Int,
-    wantRespectPrayer: Boolean,
-    onWantRespectPrayerChange: (Boolean) -> Unit,
+private fun OnboardingLocationStep(
     prayerLocation: PrayerLocation?,
     onPrayerLocationPicked: (PrayerLocation, LocationMode) -> Unit
 ) {
     OnboardingStepScaffold(
-        title = stringResource(R.string.onboarding_auto_tasbih_title),
-        subtitle = stringResource(R.string.onboarding_auto_tasbih_subtitle)
+        title = stringResource(R.string.onboarding_location_title),
+        subtitle = stringResource(R.string.onboarding_location_subtitle)
     ) {
-        OnboardingSelectionRow(
-            label = stringResource(R.string.onboarding_auto_azkar_yes),
-            selected = wantAutoTasbih,
-            onSelect = { onWantAutoTasbihChange(true) }
+        PrayerCityPicker(
+            current = prayerLocation,
+            onPicked = onPrayerLocationPicked
         )
-        OnboardingSelectionRow(
-            label = stringResource(R.string.onboarding_auto_azkar_no),
-            selected = !wantAutoTasbih,
-            onSelect = { onWantAutoTasbihChange(false) }
-        )
-        if (wantAutoTasbih) {
-            val periodAm = stringResource(R.string.clock_period_am)
-            val periodPm = stringResource(R.string.clock_period_pm)
-            val startLabel = formatClockHourCompact(
-                tasbihStartHour,
-                tasbihStartMinute,
-                periodAm,
-                periodPm
-            ).formatLocalizedDigits()
-            val endLabel = formatClockHourCompact(
-                tasbihEndHour,
-                tasbihEndMinute,
-                periodAm,
-                periodPm
-            ).formatLocalizedDigits()
-            Spacer(Modifier.height(20.dp))
-            Text(
-                text = stringResource(R.string.onboarding_tasbih_window_title),
-                style = MaterialTheme.typography.titleMedium,
-                color = AppAccentGreen(),
-                fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(Modifier.height(6.dp))
-            Text(
-                text = stringResourceDigits(
-                    R.string.onboarding_tasbih_window_range,
-                    startLabel,
-                    endLabel
-                ),
-                style = MaterialTheme.typography.bodyMedium,
-                color = AppAccentGreen(),
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(Modifier.height(6.dp))
-            Text(
-                text = stringResource(R.string.onboarding_tasbih_window_hint),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(Modifier.height(20.dp))
-            Text(
-                text = stringResource(R.string.onboarding_prayer_title),
-                style = MaterialTheme.typography.titleMedium,
-                color = AppAccentGreen(),
-                fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(Modifier.height(6.dp))
-            Text(
-                text = stringResource(R.string.onboarding_prayer_subtitle),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(Modifier.height(12.dp))
-            OnboardingSelectionRow(
-                label = stringResource(R.string.onboarding_prayer_yes),
-                selected = wantRespectPrayer,
-                onSelect = { onWantRespectPrayerChange(true) }
-            )
-            OnboardingSelectionRow(
-                label = stringResource(R.string.onboarding_prayer_no),
-                selected = !wantRespectPrayer,
-                onSelect = { onWantRespectPrayerChange(false) }
-            )
-            if (wantRespectPrayer) {
-                Spacer(Modifier.height(12.dp))
-                Text(
-                    text = stringResource(R.string.onboarding_prayer_what_happens),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(Modifier.height(12.dp))
-                PrayerCityPicker(
-                    current = prayerLocation,
-                    onPicked = onPrayerLocationPicked
-                )
-                Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(16.dp))
+    }
+}
+
+@Composable
+private fun OnboardingPermissionsStep() {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var notificationsOn by remember { mutableStateOf(AppSetupNeeds.notificationsReady(context)) }
+    var overlayOn by remember { mutableStateOf(AppSetupNeeds.overlayReady(context)) }
+    var lockOn by remember { mutableStateOf(AppSetupNeeds.lockScreenReady(context)) }
+    var silentOn by remember { mutableStateOf(AppSetupNeeds.prayerSilentPolicyReady(context)) }
+    var awaitingSettings by remember { mutableStateOf(false) }
+    var notificationsAsked by remember { mutableStateOf(false) }
+    val advanceRef = remember { arrayOf({}) }
+
+    fun refreshStatus() {
+        notificationsOn = AppSetupNeeds.notificationsReady(context)
+        overlayOn = AppSetupNeeds.overlayReady(context)
+        lockOn = AppSetupNeeds.lockScreenReady(context)
+        silentOn = AppSetupNeeds.prayerSilentPolicyReady(context)
+    }
+
+    val notificationLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) {
+        refreshStatus()
+        advanceRef[0]()
+    }
+
+    fun requestNextMissing() {
+        refreshStatus()
+        when {
+            !AppSetupNeeds.notificationsReady(context) && !notificationsAsked -> {
+                val permission = RuntimePermissions.postNotificationsPermission()
+                if (permission != null) {
+                    notificationsAsked = true
+                    notificationLauncher.launch(permission)
+                } else {
+                    notificationsAsked = true
+                    requestNextMissing()
+                }
+            }
+            !AppSetupNeeds.overlayReady(context) -> {
+                awaitingSettings = true
+                OverlayWindow.openPermissionSettings(context)
+            }
+            !AppSetupNeeds.lockScreenReady(context) -> {
+                awaitingSettings = true
+                LockScreenPermissions.openFullScreenIntentSettings(context)
+            }
+            !AppSetupNeeds.prayerSilentPolicyReady(context) -> {
+                awaitingSettings = true
+                PrayerPhoneSilent.openPolicySettings(context)
             }
         }
+    }
+    advanceRef[0] = { requestNextMissing() }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                refreshStatus()
+                if (awaitingSettings) {
+                    awaitingSettings = false
+                    if (!AppSetupNeeds.allReady(context)) {
+                        advanceRef[0]()
+                    }
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    val allReady = notificationsOn && overlayOn && lockOn && silentOn
+
+    OnboardingStepScaffold(
+        title = stringResource(R.string.onboarding_permissions_title),
+        subtitle = stringResource(R.string.onboarding_permissions_subtitle)
+    ) {
+        OnboardingNeedRow(
+            granted = notificationsOn,
+            pendingIcon = Icons.Filled.Notifications,
+            label = stringResource(R.string.onboarding_need_notifications)
+        )
+        OnboardingNeedRow(
+            granted = overlayOn,
+            pendingIcon = Icons.Filled.Layers,
+            label = stringResource(R.string.onboarding_need_overlay)
+        )
+        OnboardingNeedRow(
+            granted = lockOn,
+            pendingIcon = Icons.Filled.Lock,
+            label = stringResource(R.string.onboarding_need_lock_screen)
+        )
+        OnboardingNeedRow(
+            granted = silentOn,
+            pendingIcon = Icons.Filled.Vibration,
+            label = stringResource(R.string.onboarding_need_silent_prayer)
+        )
+        Spacer(Modifier.height(16.dp))
+        if (!allReady) {
+            Button(
+                onClick = {
+                    SettingsRepository(context).apply {
+                        silentDuringFardPrayer = true
+                        tasbihAutoLockScreenEnabled = true
+                        azkarAutoLockScreenEnabled = true
+                        adhanAutoLockScreenEnabled = true
+                    }
+                    requestNextMissing()
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            ) {
+                Text(stringResource(R.string.onboarding_permissions_action))
+            }
+            Spacer(Modifier.height(10.dp))
+            Text(
+                text = stringResource(R.string.onboarding_permissions_later),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+        Spacer(Modifier.height(16.dp))
+    }
+}
+
+@Composable
+private fun OnboardingNeedRow(
+    granted: Boolean,
+    pendingIcon: ImageVector,
+    label: String
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = if (granted) Icons.Filled.CheckCircle else pendingIcon,
+            contentDescription = null,
+            tint = if (granted) AppAccentGreen() else GoldDome,
+            modifier = Modifier.size(24.dp)
+        )
+        Spacer(Modifier.width(12.dp))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.titleSmall,
+            color = if (granted) AppAccentGreen() else MaterialTheme.colorScheme.onSurface,
+            fontWeight = if (granted) FontWeight.SemiBold else FontWeight.Normal,
+            modifier = Modifier.weight(1f)
+        )
     }
 }
 
