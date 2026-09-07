@@ -1,4 +1,4 @@
-# Sabbih — Google Play Store Listings
+# Lidhikri — Google Play Store Listings
 
 النصوص جاهزة للنسخ في Play Console. الوصف المختصر ≤ 80 حرفاً.
 
@@ -7,15 +7,15 @@
 ## العربية (ar)
 
 ### الاسم
-سَبِّح — Sabbih
+لذكري — Lidhikri
 
 ### الوصف المختصر (80 حرفاً)
 أذان ومواقيت صلاة وأذكار بعد الفرض — تسبيح تلقائي دون إنترنت
 
 ### الوصف الكامل
-سَبِّح — رفيقك اليومي للذكر والتسبيح
+لذكري — رفيقك اليومي للذكر والتسبيح
 
-هل تنسى التسبيح وأنت مشغول بهاتفك؟ سَبِّح يعمل أذاناً بمواقيت الصلاة، ويذكّرك بأذكار ما بعد كل فرض، وبأذكار وتسبيحات صوتية أثناء استخدامك للهاتف — دون أن يقطع مكالماتك أو محادثاتك.
+هل تنسى التسبيح وأنت مشغول بهاتفك؟ لذكري يعمل أذاناً بمواقيت الصلاة، ويذكّرك بأذكار ما بعد كل فرض، وبأذكار وتسبيحات صوتية أثناء استخدامك للهاتف — دون أن يقطع مكالماتك أو محادثاتك.
 
 ✦ مواقيت الصلاة
 • مواقيت الفروض حسب مدينتك: بحث أو الموقع الحالي
@@ -88,15 +88,15 @@
 ## English (en)
 
 ### App name
-Sabbih
+Lidhikri
 
 ### Short description (80 chars)
 Adhan, prayer times & after-prayer dhikr — auto tasbih, offline
 
 ### Full description
-Sabbih — your daily companion for dhikr and remembrance.
+Lidhikri — your daily companion for dhikr and remembrance.
 
-Do you forget to remember Allah while using your phone? Sabbih plays the adhan at prayer times, reminds you with after-prayer adhkar, and plays short audio tasbih while you use your phone — without interrupting calls or chats.
+Do you forget to remember Allah while using your phone? Lidhikri plays the adhan at prayer times, reminds you with after-prayer adhkar, and plays short audio tasbih while you use your phone — without interrupting calls or chats.
 
 ✦ Prayer times
 • Fard times for your city — search or current location
@@ -167,15 +167,15 @@ tasbih, adhkar, dhikr, misbaha, hisnul muslim, adhan, prayer times, after prayer
 ## Français (fr)
 
 ### Nom
-Sabbih
+Lidhikri
 
 ### Description courte (80 car.)
 Adhan, horaires de prière et dhikr après la prière — hors ligne
 
 ### Description complète
-Sabbih — votre compagnon quotidien pour le dhikr et les adhkar.
+Lidhikri — votre compagnon quotidien pour le dhikr et les adhkar.
 
-Vous oubliez de vous souvenir d'Allah sur votre téléphone ? Sabbih diffuse l'adhan aux heures de prière, rappelle les adhkar après chaque fard, et joue de courts tasbih audio pendant l'usage du téléphone — sans interrompre vos appels ni vos conversations.
+Vous oubliez de vous souvenir d'Allah sur votre téléphone ? Lidhikri diffuse l'adhan aux heures de prière, rappelle les adhkar après chaque fard, et joue de courts tasbih audio pendant l'usage du téléphone — sans interrompre vos appels ni vos conversations.
 
 ✦ Horaires de prière
 • Heures des prières obligatoires selon votre ville — recherche ou localisation
@@ -246,15 +246,15 @@ tasbih, adhkar, dhikr, misbaha, hisnul muslim, adhan, horaires de prière, aprè
 ## Español (es)
 
 ### Nombre
-Sabbih
+Lidhikri
 
 ### Descripción breve (80 car.)
 Adhan, horarios de oración y dhikr tras el fard — sin conexión
 
 ### Descripción completa
-Sabbih — tu compañero diario de dhikr y adhkar.
+Lidhikri — tu compañero diario de dhikr y adhkar.
 
-¿Olvidas el recuerdo de Allah mientras usas el teléfono? Sabbih reproduce el adhan a la hora de cada oración, te recuerda los adhkar después de cada fard, y reproduce tasbih cortos en audio mientras usas el teléfono — sin interrumpir llamadas ni chats.
+¿Olvidas el recuerdo de Allah mientras usas el teléfono? Lidhikri reproduce el adhan a la hora de cada oración, te recuerda los adhkar después de cada fard, y reproduce tasbih cortos en audio mientras usas el teléfono — sin interrumpir llamadas ni chats.
 
 ✦ Horarios de oración
 • Horas de los fard según tu ciudad — búsqueda o ubicación actual
@@ -346,7 +346,7 @@ Play Console يقبل حتى 8 لقطات هاتف — الثمانية المق
 
 يجب أن يظهر الأذان ومواقيت الصلاة وأذكار ما بعد الفرض بوضوح.
 
-1. شعار سَبِّح (3 ث)
+1. شعار لذكري (3 ث)
 2. التسبيح التلقائي نافذة + صوت (8 ث)
 3. الأذكار التلقائية / حصن المسلم (8 ث)
 4. مواقيت الصلاة والأذان وأذكار ما بعد الفرض (8 ث)

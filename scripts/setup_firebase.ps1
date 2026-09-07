@@ -1,4 +1,4 @@
-# إعداد مشروع Firebase لسَبِّح — شغّل مرة واحدة من PowerShell
+# إعداد مشروع Firebase للذكري — شغّل مرة واحدة من PowerShell
 # المتطلبات: Node.js + firebase-tools (npm install -g firebase-tools)
 
 $ErrorActionPreference = "Stop"
@@ -10,7 +10,7 @@ $AdminPassword = "SabbihAdmin2026!"
 
 Set-Location $Root
 
-Write-Host "=== سَبِّح — إعداد Firebase ===" -ForegroundColor Cyan
+Write-Host "=== لذكري — إعداد Firebase ===" -ForegroundColor Cyan
 
 if (-not (Get-Command firebase -ErrorAction SilentlyContinue)) {
     Write-Host "تثبيت firebase-tools..." -ForegroundColor Yellow
@@ -23,7 +23,7 @@ firebase login
 Write-Host "`n2) إنشاء المشروع (إن لم يكن موجوداً)..." -ForegroundColor Green
 $exists = firebase projects:list 2>$null | Select-String $ProjectId
 if (-not $exists) {
-    firebase projects:create $ProjectId --display-name "Sabbih Content"
+    firebase projects:create $ProjectId --display-name "Lidhikri Content"
 } else {
     Write-Host "المشروع $ProjectId موجود مسبقاً"
 }
@@ -36,7 +36,7 @@ Write-Host "`n4) تسجيل تطبيق Android..." -ForegroundColor Green
 $appsJson = firebase apps:list ANDROID --project $ProjectId --json 2>$null | ConvertFrom-Json
 $app = $appsJson.result | Where-Object { $_.namespace -eq $Package } | Select-Object -First 1
 if (-not $app) {
-    firebase apps:create ANDROID $Package --project $ProjectId --display-name "Sabbih"
+    firebase apps:create ANDROID $Package --project $ProjectId --display-name "Lidhikri"
     $appsJson = firebase apps:list ANDROID --project $ProjectId --json | ConvertFrom-Json
     $app = $appsJson.result | Where-Object { $_.namespace -eq $Package } | Select-Object -First 1
 }

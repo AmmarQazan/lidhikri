@@ -181,7 +181,7 @@ def export_bundle(db_path: Path, base_url: str, version: int | None = None) -> i
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Export Sabbih remote content bundle")
+    parser = argparse.ArgumentParser(description="Export Lidhikri remote content bundle")
     parser.add_argument("--db", type=Path, help="Path to adhkar.db")
     parser.add_argument("--pull-emulator", action="store_true", help="Pull DB from connected emulator")
     parser.add_argument("--version", type=int, help="Bundle version override")

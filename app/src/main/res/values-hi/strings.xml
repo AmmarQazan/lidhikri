@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Sabbih</string>
+    <string name="app_name">Lidhikri</string>
     <string name="nav_home">मुख्य</string>
     <string name="nav_read">अज़कार</string>
     <string name="nav_misbaha">तस्बीह</string>
@@ -226,7 +226,7 @@
     <string name="reminder_channel_silent_hint">मौन सूचना — केवल ऐप से तस्बीह ऑडियो</string>
     <string name="reminder_popup_channel">अज़कार पॉपअप</string>
     <string name="reminder_popup_channel_hint">पूर्ण-स्क्रीन अनुस्मारक — कोई चेतावनी ध्वनि नहीं</string>
-    <string name="reminder_silent_system_hint">यदि चेतावनी ध्वनि रहे: सेटिंग्स → ऐप्स → Sabbih → सूचनाएँ → \"अज़कार अनुस्मारक\" → ध्वनि बंद करें</string>
+    <string name="reminder_silent_system_hint">यदि चेतावनी ध्वनि रहे: सेटिंग्स → ऐप्स → Lidhikri → सूचनाएँ → \"अज़कार अनुस्मारक\" → ध्वनि बंद करें</string>
     <string name="service_channel">पृष्ठभूमि सेवा</string>
     <string name="service_channel_hint">स्वचालित तस्बीह की तकनीकी सूचना — ज़िक्र चेतावनी नहीं</string>
     <string name="next_adhan_channel">अगला अज़ान</string>
@@ -418,7 +418,7 @@
     <string name="onboarding_font_subtitle">पढ़ते समय अज़कार पाठ कैसा दिखेगा देखें</string>
     <string name="onboarding_font_preview">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</string>
     <string name="onboarding_font_size_value">अज़कार पाठ आकार: %1$d%%</string>
-    <string name="onboarding_welcome_title">Sabbih में स्वागत है</string>
+    <string name="onboarding_welcome_title">Lidhikri में स्वागत है</string>
     <string name="onboarding_welcome_subtitle">आपका दैनिक साथी: अज़ान, नमाज़ वक़्त, नमाज़ बाद अज़कार, और स्वतः तस्बीह।</string>
     <string name="onboarding_language_title">ऐप भाषा चुनें</string>
     <string name="onboarding_language_subtitle">आप इसे बाद में सेटिंग्स से बदल सकते हैं</string>

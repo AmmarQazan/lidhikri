@@ -101,7 +101,7 @@ FR = {
     "tts_voice_hint": "Utilisé quand aucun audio de récitateur n'est disponible pour un adhkar",
     "tts_voice_male": "Voix masculine",
     "tts_voice_section": "Voix TTS (secours adhkar)",
-    "reminder_silent_system_hint": "Si le son d'alerte persiste : Paramètres → Applications → Sabbih → Notifications → « Rappels adhkar » → désactiver le son",
+    "reminder_silent_system_hint": "Si le son d'alerte persiste : Paramètres → Applications → Lidhikri → Notifications → « Rappels adhkar » → désactiver le son",
 }
 
 ES = {
@@ -200,7 +200,7 @@ ES = {
     "tts_voice_hint": "Se usa cuando no hay audio de recitador disponible para un adhkar",
     "tts_voice_male": "Voz masculina",
     "tts_voice_section": "Voz TTS (respaldo adhkar)",
-    "reminder_silent_system_hint": "Si persiste el sonido de alerta: Ajustes → Aplicaciones → Sabbih → Notificaciones → «Recordatorios adhkar» → desactivar sonido",
+    "reminder_silent_system_hint": "Si persiste el sonido de alerta: Ajustes → Aplicaciones → Lidhikri → Notificaciones → «Recordatorios adhkar» → desactivar sonido",
 }
 
 

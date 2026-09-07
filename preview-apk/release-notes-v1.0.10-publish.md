@@ -1,4 +1,4 @@
-## سَبِّح — الإصدار 1.0.10
+## لذكري — الإصدار 1.0.10
 
 رابط التحميل:
 https://github.com/AmmarQazan/sabbih/releases/download/v1.0.10/sabbih-v1.0.10.apk

@@ -192,7 +192,7 @@ object PlaceLocator {
             .build()
     }
 
-    private const val USER_AGENT = "Sabbih/1.0 (com.greendome.adhkar; home-place-search)"
+    private const val USER_AGENT = "Lidhikri/1.0 (com.greendome.adhkar; home-place-search)"
 }
 
 private data class PhotonHit(

@@ -11,9 +11,9 @@ GRAPHICS = ROOT / "store-assets" / "graphics"
 GRAPHICS.mkdir(parents=True, exist_ok=True)
 
 ICON_SRC = ROOT / "app" / "src" / "main" / "res" / "drawable" / "logo_app_icon.png"
-LOGO_NIGHT = ROOT / "app" / "src" / "main" / "res" / "drawable" / "logo_sabbih_night.png"
+LOGO_NIGHT = ROOT / "app" / "src" / "main" / "res" / "drawable" / "logo_lidhikri_night.png"
 LOGO_SRC = LOGO_NIGHT if LOGO_NIGHT.exists() else (
-    ROOT / "app" / "src" / "main" / "res" / "drawable" / "logo_sabbih.png"
+    ROOT / "app" / "src" / "main" / "res" / "drawable" / "logo_lidhikri.png"
 )
 FONTS = Path(r"C:\Windows\Fonts")
 
@@ -42,6 +42,23 @@ def fit_text(draw: ImageDraw.ImageDraw, text: str, max_w: int, names: list[str],
 def main() -> None:
     icon = Image.open(ICON_SRC).convert("RGBA")
     icon.resize((512, 512), Image.Resampling.LANCZOS).save(GRAPHICS / "icon-512.png")
+    play_g = ROOT / "store-assets" / "play-upload" / "graphics"
+    play_g.mkdir(parents=True, exist_ok=True)
+    icon.resize((512, 512), Image.Resampling.LANCZOS).save(play_g / "icon-512.png")
+
+    banner = GRAPHICS / "feature-banner-source.jpg"
+    if banner.exists():
+        src = Image.open(banner).convert("RGB")
+        w, h = 1024, 500
+        canvas = Image.new("RGB", (w, h), src.getpixel((2, 2)))
+        scaled = src.copy()
+        scaled.thumbnail((w, h), Image.Resampling.LANCZOS)
+        canvas.paste(scaled, ((w - scaled.width) // 2, (h - scaled.height) // 2))
+        out = GRAPHICS / "feature-graphic.png"
+        canvas.save(out)
+        canvas.save(play_g / "feature-graphic.png")
+        print(f"Saved banner feature {out}")
+        return
 
     w, h = 1024, 500
     bg = Image.new("RGB", (w, h), "#163D28")
@@ -59,7 +76,7 @@ def main() -> None:
     logo.thumbnail((240, 320), Image.Resampling.LANCZOS)
     bg.paste(logo, (56, (h - logo.height) // 2), logo)
 
-    title_ar = ar_text("سَبِّح")
+    title_ar = ar_text("لذكري")
     tag_ar_raw = ar_text("أذان  •  مواقيت صلاة  •  أذكار بعد الفرض")
     ar_font = fit_text(draw, title_ar, 620, ["tradbdo.ttf", "tahoma.ttf"], 78)
     en_font = font("segoeuib.ttf", 44)
@@ -68,7 +85,7 @@ def main() -> None:
 
     x = 340
     draw.text((x, 118), title_ar, fill="#F5F1E9", font=ar_font)
-    draw.text((x, 210), "Sabbih", fill="#F5F1E9", font=en_font)
+    draw.text((x, 210), "Lidhikri", fill="#F5F1E9", font=en_font)
     draw.text((x, 282), tag_ar_raw, fill="#D4AF37", font=tag_ar)
     draw.text((x, 332), "Adhan  ·  Prayer times  ·  After-prayer dhikr", fill="#E8E0D0", font=tag_en)
 

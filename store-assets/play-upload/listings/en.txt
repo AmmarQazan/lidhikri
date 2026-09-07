@@ -1,15 +1,15 @@
 ## English (en)
 
 ### App name
-Sabbih
+Lidhikri
 
 ### Short description (80 chars)
 Adhan, prayer times & after-prayer dhikr — auto tasbih, offline
 
 ### Full description
-Sabbih — your daily companion for dhikr and remembrance.
+Lidhikri — your daily companion for dhikr and remembrance.
 
-Do you forget to remember Allah while using your phone? Sabbih plays the adhan at prayer times, reminds you with after-prayer adhkar, and plays short audio tasbih while you use your phone — without interrupting calls or chats.
+Do you forget to remember Allah while using your phone? Lidhikri plays the adhan at prayer times, reminds you with after-prayer adhkar, and plays short audio tasbih while you use your phone — without interrupting calls or chats.
 
 ✦ Prayer times
 • Fard times for your city — search or current location

@@ -1,15 +1,15 @@
 ## Indonesian (id)
 
 ### App name
-Sabbih
+Lidhikri
 
 ### Short description (80 chars)
 Adzan, waktu shalat & dzikir setelah shalat — offline
 
 ### Full description
-Sabbih — teman harian untuk dzikir dan tasbih.
+Lidhikri — teman harian untuk dzikir dan tasbih.
 
-Lupa mengingat Allah saat memakai ponsel? Sabbih memutar adzan pada waktu shalat, mengingatkan dzikir setelah setiap fardu, dan memutar tasbih singkat saat Anda memakai ponsel — tanpa memotong panggilan atau percakapan.
+Lupa mengingat Allah saat memakai ponsel? Lidhikri memutar adzan pada waktu shalat, mengingatkan dzikir setelah setiap fardu, dan memutar tasbih singkat saat Anda memakai ponsel — tanpa memotong panggilan atau percakapan.
 
 ✦ Waktu shalat
 • Waktu fardu menurut kota Anda — pencarian atau lokasi saat ini

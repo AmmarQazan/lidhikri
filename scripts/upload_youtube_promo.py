@@ -6,9 +6,9 @@ from playwright.sync_api import sync_playwright
 
 VIDEO = Path(__file__).resolve().parents[1] / "store-assets" / "play-upload" / "promo.mp4"
 OUT = Path(__file__).resolve().parents[1] / ".tmp-export"
-TITLE = "Sabbih — auto tasbih, Hisnul Muslim, misbaha"
+TITLE = "Lidhikri — auto tasbih, Hisnul Muslim, misbaha"
 DESC = (
-    "Sabbih: auto dhikr, Hisnul Muslim, digital misbaha and home widgets. No ads.\n"
+    "Lidhikri: auto dhikr, Hisnul Muslim, digital misbaha and home widgets. No ads.\n"
     "https://sabbih.web.app/"
 )
 CHANNEL = "https://studio.youtube.com/channel/UCvgGwOj95Fdo4ojEORPc3pA"

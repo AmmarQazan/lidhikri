@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Sabbih</string>
+    <string name="app_name">Lidhikri</string>
     <string name="nav_home">Ana sayfa</string>
     <string name="nav_read">Tesbihat</string>
     <string name="nav_misbaha">Tesbih</string>
@@ -226,7 +226,7 @@
     <string name="reminder_channel_silent_hint">Sessiz bildirim — yalnızca uygulamadan tesbih sesi</string>
     <string name="reminder_popup_channel">Tesbihat penceresi</string>
     <string name="reminder_popup_channel_hint">Tam ekran hatırlatma — uyarı sesi yok</string>
-    <string name="reminder_silent_system_hint">Uyarı sesi devam ederse: Ayarlar → Uygulamalar → Sabbih → Bildirimler → \"Zikir hatırlatmaları\" → sesi kapatın</string>
+    <string name="reminder_silent_system_hint">Uyarı sesi devam ederse: Ayarlar → Uygulamalar → Lidhikri → Bildirimler → \"Zikir hatırlatmaları\" → sesi kapatın</string>
     <string name="service_channel">Arka plan hizmeti</string>
     <string name="service_channel_hint">Otomatik tesbih için teknik bildirim — zikir uyarısı değil</string>
     <string name="next_adhan_channel">Sonraki ezan</string>
@@ -418,7 +418,7 @@
     <string name="onboarding_font_subtitle">Tesbihat metninin okurken nasıl görüneceğini önizleyin</string>
     <string name="onboarding_font_preview">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</string>
     <string name="onboarding_font_size_value">Zikir metin boyutu: %1$d%%</string>
-    <string name="onboarding_welcome_title">Sabbih\'e hoş geldiniz</string>
+    <string name="onboarding_welcome_title">Lidhikri\'ye hoş geldiniz</string>
     <string name="onboarding_welcome_subtitle">Günlük yoldaşınız: ezan, namaz vakitleri, namaz sonrası zikir ve otomatik tesbih.</string>
     <string name="onboarding_language_title">Uygulama dilini seçin</string>
     <string name="onboarding_language_subtitle">Bunu daha sonra ayarlardan değiştirebilirsiniz</string>

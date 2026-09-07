@@ -16,7 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.greendome.adhkar.ui.theme.sabbihLogoRes
+import com.greendome.adhkar.ui.theme.brandLogoRes
 
 /** شاشة بداية مخصصة — الشعار كاملاً بدون قص دائري */
 @Composable
@@ -31,7 +31,7 @@ fun AppSplashScreen() {
     ) {
         Spacer(Modifier.weight(0.82f))
         Image(
-            painter = painterResource(sabbihLogoRes()),
+            painter = painterResource(brandLogoRes()),
             contentDescription = null,
             contentScale = ContentScale.Fit,
             modifier = Modifier

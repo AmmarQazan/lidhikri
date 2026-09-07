@@ -78,7 +78,7 @@
     <string name="admin_delete_short_tasbih_confirm">¿Eliminar este tasbih corto del catálogo? Los usuarios lo perderán al publicar.</string>
     <string name="admin_tasbih_section">Editar tasbih y adhkar integrados</string>
     <string name="admin_upload_audio">Subir</string>
-    <string name="app_name">Sabbih</string>
+    <string name="app_name">Lidhikri</string>
     <string name="arabic_font_hint">Fuente para adhkar y textos coránicos</string>
     <string name="arabic_font_title">Fuente de textos árabes</string>
     <string name="audio_builtin">Recitador integrado</string>
@@ -487,7 +487,7 @@
     <string name="onboarding_theme_subtitle">Elige un aspecto cómodo para leer los adhkar</string>
     <string name="onboarding_theme_title">Apariencia de lectura</string>
     <string name="onboarding_welcome_subtitle">Tu compañero diario: adhan, horarios de oración, dhikr tras el fard y tasbih automático.</string>
-    <string name="onboarding_welcome_title">Bienvenido a Sabbih</string>
+    <string name="onboarding_welcome_title">Bienvenido a Lidhikri</string>
     <string name="overlay_collapse_popup">Reducir</string>
     <string name="overlay_dismiss">Cerrar</string>
     <string name="overlay_expand_popup">Ampliar para leer</string>
@@ -567,7 +567,7 @@
     <string name="reminder_display_section">Visualización del recordatorio</string>
     <string name="reminder_popup_channel">Ventana de recordatorio</string>
     <string name="reminder_popup_channel_hint">Recordatorio a pantalla completa — sin sonido de alerta</string>
-    <string name="reminder_silent_system_hint">Si persiste el sonido de alerta: Ajustes → Aplicaciones → Sabbih → Notificaciones → «Recordatorios adhkar» → desactivar sonido</string>
+    <string name="reminder_silent_system_hint">Si persiste el sonido de alerta: Ajustes → Aplicaciones → Lidhikri → Notificaciones → «Recordatorios adhkar» → desactivar sonido</string>
     <string name="save">Guardar</string>
     <string name="schedule_active_now">Activo ahora</string>
     <string name="schedule_always">Siempre</string>

@@ -107,11 +107,11 @@ fun AppOnCardColor(): Color =
 
 /** شعار كامل: قوس أخضر نهاراً، قوس ذهبي ونص أبيض ليلاً */
 @Composable
-fun sabbihLogoRes(): Int =
+fun brandLogoRes(): Int =
     if (MaterialTheme.colorScheme.background.luminance() < 0.4f) {
-        R.drawable.logo_sabbih_night
+        R.drawable.logo_lidhikri_night
     } else {
-        R.drawable.logo_sabbih
+        R.drawable.logo_lidhikri
     }
 
 @Composable

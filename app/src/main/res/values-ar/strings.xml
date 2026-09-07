@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">سَبِّح</string>
+    <string name="app_name">لذكري</string>
     <string name="nav_home">الرئيسية</string>
     <string name="nav_read">الأذكار</string>
     <string name="nav_misbaha">المسبحة</string>
@@ -248,7 +248,7 @@
     <string name="reminder_channel_silent_hint">إشعار صامت — صوت التسبيحة فقط من التطبيق</string>
     <string name="reminder_popup_channel">نافذة تذكير الأذكار</string>
     <string name="reminder_popup_channel_hint">نافذة منبثقة كاملة — بدون صوت تنبيه</string>
-    <string name="reminder_silent_system_hint">إذا استمر صوت التنبيه: الإعدادات ← التطبيقات ← سَبِّح ← الإشعارات ← «تذكير الأذكار» ← أوقف الصوت</string>
+    <string name="reminder_silent_system_hint">إذا استمر صوت التنبيه: الإعدادات ← التطبيقات ← لذكري ← الإشعارات ← «تذكير الأذكار» ← أوقف الصوت</string>
     <string name="service_channel">خدمة الخلفية</string>
     <string name="service_channel_hint">إشعار تقني للتسبيح التلقائي — ليس تنبيهاً للتسبيحة</string>
     <string name="text_reminder_channel">تسبيحة نصية فقط</string>
@@ -640,7 +640,7 @@
     <string name="onboarding_font_subtitle">معاينة شكل نص الأذكار أثناء القراءة</string>
     <string name="onboarding_font_preview">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</string>
     <string name="onboarding_font_size_value">حجم نص الأذكار: %1$d%%</string>
-    <string name="onboarding_welcome_title">أهلاً بك في سَبِّح</string>
+    <string name="onboarding_welcome_title">أهلاً بك في لذكري</string>
     <string name="onboarding_welcome_subtitle">رفيقك اليومي: أذان ومواقيت صلاة وأذكار بعد الفرض، مع تسبيح تلقائي.</string>
     <string name="onboarding_language_title">اختر لغة التطبيق</string>
     <string name="onboarding_language_subtitle">العربية هي الافتراضية. يمكنك تغييرها لاحقاً من الإعدادات</string>

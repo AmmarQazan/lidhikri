@@ -1,15 +1,15 @@
 ## Turkish (tr)
 
 ### App name
-Sabbih
+Lidhikri
 
 ### Short description (80 chars)
 Ezan, namaz vakitleri ve namaz sonrası zikir — çevrimdışı
 
 ### Full description
-Sabbih — günlük zikir ve tesbihat yol arkadaşınız.
+Lidhikri — günlük zikir ve tesbihat yol arkadaşınız.
 
-Telefonu kullanırken Allah'ı anmayı unutuyor musunuz? Sabbih namaz vakitlerinde ezan okur, her farzdan sonra zikir hatırlatır ve telefonu kullanırken kısa sesli tesbih çalar — aramaları ve sohbetleri kesmeden.
+Telefonu kullanırken Allah'ı anmayı unutuyor musunuz? Lidhikri namaz vakitlerinde ezan okur, her farzdan sonra zikir hatırlatır ve telefonu kullanırken kısa sesli tesbih çalar — aramaları ve sohbetleri kesmeden.
 
 ✦ Namaz vakitleri
 • Farz vakitleri şehrinize göre — arama veya mevcut konum

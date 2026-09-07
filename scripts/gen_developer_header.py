@@ -8,7 +8,7 @@ from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont
 
 ROOT = Path(__file__).resolve().parents[1]
 GRAPHICS = ROOT / "store-assets" / "graphics"
-LOGO_SRC = ROOT / "app" / "src" / "main" / "res" / "drawable" / "logo_sabbih.png"
+LOGO_SRC = ROOT / "app" / "src" / "main" / "res" / "drawable" / "logo_lidhikri.png"
 BG_CANDIDATES = [
     Path(r"C:\Users\pc\.cursor\projects\c-Users-pc\assets\sabbih-header-bg.png"),
     GRAPHICS / "header-bg-source.png",
@@ -84,7 +84,7 @@ def main() -> None:
     base.paste(logo, (lx, ly), logo)
 
     draw = ImageDraw.Draw(base)
-    title = ar("سَبِّح")
+    title = ar("لذكري")
     tag = ar("أذان ومواقيت وأذكار بعد الفرض")
     f_title = font("tradbdo.ttf", 210)
     f_en = font("georgia.ttf", 78) if (FONTS / "georgia.ttf").exists() else font("segoeuib.ttf", 78)
@@ -94,7 +94,7 @@ def main() -> None:
     ty = ly + 210
     draw.text((tx + 2, ty + 3), title, fill=(0, 0, 0, 80), font=f_title)
     draw.text((tx, ty), title, fill="#F7F1E4", font=f_title)
-    draw.text((tx, ty + 250), "Sabbih", fill="#E4D2A0", font=f_en)
+    draw.text((tx, ty + 250), "Lidhikri", fill="#E4D2A0", font=f_en)
     line_y = ty + 360
     draw.line([(tx, line_y), (tx + 640, line_y)], fill="#C9A227", width=3)
     draw.text((tx, line_y + 36), tag, fill="#E6C56A", font=f_tag)

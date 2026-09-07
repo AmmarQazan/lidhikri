@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 RES = ROOT / "app" / "src" / "main" / "res"
 PLACEHOLDER = re.compile(r"%\d+\$[sd]|%\d+\$\.\d+f|%\d+\$02d|%\d+d%%")
 ALLOW = {
-    "Sabbih", "Allah", "Allahu", "Akbar", "Hisnul", "Muslim", "Muhammad",
+    "Lidhikri", "Allah", "Allahu", "Akbar", "Hisnul", "Muslim", "Muhammad",
     "Firebase", "WhatsApp", "YouTube", "Telegram", "Signal", "Messenger",
     "Meet", "Skype", "TTS", "PIN", "OK", "Uthmani", "Indo-Pak", "Bengali",
     "Default", "Gold", "Teal", "Navy", "Maroon", "Amber", "JSON",

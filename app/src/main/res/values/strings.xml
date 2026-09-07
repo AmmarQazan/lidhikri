@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Sabbih</string>
+    <string name="app_name">Lidhikri</string>
     <string name="nav_home">Home</string>
     <string name="nav_read">Adhkar</string>
     <string name="nav_misbaha">Misbaha</string>
@@ -248,7 +248,7 @@
     <string name="reminder_channel_silent_hint">Silent notification — only tasbih audio from the app</string>
     <string name="reminder_popup_channel">Adhkar popup</string>
     <string name="reminder_popup_channel_hint">Full-screen reminder — no alert sound</string>
-    <string name="reminder_silent_system_hint">If alert sound persists: Settings → Apps → Sabbih → Notifications → \"Adhkar reminders\" → turn off sound</string>
+    <string name="reminder_silent_system_hint">If alert sound persists: Settings → Apps → Lidhikri → Notifications → \"Adhkar reminders\" → turn off sound</string>
     <string name="service_channel">Background service</string>
     <string name="service_channel_hint">Technical notification for auto tasbih — not a dhikr alert</string>
     <string name="text_reminder_channel">Text-only dhikr</string>
@@ -640,7 +640,7 @@
     <string name="onboarding_font_subtitle">Preview how adhkar text will look while reading</string>
     <string name="onboarding_font_preview">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</string>
     <string name="onboarding_font_size_value">Adhkar text size: %1$d%%</string>
-    <string name="onboarding_welcome_title">Welcome to Sabbih</string>
+    <string name="onboarding_welcome_title">Welcome to Lidhikri</string>
     <string name="onboarding_welcome_subtitle">Your daily companion: adhan, prayer times, after-prayer dhikr, and auto tasbih.</string>
     <string name="onboarding_language_title">Choose app language</string>
     <string name="onboarding_language_subtitle">Arabic is the default. You can change this later in settings.</string>

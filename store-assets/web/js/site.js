@@ -8,45 +8,45 @@ const LANGS = {
 const I18N = {
   home: {
     ar: {
-      title: "سَبِّح — Sabbih",
-      h1: "سَبِّح",
-      tag: "Sabbih",
+      title: "لذكري — Lidhikri",
+      h1: "لذكري",
+      tag: "Lidhikri",
       aboutTitle: "من نحن",
       about:
-        "سَبِّح يطوّر تطبيقات أندرويد للذكر: أذان ومواقيت صلاة وأذكار ما بعد الفرض، مع تسبيح تلقائي أثناء استخدام الهاتف، أذكار حصن المسلم، مسبحة رقمية، وويدجت. بلا حساب، بلا إعلانات، وبلا تتبع.",
+        "لذكري يطوّر تطبيقات أندرويد للذكر: أذان ومواقيت صلاة وأذكار ما بعد الفرض، مع تسبيح تلقائي أثناء استخدام الهاتف، أذكار حصن المسلم، مسبحة رقمية، وويدجت. بلا حساب، بلا إعلانات، وبلا تتبع.",
       contactTitle: "التواصل",
       contactLead: "البريد العام للمستخدمين والدعم:",
       privacy: "سياسة الخصوصية",
     },
     en: {
-      title: "Sabbih",
-      h1: "Sabbih",
-      tag: "سَبِّح",
+      title: "Lidhikri",
+      h1: "Lidhikri",
+      tag: "لذكري",
       aboutTitle: "About",
       about:
-        "Sabbih builds Android apps for dhikr: adhan, prayer times, after-prayer adhkar, automatic tasbih while you use your phone, Hisnul Muslim, a digital misbaha, and home-screen widgets. No account, no ads, and no tracking.",
+        "Lidhikri builds Android apps for dhikr: adhan, prayer times, after-prayer adhkar, automatic tasbih while you use your phone, Hisnul Muslim, a digital misbaha, and home-screen widgets. No account, no ads, and no tracking.",
       contactTitle: "Contact",
       contactLead: "Public email for users and support:",
       privacy: "Privacy policy",
     },
     fr: {
-      title: "Sabbih",
-      h1: "Sabbih",
-      tag: "سَبِّح",
+      title: "Lidhikri",
+      h1: "Lidhikri",
+      tag: "لذكري",
       aboutTitle: "À propos",
       about:
-        "Sabbih crée des applications Android pour le dhikr : adhan, horaires de prière, adhkar après la prière, tasbih automatique pendant l’usage du téléphone, Hisnul Muslim, misbaha numérique et widgets d’accueil. Pas de compte, pas de publicité, pas de suivi.",
+        "Lidhikri crée des applications Android pour le dhikr : adhan, horaires de prière, adhkar après la prière, tasbih automatique pendant l’usage du téléphone, Hisnul Muslim, misbaha numérique et widgets d’accueil. Pas de compte, pas de publicité, pas de suivi.",
       contactTitle: "Contact",
       contactLead: "E-mail public pour les utilisateurs et le support :",
       privacy: "Politique de confidentialité",
     },
     es: {
-      title: "Sabbih",
-      h1: "Sabbih",
-      tag: "سَبِّح",
+      title: "Lidhikri",
+      h1: "Lidhikri",
+      tag: "لذكري",
       aboutTitle: "Quiénes somos",
       about:
-        "Sabbih crea aplicaciones Android para el dhikr: adhan, horarios de oración, adhkar después de la oración, tasbih automático mientras usas el teléfono, Hisnul Muslim, misbaha digital y widgets de inicio. Sin cuenta, sin anuncios y sin rastreo.",
+        "Lidhikri crea aplicaciones Android para el dhikr: adhan, horarios de oración, adhkar después de la oración, tasbih automático mientras usas el teléfono, Hisnul Muslim, misbaha digital y widgets de inicio. Sin cuenta, sin anuncios y sin rastreo.",
       contactTitle: "Contacto",
       contactLead: "Correo público para usuarios y soporte:",
       privacy: "Política de privacidad",
@@ -54,8 +54,8 @@ const I18N = {
   },
   privacy: {
     ar: {
-      title: "سياسة الخصوصية — سَبِّح",
-      h1: "سياسة الخصوصية — سَبِّح",
+      title: "سياسة الخصوصية — لذكري",
+      h1: "سياسة الخصوصية — لذكري",
       lead: "الإعدادات والأذكار والتسجيلات تبقى على جهازك. لا إعلانات ولا تتبع.",
       col1: "البيان",
       col2: "التفاصيل",
@@ -71,8 +71,8 @@ const I18N = {
       home: "الصفحة الرئيسية",
     },
     en: {
-      title: "Privacy policy — Sabbih",
-      h1: "Privacy policy — Sabbih",
+      title: "Privacy policy — Lidhikri",
+      h1: "Privacy policy — Lidhikri",
       lead: "Settings, dhikr, and recordings stay on your device. No ads and no tracking.",
       col1: "Item",
       col2: "Details",
@@ -88,8 +88,8 @@ const I18N = {
       home: "Home",
     },
     fr: {
-      title: "Politique de confidentialité — Sabbih",
-      h1: "Politique de confidentialité — Sabbih",
+      title: "Politique de confidentialité — Lidhikri",
+      h1: "Politique de confidentialité — Lidhikri",
       lead: "Réglages, adhkar et enregistrements restent sur l’appareil. Pas de publicité ni de suivi.",
       col1: "Élément",
       col2: "Détails",
@@ -105,8 +105,8 @@ const I18N = {
       home: "Accueil",
     },
     es: {
-      title: "Política de privacidad — Sabbih",
-      h1: "Política de privacidad — Sabbih",
+      title: "Política de privacidad — Lidhikri",
+      h1: "Política de privacidad — Lidhikri",
       lead: "Ajustes, adhkar y grabaciones permanecen en el dispositivo. Sin anuncios ni rastreo.",
       col1: "Dato",
       col2: "Detalles",
@@ -127,14 +127,14 @@ const I18N = {
 function detectLang() {
   const q = new URLSearchParams(location.search).get("lang");
   if (q && LANGS[q]) return q;
-  const saved = localStorage.getItem("sabbih-lang");
+  const saved = localStorage.getItem("lidhikri-lang");
   if (saved && LANGS[saved]) return saved;
   const nav = (navigator.language || "ar").slice(0, 2).toLowerCase();
   return LANGS[nav] ? nav : "ar";
 }
 
 function setLang(lang) {
-  localStorage.setItem("sabbih-lang", lang);
+  localStorage.setItem("lidhikri-lang", lang);
   const url = new URL(location.href);
   url.searchParams.set("lang", lang);
   history.replaceState(null, "", url);

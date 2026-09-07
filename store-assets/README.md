@@ -1,4 +1,4 @@
-# أصول متجر Google Play — Sabbih
+# أصول متجر Google Play — Lidhikri
 
 ## المحتويات
 
