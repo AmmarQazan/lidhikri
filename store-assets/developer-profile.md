@@ -17,7 +17,7 @@
 | Developer name | Sabbih |
 | Website | https://sabbih.web.app/ |
 | Developer email | sqazan@proton.me |
-| Promotional text (en-US) | Sabbih builds Android apps for dhikr: auto tasbih, Hisnul Muslim, misbaha and widgets — no ads. |
+| Promotional text (en-US) | Sabbih builds Android apps for dhikr: adhan, prayer times, after-prayer adhkar, auto tasbih, Hisnul Muslim, misbaha and widgets — no ads. |
 | Developer icon | `store-assets/graphics/developer-icon.png` |
 | Header image | `store-assets/graphics/developer-header.jpg` |
 
@@ -30,13 +30,13 @@
 أُدخل الإنجليزية. أضف هذه من Manage translations إن رغبت:
 
 ### العربية
-سَبِّح يطوّر تطبيقات للذكر والتسبيح: تسبيح تلقائي، حصن المسلم، مسبحة وويدجت. بلا إعلانات.
+سَبِّح يطوّر تطبيقات للذكر: أذان ومواقيت صلاة وأذكار بعد الفرض، تسبيح تلقائي، حصن المسلم، مسبحة وويدجت. بلا إعلانات.
 
 ### Français
-Sabbih crée des apps Android pour le dhikr : tasbih auto, Hisnul Muslim, chapelet et widgets — sans pubs.
+Sabbih crée des apps Android pour le dhikr : adhan, horaires de prière, dhikr après la prière, tasbih auto — sans pubs.
 
 ### Español
-Sabbih crea apps Android para el dhikr: tasbih automático, Hisnul Muslim, misbaha y widgets — sin anuncios.
+Sabbih crea apps Android para el dhikr: adhan, horarios de oración, dhikr tras el fard y tasbih automático — sin anuncios.
 
 ---
 

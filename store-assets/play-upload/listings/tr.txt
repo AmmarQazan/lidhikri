@@ -4,12 +4,29 @@
 Sabbih
 
 ### Short description (80 chars)
-Otomatik zikir, Hisnul Müslim, tesbih ve widget — çevrimdışı da çalışır
+Ezan, namaz vakitleri ve namaz sonrası zikir — çevrimdışı
 
 ### Full description
 Sabbih — günlük zikir ve tesbihat yol arkadaşınız.
 
-Telefonu kullanırken Allah'ı anmayı unutuyor musunuz? Sabbih sizi kısa sesli tesbih ve zikirlerle otomatik hatırlatır — aramaları ve sohbetleri kesmeden.
+Telefonu kullanırken Allah'ı anmayı unutuyor musunuz? Sabbih namaz vakitlerinde ezan okur, her farzdan sonra zikir hatırlatır ve telefonu kullanırken kısa sesli tesbih çalar — aramaları ve sohbetleri kesmeden.
+
+✦ Namaz vakitleri
+• Farz vakitleri şehrinize göre — arama veya mevcut konum
+• Hesap yöntemi, ikindi mezhebi ve yaz saati
+• Vakitler, ezan ve kıble için tek şehir
+
+✦ Ezan
+• Açtığınız her namazın vaktinde sesli ezan
+• Müezzin sesi, telefondan dosya veya kısa/sessiz uyarı
+• Ezandan önce hatırlatma, ardından kamet
+• Ezan bitince ezan dinleme zikirleri
+• İsteğe bağlı olarak sessiz modda da çalma
+
+✦ Namaz sonrası zikir
+• Her farzdan sonra namaz sonrası koleksiyonundan bir hatırlatma
+• Ezandan sonraki dakika — tesbih duraklamasından bağımsız
+• Ezandan itibaren tesbih ve sesli zikri, her namaz için seçtiğiniz süre kadar durdurur
 
 ✦ Otomatik tesbih
 • Periyodik hatırlatmalar (Sübhanallah, Elhamdülillah, Allahu ekber ve daha fazlası)
@@ -50,10 +67,10 @@ Telefonu kullanırken Allah'ı anmayı unutuyor musunuz? Sabbih sizi kısa sesli
 
 ✦ Özel zikirler yalnızca cihazınızda kalır — hesap yok, reklam yok.
 
-Ses indirildikten sonra çevrimdışı çalışır. Arapça, İngilizce, Fransızca, İspanyolca, Türkçe, Urduca, Endonezce ve Hintçe. Tabletlerde rahat düzen.
+Ses indirildikten sonra çevrimdışı çalışır. Arapça, İngilizce, Fransızca, İspanyolca, Türkçe, Urduca, Endonezce ve Hintçe. Açık ve koyu tema. Tabletlerde rahat düzen.
 
 ———
 Kurulumdan sonra: bildirimleri, diğer uygulamaların üstünde gösterme iznini ve pil muafiyetini açın ki hatırlatmalar güvenilir kalsın.
 
 ### Keywords
-tesbih, zikir, tesbihat, misbaha, hisnul muslim, widget, islami, hatırlatma, sabah zikirleri
+tesbih, zikir, tesbihat, misbaha, hisnul muslim, ezan, namaz vakitleri, namaz sonrası, widget, islami, hatırlatma

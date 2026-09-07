@@ -85,7 +85,7 @@ def main() -> None:
 
     draw = ImageDraw.Draw(base)
     title = ar("سَبِّح")
-    tag = ar("تسبيح وأذكار تلقائية")
+    tag = ar("أذان ومواقيت وأذكار بعد الفرض")
     f_title = font("tradbdo.ttf", 210)
     f_en = font("georgia.ttf", 78) if (FONTS / "georgia.ttf").exists() else font("segoeuib.ttf", 78)
     f_tag = font("tahoma.ttf", 52)

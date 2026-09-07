@@ -21,6 +21,7 @@ SHOTS = {
         ("08_popup_auto_azkar.png", "Auto adhkar", "Hisnul Muslim on your schedule"),
         ("09_widgets_hub.png", "Home widgets", "Dhikr of the day and misbaha"),
         ("10_home_widgets.png", "From the home screen", "Count without opening the app"),
+        ("11_prayer_times.png", "Adhan & prayer times", "After-prayer adhkar after each fard"),
     ],
     "fr": [
         ("01_home_auto_tasbih.png", "Tasbih automatique", "Des rappels pendant l’usage du téléphone"),
@@ -33,6 +34,7 @@ SHOTS = {
         ("08_popup_auto_azkar.png", "Adhkar automatiques", "Hisnul Muslim selon votre horaire"),
         ("09_widgets_hub.png", "Widgets d’accueil", "Dhikr du jour et misbaha"),
         ("10_home_widgets.png", "Depuis l’écran d’accueil", "Comptez sans ouvrir l’application"),
+        ("11_prayer_times.png", "Adhan et horaires", "Dhikr après chaque prière obligatoire"),
     ],
     "es": [
         ("01_home_auto_tasbih.png", "Tasbih automático", "Recordatorios mientras usas el teléfono"),
@@ -45,6 +47,7 @@ SHOTS = {
         ("08_popup_auto_azkar.png", "Adhkar automáticos", "Hisnul Muslim en tu horario"),
         ("09_widgets_hub.png", "Widgets de inicio", "Dhikr del día y misbaha"),
         ("10_home_widgets.png", "Desde la pantalla de inicio", "Cuenta sin abrir la app"),
+        ("11_prayer_times.png", "Adhan y horarios", "Adhkar después de cada fard"),
     ],
     "tr": [
         ("01_home_auto_tasbih.png", "Otomatik tesbih", "Telefonu kullanırken hatırlatmalar"),
@@ -57,6 +60,7 @@ SHOTS = {
         ("08_popup_auto_azkar.png", "Otomatik zikir", "Hisnul Müslim, sizin saatinizde"),
         ("09_widgets_hub.png", "Ana ekran widget'ları", "Günün zikri ve tesbih"),
         ("10_home_widgets.png", "Ana ekrandan", "Uygulamayı açmadan sayın"),
+        ("11_prayer_times.png", "Ezan ve namaz vakitleri", "Her farzdan sonra zikir"),
     ],
     "ur": [
         ("01_home_auto_tasbih.png", "خودکار تسبیح", "فون استعمال کرتے ہوئے یاددہانی"),
@@ -69,6 +73,7 @@ SHOTS = {
         ("08_popup_auto_azkar.png", "خودکار اذکار", "حصن المسلم آپ کے شیڈول پر"),
         ("09_widgets_hub.png", "ہوم وجٹس", "آج کا ذکر اور تسبیح"),
         ("10_home_widgets.png", "ہوم اسکرین سے", "ایپ کھولے بغیر گنیں"),
+        ("11_prayer_times.png", "اذان اور نماز کے اوقات", "ہر فرض کے بعد اذکار"),
     ],
     "id": [
         ("01_home_auto_tasbih.png", "Tasbih otomatis", "Pengingat saat memakai ponsel"),
@@ -81,6 +86,7 @@ SHOTS = {
         ("08_popup_auto_azkar.png", "Dzikir otomatis", "Hisnul Muslim sesuai jadwal Anda"),
         ("09_widgets_hub.png", "Widget beranda", "Dzikir hari ini dan tasbih"),
         ("10_home_widgets.png", "Dari layar utama", "Hitung tanpa membuka aplikasi"),
+        ("11_prayer_times.png", "Adzan dan waktu shalat", "Dzikir setelah setiap fardu"),
     ],
     "hi": [
         ("01_home_auto_tasbih.png", "स्वतः तस्बीह", "फ़ोन इस्तेमाल करते हुए याददिहानी"),
@@ -93,6 +99,7 @@ SHOTS = {
         ("08_popup_auto_azkar.png", "स्वतः अज़कार", "हिसनुल मुस्लिम आपके समय पर"),
         ("09_widgets_hub.png", "होम विजेट", "आज का ज़िक्र और तस्बीह"),
         ("10_home_widgets.png", "होम स्क्रीन से", "ऐप खोले बिना गिनें"),
+        ("11_prayer_times.png", "अज़ान और नमाज़ वक़्त", "हर फ़र्ज़ के बाद अज़कार"),
     ],
 }
 
@@ -102,7 +109,7 @@ PLAY_ORDER = [
     "02_azkar_sections.png",
     "04_misbaha_digital.png",
     "10_home_widgets.png",
-    "09_widgets_hub.png",
+    "11_prayer_times.png",
     "08_popup_auto_azkar.png",
     "05_settings_hub.png",
 ]
@@ -112,7 +119,7 @@ PLAY_NAMES = [
     "03-hisnul-muslim.png",
     "04-digital-misbaha.png",
     "05-home-widgets.png",
-    "06-widgets-settings.png",
+    "06-prayer-times.png",
     "07-auto-azkar-popup.png",
     "08-settings-hub.png",
 ]

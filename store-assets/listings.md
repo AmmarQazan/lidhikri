@@ -10,12 +10,29 @@
 سَبِّح — Sabbih
 
 ### الوصف المختصر (80 حرفاً)
-تسبيح وأذكار تلقائية، مسبحة وويدجت، وحصن المسلم — يعمل دون إنترنت
+أذان ومواقيت صلاة وأذكار بعد الفرض — تسبيح تلقائي دون إنترنت
 
 ### الوصف الكامل
 سَبِّح — رفيقك اليومي للذكر والتسبيح
 
-هل تنسى التسبيح وأنت مشغول بهاتفك؟ سَبِّح يذكّرك تلقائياً بأذكار وتسبيحات صوتية أثناء استخدامك للهاتف، دون أن يقطع مكالماتك أو محادثاتك.
+هل تنسى التسبيح وأنت مشغول بهاتفك؟ سَبِّح يعمل أذاناً بمواقيت الصلاة، ويذكّرك بأذكار ما بعد كل فرض، وبأذكار وتسبيحات صوتية أثناء استخدامك للهاتف — دون أن يقطع مكالماتك أو محادثاتك.
+
+✦ مواقيت الصلاة
+• مواقيت الفروض حسب مدينتك: بحث أو الموقع الحالي
+• طريقة الحساب، مذهب العصر، والتوقيت الصيفي
+• المدينة واحدة للمواقيت والأذان والقبلة
+
+✦ الأذان
+• أذان صوتي عند دخول الوقت لكل فرض تختاره
+• اختيار صوت المؤذن، أو ملف من جهازك، أو تنبيه قصير/صامت
+• تذكير قبل الأذان، وإقامة بعده
+• أذكار سماع الأذان تلقائياً عند انتهائه
+• خيار التشغيل حتى في الوضع الصامت
+
+✦ أذكار ما بعد الصلاة
+• تذكير بذكر واحد من أذكار ما بعد الفرض بعد كل صلاة
+• موعده بعد الأذان بالدقائق التي تختارها، مستقلاً عن مدة إيقاف التسبيح
+• إيقاف التسبيح والأذكار الصوتية من الأذان حتى المدة التي تختارها لكل صلاة
 
 ✦ التسبيح التلقائي
 • تذكير دوري بأذكار قصيرة (سبحان الله، الحمد لله، الله أكبر، وغيرها)
@@ -58,13 +75,13 @@
 
 ✦ أذكارك الخاصة تُحفظ على جهازك فقط — بلا حساب ولا إعلانات.
 
-يعمل دون إنترنت بعد تحميل الأصوات. الواجهة بالعربية والإنجليزية والفرنسية والإسبانية، مع دعم الأجهزة اللوحية.
+يعمل دون إنترنت بعد تحميل الأصوات. الواجهة بالعربية والإنجليزية والفرنسية والإسبانية والتركية والأوردو والإندونيسية والهندية، مع دعم الأجهزة اللوحية. مظهر نهاري وليلي.
 
 ———
 بعد التثبيت: فعّل الإشعارات، واسمح بالظهور فوق التطبيقات، واستثنِ التطبيق من تحسين البطارية.
 
 ### الكلمات المفتاحية
-تسبيح، أذكار، ذكر، مسبحة، حصن المسلم، أذكار الصباح، أذكار المساء، ويدجت، تذكير، إسلامي
+تسبيح، أذكار، ذكر، مسبحة، حصن المسلم، أذان، مواقيت الصلاة، أذكار بعد الصلاة، أذكار الصباح، أذكار المساء، ويدجت، تذكير، إسلامي
 
 ---
 
@@ -74,12 +91,29 @@
 Sabbih
 
 ### Short description (80 chars)
-Auto dhikr, Hisnul Muslim, misbaha & home widgets — works fully offline
+Adhan, prayer times & after-prayer dhikr — auto tasbih, offline
 
 ### Full description
 Sabbih — your daily companion for dhikr and remembrance.
 
-Do you forget to remember Allah while using your phone? Sabbih reminds you automatically with short audio tasbih and adhkar — without interrupting calls or chats.
+Do you forget to remember Allah while using your phone? Sabbih plays the adhan at prayer times, reminds you with after-prayer adhkar, and plays short audio tasbih while you use your phone — without interrupting calls or chats.
+
+✦ Prayer times
+• Fard times for your city — search or current location
+• Calculation method, Asr madhab, and daylight saving
+• One city for times, adhan, and qibla
+
+✦ Adhan
+• Audio adhan at the start of each prayer you enable
+• Muadhin voice, a file from your phone, or a short/silent alert
+• Reminder before the adhan, and iqama after it
+• After-adhan azkar (repeat the muadhin) when it ends
+• Optional playback even in silent mode
+
+✦ After-prayer adhkar
+• One reminder from the after-prayer collection after each fard
+• Minutes after the adhan — independent of the tasbih pause window
+• Pause tasbih and audio adhkar from the adhan for a duration you choose per prayer
 
 ✦ Auto tasbih
 • Periodic reminders (Subhan Allah, Alhamdulillah, Allahu Akbar, and more)
@@ -120,13 +154,13 @@ Do you forget to remember Allah while using your phone? Sabbih reminds you autom
 
 ✦ Custom dhikr stay on your device only — no account, no ads.
 
-Works offline after downloading audio. Available in Arabic, English, French, and Spanish. Comfortable layout on tablets.
+Works offline after downloading audio. Available in Arabic, English, French, Spanish, Turkish, Urdu, Indonesian, and Hindi. Light and dark themes. Comfortable layout on tablets.
 
 ———
 After install: enable notifications, overlay permission, and battery exemption so reminders stay reliable.
 
 ### Keywords
-tasbih, adhkar, dhikr, misbaha, hisnul muslim, widget, islamic, reminder, morning adhkar
+tasbih, adhkar, dhikr, misbaha, hisnul muslim, adhan, prayer times, after prayer, widget, islamic, reminder
 
 ---
 
@@ -136,12 +170,29 @@ tasbih, adhkar, dhikr, misbaha, hisnul muslim, widget, islamic, reminder, mornin
 Sabbih
 
 ### Description courte (80 car.)
-Dhikr auto, Hisnul Muslim, misbaha et widgets — fonctionne hors ligne
+Adhan, horaires de prière et dhikr après la prière — hors ligne
 
 ### Description complète
 Sabbih — votre compagnon quotidien pour le dhikr et les adhkar.
 
-Vous oubliez de vous souvenir d'Allah sur votre téléphone ? Sabbih vous rappelle automatiquement avec de courts tasbih et adhkar audio — sans interrompre vos appels ni vos conversations.
+Vous oubliez de vous souvenir d'Allah sur votre téléphone ? Sabbih diffuse l'adhan aux heures de prière, rappelle les adhkar après chaque fard, et joue de courts tasbih audio pendant l'usage du téléphone — sans interrompre vos appels ni vos conversations.
+
+✦ Horaires de prière
+• Heures des prières obligatoires selon votre ville — recherche ou localisation
+• Méthode de calcul, madhhab de l'Asr, et heure d'été
+• Une seule ville pour les horaires, l'adhan et la qibla
+
+✦ Adhan
+• Adhan audio à l'entrée de chaque prière que vous activez
+• Voix du muezzin, fichier du téléphone, ou alerte courte/silencieuse
+• Rappel avant l'adhan, et iqama après
+• Adhkar d'écoute de l'adhan automatiquement à la fin
+• Lecture possible même en mode silencieux
+
+✦ Adhkar après la prière
+• Un rappel tiré des adhkar après la prière après chaque fard
+• Minutes après l'adhan, indépendantes de la pause du tasbih
+• Pause du tasbih et des adhkar audio dès l'adhan, pour la durée que vous choisissez
 
 ✦ Tasbih automatique
 • Rappels périodiques (Subhan Allah, Alhamdulillah, Allahu Akbar, et plus)
@@ -182,13 +233,13 @@ Vous oubliez de vous souvenir d'Allah sur votre téléphone ? Sabbih vous rappel
 
 ✦ Vos adhkar personnels restent sur l'appareil — pas de compte, pas de publicité.
 
-Fonctionne hors ligne après téléchargement des audios. Disponible en arabe, anglais, français et espagnol. Mise en page confortable sur tablette.
+Fonctionne hors ligne après téléchargement des audios. Disponible en arabe, anglais, français, espagnol, turc, ourdou, indonésien et hindi. Thèmes clair et sombre. Mise en page confortable sur tablette.
 
 ———
 Après l'installation : activez les notifications, l'affichage par-dessus les apps, et l'exemption batterie.
 
 ### Mots-clés
-tasbih, adhkar, dhikr, misbaha, hisnul muslim, widget, islamique, rappel, adhkar du matin
+tasbih, adhkar, dhikr, misbaha, hisnul muslim, adhan, horaires de prière, après la prière, widget, islamique, rappel
 
 ---
 
@@ -198,12 +249,29 @@ tasbih, adhkar, dhikr, misbaha, hisnul muslim, widget, islamique, rappel, adhkar
 Sabbih
 
 ### Descripción breve (80 car.)
-Dhikr auto, Hisnul Muslim, misbaha y widgets — funciona sin conexión
+Adhan, horarios de oración y dhikr tras el fard — sin conexión
 
 ### Descripción completa
 Sabbih — tu compañero diario de dhikr y adhkar.
 
-¿Olvidas el recuerdo de Allah mientras usas el teléfono? Sabbih te recuerda automáticamente con tasbih y adhkar cortos en audio — sin interrumpir llamadas ni chats.
+¿Olvidas el recuerdo de Allah mientras usas el teléfono? Sabbih reproduce el adhan a la hora de cada oración, te recuerda los adhkar después de cada fard, y reproduce tasbih cortos en audio mientras usas el teléfono — sin interrumpir llamadas ni chats.
+
+✦ Horarios de oración
+• Horas de los fard según tu ciudad — búsqueda o ubicación actual
+• Método de cálculo, madhab del Asr y horario de verano
+• Una sola ciudad para horarios, adhan y qibla
+
+✦ Adhan
+• Adhan en audio al entrar cada oración que actives
+• Voz del almuédano, un archivo del teléfono, o alerta corta/silenciosa
+• Recordatorio antes del adhan, e iqama después
+• Adhkar de escuchar el adhan al terminar
+• Reproducción opcional incluso en silencio
+
+✦ Adhkar después de la oración
+• Un recordatorio de los adhkar posteriores a cada fard
+• Minutos después del adhan, independientes de la pausa del tasbih
+• Pausa del tasbih y adhkar de audio desde el adhan, el tiempo que elijas por oración
 
 ✦ Tasbih automático
 • Recordatorios periódicos (Subhan Allah, Alhamdulillah, Allahu Akbar y más)
@@ -244,13 +312,13 @@ Sabbih — tu compañero diario de dhikr y adhkar.
 
 ✦ Tus adhkar personales se quedan en el dispositivo — sin cuenta ni anuncios.
 
-Funciona sin conexión tras descargar los audios. Disponible en árabe, inglés, francés y español. Diseño cómodo en tablets.
+Funciona sin conexión tras descargar los audios. Disponible en árabe, inglés, francés, español, turco, urdu, indonesio e hindi. Temas claro y oscuro. Diseño cómodo en tablets.
 
 ———
 Tras instalar: activa notificaciones, mostrar sobre otras apps y la excepción de batería.
 
 ### Palabras clave
-tasbih, adhkar, dhikr, misbaha, hisnul muslim, widget, islámico, recordatorio, adhkar de la mañana
+tasbih, adhkar, dhikr, misbaha, hisnul muslim, adhan, horarios de oración, después de la oración, widget, islámico, recordatorio
 
 ---
 
@@ -268,20 +336,24 @@ tasbih, adhkar, dhikr, misbaha, hisnul muslim, widget, islámico, recordatorio, 
 | `08_popup_auto_azkar.png` | أذكار الصباح تلقائياً | Morning adhkar on schedule |
 | `09_widgets_hub.png` | ويدجت ذكر اليوم والمسبحة | Dhikr of the day and misbaha widgets |
 | `10_home_widgets.png` | عدّ من الشاشة الرئيسية | Count from the home screen |
+| `11_prayer_times.png` | أذان ومواقيت وأذكار ما بعد الفرض | Adhan, prayer times, after-prayer adhkar |
 
-Play Console يقبل حتى 8 لقطات هاتف — اختر الثمانية الأقوى: 01، 07، 02، 04، 10، 09، 08، 05.
+Play Console يقبل حتى 8 لقطات هاتف — الثمانية المقترحة: 01، 07، 02، 04، 10، 11، 08، 05. اللقطة 11 (مواقيت/أذان/أذكار بعد الفرض) إلزامية ضمن الثمانية. لقطات الوضع الليلي في `play-upload/phone-screenshots-night/`.
 
-## فيديو ترويجي (~40–60 ث)
+## فيديو ترويجي (~45–65 ث)
 
 المسار: `video/promo.mp4`
+
+يجب أن يظهر الأذان ومواقيت الصلاة وأذكار ما بعد الفرض بوضوح.
 
 1. شعار سَبِّح (3 ث)
 2. التسبيح التلقائي نافذة + صوت (8 ث)
 3. الأذكار التلقائية / حصن المسلم (8 ث)
-4. المسبحة الرقمية (7 ث)
-5. ويدجت الشاشة الرئيسية (8 ث)
-6. شاشة القفل وذكر اليوم (6 ث)
-7. يعمل دون إنترنت — حمّل مجاناً (5 ث)
+4. مواقيت الصلاة والأذان وأذكار ما بعد الفرض (8 ث)
+5. المسبحة الرقمية (7 ث)
+6. ويدجت الشاشة الرئيسية (8 ث)
+7. شاشة القفل وذكر اليوم (6 ث)
+8. يعمل دون إنترنت — حمّل مجاناً (5 ث)
 
 ## الأصول المطلوبة
 

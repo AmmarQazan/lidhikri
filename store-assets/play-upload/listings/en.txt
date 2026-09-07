@@ -4,12 +4,29 @@
 Sabbih
 
 ### Short description (80 chars)
-Auto dhikr, Hisnul Muslim, misbaha & home widgets — works fully offline
+Adhan, prayer times & after-prayer dhikr — auto tasbih, offline
 
 ### Full description
 Sabbih — your daily companion for dhikr and remembrance.
 
-Do you forget to remember Allah while using your phone? Sabbih reminds you automatically with short audio tasbih and adhkar — without interrupting calls or chats.
+Do you forget to remember Allah while using your phone? Sabbih plays the adhan at prayer times, reminds you with after-prayer adhkar, and plays short audio tasbih while you use your phone — without interrupting calls or chats.
+
+✦ Prayer times
+• Fard times for your city — search or current location
+• Calculation method, Asr madhab, and daylight saving
+• One city for times, adhan, and qibla
+
+✦ Adhan
+• Audio adhan at the start of each prayer you enable
+• Muadhin voice, a file from your phone, or a short/silent alert
+• Reminder before the adhan, and iqama after it
+• After-adhan azkar (repeat the muadhin) when it ends
+• Optional playback even in silent mode
+
+✦ After-prayer adhkar
+• One reminder from the after-prayer collection after each fard
+• Minutes after the adhan — independent of the tasbih pause window
+• Pause tasbih and audio adhkar from the adhan for a duration you choose per prayer
 
 ✦ Auto tasbih
 • Periodic reminders (Subhan Allah, Alhamdulillah, Allahu Akbar, and more)
@@ -50,12 +67,12 @@ Do you forget to remember Allah while using your phone? Sabbih reminds you autom
 
 ✦ Custom dhikr stay on your device only — no account, no ads.
 
-Works offline after downloading audio. Available in Arabic, English, French, Spanish, Turkish, Urdu, Indonesian, and Hindi. Comfortable layout on tablets.
+Works offline after downloading audio. Available in Arabic, English, French, Spanish, Turkish, Urdu, Indonesian, and Hindi. Light and dark themes. Comfortable layout on tablets.
 
 ———
 After install: enable notifications, overlay permission, and battery exemption so reminders stay reliable.
 
 ### Keywords
-tasbih, adhkar, dhikr, misbaha, hisnul muslim, widget, islamic, reminder, morning adhkar
+tasbih, adhkar, dhikr, misbaha, hisnul muslim, adhan, prayer times, after prayer, widget, islamic, reminder
 
 ---

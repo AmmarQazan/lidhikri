@@ -4,12 +4,29 @@
 Sabbih
 
 ### Descripción breve (80 car.)
-Dhikr auto, Hisnul Muslim, misbaha y widgets — funciona sin conexión
+Adhan, horarios de oración y dhikr tras el fard — sin conexión
 
 ### Descripción completa
 Sabbih — tu compañero diario de dhikr y adhkar.
 
-¿Olvidas el recuerdo de Allah mientras usas el teléfono? Sabbih te recuerda automáticamente con tasbih y adhkar cortos en audio — sin interrumpir llamadas ni chats.
+¿Olvidas el recuerdo de Allah mientras usas el teléfono? Sabbih reproduce el adhan a la hora de cada oración, te recuerda los adhkar después de cada fard, y reproduce tasbih cortos en audio mientras usas el teléfono — sin interrumpir llamadas ni chats.
+
+✦ Horarios de oración
+• Horas de los fard según tu ciudad — búsqueda o ubicación actual
+• Método de cálculo, madhab del Asr y horario de verano
+• Una sola ciudad para horarios, adhan y qibla
+
+✦ Adhan
+• Adhan en audio al entrar cada oración que actives
+• Voz del almuédano, un archivo del teléfono, o alerta corta/silenciosa
+• Recordatorio antes del adhan, e iqama después
+• Adhkar de escuchar el adhan al terminar
+• Reproducción opcional incluso en silencio
+
+✦ Adhkar después de la oración
+• Un recordatorio de los adhkar posteriores a cada fard
+• Minutos después del adhan, independientes de la pausa del tasbih
+• Pausa del tasbih y adhkar de audio desde el adhan, el tiempo que elijas por oración
 
 ✦ Tasbih automático
 • Recordatorios periódicos (Subhan Allah, Alhamdulillah, Allahu Akbar y más)
@@ -50,12 +67,12 @@ Sabbih — tu compañero diario de dhikr y adhkar.
 
 ✦ Tus adhkar personales se quedan en el dispositivo — sin cuenta ni anuncios.
 
-Funciona sin conexión tras descargar los audios. Disponible en árabe, inglés, francés, español, turco, urdu, indonesio e hindi. Diseño cómodo en tablets.
+Funciona sin conexión tras descargar los audios. Disponible en árabe, inglés, francés, español, turco, urdu, indonesio e hindi. Temas claro y oscuro. Diseño cómodo en tablets.
 
 ———
 Tras instalar: activa notificaciones, mostrar sobre otras apps y la excepción de batería.
 
 ### Palabras clave
-tasbih, adhkar, dhikr, misbaha, hisnul muslim, widget, islámico, recordatorio, adhkar de la mañana
+tasbih, adhkar, dhikr, misbaha, hisnul muslim, adhan, horarios de oración, después de la oración, widget, islámico, recordatorio
 
 ---

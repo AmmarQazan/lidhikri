@@ -14,28 +14,30 @@ GFX = ROOT / "store-assets" / "graphics"
 VIDEO = ROOT / "store-assets" / "video" / "promo.mp4"
 OUT = ROOT / "store-assets" / "play-upload"
 
-# Play Console phone: 2–8 images, JPEG/PNG, min 320px, 16:9–9:16.
+# Play Console phone: 2–8 images. Keep adhan / prayer times / after-prayer in the set.
 ORDER = [
     ("01_home_auto_tasbih.png", "01-auto-tasbih-home.png"),
     ("07_popup_auto_tasbih.png", "02-popup-over-apps.png"),
     ("02_azkar_sections.png", "03-hisnul-muslim.png"),
     ("04_misbaha_digital.png", "04-digital-misbaha.png"),
     ("10_home_widgets.png", "05-home-widgets.png"),
-    ("09_widgets_hub.png", "06-widgets-settings.png"),
+    ("11_prayer_times.png", "06-prayer-times.png"),
     ("08_popup_auto_azkar.png", "07-auto-azkar-popup.png"),
     ("05_settings_hub.png", "08-settings-hub.png"),
+]
+EXTRAS = [
+    ("09_widgets_hub.png", "09-widgets-settings.png"),
+    ("12_display_theme.png", "10-display-theme.png"),
 ]
 
 
 def main() -> None:
-    if OUT.exists():
-        shutil.rmtree(OUT)
     phone = OUT / "phone-screenshots"
     graphics = OUT / "graphics"
-    phone.mkdir(parents=True)
-    graphics.mkdir(parents=True)
+    phone.mkdir(parents=True, exist_ok=True)
+    graphics.mkdir(parents=True, exist_ok=True)
 
-    for src_name, dest_name in ORDER:
+    for src_name, dest_name in ORDER + EXTRAS:
         src = SRC / src_name
         if not src.exists():
             raise SystemExit(f"missing {src}")

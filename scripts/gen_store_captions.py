@@ -30,11 +30,13 @@ SHOTS = [
     ("03_azkar_morning_cards.png", "قراءة الأذكار", "Cards or list — at your pace"),
     ("04_misbaha_digital.png", "المسبحة الرقمية", "Traditional beads or electronic counter"),
     ("05_settings_hub.png", "كل شيء في مكانه", "Clear settings for every feature"),
-    ("06_onboarding_welcome.png", "ابدأ خلال دقائق", "Arabic, English, French, Spanish"),
+    ("06_onboarding_welcome.png", "ابدأ خلال دقائق", "Arabic, English, and six more languages"),
     ("07_popup_auto_tasbih.png", "فوق تطبيقاتك", "A calm popup — then it gets out of the way"),
     ("08_popup_auto_azkar.png", "الأذكار التلقائية", "Hisnul Muslim on your schedule"),
     ("09_widgets_hub.png", "ويدجت الشاشة", "Dhikr of the day and home misbaha"),
     ("10_home_widgets.png", "من الشاشة الرئيسية", "Count and remember without opening the app"),
+    ("11_prayer_times.png", "أذان ومواقيت وأذكار بعد الفرض", "Adhan, prayer times, after-prayer adhkar"),
+    ("12_display_theme.png", "نهاري أو ليلي", "Light, dark, or follow the phone"),
 ]
 
 

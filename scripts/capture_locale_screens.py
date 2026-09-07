@@ -203,16 +203,34 @@ def shot(out: Path, name: str):
     print(out.name, name)
 
 
-def write_prefs(lang: str, onboarding: bool) -> Path:
+def write_prefs(lang: str, onboarding: bool, theme: str = "LIGHT") -> Path:
+    import struct
+
+    def double_bits(value: float) -> int:
+        return struct.unpack("<q", struct.pack("<d", float(value)))[0]
+
     path = PREFS_DIR / f"adhkar_settings_{lang}.xml"
     done = "true" if onboarding else "false"
+    lat = double_bits(21.4225)
+    lng = double_bits(39.8262)
     path.write_text(
         "<?xml version='1.0' encoding='utf-8' standalone='yes' ?>\n"
         "<map>\n"
         f'    <boolean name="onboarding_completed" value="{done}" />\n'
         f'    <string name="app_language">{lang}</string>\n'
+        f'    <string name="app_theme_mode">{theme}</string>\n'
         '    <boolean name="auto_azkar_enabled" value="true" />\n'
         '    <boolean name="service_enabled" value="true" />\n'
+        '    <boolean name="respect_prayer_time" value="true" />\n'
+        '    <boolean name="after_prayer_from_salah" value="true" />\n'
+        '    <string name="prayer_location_mode">MANUAL</string>\n'
+        '    <string name="prayer_city">مكة المكرمة</string>\n'
+        '    <string name="prayer_country">السعودية</string>\n'
+        '    <string name="prayer_country_code">SA</string>\n'
+        '    <string name="prayer_tz_id">Asia/Riyadh</string>\n'
+        '    <string name="prayer_method">UMM_AL_QURA</string>\n'
+        f'    <long name="prayer_lat" value="{lat}" />\n'
+        f'    <long name="prayer_lng" value="{lng}" />\n'
         '    <string name="number_digit_style">LATIN</string>\n'
         '    <float name="popup_font_scale" value="0.82" />\n'
         '    <long name="azkar_selected_reciter" value="1" />\n'
@@ -228,12 +246,14 @@ def push_prefs(path: Path):
     adb("shell", "run-as", PKG, "cp", "/data/local/tmp/adhkar_settings.xml", "shared_prefs/adhkar_settings.xml", check=False)
 
 
-def prep(lang: str, onboarding: bool = True, reinstall: bool = False):
-    prefs = write_prefs(lang, onboarding)
+def prep(lang: str, onboarding: bool = True, reinstall: bool = False, theme: str = "LIGHT"):
+    prefs = write_prefs(lang, onboarding, theme=theme)
     adb("shell", "pm", "disable-user", "--user", "0", "com.android.vending", check=False)
     adb("shell", "am", "force-stop", PKG, check=False)
     if reinstall and APK.exists():
         adb("install", "-r", str(APK), check=False)
+    night = "yes" if theme.upper() == "DARK" else "no"
+    adb("shell", "cmd", "uimode", "night", night, check=False)
     adb("shell", "appops", "set", PKG, "SYSTEM_ALERT_WINDOW", "allow", check=False)
     for p in (
         "android.permission.POST_NOTIFICATIONS",
@@ -366,43 +386,94 @@ def pin_home_widgets(lang: str, out: Path):
     wait(2)
 
 
-def capture_lang(lang: str, reinstall: bool = False) -> None:
-    out = OUT_ROOT / lang
-    print("===", lang)
-    prep(lang, onboarding=True, reinstall=reinstall)
+def capture_prayer_and_display(lang: str, out: Path) -> None:
+    open_settings_hub(lang)
+    general = {
+        "ar": "التطبيق والأذونات",
+        "en": "App and permissions",
+        "fr": "Application et autorisations",
+        "es": "Aplicación y permisos",
+    }.get(lang, "App and permissions")
+    prayer = {
+        "ar": "احترام وقت الصلاة",
+        "en": "Respect prayer time",
+        "fr": "Respecter l'heure de prière",
+        "es": "Respetar la hora de oración",
+    }.get(lang, "Respect prayer time")
+    display = {
+        "ar": "العرض والقراءة",
+        "en": "Display",
+        "fr": "Affichage et lecture",
+        "es": "Apariencia y lectura",
+    }.get(lang, "Display")
+    tap_text(general, contains=True)
+    wait(1.2)
+    adb("shell", "input", "swipe", "540", "1900", "540", "900", "400", check=False)
+    wait(0.8)
+    if not tap_text(prayer, contains=True):
+        tap_text("ضبط المدينة", contains=True) or tap_text("Set city", contains=True)
+    wait(1.8)
+    shot(out, "11_prayer_times")
+    back(2)
+    wait(0.8)
+    open_settings_hub(lang)
+    tap_text(display, contains=True)
+    wait(1.5)
+    shot(out, "12_display_theme")
+    back(1)
+
+
+def capture_lang(
+    lang: str,
+    reinstall: bool = False,
+    theme: str = "LIGHT",
+    out: Path | None = None,
+    pin_widgets: bool = True,
+) -> None:
+    dest = out or (OUT_ROOT / lang)
+    print("===", lang, theme, dest.name)
+    prep(lang, onboarding=True, reinstall=reinstall, theme=theme)
     tap_nav(lang, 0)
     wait(1)
-    shot(out, "01_home_auto_tasbih")
+    shot(dest, "01_home_auto_tasbih")
 
     open_azkar_list(lang)
-    shot(out, "02_azkar_sections")
+    shot(dest, "02_azkar_sections")
     if not tap_text("Morning adhkar", contains=True):
         tap_text("Adhkar du matin", contains=True) or tap_text("Adhkar de la mañana", contains=True) or tap_text("أذكار الصباح", contains=True)
     wait(2)
-    shot(out, "03_azkar_morning_cards")
+    shot(dest, "03_azkar_morning_cards")
 
     tap_nav(lang, 1)
     wait(1.5)
-    shot(out, "04_misbaha_digital")
+    shot(dest, "04_misbaha_digital")
 
     open_settings_hub(lang)
-    shot(out, "05_settings_hub")
-    pin_home_widgets(lang, out)
+    shot(dest, "05_settings_hub")
+    if pin_widgets:
+        pin_home_widgets(lang, dest)
+    else:
+        tap_text(WIDGETS_HUB[lang], contains=True)
+        wait(1.4)
+        shot(dest, "09_widgets_hub")
+        back(1)
+
+    capture_prayer_and_display(lang, dest)
 
     adb("shell", "am", "force-stop", PKG, check=False)
     wait(0.8)
-    push_prefs(write_prefs(lang, onboarding=False))
+    push_prefs(write_prefs(lang, onboarding=False, theme=theme))
     adb("shell", "am", "start", "-n", f"{PKG}/.MainActivity", check=False)
     wait(5)
-    shot(out, "06_onboarding_welcome")
+    shot(dest, "06_onboarding_welcome")
 
-    prep(lang, onboarding=True, reinstall=False)
+    prep(lang, onboarding=True, reinstall=False, theme=theme)
     overlay(lang, azkar=False)
-    shot(out, "07_popup_auto_tasbih")
+    shot(dest, "07_popup_auto_tasbih")
     back(1)
     wait(0.8)
     overlay(lang, azkar=True)
-    shot(out, "08_popup_auto_azkar")
+    shot(dest, "08_popup_auto_azkar")
     back(1)
 
 

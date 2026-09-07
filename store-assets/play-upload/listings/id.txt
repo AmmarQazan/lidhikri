@@ -4,12 +4,29 @@
 Sabbih
 
 ### Short description (80 chars)
-Dzikir otomatis, Hisnul Muslim, tasbih & widget — tetap jalan offline
+Adzan, waktu shalat & dzikir setelah shalat — offline
 
 ### Full description
 Sabbih — teman harian untuk dzikir dan tasbih.
 
-Lupa mengingat Allah saat memakai ponsel? Sabbih mengingatkan Anda otomatis dengan tasbih dan dzikir bersuara singkat — tanpa memotong panggilan atau percakapan.
+Lupa mengingat Allah saat memakai ponsel? Sabbih memutar adzan pada waktu shalat, mengingatkan dzikir setelah setiap fardu, dan memutar tasbih singkat saat Anda memakai ponsel — tanpa memotong panggilan atau percakapan.
+
+✦ Waktu shalat
+• Waktu fardu menurut kota Anda — pencarian atau lokasi saat ini
+• Metode hitung, mazhab Asar, dan DST
+• Satu kota untuk waktu, adzan, dan kiblat
+
+✦ Adzan
+• Adzan bersuara saat masuk setiap shalat yang Anda aktifkan
+• Suara muazin, berkas dari ponsel, atau peringatan singkat/senyap
+• Pengingat sebelum adzan, dan iqamah setelahnya
+• Dzikir mendengar adzan otomatis saat selesai
+• Opsi putar meski dalam mode senyap
+
+✦ Dzikir setelah shalat
+• Satu pengingat dari kumpulan dzikir setelah shalat setelah setiap fardu
+• Menit setelah adzan — terpisah dari jeda tasbih
+• Hentikan tasbih dan dzikir bersuara sejak adzan, selama durasi yang Anda pilih
 
 ✦ Tasbih otomatis
 • Pengingat berkala (Subhanallah, Alhamdulillah, Allahu Akbar, dan lainnya)
@@ -50,10 +67,10 @@ Lupa mengingat Allah saat memakai ponsel? Sabbih mengingatkan Anda otomatis deng
 
 ✦ Dzikir khusus hanya tersimpan di perangkat — tanpa akun, tanpa iklan.
 
-Berjalan offline setelah audio diunduh. Tersedia dalam Arab, Inggris, Prancis, Spanyol, Turki, Urdu, Indonesia, dan Hindi. Tata letak nyaman di tablet.
+Berjalan offline setelah audio diunduh. Tersedia dalam Arab, Inggris, Prancis, Spanyol, Turki, Urdu, Indonesia, dan Hindi. Tema terang dan gelap. Tata letak nyaman di tablet.
 
 ———
 Setelah memasang: aktifkan notifikasi, izin tampil di atas aplikasi lain, dan pengecualian baterai agar pengingat tetap andal.
 
 ### Keywords
-tasbih, dzikir, zikir, misbaha, hisnul muslim, widget, islam, pengingat, dzikir pagi
+tasbih, dzikir, zikir, misbaha, hisnul muslim, adzan, waktu shalat, setelah shalat, widget, islam, pengingat
