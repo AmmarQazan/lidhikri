@@ -113,7 +113,7 @@
 
 صفحة جاهزة للمتجر: `store-assets/privacy.html`
 
-الرابط المنشور: https://sabbih.web.app/privacy
+الرابط المنشور: https://lidhikri.web.app/privacy
 
 | البيان | التفاصيل |
 |--------|----------|

@@ -2,11 +2,11 @@
 
 صفحات الكونسول: Developer account ← About you / Contact details / Developer profile.
 
-الموقع العام: https://sabbih.web.app/
+الموقع العام: https://lidhikri.web.app/
 
-سياسة الخصوصية: https://sabbih.web.app/privacy
+سياسة الخصوصية: https://lidhikri.web.app/privacy
 
-الرابط القديم https://sabbih-dhikr-ammar.web.app/ يحوّل إلى الموقع الجديد.
+الرابطان القديمان https://sabbih.web.app/ و https://sabbih-dhikr-ammar.web.app/ يحوّلان إلى الموقع الجديد.
 
 ---
 
@@ -14,8 +14,8 @@
 
 | الحقل | القيمة |
 |--------|---------|
-| Developer name | Lidhikri |
-| Website | https://sabbih.web.app/ |
+| Developer name | لذكري |
+| Website | https://lidhikri.web.app/ |
 | Developer email | sqazan@proton.me |
 | Promotional text (en-US) | Lidhikri builds Android apps for dhikr: adhan, prayer times, after-prayer adhkar, auto tasbih, Hisnul Muslim, misbaha and widgets — no ads. |
 | Developer icon | `store-assets/graphics/developer-icon.png` |
@@ -45,6 +45,6 @@ Lidhikri crea apps Android para el dhikr: adhan, horarios de oración, dhikr tra
 بعد إنشاء التطبيق:
 
 - Email: sqazan@proton.me
-- Website: https://sabbih.web.app/
-- Privacy policy: https://sabbih.web.app/privacy
+- Website: https://lidhikri.web.app/
+- Privacy policy: https://lidhikri.web.app/privacy
 - Phone: اتركه فارغاً ما لم يطلبه النموذج

@@ -6,6 +6,9 @@
     "sabbih-dhikr-ammar": {
       "hosting": {
         "brand": [
+          "lidhikri"
+        ],
+        "oldbrand": [
           "sabbih"
         ],
         "legacy": [

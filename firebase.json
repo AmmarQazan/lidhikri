@@ -16,17 +16,39 @@
       "redirects": [
         {
           "source": "/privacy",
-          "destination": "https://sabbih.web.app/privacy",
+          "destination": "https://lidhikri.web.app/privacy",
           "type": 301
         },
         {
           "source": "/privacy.html",
-          "destination": "https://sabbih.web.app/privacy",
+          "destination": "https://lidhikri.web.app/privacy",
           "type": 301
         },
         {
           "source": "**",
-          "destination": "https://sabbih.web.app",
+          "destination": "https://lidhikri.web.app",
+          "type": 301
+        }
+      ]
+    },
+    {
+      "target": "oldbrand",
+      "public": "store-assets/web-redirect",
+      "cleanUrls": true,
+      "redirects": [
+        {
+          "source": "/privacy",
+          "destination": "https://lidhikri.web.app/privacy",
+          "type": 301
+        },
+        {
+          "source": "/privacy.html",
+          "destination": "https://lidhikri.web.app/privacy",
+          "type": 301
+        },
+        {
+          "source": "**",
+          "destination": "https://lidhikri.web.app",
           "type": 301
         }
       ]

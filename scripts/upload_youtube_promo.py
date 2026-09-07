@@ -9,7 +9,7 @@ OUT = Path(__file__).resolve().parents[1] / ".tmp-export"
 TITLE = "Lidhikri — auto tasbih, Hisnul Muslim, misbaha"
 DESC = (
     "Lidhikri: auto dhikr, Hisnul Muslim, digital misbaha and home widgets. No ads.\n"
-    "https://sabbih.web.app/"
+    "https://lidhikri.web.app/"
 )
 CHANNEL = "https://studio.youtube.com/channel/UCvgGwOj95Fdo4ojEORPc3pA"
 

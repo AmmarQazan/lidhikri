@@ -60,5 +60,5 @@ python scripts/recapture_ar_and_night.py
    - ليلي عربي: `play-upload/phone-screenshots-night/`
 4. **الفيديو (اختياري):** ارفع `play-upload/promo.mp4` إلى يوتيوب ثم الصق الرابط في الكونسول
 5. **النصوص:** انسخ من `play-upload/listings/` لكل لغة (ar / en / fr / es / tr / ur / id / hi)
-6. **سياسة الخصوصية:** https://sabbih.web.app/privacy
+6. **سياسة الخصوصية:** https://lidhikri.web.app/privacy
 7. **ملف المطوّر:** النصوص والحقول في `developer-profile.md` — الموقع والأيقونة والغلاف والنص الإنجليزي مُدخلة في الكونسول

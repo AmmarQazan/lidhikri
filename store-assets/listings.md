@@ -369,4 +369,4 @@ Play Console يقبل حتى 8 لقطات هاتف — الثمانية المق
 
 النص الكامل: `privacy.html`
 
-الرابط المنشور (يُلصق في Play Console): https://sabbih.web.app/privacy
+الرابط المنشور (يُلصق في Play Console): https://lidhikri.web.app/privacy
