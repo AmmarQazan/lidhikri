@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parent.parent
 REMOTE_ROOT = ROOT / "remote-content"
 AUDIO_OUT = REMOTE_ROOT / "audio"
 ASSETS_AUDIO = ROOT / "app" / "src" / "main" / "assets" / "audio"
-DEFAULT_BASE_URL = "https://raw.githubusercontent.com/AmmarQazan/sabbih/main/remote-content"
+DEFAULT_BASE_URL = "https://raw.githubusercontent.com/AmmarQazan/lidhikri/main/remote-content"
 
 TABLES = {
     "dhikr": "SELECT * FROM dhikr WHERE isDefault = 1 ORDER BY sortOrder, id",

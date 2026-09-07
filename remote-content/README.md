@@ -37,6 +37,6 @@ git push
 
 الرابط الافتراضي:
 
-`https://raw.githubusercontent.com/AmmarQazan/sabbih/main/remote-content`
+`https://raw.githubusercontent.com/AmmarQazan/lidhikri/main/remote-content`
 
 يمكن تغييره من `REMOTE_CONTENT_BASE_URL` في `app/build.gradle.kts`.

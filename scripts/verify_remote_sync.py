@@ -10,7 +10,7 @@ import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_BASE = "https://raw.githubusercontent.com/AmmarQazan/sabbih/main/remote-content"
+DEFAULT_BASE = "https://raw.githubusercontent.com/AmmarQazan/lidhikri/main/remote-content"
 
 EXPECTED_KEYS = {
     "dhikr",
