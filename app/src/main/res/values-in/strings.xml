@@ -233,6 +233,8 @@
     <string name="next_adhan_channel_hint">Notifikasi status untuk azan berikutnya — bukan peringatan waktu salat</string>
     <string name="next_adhan_title">Azan berikutnya</string>
     <string name="next_adhan_in">%1$s dalam %2$d mnt</string>
+    <string name="next_adhan_in_h">%1$s dalam %2$d j — %3$s</string>
+    <string name="next_adhan_in_hm">%1$s dalam %2$d j %3$d mnt — %4$s</string>
     <string name="next_adhan_soon">%1$s dalam kurang dari satu menit</string>
     <string name="text_reminder_channel">Dzikir teks saja</string>
     <string name="text_reminder_channel_hint">Pengingat teks senyap — tanpa suara dari aplikasi</string>
@@ -293,6 +295,10 @@
     <string name="auto_azkar_mode_random_detail">Acak: dzikir berbeda setiap hari</string>
     <string name="auto_azkar_mode_sequential_detail">Berurutan: dzikir demi dzikir mengikuti daftar</string>
     <string name="next_azkar_summary">Dzikir berikutnya: %1$s — %2$s</string>
+    <string name="next_azkar_line">%1$s — %2$s</string>
+    <string name="next_azkar_title">Dzikir berikutnya</string>
+    <string name="next_azkar_channel">Jadwal dzikir</string>
+    <string name="next_azkar_channel_hint">Notifikasi status untuk dzikir berikutnya — bukan pengingatnya sendiri</string>
     <string name="next_azkar_none">Tidak ada bagian terjadwal — aktifkan jadwal di Bagian dzikir</string>
     <string name="next_azkar_time_today">Hari ini %1$s</string>
     <string name="next_azkar_time_tomorrow">Besok %1$s</string>
@@ -419,7 +425,7 @@
     <string name="onboarding_font_preview">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</string>
     <string name="onboarding_font_size_value">Ukuran teks dzikir: %1$d%%</string>
     <string name="onboarding_welcome_title">Selamat datang di Lidhikri</string>
-    <string name="onboarding_welcome_subtitle">Pendamping harian Anda: adzan, waktu shalat, dzikir setelah shalat, dan tasbih otomatis.</string>
+    <string name="onboarding_welcome_subtitle">Pendamping harian Anda: tasbih dan dzikir otomatis saat memakai ponsel, plus adzan, waktu shalat, dan dzikir setelah shalat.</string>
     <string name="onboarding_language_title">Pilih bahasa aplikasi</string>
     <string name="onboarding_language_subtitle">Anda dapat mengubahnya nanti di pengaturan</string>
     <string name="onboarding_location_title">Atur lokasi Anda</string>
@@ -493,9 +499,9 @@
     <string name="onboarding_ready_subtitle_azkar_only">Pengingat dzikir otomatis aktif — Anda dapat mengubah waktunya dari Pengaturan</string>
     <string name="onboarding_ready_subtitle_none">Anda dapat mengaktifkan tasbih dan dzikir otomatis nanti dari Pengaturan</string>
     <string name="onboarding_feature_tasbih_title">Tasbih otomatis</string>
-    <string name="onboarding_feature_tasbih_subtitle">Pengingat lembut dengan dzikir sesuai jadwal Anda</string>
-    <string name="onboarding_feature_azkar_title">Koleksi dzikir</string>
-    <string name="onboarding_feature_azkar_subtitle">Pagi, petang, dan lainnya — baca atau dengar</string>
+    <string name="onboarding_feature_tasbih_subtitle">Pengingat dzikir singkat saat Anda memakai ponsel</string>
+    <string name="onboarding_feature_azkar_title">Dzikir otomatis</string>
+    <string name="onboarding_feature_azkar_subtitle">Pengingat terjadwal Hisnul Muslim — pagi, petang, dan lainnya</string>
     <string name="onboarding_feature_reminder_title">Pengingat cerdas</string>
     <string name="onboarding_feature_reminder_subtitle">Jendela atau notifikasi — pilihan Anda</string>
     <string name="onboarding_feature_misbaha_title">Misbaha digital</string>
@@ -504,8 +510,8 @@
     <string name="onboarding_feature_prayer_subtitle">Menurut kota Anda, dengan metode hitung yang Anda pilih</string>
     <string name="onboarding_feature_adhan_title">Adzan</string>
     <string name="onboarding_feature_adhan_subtitle">Suara muazin saat masuk setiap shalat yang Anda aktifkan</string>
-    <string name="onboarding_feature_after_prayer_title">Dzikir dan tasbih otomatis</string>
-    <string name="onboarding_feature_after_prayer_subtitle">Pengingat setelah setiap fardu, plus dzikir otomatis sepanjang hari</string>
+    <string name="onboarding_feature_after_prayer_title">Dzikir setelah shalat</string>
+    <string name="onboarding_feature_after_prayer_subtitle">Pengingat setelah setiap fardu, terpisah dari jeda tasbih</string>
     <string name="onboarding_next">Lanjut</string>
     <string name="onboarding_back">Kembali</string>
     <string name="onboarding_skip">Lewati</string>

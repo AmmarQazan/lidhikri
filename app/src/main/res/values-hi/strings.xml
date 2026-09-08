@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Lidhikri</string>
+    <string name="app_name">लिधिक्री</string>
     <string name="nav_home">मुख्य</string>
     <string name="nav_read">अज़कार</string>
     <string name="nav_misbaha">तस्बीह</string>
@@ -233,6 +233,8 @@
     <string name="next_adhan_channel_hint">अगले अज़ान की स्थिति सूचना — नमाज़ के समय की चेतावनी नहीं</string>
     <string name="next_adhan_title">अगला अज़ान</string>
     <string name="next_adhan_in">%1$s %2$d मिनट में</string>
+    <string name="next_adhan_in_h">%1$s %2$d घंटे में — %3$s</string>
+    <string name="next_adhan_in_hm">%1$s %2$d घंटे %3$d मिनट में — %4$s</string>
     <string name="next_adhan_soon">%1$s एक मिनट से कम में</string>
     <string name="text_reminder_channel">केवल पाठ ज़िक्र</string>
     <string name="text_reminder_channel_hint">मौन पाठ अनुस्मारक — ऐप से कोई ध्वनि नहीं</string>
@@ -293,6 +295,10 @@
     <string name="auto_azkar_mode_random_detail">यादृच्छिक: हर दिन अलग ज़िक्र</string>
     <string name="auto_azkar_mode_sequential_detail">क्रम में: सूची के अनुसार ज़िक्र के बाद ज़िक्र</string>
     <string name="next_azkar_summary">अगला ज़िक्र: %1$s — %2$s</string>
+    <string name="next_azkar_line">%1$s — %2$s</string>
+    <string name="next_azkar_title">अगला ज़िक्र</string>
+    <string name="next_azkar_channel">अगले ज़िक्र की सूचना</string>
+    <string name="next_azkar_channel_hint">अगले निर्धारित ज़िक्र की स्थिति सूचना — स्वयं अनुस्मारक नहीं</string>
     <string name="next_azkar_none">कोई खंड निर्धारित नहीं — अज़कार खंड में अनुसूची सक्षम करें</string>
     <string name="next_azkar_time_today">आज %1$s</string>
     <string name="next_azkar_time_tomorrow">कल %1$s</string>
@@ -418,8 +424,8 @@
     <string name="onboarding_font_subtitle">पढ़ते समय अज़कार पाठ कैसा दिखेगा देखें</string>
     <string name="onboarding_font_preview">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</string>
     <string name="onboarding_font_size_value">अज़कार पाठ आकार: %1$d%%</string>
-    <string name="onboarding_welcome_title">Lidhikri में स्वागत है</string>
-    <string name="onboarding_welcome_subtitle">आपका दैनिक साथी: अज़ान, नमाज़ वक़्त, नमाज़ बाद अज़कार, और स्वतः तस्बीह।</string>
+    <string name="onboarding_welcome_title">लिधिक्री में स्वागत है</string>
+    <string name="onboarding_welcome_subtitle">आपका दैनिक साथी: फ़ोन इस्तेमाल करते हुए स्वतः तस्बीह और अज़कार, साथ अज़ान, नमाज़ वक़्त और नमाज़ बाद अज़कार।</string>
     <string name="onboarding_language_title">ऐप भाषा चुनें</string>
     <string name="onboarding_language_subtitle">आप इसे बाद में सेटिंग्स से बदल सकते हैं</string>
     <string name="onboarding_location_title">अपना स्थान सेट करें</string>
@@ -492,10 +498,10 @@
     <string name="onboarding_ready_subtitle_tasbih_only">स्वचालित तस्बीह चालू है — दैनिक घंटे कभी भी सेटिंग्स से बदल सकते हैं</string>
     <string name="onboarding_ready_subtitle_azkar_only">स्वचालित अज़कार अनुस्मारक चालू हैं — समय सेटिंग्स से बदल सकते हैं</string>
     <string name="onboarding_ready_subtitle_none">आप बाद में सेटिंग्स से स्वचालित तस्बीह और अज़कार सक्षम कर सकते हैं</string>
-    <string name="onboarding_feature_tasbih_title">स्वचालित तस्बीह</string>
-    <string name="onboarding_feature_tasbih_subtitle">आपकी अनुसूची पर कोमल ज़िक्र अनुस्मारक</string>
-    <string name="onboarding_feature_azkar_title">अज़कार संग्रह</string>
-    <string name="onboarding_feature_azkar_subtitle">सुबह, शाम, और अधिक — पढ़ें या सुनें</string>
+    <string name="onboarding_feature_tasbih_title">स्वतः तस्बीह</string>
+    <string name="onboarding_feature_tasbih_subtitle">फ़ोन इस्तेमाल करते हुए छोटी ज़िक्र याददिहानियाँ</string>
+    <string name="onboarding_feature_azkar_title">स्वतः अज़कार</string>
+    <string name="onboarding_feature_azkar_subtitle">हिसनुल मुस्लिम की अनुसूचित याददिहानियाँ — सुबह, शाम और अधिक</string>
     <string name="onboarding_feature_reminder_title">स्मार्ट अनुस्मारक</string>
     <string name="onboarding_feature_reminder_subtitle">पॉपअप या सूचना — आपकी पसंद</string>
     <string name="onboarding_feature_misbaha_title">डिजिटल मिसबहा</string>
@@ -504,8 +510,8 @@
     <string name="onboarding_feature_prayer_subtitle">आपके शहर के अनुसार, चुनी गणना विधि से</string>
     <string name="onboarding_feature_adhan_title">अज़ान</string>
     <string name="onboarding_feature_adhan_subtitle">हर फ़र्ज़ पर जिसे आप चालू करें मुअज़्ज़िन की आवाज़</string>
-    <string name="onboarding_feature_after_prayer_title">स्वतः अज़कार और तस्बीह</string>
-    <string name="onboarding_feature_after_prayer_subtitle">हर फ़र्ज़ के बाद याददिहानी, साथ स्वतः अज़कार पूरे दिन</string>
+    <string name="onboarding_feature_after_prayer_title">नमाज़ के बाद अज़कार</string>
+    <string name="onboarding_feature_after_prayer_subtitle">हर फ़र्ज़ के बाद याददिहानी, तस्बीह विराम से स्वतंत्र</string>
     <string name="onboarding_next">आगे</string>
     <string name="onboarding_back">पीछे</string>
     <string name="onboarding_skip">छोड़ें</string>

@@ -1,7 +1,9 @@
 package com.greendome.adhkar.util
 
 import android.app.LocaleManager
+import android.content.ComponentName
 import android.content.Context
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.os.LocaleList
@@ -30,17 +32,37 @@ object LocaleHelper {
         wrap(context, getLanguage(context))
 
     fun applyAppLocales(context: Context, languageCode: String) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
         val code = AppLanguages.coerce(languageCode)
-        val tag = AppLanguages.locale(code).toLanguageTag()
+        applyLauncherLabel(context.applicationContext, code)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+        val tag = AppLanguages.systemLocaleTag(code)
         val manager = context.getSystemService(LocaleManager::class.java) ?: return
         val current = manager.applicationLocales.toLanguageTags()
-        if (current.equals(tag, ignoreCase = true) ||
-            current.split(",").any { it.equals(tag, ignoreCase = true) || it.startsWith("$code-") }
-        ) {
-            return
-        }
+        if (current.equals(tag, ignoreCase = true)) return
         manager.applicationLocales = LocaleList.forLanguageTags(tag)
+    }
+
+    fun applyLauncherLabel(context: Context, languageCode: String) {
+        val pm = context.packageManager
+        val pkg = context.packageName
+        val enabled = AppLanguages.launcherAliasClass(languageCode)
+        for (code in AppLanguages.codes) {
+            val className = AppLanguages.launcherAliasClass(code)
+            val state = if (className == enabled) {
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+            } else {
+                PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+            }
+            try {
+                pm.setComponentEnabledSetting(
+                    ComponentName(pkg, className),
+                    state,
+                    PackageManager.DONT_KILL_APP,
+                )
+            } catch (_: IllegalArgumentException) {
+                // Alias missing from an older install until the new manifest is applied.
+            }
+        }
     }
 
     fun string(context: Context, languageCode: String, @StringRes id: Int): String {

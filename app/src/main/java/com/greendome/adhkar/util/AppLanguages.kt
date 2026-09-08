@@ -46,6 +46,17 @@ object AppLanguages {
         else -> Locale.ENGLISH
     }
 
+    /** Plain resource locale for the launcher name (`ar`, `in`) — not `ar-u-nu-latn`. */
+    fun systemLocaleTag(code: String): String {
+        val coerced = coerce(code)
+        return if (coerced == "id") "in" else coerced
+    }
+
+    fun launcherAliasClass(code: String): String {
+        val tag = systemLocaleTag(code)
+        return "com.greendome.adhkar.launcher." + tag.replaceFirstChar { it.uppercase() }
+    }
+
     fun pickerPairs(): List<Pair<String, String>> =
         all.filter { it.enabled }.map { it.code to it.nativeName }
 }

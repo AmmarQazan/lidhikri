@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Lidhikri</string>
+    <string name="app_name">لذكري</string>
     <string name="nav_home">گھر</string>
     <string name="nav_read">اذکار</string>
     <string name="nav_misbaha">تسبیح</string>
@@ -233,6 +233,8 @@
     <string name="next_adhan_channel_hint">اگلی اذان کی حیثیت کی اطلاع — وقتِ نماز کی الرٹ نہیں</string>
     <string name="next_adhan_title">اگلی اذان</string>
     <string name="next_adhan_in">%1$s %2$d منٹ میں</string>
+    <string name="next_adhan_in_h">%1$s %2$d گھنٹے میں — %3$s</string>
+    <string name="next_adhan_in_hm">%1$s %2$d گھنٹے %3$d منٹ میں — %4$s</string>
     <string name="next_adhan_soon">%1$s ایک منٹ سے کم میں</string>
     <string name="text_reminder_channel">صرف متن کا ذکر</string>
     <string name="text_reminder_channel_hint">خاموش متنی یاد دہانی — ایپ سے آواز نہیں</string>
@@ -293,6 +295,10 @@
     <string name="auto_azkar_mode_random_detail">بے ترتیب: ہر دن مختلف ذکر</string>
     <string name="auto_azkar_mode_sequential_detail">ترتیب سے: فہرست کے مطابق ذکر کے بعد ذکر</string>
     <string name="next_azkar_summary">اگلا ذکر: %1$s — %2$s</string>
+    <string name="next_azkar_line">%1$s — %2$s</string>
+    <string name="next_azkar_title">اگلا ذکر</string>
+    <string name="next_azkar_channel">اگلے ذکر کی اطلاع</string>
+    <string name="next_azkar_channel_hint">اگلے ذکر کی حیثیت کی اطلاع — خود یاد دہانی نہیں</string>
     <string name="next_azkar_none">کوئی حصہ شیڈول نہیں — اذکار کے حصوں میں شیڈولنگ چالو کریں</string>
     <string name="next_azkar_time_today">آج %1$s</string>
     <string name="next_azkar_time_tomorrow">کل %1$s</string>
@@ -418,8 +424,8 @@
     <string name="onboarding_font_subtitle">پڑھتے ہوئے اذکار کے متن کی شکل دیکھیں</string>
     <string name="onboarding_font_preview">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</string>
     <string name="onboarding_font_size_value">اذکار کے متن کا سائز: %1$d%%</string>
-    <string name="onboarding_welcome_title">Lidhikri میں خوش آمدید</string>
-    <string name="onboarding_welcome_subtitle">روزانہ ساتھی: اذان، نماز کے اوقات، نماز کے بعد اذکار، اور خودکار تسبیح۔</string>
+    <string name="onboarding_welcome_title">لذكري میں خوش آمدید</string>
+    <string name="onboarding_welcome_subtitle">روزانہ ساتھی: فون استعمال کرتے ہوئے خودکار تسبیح اور اذکار، ساتھ اذان، نماز کے اوقات اور نماز کے بعد اذکار۔</string>
     <string name="onboarding_language_title">ایپ کی زبان منتخب کریں</string>
     <string name="onboarding_language_subtitle">آپ اسے بعد میں ترتیبات سے بدل سکتے ہیں</string>
     <string name="onboarding_location_title">اپنا مقام متعین کریں</string>
@@ -493,9 +499,9 @@
     <string name="onboarding_ready_subtitle_azkar_only">خودکار اذکار کی یاد دہانیاں آن ہیں — اوقات ترتیبات سے بدل سکتے ہیں</string>
     <string name="onboarding_ready_subtitle_none">آپ بعد میں ترتیبات سے خودکار تسبیح اور اذکار چالو کر سکتے ہیں</string>
     <string name="onboarding_feature_tasbih_title">خودکار تسبیح</string>
-    <string name="onboarding_feature_tasbih_subtitle">آپ کے شیڈول پر ذکر کی نرم یاد دہانیاں</string>
-    <string name="onboarding_feature_azkar_title">اذکار کے مجموعے</string>
-    <string name="onboarding_feature_azkar_subtitle">صبح، شام، اور مزید — پڑھیں یا سنیں</string>
+    <string name="onboarding_feature_tasbih_subtitle">فون استعمال کرتے ہوئے مختصر ذکر کی یاد دہانیاں</string>
+    <string name="onboarding_feature_azkar_title">خودکار اذکار</string>
+    <string name="onboarding_feature_azkar_subtitle">حصن المسلم کی شیڈول یاد دہانیاں — صبح، شام اور مزید</string>
     <string name="onboarding_feature_reminder_title">ہوشیار یاد دہانیاں</string>
     <string name="onboarding_feature_reminder_subtitle">پاپ اپ یا اطلاع — آپ کی پسند</string>
     <string name="onboarding_feature_misbaha_title">ڈیجیٹل مسبحة</string>
@@ -504,8 +510,8 @@
     <string name="onboarding_feature_prayer_subtitle">آپ کے شہر کے مطابق، منتخب حساب کے طریقے سے</string>
     <string name="onboarding_feature_adhan_title">اذان</string>
     <string name="onboarding_feature_adhan_subtitle">ہر فرض پر جو آپ چالو کریں مؤذن کی آواز</string>
-    <string name="onboarding_feature_after_prayer_title">خودکار اذکار اور تسبیحات</string>
-    <string name="onboarding_feature_after_prayer_subtitle">ہر فرض کے بعد یاددہانی، اور دن بھر خودکار اذکار</string>
+    <string name="onboarding_feature_after_prayer_title">نماز کے بعد اذکار</string>
+    <string name="onboarding_feature_after_prayer_subtitle">ہر فرض کے بعد یاددہانی، تسبیح کی وقفہ مدت سے آزاد</string>
     <string name="onboarding_next">اگلا</string>
     <string name="onboarding_back">پیچھے</string>
     <string name="onboarding_skip">چھوڑیں</string>

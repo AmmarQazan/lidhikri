@@ -233,6 +233,8 @@
     <string name="next_adhan_channel_hint">Sonraki ezan için durum bildirimi — namaz vakti uyarısı değil</string>
     <string name="next_adhan_title">Sonraki ezan</string>
     <string name="next_adhan_in">%1$s %2$d dk sonra</string>
+    <string name="next_adhan_in_h">%1$s %2$d sa sonra — %3$s</string>
+    <string name="next_adhan_in_hm">%1$s %2$d sa %3$d dk sonra — %4$s</string>
     <string name="next_adhan_soon">%1$s bir dakikadan az</string>
     <string name="text_reminder_channel">Yalnızca metin zikir</string>
     <string name="text_reminder_channel_hint">Sessiz metin hatırlatması — uygulamadan ses yok</string>
@@ -293,6 +295,10 @@
     <string name="auto_azkar_mode_random_detail">Rastgele: her gün farklı bir zikir</string>
     <string name="auto_azkar_mode_sequential_detail">Sırayla: listedeki zikir zikirden sonra</string>
     <string name="next_azkar_summary">Sonraki zikir: %1$s — %2$s</string>
+    <string name="next_azkar_line">%1$s — %2$s</string>
+    <string name="next_azkar_title">Sonraki zikir</string>
+    <string name="next_azkar_channel">Sonraki zikir</string>
+    <string name="next_azkar_channel_hint">Sonraki planlı zikir için durum bildirimi — hatırlatmanın kendisi değil</string>
     <string name="next_azkar_none">Zamanlanmış bölüm yok — Tesbihat bölümlerinde zamanlamayı açın</string>
     <string name="next_azkar_time_today">Bugün %1$s</string>
     <string name="next_azkar_time_tomorrow">Yarın %1$s</string>
@@ -419,7 +425,7 @@
     <string name="onboarding_font_preview">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</string>
     <string name="onboarding_font_size_value">Zikir metin boyutu: %1$d%%</string>
     <string name="onboarding_welcome_title">Lidhikri\'ye hoş geldiniz</string>
-    <string name="onboarding_welcome_subtitle">Günlük yoldaşınız: ezan, namaz vakitleri, namaz sonrası zikir ve otomatik tesbih.</string>
+    <string name="onboarding_welcome_subtitle">Günlük yoldaşınız: telefonu kullanırken otomatik tesbih ve zikir, artı ezan, namaz vakitleri ve namaz sonrası zikir.</string>
     <string name="onboarding_language_title">Uygulama dilini seçin</string>
     <string name="onboarding_language_subtitle">Bunu daha sonra ayarlardan değiştirebilirsiniz</string>
     <string name="onboarding_location_title">Konumunuzu ayarlayın</string>
@@ -493,9 +499,9 @@
     <string name="onboarding_ready_subtitle_azkar_only">Otomatik tesbihat hatırlatmaları açık — saatleri Ayarlar\'dan değiştirebilirsiniz</string>
     <string name="onboarding_ready_subtitle_none">Otomatik tesbih ve tesbihatı daha sonra Ayarlar\'dan açabilirsiniz</string>
     <string name="onboarding_feature_tasbih_title">Otomatik tesbih</string>
-    <string name="onboarding_feature_tasbih_subtitle">Zamanlamanıza göre nazik zikir hatırlatmaları</string>
-    <string name="onboarding_feature_azkar_title">Tesbihat koleksiyonları</string>
-    <string name="onboarding_feature_azkar_subtitle">Sabah, akşam ve daha fazlası — okuyun veya dinleyin</string>
+    <string name="onboarding_feature_tasbih_subtitle">Telefonu kullanırken kısa zikir hatırlatmaları</string>
+    <string name="onboarding_feature_azkar_title">Otomatik zikir</string>
+    <string name="onboarding_feature_azkar_subtitle">Hisnul Müslim için zamanlanmış hatırlatmalar — sabah, akşam ve daha fazlası</string>
     <string name="onboarding_feature_reminder_title">Akıllı hatırlatmalar</string>
     <string name="onboarding_feature_reminder_subtitle">Pencere veya bildirim — sizin seçiminiz</string>
     <string name="onboarding_feature_misbaha_title">Dijital tesbih</string>
@@ -504,8 +510,8 @@
     <string name="onboarding_feature_prayer_subtitle">Şehrinize göre, seçtiğiniz hesap yöntemiyle</string>
     <string name="onboarding_feature_adhan_title">Ezan</string>
     <string name="onboarding_feature_adhan_subtitle">Açtığınız her namazın vaktinde müezzin sesi</string>
-    <string name="onboarding_feature_after_prayer_title">Otomatik zikir ve tesbih</string>
-    <string name="onboarding_feature_after_prayer_subtitle">Her farzdan sonra hatırlatma, gün boyu otomatik zikir</string>
+    <string name="onboarding_feature_after_prayer_title">Namaz sonrası zikir</string>
+    <string name="onboarding_feature_after_prayer_subtitle">Her farzdan sonra hatırlatma, tesbih duraklamasından bağımsız</string>
     <string name="onboarding_next">İleri</string>
     <string name="onboarding_back">Geri</string>
     <string name="onboarding_skip">Atla</string>

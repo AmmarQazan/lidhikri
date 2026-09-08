@@ -312,6 +312,10 @@
     <string name="auto_azkar_mode_random_detail">عشوائي: ذكر مختلف كل يوم</string>
     <string name="auto_azkar_mode_sequential_detail">بالترتيب: ذكر تلو الآخر حسب ترتيب القائمة</string>
     <string name="next_azkar_summary">الذكر القادم: %1$s — %2$s</string>
+    <string name="next_azkar_line">%1$s — %2$s</string>
+    <string name="next_azkar_title">الذكر القادم</string>
+    <string name="next_azkar_channel">موعد الذكر</string>
+    <string name="next_azkar_channel_hint">إشعار دائم للذكر القادم — ليس تنبيه الموعد نفسه</string>
     <string name="next_azkar_none">لا يوجد قسم مجدول — فعّل الجدولة من أقسام الأذكار</string>
     <string name="next_azkar_time_today">اليوم %1$s</string>
     <string name="next_azkar_time_tomorrow">غداً %1$s</string>
@@ -373,7 +377,7 @@
     <string name="prayer_respect_subtitle">إيقاف التسبيح من الأذان ثم تذكير أذكار بعد الصلاة</string>
     <string name="prayer_respect_configure">ضبط مدة الإيقاف وأذكار بعد الصلاة</string>
     <string name="prayer_respect_section">احترام وقت الصلاة</string>
-    <string name="prayer_respect_hint">بعد كل أذان يتوقف التسبيح التلقائي والأذكار الصوتية حتى نهاية مدة الإيقاف. أذكار بعد الصلاة تذكير واحد لكل فرض في الوقت الذي تختاره بعد الأذان (قد يختلف عن مدة الإيقاف). المدد الافتراضية للإيقاف: المغرب ٤٥ دقيقة، العصر ٥٥، الفجر والظهر ٥٥، العشاء ٤٥، ظهر الجمعة ٥٥.</string>
+    <string name="prayer_respect_hint">بعد كل أذان يتوقف التسبيح التلقائي والأذكار الصوتية حتى نهاية مدة الإيقاف. أذكار بعد الصلاة تذكير واحد لكل فرض في الوقت الذي تختاره بعد الأذان (قد يختلف عن مدة الإيقاف). المدد الافتراضية للإيقاف: المغرب ٢٠ دقيقة، العصر ٣٠، الفجر والظهر ٣٠، العشاء ٣٠، ظهر الجمعة ٤٥.</string>
     <string name="prayer_respect_uses_times_hint">المدينة وطريقة الحساب من شاشة المواقيت والموقع.</string>
     <string name="prayer_respect_enable">إيقاف التسبيحات والأذكار بعد الأذان</string>
     <string name="prayer_silent_phone">وضع الرجاج أثناء الصلاة المفروضة</string>
@@ -535,6 +539,8 @@
     <string name="next_adhan_channel_hint">إشعار دائم لموعد الأذان القادم — ليس تنبيه دخول الوقت</string>
     <string name="next_adhan_title">الأذان القادم</string>
     <string name="next_adhan_in">%1$s بعد %2$d دقيقة</string>
+    <string name="next_adhan_in_h">%1$s بعد %2$d س — %3$s</string>
+    <string name="next_adhan_in_hm">%1$s بعد %2$d س و %3$d د — %4$s</string>
     <string name="next_adhan_soon">%1$s خلال أقل من دقيقة</string>
     <string name="adhan_now_title">أذان · %1$s</string>
     <string name="adhan_now_text">حان وقت الصلاة</string>
@@ -555,7 +561,7 @@
     <string name="prayer_widget_add">إضافة ويدجت المواقيت</string>
     <string name="prayer_widget_manual_hint">اضغط مطولاً على الشاشة الرئيسية واختر الأدوات ثم مواقيت الصلاة.</string>
     <string name="onboarding_prayer_title">إيقاف أثناء الصلاة؟</string>
-    <string name="onboarding_prayer_subtitle">يُوقف التسبيح التلقائي والأذكار الصوتية من الأذان حتى نهاية المدة. عند انتهاء الإيقاف يُذكَّر بأذكار بعد الصلاة مرة لكل فرض. المدد الافتراضية: المغرب ٤٥ دقيقة، العصر ٥٥، الفجر والظهر ٥٥، العشاء ٤٥، الجمعة ٥٥. يمكن تعديلها لاحقاً من الإعدادات.</string>
+    <string name="onboarding_prayer_subtitle">يُوقف التسبيح التلقائي والأذكار الصوتية من الأذان حتى نهاية المدة. عند انتهاء الإيقاف يُذكَّر بأذكار بعد الصلاة مرة لكل فرض. المدد الافتراضية: المغرب ٢٠ دقيقة، العصر ٣٠، الفجر والظهر ٣٠، العشاء ٣٠، الجمعة ٤٥. يمكن تعديلها لاحقاً من الإعدادات.</string>
     <string name="onboarding_prayer_yes">أوقف التسبيح والأذكار وقت الصلاة المفروضة</string>
     <string name="onboarding_prayer_no">لا، أبقِ التسبيح حسب جدوله</string>
     <string name="onboarding_prayer_what_happens">بعد التفعيل: يبقى التسبيح والأذكار الصوتية متوقفة من الأذان حتى نهاية الإيقاف. عند انتهائه يُذكَّر بأذكار بعد الصلاة مرة لذلك الفرض.</string>
@@ -641,7 +647,7 @@
     <string name="onboarding_font_preview">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</string>
     <string name="onboarding_font_size_value">حجم نص الأذكار: %1$d%%</string>
     <string name="onboarding_welcome_title">أهلاً بك في لذكري</string>
-    <string name="onboarding_welcome_subtitle">رفيقك اليومي: أذان ومواقيت صلاة وأذكار بعد الفرض، مع تسبيح تلقائي.</string>
+    <string name="onboarding_welcome_subtitle">رفيقك اليومي: تسبيح وأذكار تلقائية أثناء استخدام الهاتف، مع أذان ومواقيت وأذكار بعد الفرض.</string>
     <string name="onboarding_language_title">اختر لغة التطبيق</string>
     <string name="onboarding_language_subtitle">العربية هي الافتراضية. يمكنك تغييرها لاحقاً من الإعدادات</string>
     <string name="onboarding_location_title">حدد موقعك</string>
@@ -715,9 +721,9 @@
     <string name="onboarding_ready_subtitle_azkar_only">الأذكار التلقائية مفعّلة — يمكنك تعديل الأوقات من الإعدادات</string>
     <string name="onboarding_ready_subtitle_none">يمكنك تفعيل التسبيح والأذكار التلقائية لاحقاً من الإعدادات</string>
     <string name="onboarding_feature_tasbih_title">التسبيح التلقائي</string>
-    <string name="onboarding_feature_tasbih_subtitle">تذكيرات لطيفة بالأذكار وفق جدولك</string>
-    <string name="onboarding_feature_azkar_title">أقسام الأذكار</string>
-    <string name="onboarding_feature_azkar_subtitle">الصباح والمساء وأكثر — للقراءة أو الاستماع</string>
+    <string name="onboarding_feature_tasbih_subtitle">تذكيرات قصيرة أثناء استخدامك للهاتف</string>
+    <string name="onboarding_feature_azkar_title">الأذكار التلقائية</string>
+    <string name="onboarding_feature_azkar_subtitle">تذكير مجدول من حصن المسلم — الصباح والمساء وأكثر</string>
     <string name="onboarding_feature_reminder_title">تذكيرات ذكية</string>
     <string name="onboarding_feature_reminder_subtitle">نافذة منبثقة أو إشعار — حسب اختيارك</string>
     <string name="onboarding_feature_misbaha_title">المسبحة الرقمية</string>
@@ -726,8 +732,8 @@
     <string name="onboarding_feature_prayer_subtitle">حسب مدينتك مع طريقة الحساب التي تختارها</string>
     <string name="onboarding_feature_adhan_title">الأذان</string>
     <string name="onboarding_feature_adhan_subtitle">صوت المؤذن عند دخول الوقت — لكل فرض</string>
-    <string name="onboarding_feature_after_prayer_title">أذكار و تسبيحات تلقائية</string>
-    <string name="onboarding_feature_after_prayer_subtitle">تذكير بعد كل فرض، مع أذكار وتسبيحات تلقائية طوال اليوم</string>
+    <string name="onboarding_feature_after_prayer_title">أذكار ما بعد الصلاة</string>
+    <string name="onboarding_feature_after_prayer_subtitle">تذكير بعد كل فرض، مستقل عن مدة إيقاف التسبيح</string>
     <string name="onboarding_next">التالي</string>
     <string name="onboarding_back">السابق</string>
     <string name="onboarding_skip">تخطي</string>
@@ -803,7 +809,7 @@
     <string name="home_azkar_settings_title">دخول وخروج المنزل</string>
     <string name="home_azkar_settings_subtitle">عنوان المنزل والأذكار التي تُعرض تلقائياً</string>
     <string name="home_azkar_location_section">عنوان المنزل</string>
-    <string name="home_azkar_location_hint">اضغط الزر وأنت في المنزل. يُستخدم فقط للتذكير عند الوصول أو المغادرة.</string>
+    <string name="home_azkar_location_hint">مرتبط بأذكار الدخول والخروج إلى المنزل. اضغط الزر وأنت في المنزل ليُذكَّرك عند الوصول أو المغادرة.</string>
     <string name="home_azkar_location_unset">لم يُحدَّد عنوان المنزل بعد</string>
     <string name="home_azkar_saved">تم حفظ عنوان المنزل</string>
     <string name="home_azkar_use_gps">أنا في المنزل — استخدم الموقع الحالي</string>

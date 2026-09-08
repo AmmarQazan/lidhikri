@@ -42,6 +42,25 @@ class AppLanguagesTest {
     }
 
     @Test
+    fun systemLocaleTagMatchesResourceFolders() {
+        assertEquals("ar", AppLanguages.systemLocaleTag("ar"))
+        assertEquals("en", AppLanguages.systemLocaleTag("en"))
+        assertEquals("in", AppLanguages.systemLocaleTag("id"))
+        assertEquals("ar", AppLanguages.systemLocaleTag("xx"))
+        assertEquals("hi", AppLanguages.systemLocaleTag("hi"))
+        assertEquals("ur", AppLanguages.systemLocaleTag("ur"))
+    }
+
+    @Test
+    fun launcherAliasClassUsesResourceLocale() {
+        assertEquals("com.greendome.adhkar.launcher.Ar", AppLanguages.launcherAliasClass("ar"))
+        assertEquals("com.greendome.adhkar.launcher.En", AppLanguages.launcherAliasClass("en"))
+        assertEquals("com.greendome.adhkar.launcher.In", AppLanguages.launcherAliasClass("id"))
+        assertEquals("com.greendome.adhkar.launcher.Hi", AppLanguages.launcherAliasClass("hi"))
+        assertEquals("com.greendome.adhkar.launcher.Ar", AppLanguages.launcherAliasClass("xx"))
+    }
+
+    @Test
     fun pickerPairsIncludeArabicAndEnglish() {
         val pairs = AppLanguages.pickerPairs()
         assertTrue(pairs.contains("ar" to "العربية"))

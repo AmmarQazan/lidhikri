@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Lidhikri</string>
+    <string name="launcher_name_ar" translatable="false">لذكري</string>
+    <string name="launcher_name_en" translatable="false">Lidhikri</string>
+    <string name="launcher_name_fr" translatable="false">Lidhikri</string>
+    <string name="launcher_name_es" translatable="false">Lidhikri</string>
+    <string name="launcher_name_tr" translatable="false">Lidhikri</string>
+    <string name="launcher_name_ur" translatable="false">لذكري</string>
+    <string name="launcher_name_in" translatable="false">Lidhikri</string>
+    <string name="launcher_name_hi" translatable="false">लिधिक्री</string>
     <string name="nav_home">Home</string>
     <string name="nav_read">Adhkar</string>
     <string name="nav_misbaha">Misbaha</string>
@@ -312,6 +320,10 @@
     <string name="auto_azkar_mode_random_detail">Random: a different dhikr each day</string>
     <string name="auto_azkar_mode_sequential_detail">In order: dhikr after dhikr following the list</string>
     <string name="next_azkar_summary">Next dhikr: %1$s — %2$s</string>
+    <string name="next_azkar_line">%1$s — %2$s</string>
+    <string name="next_azkar_title">Next dhikr</string>
+    <string name="next_azkar_channel">Upcoming dhikr</string>
+    <string name="next_azkar_channel_hint">Status notification for the next scheduled dhikr — not the reminder itself</string>
     <string name="next_azkar_none">No section scheduled — enable scheduling in Adhkar sections</string>
     <string name="next_azkar_time_today">Today %1$s</string>
     <string name="next_azkar_time_tomorrow">Tomorrow %1$s</string>
@@ -373,7 +385,7 @@
     <string name="prayer_respect_subtitle">Pause tasbih from adhan, then remind after-prayer adhkar</string>
     <string name="prayer_respect_configure">Set pause length and after-prayer adhkar</string>
     <string name="prayer_respect_section">Respect prayer time</string>
-    <string name="prayer_respect_hint">After each adhan, auto tasbih and other reminder audio pause until the quiet window ends. Then you get one after-prayer adhkar reminder for that prayer. Default pause: Maghrib 45 min, Asr 55, Fajr and Dhuhr 55, Isha 45, Friday Dhuhr 55. You can change these below.</string>
+    <string name="prayer_respect_hint">After each adhan, auto tasbih and other reminder audio pause until the quiet window ends. Then you get one after-prayer adhkar reminder for that prayer. Default pause: Maghrib 20 min, Asr 30, Fajr and Dhuhr 30, Isha 30, Friday Dhuhr 45. You can change these below.</string>
     <string name="prayer_respect_uses_times_hint">City and calculation method are in Times and location.</string>
     <string name="prayer_respect_enable">Pause tasbih and adhkar after the adhan</string>
     <string name="prayer_silent_phone">Vibrate during obligatory prayer</string>
@@ -535,6 +547,8 @@
     <string name="next_adhan_channel_hint">Status notification for the next adhan — not the prayer-time alert itself</string>
     <string name="next_adhan_title">Next adhan</string>
     <string name="next_adhan_in">%1$s in %2$d min</string>
+    <string name="next_adhan_in_h">%1$s in %2$d h — %3$s</string>
+    <string name="next_adhan_in_hm">%1$s in %2$d h %3$d min — %4$s</string>
     <string name="next_adhan_soon">%1$s in less than a minute</string>
     <string name="adhan_now_title">Adhan · %1$s</string>
     <string name="adhan_now_text">It is time to pray</string>
@@ -555,7 +569,7 @@
     <string name="prayer_widget_add">Add prayer times widget</string>
     <string name="prayer_widget_manual_hint">Long-press the home screen and choose Widgets, then Prayer times.</string>
     <string name="onboarding_prayer_title">Pause during prayer?</string>
-    <string name="onboarding_prayer_subtitle">Auto tasbih and audio adhkar pause from each adhan until the window ends. Then you get one after-prayer adhkar reminder per obligatory prayer. Default windows: Maghrib 45 min, Asr 55, Fajr and Dhuhr 55, Isha 45, Friday 55. Change later in settings.</string>
+    <string name="onboarding_prayer_subtitle">Auto tasbih and audio adhkar pause from each adhan until the window ends. Then you get one after-prayer adhkar reminder per obligatory prayer. Default windows: Maghrib 20 min, Asr 30, Fajr and Dhuhr 30, Isha 30, Friday 45. Change later in settings.</string>
     <string name="onboarding_prayer_yes">Pause tasbih and adhkar during obligatory prayer</string>
     <string name="onboarding_prayer_no">No, keep tasbih as scheduled</string>
     <string name="onboarding_prayer_what_happens">After you enable this: tasbih and audio adhkar stay off from the adhan until the pause ends. When it ends, you are reminded of after-prayer adhkar once for that prayer.</string>
@@ -641,7 +655,7 @@
     <string name="onboarding_font_preview">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</string>
     <string name="onboarding_font_size_value">Adhkar text size: %1$d%%</string>
     <string name="onboarding_welcome_title">Welcome to Lidhikri</string>
-    <string name="onboarding_welcome_subtitle">Your daily companion: adhan, prayer times, after-prayer dhikr, and auto tasbih.</string>
+    <string name="onboarding_welcome_subtitle">Your daily companion: automatic tasbih and adhkar while you use your phone, plus adhan, prayer times, and after-prayer dhikr.</string>
     <string name="onboarding_language_title">Choose app language</string>
     <string name="onboarding_language_subtitle">Arabic is the default. You can change this later in settings.</string>
     <string name="onboarding_location_title">Set your location</string>
@@ -715,9 +729,9 @@
     <string name="onboarding_ready_subtitle_azkar_only">Automatic adhkar reminders are on — you can change the times from Settings</string>
     <string name="onboarding_ready_subtitle_none">You can enable auto tasbih and adhkar later from Settings</string>
     <string name="onboarding_feature_tasbih_title">Auto tasbih</string>
-    <string name="onboarding_feature_tasbih_subtitle">Gentle reminders with dhikr on your schedule</string>
-    <string name="onboarding_feature_azkar_title">Adhkar collections</string>
-    <string name="onboarding_feature_azkar_subtitle">Morning, evening, and more — read or listen</string>
+    <string name="onboarding_feature_tasbih_subtitle">Short dhikr reminders while you use your phone</string>
+    <string name="onboarding_feature_azkar_title">Automatic adhkar</string>
+    <string name="onboarding_feature_azkar_subtitle">Scheduled Hisnul Muslim reminders — morning, evening, and more</string>
     <string name="onboarding_feature_reminder_title">Smart reminders</string>
     <string name="onboarding_feature_reminder_subtitle">Pop-up or notification — your choice</string>
     <string name="onboarding_feature_misbaha_title">Digital misbaha</string>
@@ -726,8 +740,8 @@
     <string name="onboarding_feature_prayer_subtitle">For your city, with the calculation method you choose</string>
     <string name="onboarding_feature_adhan_title">Adhan</string>
     <string name="onboarding_feature_adhan_subtitle">Muadhin audio at the start of each prayer you enable</string>
-    <string name="onboarding_feature_after_prayer_title">Automatic adhkar and tasbih</string>
-    <string name="onboarding_feature_after_prayer_subtitle">A reminder after each fard, plus automatic adhkar throughout the day</string>
+    <string name="onboarding_feature_after_prayer_title">After-prayer adhkar</string>
+    <string name="onboarding_feature_after_prayer_subtitle">A reminder after each fard, independent of the tasbih pause</string>
     <string name="onboarding_next">Next</string>
     <string name="onboarding_back">Back</string>
     <string name="onboarding_skip">Skip</string>
@@ -803,7 +817,7 @@
     <string name="home_azkar_settings_title">Home enter and leave</string>
     <string name="home_azkar_settings_subtitle">Home address and which adhkar play automatically</string>
     <string name="home_azkar_location_section">Home address</string>
-    <string name="home_azkar_location_hint">Tap the button while you are at home. Used only to remind you when you arrive or leave.</string>
+    <string name="home_azkar_location_hint">Used for entering and leaving home adhkar. Tap the button while you are at home to be reminded when you arrive or leave.</string>
     <string name="home_azkar_location_unset">No home address yet</string>
     <string name="home_azkar_saved">Home address saved</string>
     <string name="home_azkar_use_gps">I am at home — use current location</string>
