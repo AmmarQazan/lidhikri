@@ -17,7 +17,7 @@
 | Developer name | لذكري |
 | Website | https://lidhikri.web.app/ |
 | Developer email | sqazan@proton.me |
-| Promotional text (en-US) | Lidhikri builds Android apps for dhikr: adhan, prayer times, after-prayer adhkar, auto tasbih, Hisnul Muslim, misbaha and widgets — no ads. |
+| Promotional text (en-US) | Lidhikri builds Android apps for dhikr: auto tasbih and adhkar, adhan, prayer times, after-prayer dhikr, misbaha and widgets — no ads. |
 | Developer icon | `store-assets/graphics/developer-icon.png` |
 | Header image | `store-assets/graphics/developer-header.jpg` |
 
@@ -30,13 +30,13 @@
 أُدخل الإنجليزية. أضف هذه من Manage translations إن رغبت:
 
 ### العربية
-لذكري يطوّر تطبيقات للذكر: أذان ومواقيت صلاة وأذكار بعد الفرض، تسبيح تلقائي، حصن المسلم، مسبحة وويدجت. بلا إعلانات.
+لذكري يطوّر تطبيقات للذكر: تسبيح وأذكار تلقائية، أذان ومواقيت وأذكار بعد الفرض، مسبحة وويدجت. بلا إعلانات.
 
 ### Français
-Lidhikri crée des apps Android pour le dhikr : adhan, horaires de prière, dhikr après la prière, tasbih auto — sans pubs.
+Lidhikri crée des apps Android pour le dhikr : tasbih et adhkar auto, adhan, horaires, dhikr après la prière — sans pubs.
 
 ### Español
-Lidhikri crea apps Android para el dhikr: adhan, horarios de oración, dhikr tras el fard y tasbih automático — sin anuncios.
+Lidhikri crea apps Android para el dhikr: tasbih y adhkar auto, adhan, horarios y dhikr tras el fard — sin anuncios.
 
 ---
 

@@ -4,12 +4,24 @@
 Lidhikri
 
 ### Descripción breve (80 car.)
-Adhan, horarios de oración y dhikr tras el fard — sin conexión
+Tasbih y adhkar auto — adhan, horarios y dhikr tras el fard
 
 ### Descripción completa
 Lidhikri — tu compañero diario de dhikr y adhkar.
 
-¿Olvidas el recuerdo de Allah mientras usas el teléfono? Lidhikri reproduce el adhan a la hora de cada oración, te recuerda los adhkar después de cada fard, y reproduce tasbih cortos en audio mientras usas el teléfono — sin interrumpir llamadas ni chats.
+¿Olvidas el tasbih y los adhkar mientras usas el teléfono? Lidhikri te recuerda con tasbih automático y adhkar automáticos mientras usas el teléfono, reproduce el adhan a la hora de cada oración, y te recuerda los adhkar después de cada fard — sin interrumpir llamadas ni chats.
+
+✦ Tasbih automático
+• Recordatorios periódicos (Subhan Allah, Alhamdulillah, Allahu Akbar y más)
+• Intervalo personalizable, reproducción aleatoria o secuencial
+• Pausa durante llamadas telefónicas y VoIP
+• Pausa opcional con audio de otras apps, en No molestar, o al voltear el teléfono
+
+✦ Adhkar automáticos
+• Secciones de Hisnul Muslim (mañana, tarde, sueño y más)
+• Horario diario por sección — hora y días que elijas
+• Un dhikr de cada sección activada, aleatorio o en orden
+• Takbir del Aid según el calendario hijri
 
 ✦ Horarios de oración
 • Horas de los fard según tu ciudad — búsqueda o ubicación actual
@@ -27,18 +39,6 @@ Lidhikri — tu compañero diario de dhikr y adhkar.
 • Un recordatorio de los adhkar posteriores a cada fard
 • Minutos después del adhan, independientes de la pausa del tasbih
 • Pausa del tasbih y adhkar de audio desde el adhan, el tiempo que elijas por oración
-
-✦ Tasbih automático
-• Recordatorios periódicos (Subhan Allah, Alhamdulillah, Allahu Akbar y más)
-• Intervalo personalizable, reproducción aleatoria o secuencial
-• Pausa durante llamadas telefónicas y VoIP
-• Pausa opcional con audio de otras apps, en No molestar, o al voltear el teléfono
-
-✦ Adhkar automáticos
-• Secciones de Hisnul Muslim (mañana, tarde, sueño y más)
-• Horario diario por sección — hora y días que elijas
-• Un dhikr de cada sección activada, aleatorio o en orden
-• Takbir del Aid según el calendario hijri
 
 ✦ Visualización flexible
 • Ventana sobre otras apps, notificación de texto silenciosa o pantalla de bloqueo
@@ -73,6 +73,6 @@ Funciona sin conexión tras descargar los audios. Disponible en árabe, inglés,
 Tras instalar: activa notificaciones, mostrar sobre otras apps y la excepción de batería.
 
 ### Palabras clave
-tasbih, adhkar, dhikr, misbaha, hisnul muslim, adhan, horarios de oración, después de la oración, widget, islámico, recordatorio
+tasbih automático, adhkar automáticos, tasbih, adhkar, dhikr, misbaha, hisnul muslim, adhan, horarios de oración, después de la oración, widget, islámico, recordatorio
 
 ---

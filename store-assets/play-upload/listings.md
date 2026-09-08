@@ -2,6 +2,10 @@
 
 النصوص جاهزة للنسخ في Play Console. الوصف المختصر ≤ 80 حرفاً.
 
+الاسم: العربية والأوردو «لذكري» — الهندية «लिधिक्री» — الباقي Lidhikri.
+
+الميزتان الأهم في كل لغة: التسبيح التلقائي والأذكار التلقائية. مع الأذان ومواقيت الصلاة وأذكار ما بعد الفرض صراحة.
+
 ---
 
 ## العربية (ar)
@@ -10,12 +14,24 @@
 لذكري — Lidhikri
 
 ### الوصف المختصر (80 حرفاً)
-أذان ومواقيت صلاة وأذكار بعد الفرض — تسبيح تلقائي دون إنترنت
+تسبيح وأذكار تلقائية — أذان ومواقيت وأذكار بعد الفرض
 
 ### الوصف الكامل
 لذكري — رفيقك اليومي للذكر والتسبيح
 
-هل تنسى التسبيح وأنت مشغول بهاتفك؟ لذكري يعمل أذاناً بمواقيت الصلاة، ويذكّرك بأذكار ما بعد كل فرض، وبأذكار وتسبيحات صوتية أثناء استخدامك للهاتف — دون أن يقطع مكالماتك أو محادثاتك.
+هل تنسى التسبيح والأذكار وأنت مشغول بهاتفك؟ لذكري يذكّرك بتسبيح تلقائي وأذكار تلقائية أثناء استخدامك للهاتف، ويعمل أذاناً بمواقيت الصلاة، ويذكّرك بأذكار ما بعد كل فرض — دون أن يقطع مكالماتك أو محادثاتك.
+
+✦ التسبيح التلقائي
+• تذكير دوري بأذكار قصيرة (سبحان الله، الحمد لله، الله أكبر، وغيرها)
+• اختيار الفترة بين كل تذكير، عشوائي أو ترتيبي
+• إيقاف أثناء المكالمات والوسائط ووضع عدم الإزعاج
+• إيقاف بقلب الهاتف على وجهه
+
+✦ الأذكار التلقائية
+• أقسام حصن المسلم (الصباح، المساء، النوم، وغيرها)
+• جدولة يومية لكل قسم في الوقت والأيام التي تختارها
+• ذكر واحد من كل قسم مفعّل — عشوائي أو بالترتيب
+• تكبيرات العيد حسب التقويم الهجري
 
 ✦ مواقيت الصلاة
 • مواقيت الفروض حسب مدينتك: بحث أو الموقع الحالي
@@ -33,18 +49,6 @@
 • تذكير بذكر واحد من أذكار ما بعد الفرض بعد كل صلاة
 • موعده بعد الأذان بالدقائق التي تختارها، مستقلاً عن مدة إيقاف التسبيح
 • إيقاف التسبيح والأذكار الصوتية من الأذان حتى المدة التي تختارها لكل صلاة
-
-✦ التسبيح التلقائي
-• تذكير دوري بأذكار قصيرة (سبحان الله، الحمد لله، الله أكبر، وغيرها)
-• اختيار الفترة بين كل تذكير، عشوائي أو ترتيبي
-• إيقاف أثناء المكالمات والوسائط ووضع عدم الإزعاج
-• إيقاف بقلب الهاتف على وجهه
-
-✦ الأذكار التلقائية
-• أقسام حصن المسلم (الصباح، المساء، النوم، وغيرها)
-• جدولة يومية لكل قسم في الوقت والأيام التي تختارها
-• ذكر واحد من كل قسم مفعّل — عشوائي أو بالترتيب
-• تكبيرات العيد حسب التقويم الهجري
 
 ✦ طرق العرض
 • نافذة منبثقة فوق التطبيقات
@@ -81,7 +85,7 @@
 بعد التثبيت: فعّل الإشعارات، واسمح بالظهور فوق التطبيقات، واستثنِ التطبيق من تحسين البطارية.
 
 ### الكلمات المفتاحية
-تسبيح، أذكار، ذكر، مسبحة، حصن المسلم، أذان، مواقيت الصلاة، أذكار بعد الصلاة، أذكار الصباح، أذكار المساء، ويدجت، تذكير، إسلامي
+تسبيح تلقائي، أذكار تلقائية، تسبيح، أذكار، ذكر، مسبحة، حصن المسلم، أذان، مواقيت الصلاة، أذكار بعد الصلاة، أذكار الصباح، أذكار المساء، ويدجت، تذكير، إسلامي
 
 ---
 
@@ -91,12 +95,24 @@
 Lidhikri
 
 ### Short description (80 chars)
-Adhan, prayer times & after-prayer dhikr — auto tasbih, offline
+Auto tasbih & adhkar — adhan, prayer times, after-prayer dhikr
 
 ### Full description
 Lidhikri — your daily companion for dhikr and remembrance.
 
-Do you forget to remember Allah while using your phone? Lidhikri plays the adhan at prayer times, reminds you with after-prayer adhkar, and plays short audio tasbih while you use your phone — without interrupting calls or chats.
+Do you forget tasbih and adhkar while using your phone? Lidhikri reminds you with automatic tasbih and automatic adhkar while you use your phone, plays the adhan at prayer times, and reminds you with after-prayer adhkar — without interrupting calls or chats.
+
+✦ Auto tasbih
+• Periodic reminders (Subhan Allah, Alhamdulillah, Allahu Akbar, and more)
+• Custom interval, random or sequential playback
+• Pauses during phone and VoIP calls
+• Optional pause during media, silent/Do Not Disturb, or by flipping the phone
+
+✦ Auto adhkar
+• Hisnul Muslim sections (morning, evening, sleep, and more)
+• Daily schedule per section — time and weekdays you choose
+• One dhikr from each enabled section, random or in order
+• Seasonal takbir (Eid) via the Hijri calendar
 
 ✦ Prayer times
 • Fard times for your city — search or current location
@@ -114,18 +130,6 @@ Do you forget to remember Allah while using your phone? Lidhikri plays the adhan
 • One reminder from the after-prayer collection after each fard
 • Minutes after the adhan — independent of the tasbih pause window
 • Pause tasbih and audio adhkar from the adhan for a duration you choose per prayer
-
-✦ Auto tasbih
-• Periodic reminders (Subhan Allah, Alhamdulillah, Allahu Akbar, and more)
-• Custom interval, random or sequential playback
-• Pauses during phone and VoIP calls
-• Optional pause during media, silent/Do Not Disturb, or by flipping the phone
-
-✦ Auto adhkar
-• Hisnul Muslim sections (morning, evening, sleep, and more)
-• Daily schedule per section — time and weekdays you choose
-• One dhikr from each enabled section, random or in order
-• Seasonal takbir (Eid) via the Hijri calendar
 
 ✦ Flexible display
 • Popup over other apps, silent text notification, or lock screen
@@ -160,7 +164,7 @@ Works offline after downloading audio. Available in Arabic, English, French, Spa
 After install: enable notifications, overlay permission, and battery exemption so reminders stay reliable.
 
 ### Keywords
-tasbih, adhkar, dhikr, misbaha, hisnul muslim, adhan, prayer times, after prayer, widget, islamic, reminder
+auto tasbih, auto adhkar, tasbih, adhkar, dhikr, misbaha, hisnul muslim, adhan, prayer times, after prayer, widget, islamic, reminder
 
 ---
 
@@ -170,12 +174,24 @@ tasbih, adhkar, dhikr, misbaha, hisnul muslim, adhan, prayer times, after prayer
 Lidhikri
 
 ### Description courte (80 car.)
-Adhan, horaires de prière et dhikr après la prière — hors ligne
+Tasbih et adhkar auto — adhan, horaires, dhikr après la prière
 
 ### Description complète
 Lidhikri — votre compagnon quotidien pour le dhikr et les adhkar.
 
-Vous oubliez de vous souvenir d'Allah sur votre téléphone ? Lidhikri diffuse l'adhan aux heures de prière, rappelle les adhkar après chaque fard, et joue de courts tasbih audio pendant l'usage du téléphone — sans interrompre vos appels ni vos conversations.
+Vous oubliez le tasbih et les adhkar sur votre téléphone ? Lidhikri vous rappelle par un tasbih automatique et des adhkar automatiques pendant l'usage du téléphone, diffuse l'adhan aux heures de prière, et rappelle les adhkar après chaque fard — sans interrompre vos appels ni vos conversations.
+
+✦ Tasbih automatique
+• Rappels périodiques (Subhan Allah, Alhamdulillah, Allahu Akbar, et plus)
+• Intervalle personnalisable, lecture aléatoire ou séquentielle
+• Pause pendant les appels téléphoniques et VoIP
+• Pause optionnelle pendant les médias, en mode Ne pas déranger, ou en retournant le téléphone
+
+✦ Adhkar automatiques
+• Sections de Hisnul Muslim (matin, soir, sommeil, et plus)
+• Horaire quotidien par section — heure et jours que vous choisissez
+• Un dhikr de chaque section activée, aléatoire ou dans l'ordre
+• Takbîr de l'Aïd selon le calendrier hijri
 
 ✦ Horaires de prière
 • Heures des prières obligatoires selon votre ville — recherche ou localisation
@@ -193,18 +209,6 @@ Vous oubliez de vous souvenir d'Allah sur votre téléphone ? Lidhikri diffuse l
 • Un rappel tiré des adhkar après la prière après chaque fard
 • Minutes après l'adhan, indépendantes de la pause du tasbih
 • Pause du tasbih et des adhkar audio dès l'adhan, pour la durée que vous choisissez
-
-✦ Tasbih automatique
-• Rappels périodiques (Subhan Allah, Alhamdulillah, Allahu Akbar, et plus)
-• Intervalle personnalisable, lecture aléatoire ou séquentielle
-• Pause pendant les appels téléphoniques et VoIP
-• Pause optionnelle pendant les médias, en mode Ne pas déranger, ou en retournant le téléphone
-
-✦ Adhkar automatiques
-• Sections de Hisnul Muslim (matin, soir, sommeil, et plus)
-• Horaire quotidien par section — heure et jours que vous choisissez
-• Un dhikr de chaque section activée, aléatoire ou dans l'ordre
-• Takbîr de l'Aïd selon le calendrier hijri
 
 ✦ Affichage flexible
 • Fenêtre par-dessus les applications, notification texte silencieuse, ou écran verrouillé
@@ -239,7 +243,7 @@ Fonctionne hors ligne après téléchargement des audios. Disponible en arabe, a
 Après l'installation : activez les notifications, l'affichage par-dessus les apps, et l'exemption batterie.
 
 ### Mots-clés
-tasbih, adhkar, dhikr, misbaha, hisnul muslim, adhan, horaires de prière, après la prière, widget, islamique, rappel
+tasbih automatique, adhkar automatiques, tasbih, adhkar, dhikr, misbaha, hisnul muslim, adhan, horaires de prière, après la prière, widget, islamique, rappel
 
 ---
 
@@ -249,12 +253,24 @@ tasbih, adhkar, dhikr, misbaha, hisnul muslim, adhan, horaires de prière, aprè
 Lidhikri
 
 ### Descripción breve (80 car.)
-Adhan, horarios de oración y dhikr tras el fard — sin conexión
+Tasbih y adhkar auto — adhan, horarios y dhikr tras el fard
 
 ### Descripción completa
 Lidhikri — tu compañero diario de dhikr y adhkar.
 
-¿Olvidas el recuerdo de Allah mientras usas el teléfono? Lidhikri reproduce el adhan a la hora de cada oración, te recuerda los adhkar después de cada fard, y reproduce tasbih cortos en audio mientras usas el teléfono — sin interrumpir llamadas ni chats.
+¿Olvidas el tasbih y los adhkar mientras usas el teléfono? Lidhikri te recuerda con tasbih automático y adhkar automáticos mientras usas el teléfono, reproduce el adhan a la hora de cada oración, y te recuerda los adhkar después de cada fard — sin interrumpir llamadas ni chats.
+
+✦ Tasbih automático
+• Recordatorios periódicos (Subhan Allah, Alhamdulillah, Allahu Akbar y más)
+• Intervalo personalizable, reproducción aleatoria o secuencial
+• Pausa durante llamadas telefónicas y VoIP
+• Pausa opcional con audio de otras apps, en No molestar, o al voltear el teléfono
+
+✦ Adhkar automáticos
+• Secciones de Hisnul Muslim (mañana, tarde, sueño y más)
+• Horario diario por sección — hora y días que elijas
+• Un dhikr de cada sección activada, aleatorio o en orden
+• Takbir del Aid según el calendario hijri
 
 ✦ Horarios de oración
 • Horas de los fard según tu ciudad — búsqueda o ubicación actual
@@ -272,18 +288,6 @@ Lidhikri — tu compañero diario de dhikr y adhkar.
 • Un recordatorio de los adhkar posteriores a cada fard
 • Minutos después del adhan, independientes de la pausa del tasbih
 • Pausa del tasbih y adhkar de audio desde el adhan, el tiempo que elijas por oración
-
-✦ Tasbih automático
-• Recordatorios periódicos (Subhan Allah, Alhamdulillah, Allahu Akbar y más)
-• Intervalo personalizable, reproducción aleatoria o secuencial
-• Pausa durante llamadas telefónicas y VoIP
-• Pausa opcional con audio de otras apps, en No molestar, o al voltear el teléfono
-
-✦ Adhkar automáticos
-• Secciones de Hisnul Muslim (mañana, tarde, sueño y más)
-• Horario diario por sección — hora y días que elijas
-• Un dhikr de cada sección activada, aleatorio o en orden
-• Takbir del Aid según el calendario hijri
 
 ✦ Visualización flexible
 • Ventana sobre otras apps, notificación de texto silenciosa o pantalla de bloqueo
@@ -318,7 +322,323 @@ Funciona sin conexión tras descargar los audios. Disponible en árabe, inglés,
 Tras instalar: activa notificaciones, mostrar sobre otras apps y la excepción de batería.
 
 ### Palabras clave
-tasbih, adhkar, dhikr, misbaha, hisnul muslim, adhan, horarios de oración, después de la oración, widget, islámico, recordatorio
+tasbih automático, adhkar automáticos, tasbih, adhkar, dhikr, misbaha, hisnul muslim, adhan, horarios de oración, después de la oración, widget, islámico, recordatorio
+
+---
+
+## Türkçe (tr)
+
+### App name
+Lidhikri
+
+### Short description (80 chars)
+Otomatik tesbih ve zikir — ezan, vakitler ve namaz sonrası
+
+### Full description
+Lidhikri — günlük zikir ve tesbihat yol arkadaşınız.
+
+Telefonu kullanırken tesbih ve zikri unutuyor musunuz? Lidhikri telefonu kullanırken otomatik tesbih ve otomatik zikirle hatırlatır, namaz vakitlerinde ezan okur ve her farzdan sonra zikir hatırlatır — aramaları ve sohbetleri kesmeden.
+
+✦ Otomatik tesbih
+• Periyodik hatırlatmalar (Sübhanallah, Elhamdülillah, Allahu ekber ve daha fazlası)
+• Özel aralık, rastgele veya sırayla çalma
+• Telefon ve internet aramalarında durur
+• Medya, sessiz/Rahatsız etme veya telefonu ters çevirerek durdurma seçenekleri
+
+✦ Otomatik zikir
+• Hisnul Müslim bölümleri (sabah, akşam, uyku ve daha fazlası)
+• Bölüm başına günlük saat ve günler
+• Her açık bölümden bir zikir, rastgele veya sırayla
+• Hicri takvimle mevsimsel tekbir (Bayram)
+
+✦ Namaz vakitleri
+• Farz vakitleri şehrinize göre — arama veya mevcut konum
+• Hesap yöntemi, ikindi mezhebi ve yaz saati
+• Vakitler, ezan ve kıble için tek şehir
+
+✦ Ezan
+• Açtığınız her namazın vaktinde sesli ezan
+• Müezzin sesi, telefondan dosya veya kısa/sessiz uyarı
+• Ezandan önce hatırlatma, ardından kamet
+• Ezan bitince ezan dinleme zikirleri
+• İsteğe bağlı olarak sessiz modda da çalma
+
+✦ Namaz sonrası zikir
+• Her farzdan sonra namaz sonrası koleksiyonundan bir hatırlatma
+• Ezandan sonraki dakika — tesbih duraklamasından bağımsız
+• Ezandan itibaren tesbih ve sesli zikri, her namaz için seçtiğiniz süre kadar durdurur
+
+✦ Esnek görünüm
+• Diğer uygulamaların üstünde pencere, sessiz bildirim veya kilit ekranı
+• Yalnızca ses veya ses + metin
+• Pencere boyutu, konumu ve süresi ayarlanabilir
+
+✦ Dijital tesbih
+• Geleneksel taneler veya elektronik sayaç
+• Hedef sayı, ses ve titreşim
+• Ana ekran widget'ları (geleneksel 3×2 veya elektronik 2×2)
+
+✦ Günün zikri
+• Koleksiyonunuzdan rastgele günlük zikir
+• Ana ekran widget'ı veya sessiz kilit ekranı
+• Renkler, yazı boyutu ve şeffaf arka plan
+
+✦ Zikir okuma
+• Hisnul Müslim'i gezin
+• Kari sesi veya TTS
+• Dinlemek için öğeleri seçin
+
+✦ Sesler
+• Dahili ses, kendi kaydınız veya telefondan dosya
+• Tesbih ve zikir için ayrı kari ve ses
+• Çevrimdışı indirme
+
+✦ Özel zikirler yalnızca cihazınızda kalır — hesap yok, reklam yok.
+
+Ses indirildikten sonra çevrimdışı çalışır. Arapça, İngilizce, Fransızca, İspanyolca, Türkçe, Urduca, Endonezce ve Hintçe. Açık ve koyu tema. Tabletlerde rahat düzen.
+
+———
+Kurulumdan sonra: bildirimleri, diğer uygulamaların üstünde gösterme iznini ve pil muafiyetini açın ki hatırlatmalar güvenilir kalsın.
+
+### Keywords
+otomatik tesbih, otomatik zikir, tesbih, zikir, tesbihat, misbaha, hisnul muslim, ezan, namaz vakitleri, namaz sonrası, widget, islami, hatırlatma
+
+---
+
+## اردو (ur)
+
+### App name
+لذكري
+
+### Short description (80 chars)
+خودکار تسبیح و اذکار — اذان، اوقات اور نماز کے بعد
+
+### Full description
+لذكري — روزانہ ذکر اور تسبیح کا ساتھی۔
+
+کیا فون استعمال کرتے ہوئے تسبیح اور اذکار بھول جاتے ہیں؟ لذكري فون استعمال کرتے ہوئے خودکار تسبیح اور خودکار اذکار یاد دلاتا ہے، نماز کے اوقات پر اذان دیتا ہے، اور ہر فرض کے بعد اذکار یاد دلاتا ہے — کالز اور گفتگو روکے بغیر۔
+
+✦ خودکار تسبیح
+• وقفے وقفے سے یاد دہانیاں (سبحان اللہ، الحمد للہ، اللہ اکبر اور مزید)
+• وقفہ آپ کے اختیار سے، تصادفی یا ترتیب سے
+• فون اور VoIP کالز کے دوران رک جاتا ہے
+• میڈیا، خاموش/ڈسٹرب نہ کریں، یا فون الٹنے پر اختیاری وقفہ
+
+✦ خودکار اذکار
+• حصن المسلم کے ابواب (صبح، شام، نیند اور مزید)
+• ہر باب کے لیے روزانہ وقت اور دن
+• ہر فعال باب سے ایک ذکر، تصادفی یا ترتیب سے
+• ہجری کیلنڈر کے مطابق عید کی تکبیریں
+
+✦ نماز کے اوقات
+• فرضوں کے اوقات آپ کے شہر کے مطابق — تلاش یا موجودہ مقام
+• حساب کا طریقہ، عصر کا مذہب اور ڈے لائٹ سیونگ
+• اوقات، اذان اور قبلہ کے لیے ایک شہر
+
+✦ اذان
+• ہر فرض پر جو آپ چالو کریں صوتی اذان
+• مؤذن کی آواز، فون سے فائل، یا مختصر/خاموش تنبیہ
+• اذان سے پہلے یاد دہانی، پھر اقامت
+• اذان ختم ہونے پر اذان سننے کے اذکار
+• اختیاری طور پر خاموش موڈ میں بھی چلانا
+
+✦ نماز کے بعد اذکار
+• ہر فرض کے بعد نماز کے بعد کے اذکار سے ایک یاد دہانی
+• اذان کے بعد منٹ — تسبیح کی وقفہ مدت سے آزاد
+• اذان سے تسبیح اور صوتی اذکار کو ہر نماز کے لیے آپ کی مدت تک روکنا
+
+✦ لچکدار عرض
+• دیگر ایپس کے اوپر ونڈو، خاموش اطلاع، یا لاک اسکرین
+• صرف آواز یا آواز مع متن
+• ونڈو کا سائز، مقام اور مدت قابلِ تخصیص
+
+✦ ڈیجیٹل مسبحة
+• روایتی دانے یا الیکٹرانک کاؤنٹر
+• ہدف، آواز اور وائبریشن
+• ہوم اسکرین وجٹس (روایتی 3×2 یا الیکٹرانک 2×2)
+
+✦ آج کا ذکر
+• آپ کے مجموعے سے روزانہ تصادفی ذکر
+• ہوم وجٹ یا خاموش لاک اسکرین
+• رنگ، فونٹ سائز اور شفاف پس منظر
+
+✦ اذکار پڑھنا
+• حصن المسلم دیکھیں
+• قاری کی آواز یا TTS
+• سننے کے لیے مخصوص اذکار منتخب کریں
+
+✦ آوازیں
+• اندرونی آڈیو، آپ کی ریکارڈنگ، یا فون سے فائل
+• تسبیح اور اذکار کے لیے الگ قاری اور والیوم
+• آف لائن ڈاؤن لوڈ
+
+✦ ذاتی اذکار صرف آپ کے آلے پر رہتے ہیں — نہ اکاؤنٹ نہ اشتہارات۔
+
+آڈیو ڈاؤن لوڈ کے بعد آف لائن چلتا ہے۔ عربی، انگریزی، فرانسیسی، ہسپانوی، ترکی، اردو، انڈونیشیائی اور ہندی۔ ہلکا اور گہرا تھیم۔ ٹیبلیٹ پر آرام دہ لے آؤٹ۔
+
+———
+انسٹال کے بعد: اطلاعات، دیگر ایپس کے اوپر دکھانا، اور بیٹری استثناء آن کریں تاکہ یاد دہانیاں قابلِ اعتماد رہیں۔
+
+### Keywords
+خودکار تسبیح، خودکار اذکار، تسبیح، اذکار، ذکر، مسبحة، حصن المسلم، اذان، نماز کے اوقات، نماز کے بعد، وجٹ، اسلامی، یاد دہانی
+
+---
+
+## Indonesia (id)
+
+### App name
+Lidhikri
+
+### Short description (80 chars)
+Tasbih & dzikir otomatis — adzan, waktu shalat, setelah shalat
+
+### Full description
+Lidhikri — teman harian untuk dzikir dan tasbih.
+
+Lupa tasbih dan dzikir saat memakai ponsel? Lidhikri mengingatkan dengan tasbih otomatis dan dzikir otomatis saat Anda memakai ponsel, memutar adzan pada waktu shalat, dan mengingatkan dzikir setelah setiap fardu — tanpa memotong panggilan atau percakapan.
+
+✦ Tasbih otomatis
+• Pengingat berkala (Subhanallah, Alhamdulillah, Allahu Akbar, dan lainnya)
+• Interval kustom, acak atau berurutan
+• Berhenti saat panggilan telepon dan VoIP
+• Jeda opsional saat media, senyap/Jangan Ganggu, atau dengan membalik ponsel
+
+✦ Dzikir otomatis
+• Bagian Hisnul Muslim (pagi, petang, tidur, dan lainnya)
+• Jadwal harian per bagian — jam dan hari yang Anda pilih
+• Satu dzikir dari setiap bagian yang aktif, acak atau berurutan
+• Takbir musiman (Idul) menurut kalender Hijriah
+
+✦ Waktu shalat
+• Waktu fardu menurut kota Anda — pencarian atau lokasi saat ini
+• Metode hitung, mazhab Asar, dan DST
+• Satu kota untuk waktu, adzan, dan kiblat
+
+✦ Adzan
+• Adzan bersuara saat masuk setiap shalat yang Anda aktifkan
+• Suara muazin, berkas dari ponsel, atau peringatan singkat/senyap
+• Pengingat sebelum adzan, dan iqamah setelahnya
+• Dzikir mendengar adzan otomatis saat selesai
+• Opsi putar bahkan dalam mode senyap
+
+✦ Dzikir setelah shalat
+• Satu pengingat dari kumpulan setelah shalat setelah setiap fardu
+• Menit setelah adzan — terpisah dari jeda tasbih
+• Jeda tasbih dan dzikir audio sejak adzan selama durasi yang Anda pilih per shalat
+
+✦ Tampilan fleksibel
+• Jendela di atas aplikasi lain, notifikasi teks senyap, atau layar kunci
+• Hanya audio atau audio + teks
+• Ukuran, posisi, dan durasi jendela dapat diatur
+
+✦ Misbaha digital
+• Manik tradisional atau penghitung elektronik
+• Target, suara, dan getar
+• Widget layar utama (tradisional 3×2 atau elektronik 2×2)
+
+✦ Dzikir hari ini
+• Dzikir harian acak dari koleksi Anda
+• Widget beranda atau pengingat senyap di layar kunci
+• Warna, ukuran teks, dan latar transparan
+
+✦ Baca dzikir
+• Jelajahi Hisnul Muslim
+• Audio qari atau TTS
+• Pilih item tertentu untuk didengar
+
+✦ Suara
+• Audio bawaan, rekaman Anda, atau berkas dari ponsel
+• Qari dan volume terpisah untuk tasbih dan untuk dzikir
+• Unduh untuk penggunaan luring
+
+✦ Dzikir pribadi tetap di perangkat — tanpa akun, tanpa iklan.
+
+Berfungsi luring setelah mengunduh audio. Tersedia dalam bahasa Arab, Inggris, Prancis, Spanyol, Turki, Urdu, Indonesia, dan Hindi. Tema terang dan gelap. Tata letak nyaman di tablet.
+
+———
+Setelah pasang: aktifkan notifikasi, tampil di atas aplikasi, dan pengecualian baterai agar pengingat tetap andal.
+
+### Keywords
+tasbih otomatis, dzikir otomatis, tasbih, dzikir, adhkar, misbaha, hisnul muslim, adzan, waktu shalat, setelah shalat, widget, islami, pengingat
+
+---
+
+## हिन्दी (hi)
+
+### App name
+लिधिक्री
+
+### Short description (80 chars)
+स्वतः तस्बीह और अज़कार — अज़ान, वक़्त और नमाज़ बाद
+
+### Full description
+लिधिक्री — रोज़ाना ज़िक्र और तस्बीह का साथी।
+
+क्या फ़ोन इस्तेमाल करते हुए तस्बीह और अज़कार भूल जाते हैं? लिधिक्री फ़ोन इस्तेमाल करते हुए स्वतः तस्बीह और स्वतः अज़कार याद दिलाती है, नमाज़ के वक़्त अज़ान चलाती है, और हर फ़र्ज़ के बाद अज़कार याद दिलाती है — कॉल और बातचीत रोके बिना।
+
+✦ स्वतः तस्बीह
+• समय-समय पर याददिहानी (सुब्हानल्लाह, अल्हम्दुलिल्लाह, अल्लाहु अकबर और अधिक)
+• कस्टम अंतराल, यादृच्छिक या क्रम से
+• फ़ोन और VoIP कॉल के दौरान रुकती है
+• मीडिया, साइलेंट/डिस्टर्ब न करें, या फ़ोन पलटने पर वैकल्पिक विराम
+
+✦ स्वतः अज़कार
+• हिसनुल मुस्लिम खंड (सुबह, शाम, नींद और अधिक)
+• प्रत्येक खंड के लिए दैनिक समय और दिन
+• प्रत्येक चालू खंड से एक ज़िक्र, यादृच्छिक या क्रम से
+• हिजरी कैलेंडर से ईद की तक्बीर
+
+✦ नमाज़ के वक़्त
+• फ़र्ज़ के वक़्त आपके शहर के अनुसार — खोज या वर्तमान स्थान
+• गणना विधि, अस्र मज़हब और डेलाइट सेविंग
+• वक़्त, अज़ान और क़िबला के लिए एक शहर
+
+✦ अज़ान
+• हर फ़र्ज़ पर जिसे आप चालू करें आवाज़ी अज़ान
+• मुअज़्ज़िन की आवाज़, फ़ोन से फ़ाइल, या छोटी/मौन चेतावनी
+• अज़ान से पहले याददिहानी, फिर इकामा
+• अज़ान समाप्त होने पर अज़ान सुनने के अज़कार
+• वैकल्पिक रूप से साइलेंट मोड में भी चलाना
+
+✦ नमाज़ के बाद अज़कार
+• हर फ़र्ज़ के बाद नमाज़-बाद संग्रह से एक याददिहानी
+• अज़ान के बाद मिनट — तस्बीह विराम से स्वतंत्र
+• अज़ान से तस्बीह और आवाज़ी अज़कार को हर नमाज़ के लिए आपकी अवधि तक रोकना
+
+✦ लचीला प्रदर्शन
+• अन्य ऐप्स के ऊपर विंडो, मौन सूचना, या लॉक स्क्रीन
+• केवल ऑडियो या ऑडियो + पाठ
+• विंडो का आकार, स्थान और अवधि अनुकूलन योग्य
+
+✦ डिजिटल मिसबहा
+• पारंपरिक मनके या इलेक्ट्रॉनिक काउंटर
+• लक्ष्य, ध्वनि और कंपन
+• होम स्क्रीन विजेट (पारंपरिक 3×2 या इलेक्ट्रॉनिक 2×2)
+
+✦ आज का ज़िक्र
+• आपके संग्रह से दैनिक यादृच्छिक ज़िक्र
+• होम विजेट या मौन लॉक-स्क्रीन
+• रंग, फ़ॉन्ट आकार और पारदर्शी पृष्ठभूमि
+
+✦ अज़कार पढ़ें
+• हिसनुल मुस्लिम देखें
+• क़ारी ऑडियो या TTS
+• सुनने के लिए विशिष्ट अज़कार चुनें
+
+✦ आवाज़ें
+• अंतर्निहित ऑडियो, आपकी रिकॉर्डिंग, या फ़ोन से फ़ाइल
+• तस्बीह और अज़कार के लिए अलग क़ारी और वॉल्यूम
+• ऑफ़लाइन डाउनलोड
+
+✦ निजी अज़कार केवल आपके डिवाइस पर रहते हैं — न खाता न विज्ञापन।
+
+ऑडियो डाउनलोड के बाद ऑफ़लाइन चलता है। अरबी, अंग्रेज़ी, फ़्रेंच, स्पेनिश, तुर्की, उर्दू, इंडोनेशियाई और हिन्दी। हल्का और गहरा थीम। टैबलेट पर आरामदायक लेआउट।
+
+———
+इंस्टॉल के बाद: सूचनाएँ, अन्य ऐप्स के ऊपर दिखाना, और बैटरी छूट चालू करें ताकि याददिहानियाँ विश्वसनीय रहें।
+
+### Keywords
+स्वतः तस्बीह, स्वतः अज़कार, तस्बीह, अज़कार, ज़िक्र, मिसबहा, हिसनुल मुस्लिम, अज़ान, नमाज़ वक़्त, नमाज़ बाद, विजेट, इस्लामी, याददिहानी
 
 ---
 
@@ -332,19 +652,19 @@ tasbih, adhkar, dhikr, misbaha, hisnul muslim, adhan, horarios de oración, desp
 | `04_misbaha_digital.png` | مسبحة رقمية تقليدية أو إلكترونية | Traditional or electronic misbaha |
 | `05_settings_hub.png` | إعدادات واضحة لكل ميزة | Clear settings for every feature |
 | `06_onboarding_welcome.png` | ابدأ خلال دقائق | Get started in minutes |
-| `07_popup_auto_tasbih.png` | نافذة فوق التطبيقات | Popup over other apps |
-| `08_popup_auto_azkar.png` | أذكار الصباح تلقائياً | Morning adhkar on schedule |
+| `07_popup_auto_tasbih.png` | نافذة التسبيح التلقائي | Auto tasbih popup over other apps |
+| `08_popup_auto_azkar.png` | الأذكار التلقائية | Auto adhkar on your schedule |
 | `09_widgets_hub.png` | ويدجت ذكر اليوم والمسبحة | Dhikr of the day and misbaha widgets |
 | `10_home_widgets.png` | عدّ من الشاشة الرئيسية | Count from the home screen |
 | `11_prayer_times.png` | أذان ومواقيت وأذكار ما بعد الفرض | Adhan, prayer times, after-prayer adhkar |
 
-Play Console يقبل حتى 8 لقطات هاتف — الثمانية المقترحة: 01، 07، 02، 04، 10، 11، 08، 05. اللقطة 11 (مواقيت/أذان/أذكار بعد الفرض) إلزامية ضمن الثمانية. لقطات الوضع الليلي في `play-upload/phone-screenshots-night/`.
+Play Console يقبل حتى 8 لقطات هاتف — الثمانية المقترحة: 01، 07، 08، 11، 02، 04، 10، 05. اللقطة 11 (مواقيت/أذان/أذكار بعد الفرض) إلزامية ضمن الثمانية. لقطات الوضع الليلي في `play-upload/phone-screenshots-night/`.
 
 ## فيديو ترويجي (~45–65 ث)
 
 المسار: `video/promo.mp4`
 
-يجب أن يظهر الأذان ومواقيت الصلاة وأذكار ما بعد الفرض بوضوح.
+يجب أن يظهر التسبيح التلقائي والأذكار التلقائية، ثم الأذان ومواقيت الصلاة وأذكار ما بعد الفرض.
 
 1. شعار لذكري (3 ث)
 2. التسبيح التلقائي نافذة + صوت (8 ث)

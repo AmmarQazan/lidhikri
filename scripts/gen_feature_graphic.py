@@ -77,17 +77,17 @@ def main() -> None:
     bg.paste(logo, (56, (h - logo.height) // 2), logo)
 
     title_ar = ar_text("لذكري")
-    tag_ar_raw = ar_text("أذان  •  مواقيت صلاة  •  أذكار بعد الفرض")
+    tag_ar_raw = ar_text("تسبيح وأذكار تلقائية  •  أذان ومواقيت وبعد الفرض")
     ar_font = fit_text(draw, title_ar, 620, ["tradbdo.ttf", "tahoma.ttf"], 78)
     en_font = font("segoeuib.ttf", 44)
     tag_ar = fit_text(draw, tag_ar_raw, 620, ["tahoma.ttf", "arial.ttf"], 30)
-    tag_en = fit_text(draw, "Adhan  ·  Prayer times  ·  After-prayer dhikr", 620, ["segoeui.ttf"], 26)
+    tag_en = fit_text(draw, "Auto tasbih & adhkar  ·  Adhan, times, after-prayer", 620, ["segoeui.ttf"], 26)
 
     x = 340
     draw.text((x, 118), title_ar, fill="#F5F1E9", font=ar_font)
     draw.text((x, 210), "Lidhikri", fill="#F5F1E9", font=en_font)
     draw.text((x, 282), tag_ar_raw, fill="#D4AF37", font=tag_ar)
-    draw.text((x, 332), "Adhan  ·  Prayer times  ·  After-prayer dhikr", fill="#E8E0D0", font=tag_en)
+    draw.text((x, 332), "Auto tasbih & adhkar  ·  Adhan, times, after-prayer", fill="#E8E0D0", font=tag_en)
 
 
     out = GRAPHICS / "feature-graphic.png"

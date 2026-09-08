@@ -18,11 +18,11 @@ OUT = ROOT / "store-assets" / "play-upload"
 ORDER = [
     ("01_home_auto_tasbih.png", "01-auto-tasbih-home.png"),
     ("07_popup_auto_tasbih.png", "02-popup-over-apps.png"),
-    ("02_azkar_sections.png", "03-hisnul-muslim.png"),
-    ("04_misbaha_digital.png", "04-digital-misbaha.png"),
-    ("10_home_widgets.png", "05-home-widgets.png"),
-    ("11_prayer_times.png", "06-prayer-times.png"),
-    ("08_popup_auto_azkar.png", "07-auto-azkar-popup.png"),
+    ("08_popup_auto_azkar.png", "03-auto-azkar-popup.png"),
+    ("11_prayer_times.png", "04-prayer-times.png"),
+    ("02_azkar_sections.png", "05-hisnul-muslim.png"),
+    ("04_misbaha_digital.png", "06-digital-misbaha.png"),
+    ("10_home_widgets.png", "07-home-widgets.png"),
     ("05_settings_hub.png", "08-settings-hub.png"),
 ]
 EXTRAS = [
@@ -31,20 +31,35 @@ EXTRAS = [
 ]
 
 
+KEEP_NAMES = {dest for _, dest in ORDER + EXTRAS}
+
+
+def _copy_shots(src_dir: Path, dest_dir: Path, label: str) -> None:
+    dest_dir.mkdir(parents=True, exist_ok=True)
+    for src_name, dest_name in ORDER + EXTRAS:
+        src = src_dir / src_name
+        if not src.exists():
+            raise SystemExit(f"missing {src}")
+        dest = dest_dir / dest_name
+        shutil.copy2(src, dest)
+        im = Image.open(dest)
+        print(f"{label} {dest_name}: {im.size[0]}x{im.size[1]} {im.mode}")
+    for stale in dest_dir.glob("*.png"):
+        if stale.name not in KEEP_NAMES:
+            stale.unlink()
+            print("removed stale", stale.name)
+
+
 def main() -> None:
     phone = OUT / "phone-screenshots"
     graphics = OUT / "graphics"
     phone.mkdir(parents=True, exist_ok=True)
     graphics.mkdir(parents=True, exist_ok=True)
 
-    for src_name, dest_name in ORDER + EXTRAS:
-        src = SRC / src_name
-        if not src.exists():
-            raise SystemExit(f"missing {src}")
-        dest = phone / dest_name
-        shutil.copy2(src, dest)
-        im = Image.open(dest)
-        print(f"{dest_name}: {im.size[0]}x{im.size[1]} {im.mode}")
+    _copy_shots(SRC, phone, "day")
+    night_src = SRC / "ar-night"
+    if night_src.exists():
+        _copy_shots(night_src, OUT / "phone-screenshots-night", "night")
 
     for name in ("icon-512.png", "feature-graphic.png"):
         shutil.copy2(GFX / name, graphics / name)

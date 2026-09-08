@@ -1,15 +1,27 @@
-## Turkish (tr)
+## Türkçe (tr)
 
 ### App name
 Lidhikri
 
 ### Short description (80 chars)
-Ezan, namaz vakitleri ve namaz sonrası zikir — çevrimdışı
+Otomatik tesbih ve zikir — ezan, vakitler ve namaz sonrası
 
 ### Full description
 Lidhikri — günlük zikir ve tesbihat yol arkadaşınız.
 
-Telefonu kullanırken Allah'ı anmayı unutuyor musunuz? Lidhikri namaz vakitlerinde ezan okur, her farzdan sonra zikir hatırlatır ve telefonu kullanırken kısa sesli tesbih çalar — aramaları ve sohbetleri kesmeden.
+Telefonu kullanırken tesbih ve zikri unutuyor musunuz? Lidhikri telefonu kullanırken otomatik tesbih ve otomatik zikirle hatırlatır, namaz vakitlerinde ezan okur ve her farzdan sonra zikir hatırlatır — aramaları ve sohbetleri kesmeden.
+
+✦ Otomatik tesbih
+• Periyodik hatırlatmalar (Sübhanallah, Elhamdülillah, Allahu ekber ve daha fazlası)
+• Özel aralık, rastgele veya sırayla çalma
+• Telefon ve internet aramalarında durur
+• Medya, sessiz/Rahatsız etme veya telefonu ters çevirerek durdurma seçenekleri
+
+✦ Otomatik zikir
+• Hisnul Müslim bölümleri (sabah, akşam, uyku ve daha fazlası)
+• Bölüm başına günlük saat ve günler
+• Her açık bölümden bir zikir, rastgele veya sırayla
+• Hicri takvimle mevsimsel tekbir (Bayram)
 
 ✦ Namaz vakitleri
 • Farz vakitleri şehrinize göre — arama veya mevcut konum
@@ -27,18 +39,6 @@ Telefonu kullanırken Allah'ı anmayı unutuyor musunuz? Lidhikri namaz vakitler
 • Her farzdan sonra namaz sonrası koleksiyonundan bir hatırlatma
 • Ezandan sonraki dakika — tesbih duraklamasından bağımsız
 • Ezandan itibaren tesbih ve sesli zikri, her namaz için seçtiğiniz süre kadar durdurur
-
-✦ Otomatik tesbih
-• Periyodik hatırlatmalar (Sübhanallah, Elhamdülillah, Allahu ekber ve daha fazlası)
-• Özel aralık, rastgele veya sırayla çalma
-• Telefon ve internet aramalarında durur
-• Medya, sessiz/Rahatsız etme veya telefonu ters çevirerek durdurma seçenekleri
-
-✦ Otomatik zikir
-• Hisnul Müslim bölümleri (sabah, akşam, uyku ve daha fazlası)
-• Bölüm başına günlük saat ve günler
-• Her açık bölümden bir zikir, rastgele veya sırayla
-• Hicri takvimle mevsimsel tekbir (Bayram)
 
 ✦ Esnek görünüm
 • Diğer uygulamaların üstünde pencere, sessiz bildirim veya kilit ekranı
@@ -73,4 +73,6 @@ Ses indirildikten sonra çevrimdışı çalışır. Arapça, İngilizce, Fransı
 Kurulumdan sonra: bildirimleri, diğer uygulamaların üstünde gösterme iznini ve pil muafiyetini açın ki hatırlatmalar güvenilir kalsın.
 
 ### Keywords
-tesbih, zikir, tesbihat, misbaha, hisnul muslim, ezan, namaz vakitleri, namaz sonrası, widget, islami, hatırlatma
+otomatik tesbih, otomatik zikir, tesbih, zikir, tesbihat, misbaha, hisnul muslim, ezan, namaz vakitleri, namaz sonrası, widget, islami, hatırlatma
+
+---

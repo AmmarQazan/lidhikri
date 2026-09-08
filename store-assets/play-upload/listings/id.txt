@@ -1,15 +1,27 @@
-## Indonesian (id)
+## Indonesia (id)
 
 ### App name
 Lidhikri
 
 ### Short description (80 chars)
-Adzan, waktu shalat & dzikir setelah shalat — offline
+Tasbih & dzikir otomatis — adzan, waktu shalat, setelah shalat
 
 ### Full description
 Lidhikri — teman harian untuk dzikir dan tasbih.
 
-Lupa mengingat Allah saat memakai ponsel? Lidhikri memutar adzan pada waktu shalat, mengingatkan dzikir setelah setiap fardu, dan memutar tasbih singkat saat Anda memakai ponsel — tanpa memotong panggilan atau percakapan.
+Lupa tasbih dan dzikir saat memakai ponsel? Lidhikri mengingatkan dengan tasbih otomatis dan dzikir otomatis saat Anda memakai ponsel, memutar adzan pada waktu shalat, dan mengingatkan dzikir setelah setiap fardu — tanpa memotong panggilan atau percakapan.
+
+✦ Tasbih otomatis
+• Pengingat berkala (Subhanallah, Alhamdulillah, Allahu Akbar, dan lainnya)
+• Interval kustom, acak atau berurutan
+• Berhenti saat panggilan telepon dan VoIP
+• Jeda opsional saat media, senyap/Jangan Ganggu, atau dengan membalik ponsel
+
+✦ Dzikir otomatis
+• Bagian Hisnul Muslim (pagi, petang, tidur, dan lainnya)
+• Jadwal harian per bagian — jam dan hari yang Anda pilih
+• Satu dzikir dari setiap bagian yang aktif, acak atau berurutan
+• Takbir musiman (Idul) menurut kalender Hijriah
 
 ✦ Waktu shalat
 • Waktu fardu menurut kota Anda — pencarian atau lokasi saat ini
@@ -21,56 +33,46 @@ Lupa mengingat Allah saat memakai ponsel? Lidhikri memutar adzan pada waktu shal
 • Suara muazin, berkas dari ponsel, atau peringatan singkat/senyap
 • Pengingat sebelum adzan, dan iqamah setelahnya
 • Dzikir mendengar adzan otomatis saat selesai
-• Opsi putar meski dalam mode senyap
+• Opsi putar bahkan dalam mode senyap
 
 ✦ Dzikir setelah shalat
-• Satu pengingat dari kumpulan dzikir setelah shalat setelah setiap fardu
+• Satu pengingat dari kumpulan setelah shalat setelah setiap fardu
 • Menit setelah adzan — terpisah dari jeda tasbih
-• Hentikan tasbih dan dzikir bersuara sejak adzan, selama durasi yang Anda pilih
-
-✦ Tasbih otomatis
-• Pengingat berkala (Subhanallah, Alhamdulillah, Allahu Akbar, dan lainnya)
-• Interval kustom, acak atau berurutan
-• Berhenti saat panggilan telepon dan daring
-• Opsi jeda saat media, senyap/Jangan Ganggu, atau dengan membalik ponsel
-
-✦ Dzikir otomatis
-• Bagian Hisnul Muslim (pagi, petang, tidur, dan lainnya)
-• Jadwal harian per bagian — jam dan hari yang Anda pilih
-• Satu dzikir dari setiap bagian yang aktif, acak atau berurutan
-• Takbir musiman (Idul) lewat kalender Hijriah
+• Jeda tasbih dan dzikir audio sejak adzan selama durasi yang Anda pilih per shalat
 
 ✦ Tampilan fleksibel
-• Jendela di atas aplikasi lain, notifikasi senyap, atau layar kunci
+• Jendela di atas aplikasi lain, notifikasi teks senyap, atau layar kunci
 • Hanya audio atau audio + teks
 • Ukuran, posisi, dan durasi jendela dapat diatur
 
-✦ Tasbih digital
+✦ Misbaha digital
 • Manik tradisional atau penghitung elektronik
-• Target hitungan, suara, dan getar
+• Target, suara, dan getar
 • Widget layar utama (tradisional 3×2 atau elektronik 2×2)
 
 ✦ Dzikir hari ini
 • Dzikir harian acak dari koleksi Anda
 • Widget beranda atau pengingat senyap di layar kunci
-• Warna, ukuran huruf, dan latar transparan
+• Warna, ukuran teks, dan latar transparan
 
-✦ Membaca dzikir
-• Telusuri Hisnul Muslim
-• Suara qari atau TTS
+✦ Baca dzikir
+• Jelajahi Hisnul Muslim
+• Audio qari atau TTS
 • Pilih item tertentu untuk didengar
 
 ✦ Suara
 • Audio bawaan, rekaman Anda, atau berkas dari ponsel
-• Qari dan volume terpisah untuk tasbih dan dzikir
-• Unduh untuk dipakai offline
+• Qari dan volume terpisah untuk tasbih dan untuk dzikir
+• Unduh untuk penggunaan luring
 
-✦ Dzikir khusus hanya tersimpan di perangkat — tanpa akun, tanpa iklan.
+✦ Dzikir pribadi tetap di perangkat — tanpa akun, tanpa iklan.
 
-Berjalan offline setelah audio diunduh. Tersedia dalam Arab, Inggris, Prancis, Spanyol, Turki, Urdu, Indonesia, dan Hindi. Tema terang dan gelap. Tata letak nyaman di tablet.
+Berfungsi luring setelah mengunduh audio. Tersedia dalam bahasa Arab, Inggris, Prancis, Spanyol, Turki, Urdu, Indonesia, dan Hindi. Tema terang dan gelap. Tata letak nyaman di tablet.
 
 ———
-Setelah memasang: aktifkan notifikasi, izin tampil di atas aplikasi lain, dan pengecualian baterai agar pengingat tetap andal.
+Setelah pasang: aktifkan notifikasi, tampil di atas aplikasi, dan pengecualian baterai agar pengingat tetap andal.
 
 ### Keywords
-tasbih, dzikir, zikir, misbaha, hisnul muslim, adzan, waktu shalat, setelah shalat, widget, islam, pengingat
+tasbih otomatis, dzikir otomatis, tasbih, dzikir, adhkar, misbaha, hisnul muslim, adzan, waktu shalat, setelah shalat, widget, islami, pengingat
+
+---

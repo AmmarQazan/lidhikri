@@ -27,7 +27,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Mosque
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Vibration
@@ -178,7 +177,6 @@ fun OnboardingFlow(
     var ridingAzkar by remember { mutableStateOf(true) }
     var homeLocation by remember { mutableStateOf<PrayerLocation?>(null) }
     var enabledAzkarIds by remember { mutableStateOf(AutoAzkarCatalog.defaultEnabledClockIds()) }
-    var clockHourFormat by remember { mutableStateOf(ClockHourFormat.HOUR_24) }
     var prayerLocation by remember { mutableStateOf<PrayerLocation?>(null) }
     var prayerLocationMode by remember { mutableStateOf(LocationMode.MANUAL) }
     var showHomeAddressRequired by remember { mutableStateOf(false) }
@@ -231,7 +229,7 @@ fun OnboardingFlow(
                 homeLocation = homeLocation,
                 ridingAzkarEnabled = ridingAzkar,
                 silentDuringFardPrayer = true,
-                clockHourFormat = clockHourFormat
+                clockHourFormat = ClockHourFormat.HOUR_24
             )
         )
     }
@@ -335,9 +333,7 @@ fun OnboardingFlow(
                     onRidingAzkarChange = { ridingAzkar = it },
                     homeLocation = homeLocation,
                     onHomeLocationPicked = { homeLocation = it },
-                    prayerTimesOn = prayerLocation != null,
-                    clockHourFormat = clockHourFormat,
-                    onClockHourFormatChange = { clockHourFormat = it }
+                    prayerTimesOn = prayerLocation != null
                 )
             }
         }
@@ -441,9 +437,14 @@ private fun OnboardingWelcomeStep() {
         )
         Spacer(Modifier.height(24.dp))
         OnboardingFeatureRow(
-            icon = Icons.Default.Mosque,
-            title = stringResource(R.string.onboarding_feature_prayer_title),
-            subtitle = stringResource(R.string.onboarding_feature_prayer_subtitle)
+            icon = Icons.Default.Notifications,
+            title = stringResource(R.string.onboarding_feature_tasbih_title),
+            subtitle = stringResource(R.string.onboarding_feature_tasbih_subtitle)
+        )
+        OnboardingFeatureRow(
+            icon = Icons.Default.Schedule,
+            title = stringResource(R.string.onboarding_feature_azkar_title),
+            subtitle = stringResource(R.string.onboarding_feature_azkar_subtitle)
         )
         OnboardingFeatureRow(
             icon = Icons.Default.VolumeUp,
@@ -451,7 +452,7 @@ private fun OnboardingWelcomeStep() {
             subtitle = stringResource(R.string.onboarding_feature_adhan_subtitle)
         )
         OnboardingFeatureRow(
-            icon = Icons.Default.Schedule,
+            icon = Icons.Default.CheckCircle,
             title = stringResource(R.string.onboarding_feature_after_prayer_title),
             subtitle = stringResource(R.string.onboarding_feature_after_prayer_subtitle)
         )
@@ -725,9 +726,7 @@ private fun OnboardingRemindersStep(
     onRidingAzkarChange: (Boolean) -> Unit,
     homeLocation: PrayerLocation?,
     onHomeLocationPicked: (PrayerLocation) -> Unit,
-    prayerTimesOn: Boolean,
-    clockHourFormat: ClockHourFormat,
-    onClockHourFormatChange: (ClockHourFormat) -> Unit
+    prayerTimesOn: Boolean
 ) {
     OnboardingStepScaffold(
         title = stringResource(R.string.onboarding_auto_azkar_title),
@@ -833,26 +832,6 @@ private fun OnboardingRemindersStep(
                     onPicked = onHomeLocationPicked
                 )
             }
-            Spacer(Modifier.height(16.dp))
-            Text(
-                text = stringResource(R.string.azkar_clock_format_label),
-                style = MaterialTheme.typography.titleSmall,
-                color = AppAccentGreen(),
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Text(
-                text = stringResource(R.string.azkar_clock_format_hint),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 4.dp, bottom = 8.dp)
-            )
-            ClockHourFormatSelector(
-                selected = clockHourFormat,
-                onSelected = onClockHourFormatChange
-            )
         }
     }
 }

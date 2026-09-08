@@ -15,7 +15,11 @@ def main() -> None:
         "ar": ("## العربية (ar)", "## English (en)"),
         "en": ("## English (en)", "## Français (fr)"),
         "fr": ("## Français (fr)", "## Español (es)"),
-        "es": ("## Español (es)", "## لقطات الشاشة"),
+        "es": ("## Español (es)", "## Türkçe (tr)"),
+        "tr": ("## Türkçe (tr)", "## اردو (ur)"),
+        "ur": ("## اردو (ur)", "## Indonesia (id)"),
+        "id": ("## Indonesia (id)", "## हिन्दी (hi)"),
+        "hi": ("## हिन्दी (hi)", "## لقطات الشاشة"),
     }
     OUT.mkdir(parents=True, exist_ok=True)
     for loc, (start, end) in blocks.items():

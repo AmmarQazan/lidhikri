@@ -4,12 +4,24 @@
 Lidhikri
 
 ### Short description (80 chars)
-Adhan, prayer times & after-prayer dhikr — auto tasbih, offline
+Auto tasbih & adhkar — adhan, prayer times, after-prayer dhikr
 
 ### Full description
 Lidhikri — your daily companion for dhikr and remembrance.
 
-Do you forget to remember Allah while using your phone? Lidhikri plays the adhan at prayer times, reminds you with after-prayer adhkar, and plays short audio tasbih while you use your phone — without interrupting calls or chats.
+Do you forget tasbih and adhkar while using your phone? Lidhikri reminds you with automatic tasbih and automatic adhkar while you use your phone, plays the adhan at prayer times, and reminds you with after-prayer adhkar — without interrupting calls or chats.
+
+✦ Auto tasbih
+• Periodic reminders (Subhan Allah, Alhamdulillah, Allahu Akbar, and more)
+• Custom interval, random or sequential playback
+• Pauses during phone and VoIP calls
+• Optional pause during media, silent/Do Not Disturb, or by flipping the phone
+
+✦ Auto adhkar
+• Hisnul Muslim sections (morning, evening, sleep, and more)
+• Daily schedule per section — time and weekdays you choose
+• One dhikr from each enabled section, random or in order
+• Seasonal takbir (Eid) via the Hijri calendar
 
 ✦ Prayer times
 • Fard times for your city — search or current location
@@ -27,18 +39,6 @@ Do you forget to remember Allah while using your phone? Lidhikri plays the adhan
 • One reminder from the after-prayer collection after each fard
 • Minutes after the adhan — independent of the tasbih pause window
 • Pause tasbih and audio adhkar from the adhan for a duration you choose per prayer
-
-✦ Auto tasbih
-• Periodic reminders (Subhan Allah, Alhamdulillah, Allahu Akbar, and more)
-• Custom interval, random or sequential playback
-• Pauses during phone and VoIP calls
-• Optional pause during media, silent/Do Not Disturb, or by flipping the phone
-
-✦ Auto adhkar
-• Hisnul Muslim sections (morning, evening, sleep, and more)
-• Daily schedule per section — time and weekdays you choose
-• One dhikr from each enabled section, random or in order
-• Seasonal takbir (Eid) via the Hijri calendar
 
 ✦ Flexible display
 • Popup over other apps, silent text notification, or lock screen
@@ -73,6 +73,6 @@ Works offline after downloading audio. Available in Arabic, English, French, Spa
 After install: enable notifications, overlay permission, and battery exemption so reminders stay reliable.
 
 ### Keywords
-tasbih, adhkar, dhikr, misbaha, hisnul muslim, adhan, prayer times, after prayer, widget, islamic, reminder
+auto tasbih, auto adhkar, tasbih, adhkar, dhikr, misbaha, hisnul muslim, adhan, prayer times, after prayer, widget, islamic, reminder
 
 ---

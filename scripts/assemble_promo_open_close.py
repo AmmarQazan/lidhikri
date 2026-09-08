@@ -49,9 +49,9 @@ def make_intro_card(splash: Path, dest: Path) -> None:
     draw = ImageDraw.Draw(im)
     fnt = feature_font(50)
     lines = [
-        ar("أذان ومواقيت الصلاة"),
-        ar("أذكار ما بعد كل فرض"),
         ar("تسبيح تلقائي فوق التطبيقات"),
+        ar("أذكار تلقائية من حصن المسلم"),
+        ar("أذان ومواقيت وأذكار بعد الفرض"),
         ar("يعمل دون إنترنت · بلا إعلانات"),
     ]
     y = 1455

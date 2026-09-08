@@ -9,12 +9,12 @@
 | الترتيب | الملف | ماذا تُظهر |
 |---------|--------|-------------|
 | 1 | `01-auto-tasbih-home.png` | التسبيح التلقائي من الرئيسية |
-| 2 | `02-popup-over-apps.png` | النافذة فوق التطبيقات |
-| 3 | `03-hisnul-muslim.png` | أقسام حصن المسلم |
-| 4 | `04-digital-misbaha.png` | المسبحة الرقمية |
-| 5 | `05-home-widgets.png` | ويدجت الشاشة الرئيسية |
-| 6 | `06-prayer-times.png` | الأذان ومواقيت الصلاة وأذكار ما بعد الفرض |
-| 7 | `07-auto-azkar-popup.png` | الأذكار التلقائية |
+| 2 | `02-popup-over-apps.png` | نافذة التسبيح التلقائي فوق التطبيقات |
+| 3 | `03-auto-azkar-popup.png` | الأذكار التلقائية |
+| 4 | `04-prayer-times.png` | الأذان ومواقيت الصلاة وأذكار ما بعد الفرض |
+| 5 | `05-hisnul-muslim.png` | أقسام حصن المسلم |
+| 6 | `06-digital-misbaha.png` | المسبحة الرقمية |
+| 7 | `07-home-widgets.png` | ويدجت الشاشة الرئيسية |
 | 8 | `08-settings-hub.png` | مركز الإعدادات |
 
 الوضع الليلي: `phone-screenshots-night/` بنفس الأسماء. إضافات اختيارية: `09-widgets-settings.png` و`10-display-theme.png`.

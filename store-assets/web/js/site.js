@@ -13,7 +13,7 @@ const I18N = {
       tag: "Lidhikri",
       aboutTitle: "من نحن",
       about:
-        "لذكري يطوّر تطبيقات أندرويد للذكر: أذان ومواقيت صلاة وأذكار ما بعد الفرض، مع تسبيح تلقائي أثناء استخدام الهاتف، أذكار حصن المسلم، مسبحة رقمية، وويدجت. بلا حساب، بلا إعلانات، وبلا تتبع.",
+        "لذكري يطوّر تطبيقات أندرويد للذكر: تسبيح وأذكار تلقائية أثناء استخدام الهاتف، مع أذان ومواقيت صلاة وأذكار ما بعد الفرض، مسبحة رقمية، وويدجت. بلا حساب، بلا إعلانات، وبلا تتبع.",
       contactTitle: "التواصل",
       contactLead: "البريد العام للمستخدمين والدعم:",
       privacy: "سياسة الخصوصية",
@@ -24,7 +24,7 @@ const I18N = {
       tag: "لذكري",
       aboutTitle: "About",
       about:
-        "Lidhikri builds Android apps for dhikr: adhan, prayer times, after-prayer adhkar, automatic tasbih while you use your phone, Hisnul Muslim, a digital misbaha, and home-screen widgets. No account, no ads, and no tracking.",
+        "Lidhikri builds Android apps for dhikr: automatic tasbih and adhkar while you use your phone, plus adhan, prayer times, after-prayer adhkar, a digital misbaha, and home-screen widgets. No account, no ads, and no tracking.",
       contactTitle: "Contact",
       contactLead: "Public email for users and support:",
       privacy: "Privacy policy",
@@ -35,7 +35,7 @@ const I18N = {
       tag: "لذكري",
       aboutTitle: "À propos",
       about:
-        "Lidhikri crée des applications Android pour le dhikr : adhan, horaires de prière, adhkar après la prière, tasbih automatique pendant l’usage du téléphone, Hisnul Muslim, misbaha numérique et widgets d’accueil. Pas de compte, pas de publicité, pas de suivi.",
+        "Lidhikri crée des applications Android pour le dhikr : tasbih et adhkar automatiques pendant l’usage du téléphone, plus adhan, horaires de prière, adhkar après la prière, misbaha numérique et widgets d’accueil. Pas de compte, pas de publicité, pas de suivi.",
       contactTitle: "Contact",
       contactLead: "E-mail public pour les utilisateurs et le support :",
       privacy: "Politique de confidentialité",
@@ -46,7 +46,7 @@ const I18N = {
       tag: "لذكري",
       aboutTitle: "Quiénes somos",
       about:
-        "Lidhikri crea aplicaciones Android para el dhikr: adhan, horarios de oración, adhkar después de la oración, tasbih automático mientras usas el teléfono, Hisnul Muslim, misbaha digital y widgets de inicio. Sin cuenta, sin anuncios y sin rastreo.",
+        "Lidhikri crea aplicaciones Android para el dhikr: tasbih y adhkar automáticos mientras usas el teléfono, más adhan, horarios de oración, adhkar después de la oración, misbaha digital y widgets de inicio. Sin cuenta, sin anuncios y sin rastreo.",
       contactTitle: "Contacto",
       contactLead: "Correo público para usuarios y soporte:",
       privacy: "Política de privacidad",
