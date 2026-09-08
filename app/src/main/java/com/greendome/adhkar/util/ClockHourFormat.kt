@@ -7,16 +7,17 @@ fun formatClockTime(
     minute: Int,
     format: ClockHourFormat,
     periodAm: String,
-    periodPm: String
+    periodPm: String,
+    separator: String = ":",
 ): String {
     val hour = hour24.coerceIn(0, 23)
     val min = minute.coerceIn(0, 59)
     return when (format) {
-        ClockHourFormat.HOUR_24 -> "%02d:%02d".format(hour, min)
+        ClockHourFormat.HOUR_24 -> "%02d%s%02d".format(hour, separator, min)
         ClockHourFormat.HOUR_12 -> {
             val hour12 = (hour % 12).let { if (it == 0) 12 else it }
             val period = if (hour < 12) periodAm else periodPm
-            "%d:%02d %s".format(hour12, min, period)
+            "%d%s%02d %s".format(hour12, separator, min, period)
         }
     }
 }

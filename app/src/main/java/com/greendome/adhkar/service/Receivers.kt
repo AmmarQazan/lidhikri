@@ -54,5 +54,6 @@ class BootReceiver : BroadcastReceiver() {
         VehicleActivityScheduler.register(context)
         DhikrOfDayManager.refreshAsync(context)
         PrayerTimesWidgetManager.updateAll(context)
+        NextAzkarNotifier.sync(context)
     }
 }

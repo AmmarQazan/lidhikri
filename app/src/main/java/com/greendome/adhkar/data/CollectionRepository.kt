@@ -8,6 +8,7 @@ import com.greendome.adhkar.data.model.CollectionDayMode
 import com.greendome.adhkar.service.AfterPrayerAlarmScheduler
 import com.greendome.adhkar.service.CollectionAlarmScheduler
 import com.greendome.adhkar.service.HomeGeofenceScheduler
+import com.greendome.adhkar.service.NextAzkarNotifier
 import com.greendome.adhkar.service.ReminderScheduler
 import com.greendome.adhkar.service.VehicleActivityScheduler
 import com.greendome.adhkar.util.TasbihWindow
@@ -164,6 +165,7 @@ class CollectionRepository(
         AfterPrayerAlarmScheduler.reschedule(context)
         HomeGeofenceScheduler.register(context)
         VehicleActivityScheduler.register(context)
+        NextAzkarNotifier.sync(context)
     }
 
     suspend fun saveItem(item: AzkarItemEntity): Long {

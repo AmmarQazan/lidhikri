@@ -70,7 +70,7 @@ class AzkarCollectionPlayService : Service() {
         startForeground(
             NOTIF_ID,
             NotificationCompat.Builder(this, CHANNEL)
-                .setSmallIcon(R.drawable.ic_notification)
+                .let { SilentNotificationChannels.applyAppIcon(it, this) }
                 .setContentTitle(getString(R.string.azkar_auto_playing))
                 .setSilent(true)
                 .setOngoing(true)
@@ -162,8 +162,10 @@ class AzkarCollectionPlayService : Service() {
             Intent(this, MainActivity::class.java),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
-        val builder = NotificationCompat.Builder(this, SilentNotificationChannels.TEXT_REMINDER)
-            .setSmallIcon(R.drawable.ic_notification)
+        val builder = SilentNotificationChannels.applyAppIcon(
+            NotificationCompat.Builder(this, SilentNotificationChannels.TEXT_REMINDER),
+            this,
+        )
             .setContentTitle(title)
             .setContentText(text)
             .setStyle(NotificationCompat.BigTextStyle().bigText(text))
@@ -227,8 +229,10 @@ class AzkarCollectionPlayService : Service() {
             OverlayActivity.autoAzkarIntent(this, sectionTitle, text),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
-        val notification = NotificationCompat.Builder(this, FULLSCREEN_CHANNEL)
-            .setSmallIcon(R.drawable.ic_notification)
+        val notification = SilentNotificationChannels.applyAppIcon(
+            NotificationCompat.Builder(this, FULLSCREEN_CHANNEL),
+            this,
+        )
             .setContentTitle(sectionTitle)
             .setContentText(text)
             .setStyle(NotificationCompat.BigTextStyle().bigText(text))

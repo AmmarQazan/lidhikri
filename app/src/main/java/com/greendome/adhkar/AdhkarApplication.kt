@@ -13,6 +13,7 @@ import com.greendome.adhkar.service.AdhanAlarmScheduler
 import com.greendome.adhkar.service.AdhanAlertNotifier
 import com.greendome.adhkar.service.AfterPrayerAlarmScheduler
 import com.greendome.adhkar.service.NextAdhanService
+import com.greendome.adhkar.service.NextAzkarNotifier
 import com.greendome.adhkar.service.OfflineDownloadHelper
 import com.greendome.adhkar.service.PrayerPhoneSilent
 import com.greendome.adhkar.service.SilentNotificationChannels
@@ -54,6 +55,7 @@ class AdhkarApplication : Application() {
         AdhanAlertNotifier.ensureChannel(this)
         SilentNotificationChannels.cancelLegacyAlertIds(this)
         NextAdhanService.sync(this)
+        NextAzkarNotifier.sync(this)
         appScope.launch {
             val catalogEmpty = database.isOfficialCatalogEmpty()
             SeedData(database, settings).seedIfEmpty()

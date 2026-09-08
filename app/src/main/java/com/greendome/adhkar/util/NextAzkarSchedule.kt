@@ -61,6 +61,22 @@ object NextAzkarSchedule {
             .formatDigits(numberDigitStyle)
     }
 
+    fun formatDetailLine(
+        context: Context,
+        collection: AdhkarCollectionEntity,
+        triggerAt: Long,
+        lang: String,
+        clockHourFormat: ClockHourFormat,
+        numberDigitStyle: NumberDigitStyle,
+        nowMillis: Long = System.currentTimeMillis(),
+    ): String {
+        val title = collectionTitle(context, collection, lang)
+        val timeLabel = timeLabel(context, triggerAt, clockHourFormat, nowMillis)
+            .formatDigits(numberDigitStyle)
+        return context.getString(R.string.next_azkar_line, title, timeLabel)
+            .formatDigits(numberDigitStyle)
+    }
+
     fun notificationLine(context: Context): String? {
         val settings = SettingsRepository(context)
         if (!settings.autoAzkarEnabled) return null
@@ -69,7 +85,7 @@ object NextAzkarSchedule {
             db.collectionDao().getAll() to db.azkarItemDao().getAll()
         }
         val next = resolve(collections, items, settings.prayerConfig()) ?: return null
-        return formatLine(
+        return formatDetailLine(
             context = context,
             collection = next.first,
             triggerAt = next.second,

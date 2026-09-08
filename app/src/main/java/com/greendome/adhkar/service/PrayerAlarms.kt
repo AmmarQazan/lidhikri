@@ -15,5 +15,6 @@ object PrayerAlarms {
             ReminderScheduler.scheduleNext(context)
             AdhkarReminderService.refreshNotification(context)
         }
+        NextAzkarNotifier.sync(context)
     }
 }

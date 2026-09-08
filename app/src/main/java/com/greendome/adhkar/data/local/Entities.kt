@@ -169,7 +169,7 @@ data class ReciterAudioEntity(
     val dhikrId: Long,
     val localPath: String? = null,
     val remoteUrl: String? = null,
-    /** مسار ملف مدمج داخل التطبيق، مثل audio/sou_tasbeeh.mp3 */
+    /** مسار ملف مدمج داخل التطبيق، مثل audio/subaihat/tasbih/subhan_allah.mp3 */
     val assetPath: String? = null,
     val isDownloaded: Boolean = false
 )

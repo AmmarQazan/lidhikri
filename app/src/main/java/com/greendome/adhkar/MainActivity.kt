@@ -63,6 +63,7 @@ import com.greendome.adhkar.data.local.ReciterEntity
 import com.greendome.adhkar.data.model.DhikrCategory
 import com.greendome.adhkar.service.AdhkarReminderService
 import com.greendome.adhkar.service.NextAdhanService
+import com.greendome.adhkar.service.NextAzkarNotifier
 import com.greendome.adhkar.service.PrayerPhoneSilent
 import com.greendome.adhkar.service.SilentNotificationChannels
 import com.greendome.adhkar.service.VehicleActivityScheduler
@@ -302,6 +303,7 @@ class MainActivity : ComponentActivity() {
             )
         }
         NextAdhanService.sync(this)
+        NextAzkarNotifier.sync(this)
         PrayerPhoneSilent.sync(this)
         lifecycleScope.launch {
             TravelLocationUpdater.maybeRefresh(this@MainActivity)
@@ -1083,6 +1085,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         NextAdhanService.sync(context)
+                        NextAzkarNotifier.sync(context)
                     },
                     openPrayerRespect = openPrayerRespectSettings,
                     onOpenPrayerRespectConsumed = { openPrayerRespectSettings = false },

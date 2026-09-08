@@ -25,7 +25,6 @@ import com.greendome.adhkar.data.local.AdhkarDatabase
 import com.greendome.adhkar.data.local.DhikrEntity
 import com.greendome.adhkar.prayer.PrayerRespectGate
 import com.greendome.adhkar.util.CollectionScheduleHelper
-import com.greendome.adhkar.util.NextAzkarSchedule
 import com.greendome.adhkar.util.DeviceAudioGate
 import com.greendome.adhkar.data.model.VoiceSettingsTarget
 import com.greendome.adhkar.ui.overlay.OverlayActivity
@@ -72,6 +71,7 @@ class AdhkarReminderService : Service() {
                 settings.isServiceEnabled = false
                 notificationJob?.cancel()
                 ReminderScheduler.cancel(this)
+                NextAzkarNotifier.sync(this)
                 stopForeground(STOP_FOREGROUND_REMOVE)
                 stopSelf()
                 return START_NOT_STICKY
@@ -217,8 +217,10 @@ class AdhkarReminderService : Service() {
             Intent(this, MainActivity::class.java),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
-        val builder = NotificationCompat.Builder(this, SilentNotificationChannels.TEXT_REMINDER)
-            .setSmallIcon(R.drawable.ic_notification)
+        val builder = SilentNotificationChannels.applyAppIcon(
+            NotificationCompat.Builder(this, SilentNotificationChannels.TEXT_REMINDER),
+            this,
+        )
             .setContentTitle(getString(R.string.app_name))
             .setContentText(text)
             .setStyle(NotificationCompat.BigTextStyle().bigText(text))
@@ -264,13 +266,14 @@ class AdhkarReminderService : Service() {
             R.string.next_reminder,
             ReminderScheduler.minutesUntilNext(this)
         ).formatDigits(settings.numberDigitStyle)
-        val azkarLine = NextAzkarSchedule.notificationLine(localized)
-        val body = if (azkarLine.isNullOrBlank()) tasbihLine else "$tasbihLine\n$azkarLine"
-        var builder = NotificationCompat.Builder(this, SilentNotificationChannels.SERVICE)
-            .setSmallIcon(R.drawable.ic_notification)
+        NextAzkarNotifier.sync(this)
+        var builder = SilentNotificationChannels.applyAppIcon(
+            NotificationCompat.Builder(this, SilentNotificationChannels.SERVICE),
+            this,
+        )
             .setContentTitle(title)
-            .setContentText(body)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(body))
+            .setContentText(tasbihLine)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(tasbihLine))
             .setContentIntent(open)
             .setOngoing(true)
         return SilentNotificationChannels.applySilentDefaults(builder).build()

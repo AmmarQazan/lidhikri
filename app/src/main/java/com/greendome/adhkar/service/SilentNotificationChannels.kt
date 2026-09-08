@@ -7,6 +7,7 @@ import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 
 /** قنوات الإشعارات الصامتة — خدمة خلفية، تذكيرات، وشاشة القفل */
 object SilentNotificationChannels {
@@ -15,11 +16,13 @@ object SilentNotificationChannels {
     const val DHIKR_OF_DAY = "dhikr_of_day_v2"
     const val LOCK_SCREEN = "adhkar_lock_screen_v1"
     const val NEXT_ADHAN = "next_adhan_status_v1"
+    const val NEXT_AZKAR = "next_azkar_status_v1"
 
     const val SERVICE_NOTIFICATION_ID = 42
     const val AZKAR_PLAY_NOTIFICATION_ID = 77
     const val DHIKR_OF_DAY_NOTIFICATION_ID = 88
     const val NEXT_ADHAN_NOTIFICATION_ID = 8_901
+    const val NEXT_AZKAR_NOTIFICATION_ID = 8_902
     const val LOCK_SCREEN_NOTIFICATION_ID_BASE = 9_000
 
     private val PROTECTED_NOTIFICATION_IDS = setOf(
@@ -27,6 +30,7 @@ object SilentNotificationChannels {
         AZKAR_PLAY_NOTIFICATION_ID,
         DHIKR_OF_DAY_NOTIFICATION_ID,
         NEXT_ADHAN_NOTIFICATION_ID,
+        NEXT_AZKAR_NOTIFICATION_ID,
         AdhanAlertNotifier.NOTIF_ADHAN,
         AdhanAlertNotifier.NOTIF_PRE,
         AdhanAlertNotifier.NOTIF_IQAMA,
@@ -122,6 +126,20 @@ object SilentNotificationChannels {
                 description = context.getString(com.greendome.adhkar.R.string.next_adhan_channel_hint)
             }
         )
+        mgr.createNotificationChannel(
+            NotificationChannel(
+                NEXT_AZKAR,
+                context.getString(com.greendome.adhkar.R.string.next_azkar_channel),
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                setSound(null, null)
+                enableVibration(false)
+                enableLights(false)
+                setShowBadge(false)
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                description = context.getString(com.greendome.adhkar.R.string.next_azkar_channel_hint)
+            }
+        )
     }
 
     /** تنظيف معرّفات إشعارات التسبيح القديمة فقط — دون المساس بذكر اليوم أو شاشة القفل */
@@ -156,6 +174,11 @@ object SilentNotificationChannels {
 
     @Deprecated("استخدم cancelLegacyAlertIds أو cancelTransientReminderAlerts")
     fun cancelDhikrAlerts(context: Context) = cancelLegacyAlertIds(context)
+
+    fun applyAppIcon(builder: NotificationCompat.Builder, context: Context): NotificationCompat.Builder =
+        builder
+            .setSmallIcon(com.greendome.adhkar.R.drawable.ic_notification)
+            .setColor(ContextCompat.getColor(context, com.greendome.adhkar.R.color.green_primary))
 
     fun applyTextReminderDefaults(builder: NotificationCompat.Builder): NotificationCompat.Builder =
         builder

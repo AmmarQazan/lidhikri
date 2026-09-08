@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
+import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import com.greendome.adhkar.data.SettingsRepository
@@ -93,25 +94,11 @@ class DhikrAudioPlayer(private val context: Context) {
         }
         val mode = DhikrVolumeResolver.volumeMode(settings, voiceProfile)
         val attrs = DhikrVolumeResolver.playerAudioAttributes(mode)
-        val player = ExoPlayer.Builder(context).build().also { player = it }
-        val uri = when {
-            pathOrUri.startsWith("content:") ||
-                pathOrUri.startsWith("file:") ||
-                pathOrUri.startsWith("http://") ||
-                pathOrUri.startsWith("https://") -> Uri.parse(pathOrUri)
-            else -> Uri.fromFile(File(pathOrUri))
-        }
+        val player = PlaybackExoPlayer.create(context).also { player = it }
         player.setAudioAttributes(attrs, DhikrVolumeResolver.shouldHandleAudioFocus(mode))
-        player.setMediaItem(MediaItem.fromUri(uri))
+        player.setMediaItem(MediaItem.fromUri(playbackUri(pathOrUri)))
         player.volume = DhikrVolumeResolver.playerVolume(settings, voiceProfile)
-        player.addListener(object : Player.Listener {
-            override fun onPlaybackStateChanged(state: Int) {
-                if (state == Player.STATE_ENDED) {
-                    stopFlipMonitor()
-                    onComplete()
-                }
-            }
-        })
+        listenForCompletion(player, onComplete)
         startRespectMonitor(settings, userInitiated = true)
         startFlipMonitorIfEnabled(settings)
         player.prepare()
@@ -129,20 +116,18 @@ class DhikrAudioPlayer(private val context: Context) {
             onComplete()
             return
         }
+        val cached = cachedAssetFile(context, assetPath)
+        if (cached != null) {
+            play(cached.absolutePath, settings, voiceProfile, onComplete)
+            return
+        }
         val mode = DhikrVolumeResolver.volumeMode(settings, voiceProfile)
         val attrs = DhikrVolumeResolver.playerAudioAttributes(mode)
-        val player = ExoPlayer.Builder(context).build().also { player = it }
+        val player = PlaybackExoPlayer.create(context).also { player = it }
         player.setAudioAttributes(attrs, DhikrVolumeResolver.shouldHandleAudioFocus(mode))
         player.setMediaItem(MediaItem.fromUri("asset:///$assetPath"))
         player.volume = DhikrVolumeResolver.playerVolume(settings, voiceProfile)
-        player.addListener(object : Player.Listener {
-            override fun onPlaybackStateChanged(state: Int) {
-                if (state == Player.STATE_ENDED) {
-                    stopFlipMonitor()
-                    onComplete()
-                }
-            }
-        })
+        listenForCompletion(player, onComplete)
         startRespectMonitor(settings, userInitiated = true)
         startFlipMonitorIfEnabled(settings)
         player.prepare()
@@ -167,7 +152,7 @@ class DhikrAudioPlayer(private val context: Context) {
         }
         val mode = DhikrVolumeResolver.volumeMode(settings, voiceProfile)
         val attrs = DhikrVolumeResolver.playerAudioAttributes(mode)
-        val player = ExoPlayer.Builder(context).build().also { player = it }
+        val player = PlaybackExoPlayer.create(context).also { player = it }
         player.setAudioAttributes(attrs, DhikrVolumeResolver.shouldHandleAudioFocus(mode))
         player.volume = DhikrVolumeResolver.playerVolume(settings, voiceProfile)
         player.setMediaItems(
@@ -193,6 +178,13 @@ class DhikrAudioPlayer(private val context: Context) {
                     stopFlipMonitor()
                     onComplete()
                 }
+            }
+
+            override fun onPlayerError(error: PlaybackException) {
+                if (finished) return
+                finished = true
+                stopFlipMonitor()
+                onComplete()
             }
         })
         markItemStarted(0)
@@ -223,26 +215,11 @@ class DhikrAudioPlayer(private val context: Context) {
             .setUsage(C.USAGE_ALARM)
             .setContentType(C.AUDIO_CONTENT_TYPE_SONIFICATION)
             .build()
-        val player = ExoPlayer.Builder(context).build().also { player = it }
-        val uri = when {
-            pathOrUri.startsWith("content:") ||
-                pathOrUri.startsWith("file:") ||
-                pathOrUri.startsWith("asset:") ||
-                pathOrUri.startsWith("http://") ||
-                pathOrUri.startsWith("https://") -> Uri.parse(pathOrUri)
-            else -> Uri.fromFile(File(pathOrUri))
-        }
+        val player = PlaybackExoPlayer.create(context).also { player = it }
         player.setAudioAttributes(attrs, false)
-        player.setMediaItem(MediaItem.fromUri(uri))
+        player.setMediaItem(MediaItem.fromUri(playbackUri(pathOrUri)))
         player.volume = 1f
-        player.addListener(object : Player.Listener {
-            override fun onPlaybackStateChanged(state: Int) {
-                if (state == Player.STATE_ENDED) {
-                    stopFlipMonitor()
-                    onComplete()
-                }
-            }
-        })
+        listenForCompletion(player, onComplete)
         startRespectMonitor(settings, userInitiated = false, ignoreQuietMode = overrideSilent)
         startFlipMonitorIfEnabled(settings)
         player.prepare()
@@ -256,18 +233,29 @@ class DhikrAudioPlayer(private val context: Context) {
         player = null
     }
 
-    private fun PlayableAudio.toMediaItem(): MediaItem = when (this) {
-        is PlayableAudio.Asset -> MediaItem.fromUri("asset:///$path")
-        is PlayableAudio.File -> {
-            val uri = when {
-                path.startsWith("content:") ||
-                    path.startsWith("file:") ||
-                    path.startsWith("http://") ||
-                    path.startsWith("https://") -> Uri.parse(path)
-                else -> Uri.fromFile(File(path))
+    private fun listenForCompletion(player: ExoPlayer, onComplete: () -> Unit) {
+        player.addListener(object : Player.Listener {
+            override fun onPlaybackStateChanged(state: Int) {
+                if (state == Player.STATE_ENDED) {
+                    stopFlipMonitor()
+                    onComplete()
+                }
             }
-            MediaItem.fromUri(uri)
+
+            override fun onPlayerError(error: PlaybackException) {
+                stopFlipMonitor()
+                onComplete()
+            }
+        })
+    }
+
+    private fun PlayableAudio.toMediaItem(): MediaItem = when (this) {
+        is PlayableAudio.Asset -> {
+            val cached = cachedAssetFile(context, path)
+            if (cached != null) MediaItem.fromUri(Uri.fromFile(cached))
+            else MediaItem.fromUri("asset:///$path")
         }
+        is PlayableAudio.File -> MediaItem.fromUri(playbackUri(path))
     }
 
     private fun startFlipMonitorIfEnabled(settings: SettingsRepository) {
@@ -350,6 +338,10 @@ class AudioDownloadManager(private val context: Context) {
                     file.outputStream().use { output -> input.copyTo(output) }
                 }
             }
+            if (!file.isFile || !hasAudioMagic(file)) {
+                file.delete()
+                return null
+            }
             file.absolutePath
         } catch (_: Exception) {
             null
@@ -362,7 +354,7 @@ class AudioDownloadManager(private val context: Context) {
             val copied = context.contentResolver.openInputStream(uri)?.use { input ->
                 file.outputStream().use { output -> input.copyTo(output) }
             } ?: return null
-            if (copied <= 0L || !file.isFile || file.length() <= 0L) {
+            if (copied <= 0L || !file.isFile || !hasAudioMagic(file)) {
                 file.delete()
                 return null
             }

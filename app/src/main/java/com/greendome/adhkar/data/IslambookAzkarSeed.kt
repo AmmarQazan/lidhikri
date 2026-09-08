@@ -3,7 +3,6 @@ package com.greendome.adhkar.data
 import com.greendome.adhkar.data.local.AdhkarDatabase
 import com.greendome.adhkar.data.local.AdhkarCollectionEntity
 import com.greendome.adhkar.data.local.AzkarItemEntity
-import com.greendome.adhkar.data.local.ReciterAzkarAudioEntity
 import com.greendome.adhkar.util.TasbihWindow
 
 object IslambookAzkarSeed {
@@ -181,34 +180,7 @@ object IslambookAzkarSeed {
     }
 
     private suspend fun seedQurantimeAudio(db: AdhkarDatabase) {
-        listOf("morning", "evening").forEach { collectionId ->
-            val items = db.azkarItemDao().getByCollection(collectionId)
-            val templates = when (collectionId) {
-                "morning" -> QurantimeAzkarData.morningItems()
-                else -> QurantimeAzkarData.eveningItems()
-            }
-            items.zip(templates).forEach { (entity, template) ->
-                val reciterId = ReciterLibrariesMigration.MIXED_VOICES_ID
-                val existing = db.reciterAzkarAudioDao().get(entity.id, reciterId)
-                if (existing == null) {
-                    db.reciterAzkarAudioDao().insert(
-                        ReciterAzkarAudioEntity(
-                            reciterId = reciterId,
-                            azkarItemId = entity.id,
-                            assetPath = template.audioAsset,
-                            isDownloaded = true
-                        )
-                    )
-                } else if (existing.assetPath != template.audioAsset) {
-                    db.reciterAzkarAudioDao().insert(
-                        existing.copy(
-                            assetPath = template.audioAsset,
-                            isDownloaded = true
-                        )
-                    )
-                }
-            }
-        }
+        SubaihatReciterSeed.ensure(db)
     }
 
     private fun collection(

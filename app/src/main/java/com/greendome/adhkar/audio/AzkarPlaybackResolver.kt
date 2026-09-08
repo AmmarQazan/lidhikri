@@ -2,6 +2,7 @@ package com.greendome.adhkar.audio
 
 import android.content.Context
 import com.greendome.adhkar.data.SettingsRepository
+import com.greendome.adhkar.data.SubaihatReciterSeed
 import com.greendome.adhkar.data.model.VoiceSettingsTarget
 import com.greendome.adhkar.data.local.AdhkarDatabase
 import com.greendome.adhkar.data.local.AzkarItemEntity
@@ -26,6 +27,9 @@ object AzkarPlaybackResolver {
             db.reciterAudioDao().get(matchingDhikr.id, reciterId)
                 ?.let { resolveReciterAudioEntity(it) }
                 ?.let { return it }
+        }
+        if (reciterId != SubaihatReciterSeed.RECITER_ID) {
+            lookupAzkarAudio(db, item, SubaihatReciterSeed.RECITER_ID)?.let { return it }
         }
         return null
     }

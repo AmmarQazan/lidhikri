@@ -160,8 +160,10 @@ object DhikrOfDayManager {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val notification = NotificationCompat.Builder(context, SilentNotificationChannels.DHIKR_OF_DAY)
-            .setSmallIcon(R.drawable.ic_notification)
+        val notification = SilentNotificationChannels.applyAppIcon(
+            NotificationCompat.Builder(context, SilentNotificationChannels.DHIKR_OF_DAY),
+            context,
+        )
             .setContentTitle(context.getString(R.string.dhikr_of_day_title))
             .setContentText(text)
             .setStyle(NotificationCompat.BigTextStyle().bigText(text))

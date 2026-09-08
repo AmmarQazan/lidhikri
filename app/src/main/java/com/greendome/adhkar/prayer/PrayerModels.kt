@@ -129,7 +129,7 @@ data class PrayerConfig(
         const val OFFSET_MAX = 15
         const val QUIET_MIN = 5
         const val QUIET_MAX = 120
-        const val DEFAULT_JUMUAH_QUIET = 55
+        const val DEFAULT_JUMUAH_QUIET = 45
         const val DEFAULT_IMSAK = 10
         const val IMSAK_MIN = 5
         const val IMSAK_MAX = 30
@@ -143,11 +143,11 @@ data class PrayerConfig(
         )
 
         fun defaultQuietMinutes(prayer: PrayerName): Int = when (prayer) {
-            PrayerName.FAJR -> 55
-            PrayerName.DHUHR -> 55
-            PrayerName.ASR -> 55
-            PrayerName.MAGHRIB -> 45
-            PrayerName.ISHA -> 45
+            PrayerName.FAJR -> 30
+            PrayerName.DHUHR -> 30
+            PrayerName.ASR -> 30
+            PrayerName.MAGHRIB -> 20
+            PrayerName.ISHA -> 30
         }
 
         fun empty() = PrayerConfig(

@@ -87,8 +87,10 @@ object LockScreenReminderPresenter {
             fullScreenIntent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
-        val builder = NotificationCompat.Builder(context, SilentNotificationChannels.LOCK_SCREEN)
-            .setSmallIcon(R.drawable.ic_notification)
+        val builder = SilentNotificationChannels.applyAppIcon(
+            NotificationCompat.Builder(context, SilentNotificationChannels.LOCK_SCREEN),
+            context,
+        )
             .setContentTitle(notificationTitle)
             .setContentText(text)
             .setStyle(NotificationCompat.BigTextStyle().bigText(text))

@@ -78,6 +78,7 @@ class CollectionAlarmReceiver : BroadcastReceiver() {
                     CollectionAlarmScheduler.schedule(context, collection, items)
                 }
             } finally {
+                NextAzkarNotifier.sync(context)
                 pending.finish()
             }
         }

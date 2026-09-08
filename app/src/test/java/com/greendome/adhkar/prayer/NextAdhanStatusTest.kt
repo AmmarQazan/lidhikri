@@ -39,6 +39,32 @@ class NextAdhanStatusTest {
         assertEquals(PrayerName.ASR, status.prayer)
         assertEquals(asr, status.atMillis)
         assertEquals(70, status.minutesRemaining)
+        assertEquals(1, status.hoursRemaining)
+        assertEquals(10, status.minutesPastHour)
+        assertEquals(NextAdhanBodyKind.HOURS_AND_MINUTES, status.bodyKind())
+    }
+
+    @Test
+    fun wholeHoursUsesHoursKind() {
+        val noon = Instant.parse("2026-06-15T09:00:00Z").toEpochMilli()
+        val cfg = config()
+        val asr = PrayerTimesCalculator.timesFor(cfg, noon)!!.timeOf(PrayerName.ASR)!!
+        val from = asr - 120 * 60_000L
+        val status = NextAdhanStatus.resolve(cfg, from)!!
+        assertEquals(120, status.minutesRemaining)
+        assertEquals(2, status.hoursRemaining)
+        assertEquals(0, status.minutesPastHour)
+        assertEquals(NextAdhanBodyKind.HOURS, status.bodyKind())
+    }
+
+    @Test
+    fun underOneHourUsesMinutesKind() {
+        val noon = Instant.parse("2026-06-15T09:00:00Z").toEpochMilli()
+        val cfg = config()
+        val asr = PrayerTimesCalculator.timesFor(cfg, noon)!!.timeOf(PrayerName.ASR)!!
+        val from = asr - 55 * 60_000L
+        val status = NextAdhanStatus.resolve(cfg, from)!!
+        assertEquals(NextAdhanBodyKind.MINUTES, status.bodyKind())
     }
 
     @Test
@@ -49,6 +75,7 @@ class NextAdhanStatusTest {
         val status = NextAdhanStatus.resolve(cfg, dhuhr - 15_000L)!!
         assertEquals(PrayerName.DHUHR, status.prayer)
         assertEquals(0, status.minutesRemaining)
+        assertEquals(NextAdhanBodyKind.SOON, status.bodyKind())
     }
 
     @Test

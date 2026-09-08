@@ -9,8 +9,8 @@ import com.greendome.adhkar.data.model.DhikrCategory
 import com.greendome.adhkar.sync.RemoteContentConfig
 
 /**
- * مكتبة القارئ ناصر الدين صبيحات على Firebase Storage.
- * المسارات ثابتة حتى يمكن استبدال الملف لاحقاً دون تغيير التطبيق.
+ * مكتبة القارئ ناصر الدين صبيحات: ملفات مدمجة في الحزمة،
+ * مع روابط Firebase للنسخ الاحتياطي بعد المزامنة.
  */
 object SubaihatReciterSeed {
     const val RECITER_ID = 10L
@@ -62,6 +62,7 @@ object SubaihatReciterSeed {
         file: String
     ) {
         val url = RemoteContentConfig.publicDownloadUrl("$STORAGE_PREFIX/$file")
+        val assetPath = bundledAssetPath(file)
         val existing = db.reciterAudioDao().get(dhikrId, reciterId)
         if (existing == null) {
             db.reciterAudioDao().insert(
@@ -69,18 +70,18 @@ object SubaihatReciterSeed {
                     reciterId = reciterId,
                     dhikrId = dhikrId,
                     remoteUrl = url,
-                    isDownloaded = false
+                    assetPath = assetPath,
+                    isDownloaded = true
                 )
             )
             return
         }
-        if (existing.remoteUrl != url) {
+        if (existing.remoteUrl != url || existing.assetPath != assetPath) {
             db.reciterAudioDao().insert(
                 existing.copy(
                     remoteUrl = url,
-                    assetPath = null,
-                    localPath = null,
-                    isDownloaded = false
+                    assetPath = assetPath,
+                    isDownloaded = true
                 )
             )
         }
@@ -93,6 +94,7 @@ object SubaihatReciterSeed {
         file: String
     ) {
         val url = RemoteContentConfig.publicDownloadUrl("$STORAGE_PREFIX/$file")
+        val assetPath = bundledAssetPath(file)
         val existing = db.reciterAzkarAudioDao().get(azkarItemId, reciterId)
         if (existing == null) {
             db.reciterAzkarAudioDao().insert(
@@ -100,22 +102,29 @@ object SubaihatReciterSeed {
                     reciterId = reciterId,
                     azkarItemId = azkarItemId,
                     remoteUrl = url,
-                    isDownloaded = false
+                    assetPath = assetPath,
+                    isDownloaded = true
                 )
             )
             return
         }
-        if (existing.remoteUrl != url) {
+        if (existing.remoteUrl != url || existing.assetPath != assetPath) {
             db.reciterAzkarAudioDao().insert(
                 existing.copy(
                     remoteUrl = url,
-                    assetPath = null,
-                    localPath = null,
-                    isDownloaded = false
+                    assetPath = assetPath,
+                    isDownloaded = true
                 )
             )
         }
     }
+
+    fun bundledAssetPath(file: String): String = "$STORAGE_PREFIX/$file"
+
+    internal fun bundledDhikrAsset(category: DhikrCategory, sortOrder: Int): String? =
+        dhikrMaps().firstOrNull { spec ->
+            spec.category == category && sortOrder in spec.sortOrders
+        }?.let { bundledAssetPath(it.file) }
 
     private data class DhikrSpec(
         val category: DhikrCategory,

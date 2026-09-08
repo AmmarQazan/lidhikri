@@ -36,6 +36,10 @@ class ClockHourFormatTest {
             "7:49 م",
             formatClockTime(19, 49, ClockHourFormat.HOUR_12, "ص", "م")
         )
+        assertEquals(
+            "12.35 م",
+            formatClockTime(12, 35, ClockHourFormat.HOUR_12, "ص", "م", separator = ".")
+        )
     }
 
     @Test

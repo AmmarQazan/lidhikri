@@ -79,8 +79,10 @@ object AdhanAlertNotifier {
         } else {
             NotificationCompat.CATEGORY_ALARM
         }
-        val builder = NotificationCompat.Builder(context, channel)
-            .setSmallIcon(R.drawable.ic_notification)
+        val builder = SilentNotificationChannels.applyAppIcon(
+            NotificationCompat.Builder(context, channel),
+            context,
+        )
             .setContentTitle(title)
             .setContentText(text)
             .setContentIntent(content)

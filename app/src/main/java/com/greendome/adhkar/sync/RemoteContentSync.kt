@@ -3,6 +3,7 @@ package com.greendome.adhkar.sync
 import android.content.Context
 import com.greendome.adhkar.data.BlessedDaysAzkar
 import com.greendome.adhkar.data.BundledAdhanSeed
+import com.greendome.adhkar.data.BundledVoiceAssets
 import com.greendome.adhkar.data.CatalogRecovery
 import com.greendome.adhkar.data.FridayAzkar
 import com.greendome.adhkar.data.ReciterLibrariesMigration
@@ -73,6 +74,7 @@ object RemoteContentSync {
             BlessedDaysAzkar.ensure(database)
             SubaihatReciterSeed.ensure(database)
             ReciterLibrariesMigration.enforceDefaultBuiltinReciter(database)
+            BundledVoiceAssets.attach(database)
             settings.remoteContentVersion = manifest.version
             settings.remoteContentSha256 = manifest.sha256.lowercase()
             settings.lastRemoteSyncAt = System.currentTimeMillis()

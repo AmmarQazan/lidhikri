@@ -267,8 +267,7 @@ class RemoteContentExporter(
         kind: AudioUploadKind,
         sourceId: Long
     ): String {
-        val rel = audioRepoRelativePath(local)
-        val path = "audio/$rel"
+        val path = "audio/${kind.name.lowercase()}/$sourceId/${local.name}"
         if (uploadIfPending) {
             audioUploads.putIfAbsent(path, AudioUpload(path, local, kind, sourceId))
         }
@@ -294,17 +293,6 @@ class RemoteContentExporter(
             }
         }
         return null
-    }
-
-    private fun audioRepoRelativePath(file: File): String {
-        val absolute = file.absolutePath.replace('\\', '/')
-        val marker = "/files/"
-        val idx = absolute.indexOf(marker)
-        return if (idx >= 0) {
-            "data/user/0/com.greendome.adhkar/files/${absolute.substring(idx + marker.length)}"
-        } else {
-            "uploads/${file.name}"
-        }
     }
 
     private fun assetToRemoteUrl(assetPath: String): String {

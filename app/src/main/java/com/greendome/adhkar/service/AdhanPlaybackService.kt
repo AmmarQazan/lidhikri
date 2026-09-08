@@ -203,8 +203,10 @@ class AdhanPlaybackService : Service() {
             Intent(this, AdhanPlaybackService::class.java).setAction(ACTION_STOP),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
-        val builder = NotificationCompat.Builder(this, AdhanAlertNotifier.CHANNEL)
-            .setSmallIcon(R.drawable.ic_notification)
+        val builder = SilentNotificationChannels.applyAppIcon(
+            NotificationCompat.Builder(this, AdhanAlertNotifier.CHANNEL),
+            this,
+        )
             .setContentTitle(
                 getString(R.string.adhan_now_title, AdhanAlertNotifier.prayerLabel(this, prayer))
             )

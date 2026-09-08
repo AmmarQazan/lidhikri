@@ -1435,6 +1435,7 @@ class SeedData(private val db: AdhkarDatabase, private val settings: SettingsRep
             settings.seedVersion = 22
         }
         ReciterLibrariesMigration.apply(db, settings)
+        BundledVoiceAssets.attach(db)
         FridayAzkar.ensure(db)
         BlessedDaysAzkar.ensure(db)
         HomeAzkar.ensure(db)
@@ -1583,50 +1584,26 @@ class SeedData(private val db: AdhkarDatabase, private val settings: SettingsRep
     }
 
     private suspend fun seedBuiltinReciterAudio(db: AdhkarDatabase) {
-        val builtinReciterId = ReciterLibrariesMigration.ensureMixedVoicesReciter(db)
-        db.dhikrDao().getDefaults().forEach { dhikr ->
-            val asset = dhikr.audioPath?.takeIf {
-                dhikr.audioSourceType == AudioSourceType.BUILTIN && it.isNotBlank()
-            } ?: return@forEach
-            val existing = db.reciterAudioDao().get(dhikr.id, builtinReciterId)
-            if (existing == null) {
-                db.reciterAudioDao().insert(
-                    ReciterAudioEntity(
-                        reciterId = builtinReciterId,
-                        dhikrId = dhikr.id,
-                        assetPath = asset,
-                        isDownloaded = true
-                    )
-                )
-            } else if (
-                existing.assetPath.isNullOrBlank() &&
-                existing.localPath.isNullOrBlank() &&
-                existing.remoteUrl.isNullOrBlank()
-            ) {
-                db.reciterAudioDao().insert(
-                    existing.copy(assetPath = asset, isDownloaded = true)
-                )
-            }
-        }
+        BundledVoiceAssets.attach(db)
     }
 
     private fun masba7aDhikr(): List<DhikrEntity> = listOf(
-        dhikr(1, "سبحان الله", "Subhan Allah", "Gloire à Allah", "Gloria a Allah", "audio/sou_tasbeeh.mp3"),
-        dhikr(2, "الحمدلله", "Alhamdulillah", "Louange à Allah", "Alabado sea Allah", "audio/sou_tahmeed.mp3"),
-        dhikr(3, "لا إله إلا الله", "La ilaha illallah", "Il n'y a de dieu qu'Allah", "No hay dios sino Allah", "audio/sou_tahleel.mp3"),
-        dhikr(4, "الله أكبر", "Allahu Akbar", "Allah est le plus grand", "Allah es el más grande", "audio/sou_takbeer.mp3"),
-        dhikr(5, "لا حول ولا قوة الا بالله", "La hawla wa la quwwata illa billah", "Pas de force ni de puissance sauf par Allah", "No hay poder ni fuerza sino en Allah", "audio/sou_hawqalah.mp3"),
-        dhikr(6, "سبحان الله ، والحمد لله ، ولا إله إلا الله ، والله أكبر", "Subhan Allah, Alhamdulillah, La ilaha illallah, Allahu Akbar", "Gloire, louange, unicité et grandeur d'Allah", "Gloria, alabanza, unicidad y grandeza de Allah", "audio/sou_baqyat.mp3"),
-        dhikr(7, "أستغفر الله وأتوب اليه", "Astaghfirullah wa atubu ilayh", "Je demande pardon à Allah et je me repens", "Pido perdón a Allah y me arrepiento", "audio/sou_esteghfar.mp3"),
-        dhikr(8, "اللهم صل وسلم وبارك على نبينا محمد", "O Allah, bless and grant peace to our Prophet Muhammad", "Ô Allah, bénis notre Prophète Muhammad", "Oh Allah, bendice a nuestro Profeta Muhammad", "audio/sou_salah.mp3"),
-        dhikr(9, "سبحان الله وبحمده", "Subhan Allah wa bihamdih", "Gloire à Allah et louange à Lui", "Gloria a Allah y alabanza a Él", "audio/sou_tasbhamd.mp3"),
-        dhikr(10, "سبحان الله العظيم", "Subhan Allah Al-Azim", "Gloire à Allah le Très Grand", "Gloria a Allah el Grandioso", "audio/sou_tasbta3zeem.mp3"),
-        dhikr(11, "لَا إلَه إلّا اللهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلُّ شَيْءٍ قَدِيرٍ", "La ilaha illallah wahdahu la sharika lah...", "Il n'y a de dieu qu'Allah, Seul, sans associé...", "No hay dios sino Allah, Único, sin asociado...", "audio/sou_tawheed.mp3", longForm = true, enabled = false),
-        dhikr(12, "سبحان الله وبحمده عدد خلقه ورضا نفسه وزنة عرشه ومداد كلماته", "Subhan Allah wa bihamdih adada khalqih...", "Gloire et louange à Allah autant que Sa création...", "Gloria y alabanza a Allah según Su creación...", "audio/sou_adadd.mp3", longForm = true, enabled = false),
-        dhikr(13, "لا إله إلا أنت سبحانك إني كنت من ظالمين", "La ilaha illa anta subhanaka inni kuntu minaz-zalimin", "Il n'y a de dieu que Toi, gloire à Toi, j'étais du nombre des injustes", "No hay dios sino Tú, gloria a Ti, yo era de los injustos", "audio/sou_ghamm.mp3", longForm = true, enabled = false),
-        dhikr(14, "يا ذا الجلال والإكرام", "Ya Dhal-Jalali wal-Ikram", "Ô Détenteur de la majesté et de la générosité", "Oh Poseedor de la majestad y la generosidad", "audio/sou_galal.mp3"),
-        dhikr(15, "حسبي الله ونعم الوكيل", "Hasbiyallahu wa ni'mal wakeel", "Allah me suffit, Il est le meilleur garant", "Allah me basta, Él es el mejor dispositor", "audio/sou_hasbalah.mp3"),
-        dhikr(16, "جميع الأذكار (متتابعة)", "All adhkar combined", "Tous les adhkar combinés", "Todos los adhkar combinados", "audio/sou_all.mp3", enabled = false, longForm = true)
+        dhikr(1, "سبحان الله", "Subhan Allah", "Gloire à Allah", "Gloria a Allah", "audio/subaihat/tasbih/subhan_allah.mp3"),
+        dhikr(2, "الحمدلله", "Alhamdulillah", "Louange à Allah", "Alabado sea Allah", "audio/subaihat/tasbih/alhamdulillah.mp3"),
+        dhikr(3, "لا إله إلا الله", "La ilaha illallah", "Il n'y a de dieu qu'Allah", "No hay dios sino Allah", "audio/subaihat/tasbih/tahlil.mp3"),
+        dhikr(4, "الله أكبر", "Allahu Akbar", "Allah est le plus grand", "Allah es el más grande", "audio/subaihat/tasbih/allahu_akbar.mp3"),
+        dhikr(5, "لا حول ولا قوة الا بالله", "La hawla wa la quwwata illa billah", "Pas de force ni de puissance sauf par Allah", "No hay poder ni fuerza sino en Allah", "audio/subaihat/tasbih/hawqala.mp3"),
+        dhikr(6, "سبحان الله ، والحمد لله ، ولا إله إلا الله ، والله أكبر", "Subhan Allah, Alhamdulillah, La ilaha illallah, Allahu Akbar", "Gloire, louange, unicité et grandeur d'Allah", "Gloria, alabanza, unicidad y grandeza de Allah", "audio/subaihat/tasbih/baqiyat.mp3"),
+        dhikr(7, "أستغفر الله وأتوب اليه", "Astaghfirullah wa atubu ilayh", "Je demande pardon à Allah et je me repens", "Pido perdón a Allah y me arrepiento", "audio/subaihat/tasbih/istighfar.mp3"),
+        dhikr(8, "اللهم صل وسلم وبارك على نبينا محمد", "O Allah, bless and grant peace to our Prophet Muhammad", "Ô Allah, bénis notre Prophète Muhammad", "Oh Allah, bendice a nuestro Profeta Muhammad", "audio/subaihat/tasbih/salawat.mp3"),
+        dhikr(9, "سبحان الله وبحمده", "Subhan Allah wa bihamdih", "Gloire à Allah et louange à Lui", "Gloria a Allah y alabanza a Él", "audio/subaihat/tasbih/subhan_bihamd.mp3"),
+        dhikr(10, "سبحان الله العظيم", "Subhan Allah Al-Azim", "Gloire à Allah le Très Grand", "Gloria a Allah el Grandioso", "audio/subaihat/tasbih/subhan_azim.mp3"),
+        dhikr(11, "لَا إلَه إلّا اللهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلُّ شَيْءٍ قَدِيرٍ", "La ilaha illallah wahdahu la sharika lah...", "Il n'y a de dieu qu'Allah, Seul, sans associé...", "No hay dios sino Allah, Único, sin asociado...", "audio/subaihat/tasbih/tawhid.mp3", longForm = true, enabled = false),
+        dhikr(12, "سبحان الله وبحمده عدد خلقه ورضا نفسه وزنة عرشه ومداد كلماته", "Subhan Allah wa bihamdih adada khalqih...", "Gloire et louange à Allah autant que Sa création...", "Gloria y alabanza a Allah según Su creación...", "audio/subaihat/jawami/subhan_bihamd_adada.mp3", longForm = true, enabled = false),
+        dhikr(13, "لا إله إلا أنت سبحانك إني كنت من ظالمين", "La ilaha illa anta subhanaka inni kuntu minaz-zalimin", "Il n'y a de dieu que Toi, gloire à Toi, j'étais du nombre des injustes", "No hay dios sino Tú, gloria a Ti, yo era de los injustos", "audio/subaihat/tasbih/yunus.mp3", longForm = true, enabled = false),
+        dhikr(14, "يا ذا الجلال والإكرام", "Ya Dhal-Jalali wal-Ikram", "Ô Détenteur de la majesté et de la générosité", "Oh Poseedor de la majestad y la generosidad", "audio/subaihat/tasbih/jalal.mp3"),
+        dhikr(15, "حسبي الله ونعم الوكيل", "Hasbiyallahu wa ni'mal wakeel", "Allah me suffit, Il est le meilleur garant", "Allah me basta, Él es el mejor dispositor", "audio/subaihat/tasbih/hasbi.mp3"),
+        dhikr(16, "جميع الأذكار (متتابعة)", "All adhkar combined", "Tous les adhkar combinés", "Todos los adhkar combinados", null, enabled = false, longForm = true)
     )
 
     private fun jawamiTasbihDhikr(): List<DhikrEntity> = listOf(
@@ -1637,13 +1614,14 @@ class SeedData(private val db: AdhkarDatabase, private val settings: SettingsRep
             "Gloire et louange à Allah, autant que Sa création, Son agrément, le poids de Son Trône et l'encre de Ses paroles.",
             "Gloria y alabanza a Allah, según Su creación, Su complacencia, el peso de Su Trono y la tinta de Sus palabras.",
             repeat = 3,
-            audio = "audio/sou_adadd.mp3"
+            audio = "audio/subaihat/jawami/subhan_bihamd_adada.mp3"
         ),
         jawami(
             201,
             "سُبْحَانَ اللهِ عَدَدَ خَلْقِهِ، وَسُبْحَانَ اللهِ رِضَا نَفْسِهِ وَسُبْحَانَ اللهِ زِنَةَ عَرْشِهِ، وَسُبْحَانَ اللهِ مِدَادَ كَلِمَاتِهِ.",
             "Subhan Allah adada khalqih, wa Subhan Allah rida nafsih, wa Subhan Allah zinata arshih, wa Subhan Allah midada kalimatih.",
-            repeat = 3
+            repeat = 3,
+            audio = "audio/subaihat/jawami/subhan_adada_khalqih.mp3"
         )
     )
 
@@ -1680,7 +1658,7 @@ class SeedData(private val db: AdhkarDatabase, private val settings: SettingsRep
             category = DhikrCategory.EID,
             isDefault = true,
             audioSourceType = AudioSourceType.BUILTIN,
-            audioPath = "audio/sou_takbeer.mp3",
+            audioPath = "audio/subaihat/tasbih/eid_takbir.mp3",
             isDownloaded = true,
             sortOrder = 100,
             scheduleType = ScheduleType.HIJRI_RANGE,
@@ -1695,7 +1673,7 @@ class SeedData(private val db: AdhkarDatabase, private val settings: SettingsRep
             category = DhikrCategory.EID,
             isDefault = true,
             audioSourceType = AudioSourceType.BUILTIN,
-            audioPath = "audio/sou_takbeer.mp3",
+            audioPath = "audio/subaihat/tasbih/eid_takbir.mp3",
             isDownloaded = true,
             sortOrder = 101,
             scheduleType = ScheduleType.HIJRI_RANGE,
@@ -1712,7 +1690,7 @@ class SeedData(private val db: AdhkarDatabase, private val settings: SettingsRep
         en: String,
         fr: String,
         es: String,
-        asset: String,
+        asset: String?,
         longForm: Boolean = false,
         enabled: Boolean = true
     ) = DhikrEntity(
@@ -1724,9 +1702,9 @@ class SeedData(private val db: AdhkarDatabase, private val settings: SettingsRep
         isDefault = true,
         isEnabled = enabled,
         isLongForm = longForm,
-        audioSourceType = AudioSourceType.BUILTIN,
+        audioSourceType = if (asset != null) AudioSourceType.BUILTIN else AudioSourceType.NONE,
         audioPath = asset,
-        isDownloaded = true,
+        isDownloaded = asset != null,
         sortOrder = order
     ).withStandardAutoDisplay()
 }

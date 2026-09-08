@@ -20,6 +20,7 @@ object RemoteContentConfig {
     fun publicDownloadUrl(relativePath: String): String {
         val fullPath = storagePath(relativePath)
         val encoded = URLEncoder.encode(fullPath, StandardCharsets.UTF_8.toString())
+            .replace("+", "%20")
         return "https://firebasestorage.googleapis.com/v0/b/$storageBucket/o/$encoded?alt=media"
     }
 
