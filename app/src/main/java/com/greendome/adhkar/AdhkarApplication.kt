@@ -47,7 +47,7 @@ class AdhkarApplication : Application() {
         super.onCreate()
         database = AdhkarDatabase.get(this)
         settings = SettingsRepository(this)
-        LocaleHelper.applyAppLocales(this, settings.appLanguage)
+        LocaleHelper.applySavedAppLocales(this)
         PrayerCountryDefaults.loadCached(settings.prayerDefaultsJson)
         dhikrRepo = DhikrRepository(database)
         reciterRepo = ReciterRepository(database)

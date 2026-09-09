@@ -65,7 +65,7 @@ class AfterPrayerAzkarTest {
     }
 
     @Test
-    fun reusableAudioIsLinkedAndLongDuasStayUnmapped() {
+    fun reusableAudioIsLinkedAndLongDuasHaveOwnFiles() {
         val catalog = IslambookAzkarSeed.afterPrayerCatalog()
         fun file(detect: String) = SubaihatReciterSeed.matchedAzkarFile(
             "after_prayer",
@@ -82,9 +82,9 @@ class AfterPrayerAzkarTest {
         assertEquals("after_prayer/ikhlas.mp3", file("الصمد"))
         assertEquals("after_prayer/falaq.mp3", file("الفلق"))
         assertEquals("after_prayer/nas.mp3", file("الوسواس"))
-        assertEquals(null, file("لا مانع"))
-        assertEquals(null, file("كره الكافرون"))
-        assertEquals(null, file("البخل"))
-        assertEquals(null, file("اعني على ذكرك"))
+        assertEquals("after_prayer/la_mani.mp3", file("لا مانع"))
+        assertEquals("after_prayer/mukhlisin.mp3", file("كره الكافرون"))
+        assertEquals("after_prayer/bukhl.mp3", file("البخل"))
+        assertEquals("after_prayer/ainni.mp3", file("اعني على ذكرك"))
     }
 }

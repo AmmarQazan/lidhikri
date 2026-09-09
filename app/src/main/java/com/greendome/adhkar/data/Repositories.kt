@@ -36,6 +36,7 @@ import com.greendome.adhkar.prayer.PrayerLocation
 import com.greendome.adhkar.prayer.PrayerName
 import com.greendome.adhkar.prayer.PrayerTimezones
 import com.greendome.adhkar.prayer.TimezoneMode
+import com.greendome.adhkar.service.AutoAzkarMonitorStatus
 import com.greendome.adhkar.util.AppLanguages
 import com.greendome.adhkar.util.DhikrScheduleMatcher
 import com.greendome.adhkar.util.HomeLayout
@@ -223,6 +224,48 @@ class SettingsRepository(context: Context) {
         get() = prefs.getBoolean("riding_azkar_enabled", false)
         set(v) = prefs.edit().putBoolean("riding_azkar_enabled", v).apply()
 
+    var homeMonitorStatus: String
+        get() = prefs.getString("home_monitor_status", AutoAzkarMonitorStatus.OFF).orEmpty()
+        set(v) = prefs.edit().putString("home_monitor_status", v).apply()
+
+    var homeMonitorDetail: String
+        get() = prefs.getString("home_monitor_detail", "").orEmpty()
+        set(v) = prefs.edit().putString("home_monitor_detail", v).apply()
+
+    var homeNeedsBackgroundPermission: Boolean
+        get() = prefs.getBoolean("home_needs_background", false)
+        set(v) = prefs.edit().putBoolean("home_needs_background", v).apply()
+
+    var homeLastPlayError: String
+        get() = prefs.getString("home_last_play_error", "").orEmpty()
+        set(v) = prefs.edit().putString("home_last_play_error", v).apply()
+
+    var ridingMonitorStatus: String
+        get() = prefs.getString("riding_monitor_status", AutoAzkarMonitorStatus.OFF).orEmpty()
+        set(v) = prefs.edit().putString("riding_monitor_status", v).apply()
+
+    var ridingMonitorDetail: String
+        get() = prefs.getString("riding_monitor_detail", "").orEmpty()
+        set(v) = prefs.edit().putString("riding_monitor_detail", v).apply()
+
+    var ridingLastPlayError: String
+        get() = prefs.getString("riding_last_play_error", "").orEmpty()
+        set(v) = prefs.edit().putString("riding_last_play_error", v).apply()
+
+    fun setHomeMonitor(status: String, detail: String = "") {
+        prefs.edit()
+            .putString("home_monitor_status", status)
+            .putString("home_monitor_detail", detail)
+            .apply()
+    }
+
+    fun setRidingMonitor(status: String, detail: String = "") {
+        prefs.edit()
+            .putString("riding_monitor_status", status)
+            .putString("riding_monitor_detail", detail)
+            .apply()
+    }
+
     var ridingLastPlayAt: Long
         get() = prefs.getLong("riding_last_play_at", 0L)
         set(v) = prefs.edit().putLong("riding_last_play_at", v).apply()
@@ -266,26 +309,29 @@ class SettingsRepository(context: Context) {
         set(v) = prefs.edit().putLong("home_last_exit_at", v).apply()
 
     val hasHomeLocation: Boolean
-        get() = homeLabel.isNotBlank() &&
-            !(homeLatitude == 0.0 && homeLongitude == 0.0) &&
-            homeLatitude in -90.0..90.0 &&
-            homeLongitude in -180.0..180.0
+        get() = HomeAzkar.hasCoordinates(homeLatitude, homeLongitude)
 
     fun homeLocation(): PrayerLocation? {
         if (!hasHomeLocation) return null
+        val label = homeLabel.ifBlank {
+            "%.5f, %.5f".format(java.util.Locale.US, homeLatitude, homeLongitude)
+        }
         return PrayerLocation(
             latitude = homeLatitude,
             longitude = homeLongitude,
-            cityName = homeLabel,
+            cityName = label,
             countryName = homeCountry,
         )
     }
 
     fun setHomeLocation(location: PrayerLocation) {
+        val label = location.cityName.ifBlank {
+            "%.5f, %.5f".format(java.util.Locale.US, location.latitude, location.longitude)
+        }
         prefs.edit()
             .putLong("home_lat", java.lang.Double.doubleToRawLongBits(location.latitude))
             .putLong("home_lng", java.lang.Double.doubleToRawLongBits(location.longitude))
-            .putString("home_label", location.cityName)
+            .putString("home_label", label)
             .putString("home_country", location.countryName)
             .commit()
     }
@@ -672,7 +718,11 @@ class SettingsRepository(context: Context) {
     }
 
     var appLanguage: String
-        get() = AppLanguages.coerce(prefs.getString("app_language", "ar") ?: "ar")
+        get() {
+            val stored = prefs.getString("app_language", null)
+            if (!stored.isNullOrBlank()) return AppLanguages.coerce(stored)
+            return LocaleHelper.deviceLanguage(appContext)
+        }
         set(v) {
             val code = AppLanguages.coerce(v)
             prefs.edit().putString("app_language", code).apply()

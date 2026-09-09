@@ -287,6 +287,19 @@ class AzkarCollectionPlayService : Service() {
             )
         }
 
+        fun startForced(context: Context, collectionId: String, itemId: Long): Result<Unit> =
+            runCatching {
+                ContextCompat.startForegroundService(
+                    context,
+                    Intent(context, AzkarCollectionPlayService::class.java).apply {
+                        putExtra(EXTRA_COLLECTION_ID, collectionId)
+                        putExtra(EXTRA_ITEM_ID, itemId)
+                        putExtra(EXTRA_FORCE_PLAY, true)
+                    }
+                )
+                Unit
+            }
+
         private const val CHANNEL = "azkar_play"
         private const val NOTIF_ID = 77
         private const val FULLSCREEN_CHANNEL = "azkar_fullscreen"

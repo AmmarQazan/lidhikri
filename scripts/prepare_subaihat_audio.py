@@ -109,6 +109,16 @@ COPIES: list[tuple[str, str, str]] = [
     ("جوامع التسبيح", "سبحان الله عدد خلقه.mp3", "jawami/subhan_adada_khalqih.mp3"),
 ]
 
+DOWNLOADS = Path.home() / "Downloads"
+DOWNLOADS_COPIES: list[tuple[str, str]] = [
+    ("اذكار بعد الصلاة ولا ينفع ذا الجد منك الجد.mp3.mp3", "after_prayer/la_mani.mp3"),
+    ("اذكار بعد الصلاة مخلصين له الدين.mp3.mp3", "after_prayer/mukhlisin.mp3"),
+    ("اذكار بعد الصلاة اللهم اني اعوذ بك من البخل1.mp3.mp3", "after_prayer/bukhl.mp3"),
+    ("اذكار بعد الصلاة اللهم ااعني على ذكرك1.mp3.mp3", "after_prayer/ainni.mp3"),
+    ("يوم الجمعه فيه ساعة.mp3.mp3", "friday/hour.mp3"),
+    ("من قرأ سورة الكهف يوم الجمعة.mp3.mp3", "friday/kahf.mp3"),
+]
+
 WAV_CONVERSIONS: list[tuple[str, str, str]] = [
     ("تسبيحات", "سبحان الله وبحمده.wav", "tasbih/subhan_bihamd.mp3"),
 ]
@@ -159,6 +169,15 @@ def main() -> None:
         dest.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(src, dest)
         copied.append({"src": f"{folder}/{name}", "dest": dest_rel, "size": src.stat().st_size})
+    for name, dest_rel in DOWNLOADS_COPIES:
+        src = DOWNLOADS / name
+        dest = DEST / dest_rel
+        if not src.is_file():
+            missing.append({"folder": "Downloads", "name": name, "dest": dest_rel})
+            continue
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(src, dest)
+        copied.append({"src": f"Downloads/{name}", "dest": dest_rel, "size": src.stat().st_size})
     converted = []
     for folder, name, dest_rel in WAV_CONVERSIONS:
         src = SRC / folder / name

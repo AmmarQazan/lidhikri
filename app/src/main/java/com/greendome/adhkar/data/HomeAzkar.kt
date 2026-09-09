@@ -13,6 +13,11 @@ object HomeAzkar {
     const val SORT_ORDER = 7
     const val DEFAULT_RADIUS_METERS = 150f
 
+    fun hasCoordinates(latitude: Double, longitude: Double): Boolean =
+        latitude in -90.0..90.0 &&
+            longitude in -180.0..180.0 &&
+            !(latitude == 0.0 && longitude == 0.0)
+
     enum class Event { ENTER, EXIT }
 
     fun entity(

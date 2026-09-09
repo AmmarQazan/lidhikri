@@ -4,6 +4,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.util.Locale
 
 class AppLanguagesTest {
     @Test
@@ -39,6 +40,17 @@ class AppLanguagesTest {
         assertEquals("en", AppLanguages.coerce("en"))
         assertEquals("ar", AppLanguages.coerce("xx"))
         assertEquals("ar", AppLanguages.coerce("ar"))
+        assertEquals("id", AppLanguages.coerce("in"))
+        assertEquals("id", AppLanguages.coerce("id-ID"))
+    }
+
+    @Test
+    fun fromDevicePicksFirstSupportedLocale() {
+        assertEquals("id", AppLanguages.fromDevice(listOf(Locale("in", "ID"))))
+        assertEquals("fr", AppLanguages.fromDevice(listOf(Locale.FRENCH)))
+        assertEquals("ar", AppLanguages.fromDevice(listOf(Locale("de"), Locale("ar"))))
+        assertEquals("en", AppLanguages.fromDevice(listOf(Locale.JAPANESE)))
+        assertEquals("en", AppLanguages.fromDevice(emptyList()))
     }
 
     @Test

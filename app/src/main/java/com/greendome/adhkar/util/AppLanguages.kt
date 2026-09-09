@@ -32,8 +32,32 @@ object AppLanguages {
     fun isEnabled(code: String): Boolean =
         all.find { it.code == code }?.enabled == true
 
-    fun coerce(code: String): String =
-        if (isEnabled(code)) code else "ar"
+    /** Java/Android قد يرمزان الإندونيسية `in` بدل `id`. */
+    fun normalizeCode(code: String): String {
+        val raw = code.trim().lowercase(Locale.ROOT).substringBefore('-')
+        return when (raw) {
+            "in" -> "id"
+            "iw" -> "he"
+            else -> raw
+        }
+    }
+
+    fun coerce(code: String): String {
+        val mapped = normalizeCode(code)
+        return if (isEnabled(mapped)) mapped else "ar"
+    }
+
+    fun matchingCode(locale: Locale): String? {
+        val mapped = normalizeCode(locale.language)
+        return mapped.takeIf { isEnabled(it) }
+    }
+
+    /**
+     * أول لغة مدعومة من قائمة الجهاز. إن لم تُدعم أي منها: الإنجليزية
+     * (مثل سقوط موارد أندرويد إلى `values/`).
+     */
+    fun fromDevice(locales: List<Locale>): String =
+        locales.firstNotNullOfOrNull { matchingCode(it) } ?: "en"
 
     fun locale(code: String): Locale = when (code) {
         "ar" -> Locale.forLanguageTag("ar-u-nu-latn")

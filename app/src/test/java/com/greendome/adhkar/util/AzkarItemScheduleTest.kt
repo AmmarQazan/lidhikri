@@ -23,8 +23,8 @@ class AzkarItemScheduleTest {
         val next = AzkarItemSchedule.nextTriggerAt(collection, kahf, PrayerConfig.empty(), from)
         val cal = Calendar.getInstance().apply { timeInMillis = next }
         assertEquals(Calendar.FRIDAY, cal.get(Calendar.DAY_OF_WEEK))
-        assertEquals(8, cal.get(Calendar.HOUR_OF_DAY))
-        assertEquals(0, cal.get(Calendar.MINUTE))
+        assertEquals(FridayAzkar.DEFAULT_HOUR, cal.get(Calendar.HOUR_OF_DAY))
+        assertEquals(FridayAzkar.DEFAULT_MINUTE, cal.get(Calendar.MINUTE))
         assertTrue(next > from)
     }
 
@@ -147,8 +147,8 @@ class AzkarItemScheduleTest {
         titleAr = "أذكار يوم الجمعة",
         autoPlayAllowed = true,
         autoPlayEnabled = true,
-        scheduleHour = 8,
-        scheduleMinute = 0,
+        scheduleHour = FridayAzkar.DEFAULT_HOUR,
+        scheduleMinute = FridayAzkar.DEFAULT_MINUTE,
         weekDaysMask = FridayAzkar.fridayOnlyMask(),
         dayMode = CollectionDayMode.WEEKDAYS,
     )

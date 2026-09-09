@@ -73,4 +73,10 @@ class HomeAzkarTest {
         assertFalse(entity.autoPlayAllowed)
         assertFalse(entity.autoPlayEnabled)
     }
+
+    @Test
+    fun hasCoordinatesDoesNotNeedACityLabel() {
+        assertTrue(HomeAzkar.hasCoordinates(21.3891, 39.8579))
+        assertFalse(HomeAzkar.hasCoordinates(0.0, 0.0))
+    }
 }

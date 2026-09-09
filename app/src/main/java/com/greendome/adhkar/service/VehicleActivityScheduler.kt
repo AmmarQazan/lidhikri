@@ -10,26 +10,31 @@ import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionRequest
 import com.google.android.gms.location.ActivityTransitionResult
 import com.google.android.gms.location.DetectedActivity
-import com.greendome.adhkar.data.RidingAzkar
 import com.greendome.adhkar.data.SettingsRepository
-import com.greendome.adhkar.data.local.AdhkarDatabase
 import com.greendome.adhkar.util.RuntimePermissions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 object VehicleActivityScheduler {
     private const val REQUEST = 8102
     const val ACTION_TRANSITION = "com.greendome.adhkar.VEHICLE_TRANSITION"
-    const val COOLDOWN_MS = 15 * 60_000L
+    const val COOLDOWN_MS = AutoAzkarTriggers.Riding.COOLDOWN_MS
 
     fun register(context: Context) {
         val app = context.applicationContext
         unregister(app)
         val settings = SettingsRepository(app)
-        if (!shouldMonitor(settings) || !RuntimePermissions.hasActivityRecognition(app)) return
+        if (!shouldMonitor(settings)) {
+            settings.setRidingMonitor(AutoAzkarMonitorStatus.OFF)
+            return
+        }
+        if (!RuntimePermissions.hasActivityRecognition(app)) {
+            settings.setRidingMonitor(AutoAzkarMonitorStatus.NO_ACTIVITY)
+            return
+        }
+        settings.setRidingMonitor(AutoAzkarMonitorStatus.WAITING)
         val request = ActivityTransitionRequest(
             listOf(
                 transition(DetectedActivity.IN_VEHICLE, ActivityTransition.ACTIVITY_TRANSITION_ENTER),
@@ -39,6 +44,20 @@ object VehicleActivityScheduler {
         runCatching {
             ActivityRecognition.getClient(app)
                 .requestActivityTransitionUpdates(request, pending(app))
+                .addOnSuccessListener {
+                    settings.setRidingMonitor(AutoAzkarMonitorStatus.OK)
+                }
+                .addOnFailureListener { error ->
+                    settings.setRidingMonitor(
+                        AutoAzkarMonitorStatus.FAILED,
+                        error.message.orEmpty(),
+                    )
+                }
+        }.onFailure { error ->
+            settings.setRidingMonitor(
+                AutoAzkarMonitorStatus.FAILED,
+                error.message.orEmpty(),
+            )
         }
     }
 
@@ -86,7 +105,7 @@ class VehicleActivityReceiver : BroadcastReceiver() {
                     if (event.activityType != DetectedActivity.IN_VEHICLE) return@forEach
                     when (event.transitionType) {
                         ActivityTransition.ACTIVITY_TRANSITION_ENTER -> {
-                            play(context.applicationContext, settings)
+                            AutoAzkarEventPlayer.playRiding(context.applicationContext)
                         }
                         ActivityTransition.ACTIVITY_TRANSITION_EXIT -> {
                             settings.ridingInTrip = false
@@ -97,24 +116,5 @@ class VehicleActivityReceiver : BroadcastReceiver() {
                 pending.finish()
             }
         }
-    }
-
-    private suspend fun play(context: Context, settings: SettingsRepository) {
-        if (!VehicleActivityScheduler.shouldMonitor(settings)) return
-        if (settings.ridingInTrip) return
-        val now = System.currentTimeMillis()
-        if (now - settings.ridingLastPlayAt < VehicleActivityScheduler.COOLDOWN_MS) return
-        val items = withContext(Dispatchers.IO) {
-            AdhkarDatabase.get(context).azkarItemDao().getByCollection(RidingAzkar.COLLECTION_ID)
-        }
-        val picked = RidingAzkar.pickRandom(items, settings.ridingItemKeys()) ?: return
-        settings.ridingInTrip = true
-        settings.ridingLastPlayAt = now
-        val play = Intent(context, AzkarCollectionPlayService::class.java).apply {
-            putExtra(AzkarCollectionPlayService.EXTRA_COLLECTION_ID, RidingAzkar.COLLECTION_ID)
-            putExtra(AzkarCollectionPlayService.EXTRA_ITEM_ID, picked.id)
-            putExtra(AzkarCollectionPlayService.EXTRA_FORCE_PLAY, true)
-        }
-        runCatching { context.startForegroundService(play) }
     }
 }

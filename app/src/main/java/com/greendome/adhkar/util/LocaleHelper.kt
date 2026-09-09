@@ -14,10 +14,24 @@ object LocaleHelper {
     private const val PREFS = "adhkar_settings"
     private const val KEY = "app_language"
 
-    fun getLanguage(context: Context): String =
-        AppLanguages.coerce(
-            context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(KEY, "ar") ?: "ar"
-        )
+    fun hasSavedLanguage(context: Context): Boolean =
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).contains(KEY)
+
+    fun deviceLanguage(context: Context): String {
+        val list = context.resources.configuration.locales
+        val locales = buildList {
+            for (i in 0 until list.size()) {
+                add(list[i])
+            }
+        }
+        return AppLanguages.fromDevice(locales)
+    }
+
+    fun getLanguage(context: Context): String {
+        val stored = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(KEY, null)
+        if (!stored.isNullOrBlank()) return AppLanguages.coerce(stored)
+        return deviceLanguage(context)
+    }
 
     fun wrap(context: Context, languageCode: String): Context {
         val locale = AppLanguages.locale(languageCode)
@@ -28,8 +42,15 @@ object LocaleHelper {
         return context.createConfigurationContext(config)
     }
 
-    fun wrapWithSavedLanguage(context: Context): Context =
-        wrap(context, getLanguage(context))
+    fun wrapWithSavedLanguage(context: Context): Context {
+        if (!hasSavedLanguage(context)) return context
+        return wrap(context, getLanguage(context))
+    }
+
+    fun applySavedAppLocales(context: Context) {
+        if (!hasSavedLanguage(context)) return
+        applyAppLocales(context, getLanguage(context))
+    }
 
     fun applyAppLocales(context: Context, languageCode: String) {
         val code = AppLanguages.coerce(languageCode)

@@ -424,7 +424,7 @@
     <string name="onboarding_font_subtitle">پڑھتے ہوئے اذکار کے متن کی شکل دیکھیں</string>
     <string name="onboarding_font_preview">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</string>
     <string name="onboarding_font_size_value">اذکار کے متن کا سائز: %1$d%%</string>
-    <string name="onboarding_welcome_title">لذكري میں خوش آمدید</string>
+    <string name="onboarding_welcome_title">السلام علیکم و رحمۃ اللہ</string>
     <string name="onboarding_welcome_subtitle">روزانہ ساتھی: فون استعمال کرتے ہوئے خودکار تسبیح اور اذکار، ساتھ اذان، نماز کے اوقات اور نماز کے بعد اذکار۔</string>
     <string name="onboarding_language_title">ایپ کی زبان منتخب کریں</string>
     <string name="onboarding_language_subtitle">آپ اسے بعد میں ترتیبات سے بدل سکتے ہیں</string>
@@ -463,7 +463,7 @@
     <string name="onboarding_overlay_granted">دیگر ایپس کے اوپر دکھانا چالو ہے</string>
     <string name="onboarding_overlay_later">بعد میں ترتیبات ← ایپ اور اجازتوں سے بھی چالو کر سکتے ہیں</string>
     <string name="onboarding_permissions_title">ایپ کو جو چاہیے چالو کریں</string>
-    <string name="onboarding_permissions_subtitle">ایک تھپکی سے اطلاعات، دیگر ایپس کے اوپر دکھانا، لاک اسکرین، اور فرض نماز کے دوران رجاج مانگا جاتا ہے — اذان اور اذان کے بعد کے اذکار کے بعد سے نماز کے بعد کے اذکار تک۔ یہ مدت بعد میں ترتیبات سے بدل سکتے ہیں۔</string>
+    <string name="onboarding_permissions_subtitle">ایک تھپکی سے یاد دہانیوں اور ونڈوز کے لیے درکار اجازتیں مانگی جاتی ہیں۔ بعد میں ترتیبات سے بدل سکتے ہیں۔</string>
     <string name="onboarding_permissions_action">ایپ کو جو چاہیے چالو کریں</string>
     <string name="onboarding_permissions_later">باقی اجازتیں بعد میں ترتیبات سے دے سکتے ہیں۔</string>
     <string name="onboarding_need_notifications">اطلاعات — اذان اور یاد دہانیاں</string>
@@ -474,7 +474,6 @@
     <string name="onboarding_tasbih_window_range">%1$s سے %2$s تک</string>
     <string name="onboarding_tasbih_window_hint">آپ اسے بعد میں تسبیح کی ترتیبات سے بدل سکتے ہیں</string>
     <string name="onboarding_settings_title">دليل ترتیبات</string>
-    <string name="onboarding_settings_subtitle">جو کچھ یہاں منتخب کیا وہ بعد میں ترتیبات سے بدلا جا سکتا ہے</string>
     <string name="onboarding_settings_schedule_title">کسی حصے کی یاد دہانی کا وقت بدلیں</string>
     <string name="onboarding_settings_schedule_subtitle">اذکار ٹیب → حصہ کھولیں → شیڈول دکھائیں → گھنٹہ، منٹ اور دن سیٹ کریں</string>
     <string name="onboarding_settings_disable_title">کسی حصے کا شیڈول بند کریں</string>
@@ -507,11 +506,11 @@
     <string name="onboarding_feature_misbaha_title">ڈیجیٹل مسبحة</string>
     <string name="onboarding_feature_misbaha_subtitle">ایک تھپکی سے ذکر گنیں</string>
     <string name="onboarding_feature_prayer_title">نماز کے اوقات</string>
-    <string name="onboarding_feature_prayer_subtitle">آپ کے شہر کے مطابق، منتخب حساب کے طریقے سے</string>
+    <string name="onboarding_feature_prayer_subtitle">آپ کے شہر کے مطابق، طریقہ حساب، اور عصر کا مذہب</string>
     <string name="onboarding_feature_adhan_title">اذان</string>
-    <string name="onboarding_feature_adhan_subtitle">ہر فرض پر جو آپ چالو کریں مؤذن کی آواز</string>
+    <string name="onboarding_feature_adhan_subtitle">وقت داخل ہوتے ہی صوتی اذان، مؤذن کا انتخاب، اذان سے پہلے یاد دہانی، اقامت، اور اذان سننے کے اذکار</string>
     <string name="onboarding_feature_after_prayer_title">نماز کے بعد اذکار</string>
-    <string name="onboarding_feature_after_prayer_subtitle">ہر فرض کے بعد یاددہانی، تسبیح کی وقفہ مدت سے آزاد</string>
+    <string name="onboarding_feature_after_prayer_subtitle">ہر فرض کے بعد یاد دہانی، تسبیح روکنے کی مدت سے آزاد</string>
     <string name="onboarding_next">اگلا</string>
     <string name="onboarding_back">پیچھے</string>
     <string name="onboarding_skip">چھوڑیں</string>
@@ -597,6 +596,8 @@
     <string name="azkar_pause">توقف</string>
     <string name="azkar_resume">جاری رکھیں</string>
     <string name="azkar_stop">روکیں</string>
+    <string name="azkar_next_dhikr">اگلا ذکر</string>
+    <string name="azkar_now_playing">اب چل رہا ہے: %1$s</string>
     <string name="azkar_playing">پڑھ رہے ہیں…</string>
     <string name="azkar_playing_reciter">منتخب قاری سے چل رہا ہے…</string>
     <string name="azkar_paused">توقف</string>

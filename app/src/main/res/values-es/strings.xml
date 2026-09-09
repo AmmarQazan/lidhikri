@@ -156,6 +156,8 @@
     <string name="azkar_list_font_decrease">Reducir el texto de adhkar</string>
     <string name="azkar_list_font_increase">Aumentar el texto de adhkar</string>
     <string name="azkar_nav_label">Navegar entre adhkar</string>
+    <string name="azkar_next_dhikr">Siguiente dhikr</string>
+    <string name="azkar_now_playing">Reproduciendo: %1$s</string>
     <string name="azkar_pause">Pausar</string>
     <string name="azkar_paused">En pausa</string>
     <string name="azkar_play_channel">Reproducción de adhkar</string>
@@ -396,16 +398,16 @@
     <string name="clock_period_pm">p. m.</string>
     <string name="next_reminder">Próximo en %1$d min</string>
     <string name="no_internet_needed">Funciona sin internet tras descargar</string>
-    <string name="onboarding_feature_azkar_subtitle">Recordatorios programados de Hisnul Muslim — mañana, tarde y más</string>
+    <string name="onboarding_feature_azkar_subtitle">Recordatorios programados de Hisnul Muslim — mañana, anochecer y más</string>
     <string name="onboarding_feature_azkar_title">Adhkar automáticos</string>
     <string name="onboarding_feature_misbaha_subtitle">Cuenta el dhikr con un toque</string>
     <string name="onboarding_feature_misbaha_title">Misbaha digital</string>
     <string name="onboarding_feature_prayer_title">Horarios de oración</string>
-    <string name="onboarding_feature_prayer_subtitle">Según tu ciudad, con el método de cálculo que elijas</string>
+    <string name="onboarding_feature_prayer_subtitle">Según tu ciudad, el método de cálculo y la escuela del Asr</string>
     <string name="onboarding_feature_adhan_title">Adhan</string>
-    <string name="onboarding_feature_adhan_subtitle">Audio del almuédano al entrar cada oración que actives</string>
+    <string name="onboarding_feature_adhan_subtitle">Adhan en voz a la hora, elija almuédano, aviso previo, iqama, y súplicas al escucharlo</string>
     <string name="onboarding_feature_after_prayer_title">Adhkar después de la oración</string>
-    <string name="onboarding_feature_after_prayer_subtitle">Un recordatorio tras cada fard, independiente de la pausa del tasbih</string>
+    <string name="onboarding_feature_after_prayer_subtitle">Recordatorio tras cada fard, independiente de la pausa del tasbih</string>
     <string name="onboarding_feature_reminder_subtitle">Ventana emergente o notificación — tú eliges</string>
     <string name="onboarding_feature_reminder_title">Recordatorios inteligentes</string>
     <string name="onboarding_feature_tasbih_subtitle">Recordatorios cortos mientras usas el teléfono</string>
@@ -449,7 +451,7 @@
     <string name="onboarding_overlay_granted">Mostrar sobre otras apps está activado</string>
     <string name="onboarding_overlay_later">También puedes activarlo después en Ajustes → App y permisos</string>
     <string name="onboarding_permissions_title">Activar lo que la app necesita</string>
-    <string name="onboarding_permissions_subtitle">Un toque pide notificaciones, mostrar sobre otras apps, pantalla de bloqueo y vibración durante la oración obligatoria — tras el adhan y los adhkar de después del adhan hasta los de después de la oración. Ese periodo se cambia luego en Ajustes.</string>
+    <string name="onboarding_permissions_subtitle">Un toque pide los permisos necesarios para recordatorios y ventanas. Se pueden cambiar después en Ajustes.</string>
     <string name="onboarding_permissions_action">Activar lo que la app necesita</string>
     <string name="onboarding_permissions_later">El resto de permisos se puede dar después en Ajustes.</string>
     <string name="onboarding_need_notifications">Notificaciones — adhan y recordatorios</string>
@@ -480,7 +482,6 @@
     <string name="onboarding_settings_prayer_title">Horarios y adhan</string>
     <string name="onboarding_settings_schedule_subtitle">Pestaña Adhkar → abre una sección → Mostrar horario → hora, minuto y días</string>
     <string name="onboarding_settings_schedule_title">Cambiar la hora de un recordatorio</string>
-    <string name="onboarding_settings_subtitle">Todo lo que ajustes aquí se puede cambiar más tarde desde Ajustes</string>
     <string name="onboarding_settings_tasbih_subtitle">Ajustes → Tasbih automático: intervalo, primer y último tasbih, sonido y ventana</string>
     <string name="onboarding_settings_tasbih_title">Tasbih automático</string>
     <string name="onboarding_settings_title">Guía de ajustes</string>
@@ -491,7 +492,7 @@
     <string name="onboarding_theme_subtitle">Elige un aspecto cómodo para leer los adhkar</string>
     <string name="onboarding_theme_title">Apariencia de lectura</string>
     <string name="onboarding_welcome_subtitle">Tu compañero diario: tasbih y adhkar automáticos mientras usas el teléfono, más adhan, horarios de oración y dhikr tras el fard.</string>
-    <string name="onboarding_welcome_title">Bienvenido a Lidhikri</string>
+    <string name="onboarding_welcome_title">La paz y la misericordia de Allah sean con vosotros</string>
     <string name="overlay_collapse_popup">Reducir</string>
     <string name="overlay_dismiss">Cerrar</string>
     <string name="overlay_expand_popup">Ampliar para leer</string>

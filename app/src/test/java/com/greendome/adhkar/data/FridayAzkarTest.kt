@@ -33,6 +33,8 @@ class FridayAzkarTest {
     @Test
     fun seedsCarryPerItemHours() {
         val items = FridayAzkar.items()
+        assertEquals(10, FridayAzkar.DEFAULT_HOUR)
+        assertEquals(30, FridayAzkar.DEFAULT_MINUTE)
         assertEquals(-1, items[2].scheduleHour)
         assertTrue(items[2].toEntity(3).inheritsCollectionTime())
         assertEquals(11, items[0].scheduleHour)
@@ -55,5 +57,13 @@ class FridayAzkarTest {
         assertTrue(entity.textAr.startsWith("قال صلى الله عليه وسلم:"))
         assertTrue(entity.textAr.contains("صدق رسول الله"))
         assertEquals("اللهم صل وسلم وبارك على نبينا محمد", items[0].text)
+    }
+
+    @Test
+    fun reciterAudioCoversAllFridayItems() {
+        val items = FridayAzkar.items()
+        assertEquals("tasbih/salawat.mp3", SubaihatReciterSeed.matchedAzkarFile("friday", items[0].text))
+        assertEquals("friday/hour.mp3", SubaihatReciterSeed.matchedAzkarFile("friday", items[1].text))
+        assertEquals("friday/kahf.mp3", SubaihatReciterSeed.matchedAzkarFile("friday", items[2].text))
     }
 }

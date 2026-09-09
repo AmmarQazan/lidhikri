@@ -1,7 +1,9 @@
 package com.greendome.adhkar
 
+import android.Manifest
 import android.content.Intent
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -62,6 +64,7 @@ import com.greendome.adhkar.data.local.DhikrEntity
 import com.greendome.adhkar.data.local.ReciterEntity
 import com.greendome.adhkar.data.model.DhikrCategory
 import com.greendome.adhkar.service.AdhkarReminderService
+import com.greendome.adhkar.service.HomeGeofenceScheduler
 import com.greendome.adhkar.service.NextAdhanService
 import com.greendome.adhkar.service.NextAzkarNotifier
 import com.greendome.adhkar.service.PrayerPhoneSilent
@@ -148,8 +151,26 @@ class MainActivity : ComponentActivity() {
             var arabicFontStyle by remember { mutableStateOf(settings.arabicFontStyle) }
             var pendingOnboardingServiceEnable by remember { mutableStateOf(false) }
             var pendingOnboardingRiding by remember { mutableStateOf(false) }
+            var pendingOnboardingHome by remember { mutableStateOf(false) }
             val layoutDirection = if (AppLanguages.isRtl(lang)) LayoutDirection.Rtl else LayoutDirection.Ltr
             val splashDurationMs = if (showOnboarding) 900L else 1400L
+
+            val homeBackgroundLauncher = rememberLauncherForActivityResult(
+                ActivityResultContracts.RequestPermission()
+            ) {
+                HomeGeofenceScheduler.register(this@MainActivity)
+            }
+
+            fun requestHomeBackgroundIfNeeded(homeEnabled: Boolean) {
+                if (!homeEnabled) return
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+                    !RuntimePermissions.hasBackgroundLocation(this@MainActivity)
+                ) {
+                    homeBackgroundLauncher.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                } else {
+                    HomeGeofenceScheduler.register(this@MainActivity)
+                }
+            }
 
             val activityPermissionLauncher = rememberLauncherForActivityResult(
                 ActivityResultContracts.RequestPermission()
@@ -157,15 +178,27 @@ class MainActivity : ComponentActivity() {
                 if (granted) {
                     VehicleActivityScheduler.register(this@MainActivity)
                 }
+                if (pendingOnboardingHome) {
+                    pendingOnboardingHome = false
+                    requestHomeBackgroundIfNeeded(true)
+                }
             }
 
-            fun requestRidingPermissionIfNeeded(ridingEnabled: Boolean) {
-                if (!ridingEnabled) return
+            fun requestRidingPermissionIfNeeded(ridingEnabled: Boolean, homeEnabled: Boolean = false) {
+                val afterRiding = {
+                    if (homeEnabled) requestHomeBackgroundIfNeeded(true)
+                }
+                if (!ridingEnabled) {
+                    afterRiding()
+                    return
+                }
                 val permission = RuntimePermissions.activityRecognitionPermission()
                 if (permission != null && !RuntimePermissions.hasActivityRecognition(this@MainActivity)) {
+                    pendingOnboardingHome = homeEnabled
                     activityPermissionLauncher.launch(permission)
                 } else {
                     VehicleActivityScheduler.register(this@MainActivity)
+                    afterRiding()
                 }
             }
 
@@ -176,28 +209,31 @@ class MainActivity : ComponentActivity() {
                     pendingOnboardingServiceEnable = false
                     startAutoTasbih()
                 }
-                if (pendingOnboardingRiding) {
-                    pendingOnboardingRiding = false
-                    requestRidingPermissionIfNeeded(true)
-                }
+                val ridingOn = pendingOnboardingRiding
+                val homeOn = pendingOnboardingHome
+                pendingOnboardingRiding = false
+                pendingOnboardingHome = false
+                requestRidingPermissionIfNeeded(ridingOn, homeOn)
             }
 
             fun enableDefaultAutoFeatures(result: OnboardingResult) {
                 settings.isServiceEnabled = result.autoTasbihEnabled
                 val ridingOn = result.ridingAzkarEnabled
+                val homeOn = result.homeAzkarEnabled
                 val needsNotifications = result.autoTasbihEnabled || result.autoAzkarEnabled
                 if (!needsNotifications) {
-                    requestRidingPermissionIfNeeded(ridingOn)
+                    requestRidingPermissionIfNeeded(ridingOn, homeOn)
                     return
                 }
                 val permission = RuntimePermissions.postNotificationsPermission()
                 if (permission != null && !RuntimePermissions.hasPostNotifications(this)) {
                     pendingOnboardingServiceEnable = result.autoTasbihEnabled
                     pendingOnboardingRiding = ridingOn
+                    pendingOnboardingHome = homeOn
                     notificationPermissionLauncher.launch(permission)
                 } else {
                     if (result.autoTasbihEnabled) startAutoTasbih()
-                    requestRidingPermissionIfNeeded(ridingOn)
+                    requestRidingPermissionIfNeeded(ridingOn, homeOn)
                 }
             }
 

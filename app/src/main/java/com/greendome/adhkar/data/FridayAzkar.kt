@@ -9,8 +9,8 @@ import com.greendome.adhkar.util.CollectionScheduleHelper
 
 object FridayAzkar {
     const val COLLECTION_ID = "friday"
-    const val DEFAULT_HOUR = 8
-    const val DEFAULT_MINUTE = 0
+    const val DEFAULT_HOUR = 10
+    const val DEFAULT_MINUTE = 30
     const val SORT_ORDER = 9
 
     const val SALAWAT_TEXT = "اللهم صل وسلم وبارك على نبينا محمد"
@@ -76,6 +76,8 @@ object FridayAzkar {
         if (existing == null) {
             db.collectionDao().insert(entity())
         } else {
+            val stillLegacyKahfTime =
+                existing.scheduleHour == 8 && existing.scheduleMinute == 0
             db.collectionDao().update(
                 existing.copy(
                     titleAr = "أذكار يوم الجمعة",
@@ -85,6 +87,8 @@ object FridayAzkar {
                     autoPlayEnabled = allowed && existing.autoPlayEnabled,
                     weekDaysMask = fridayOnlyMask(),
                     dayMode = CollectionDayMode.WEEKDAYS,
+                    scheduleHour = if (stillLegacyKahfTime) DEFAULT_HOUR else existing.scheduleHour,
+                    scheduleMinute = if (stillLegacyKahfTime) DEFAULT_MINUTE else existing.scheduleMinute,
                 )
             )
         }

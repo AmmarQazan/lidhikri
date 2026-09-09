@@ -424,7 +424,7 @@
     <string name="onboarding_font_subtitle">Pratinjau tampilan teks dzikir saat membaca</string>
     <string name="onboarding_font_preview">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</string>
     <string name="onboarding_font_size_value">Ukuran teks dzikir: %1$d%%</string>
-    <string name="onboarding_welcome_title">Selamat datang di Lidhikri</string>
+    <string name="onboarding_welcome_title">Assalamu alaikum wa rahmatullah</string>
     <string name="onboarding_welcome_subtitle">Pendamping harian Anda: tasbih dan dzikir otomatis saat memakai ponsel, plus adzan, waktu shalat, dan dzikir setelah shalat.</string>
     <string name="onboarding_language_title">Pilih bahasa aplikasi</string>
     <string name="onboarding_language_subtitle">Anda dapat mengubahnya nanti di pengaturan</string>
@@ -463,7 +463,7 @@
     <string name="onboarding_overlay_granted">Tampil di atas aplikasi lain sudah aktif</string>
     <string name="onboarding_overlay_later">Anda juga dapat mengaktifkannya nanti di Pengaturan → Aplikasi &amp; izin</string>
     <string name="onboarding_permissions_title">Aktifkan yang dibutuhkan aplikasi</string>
-    <string name="onboarding_permissions_subtitle">Satu ketukan meminta notifikasi, tampil di atas aplikasi, layar kunci, dan getar saat shalat fardu — setelah azan dan zikir setelah azan hingga zikir setelah shalat. Durasi ini bisa diubah nanti di Pengaturan.</string>
+    <string name="onboarding_permissions_subtitle">Satu ketukan meminta izin yang dibutuhkan untuk pengingat dan jendela. Bisa diubah nanti di Pengaturan.</string>
     <string name="onboarding_permissions_action">Aktifkan yang dibutuhkan aplikasi</string>
     <string name="onboarding_permissions_later">Izin tersisa dapat diberikan nanti di Pengaturan.</string>
     <string name="onboarding_need_notifications">Notifikasi — azan dan pengingat</string>
@@ -474,7 +474,6 @@
     <string name="onboarding_tasbih_window_range">Dari %1$s sampai %2$s</string>
     <string name="onboarding_tasbih_window_hint">Anda dapat mengubahnya nanti di pengaturan Tasbih</string>
     <string name="onboarding_settings_title">Panduan pengaturan</string>
-    <string name="onboarding_settings_subtitle">Semua yang Anda atur di sini dapat diubah nanti dari Pengaturan</string>
     <string name="onboarding_settings_schedule_title">Ubah waktu pengingat suatu bagian</string>
     <string name="onboarding_settings_schedule_subtitle">Tab Dzikir → buka bagian → Tampilkan jadwal → atur jam, menit, dan hari</string>
     <string name="onboarding_settings_disable_title">Matikan jadwal suatu bagian</string>
@@ -507,11 +506,11 @@
     <string name="onboarding_feature_misbaha_title">Misbaha digital</string>
     <string name="onboarding_feature_misbaha_subtitle">Hitung dzikir dengan satu ketukan</string>
     <string name="onboarding_feature_prayer_title">Waktu shalat</string>
-    <string name="onboarding_feature_prayer_subtitle">Menurut kota Anda, dengan metode hitung yang Anda pilih</string>
+    <string name="onboarding_feature_prayer_subtitle">Menurut kota Anda, metode hitung, dan mazhab Asar</string>
     <string name="onboarding_feature_adhan_title">Adzan</string>
-    <string name="onboarding_feature_adhan_subtitle">Suara muazin saat masuk setiap shalat yang Anda aktifkan</string>
+    <string name="onboarding_feature_adhan_subtitle">Adzan bersuara saat masuk waktu, pilih muazin, pengingat sebelum adzan, iqamah, dan dzikir mendengar adzan</string>
     <string name="onboarding_feature_after_prayer_title">Dzikir setelah shalat</string>
-    <string name="onboarding_feature_after_prayer_subtitle">Pengingat setelah setiap fardu, terpisah dari jeda tasbih</string>
+    <string name="onboarding_feature_after_prayer_subtitle">Pengingat setelah setiap fardu, terpisah dari durasi jeda tasbih</string>
     <string name="onboarding_next">Lanjut</string>
     <string name="onboarding_back">Kembali</string>
     <string name="onboarding_skip">Lewati</string>
@@ -597,6 +596,8 @@
     <string name="azkar_pause">Jeda</string>
     <string name="azkar_resume">Lanjut</string>
     <string name="azkar_stop">Berhenti</string>
+    <string name="azkar_next_dhikr">Dzikir berikutnya</string>
+    <string name="azkar_now_playing">Sedang diputar: %1$s</string>
     <string name="azkar_playing">Membaca…</string>
     <string name="azkar_playing_reciter">Memutar dengan qari terpilih…</string>
     <string name="azkar_paused">Dijeda</string>

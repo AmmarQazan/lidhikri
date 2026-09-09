@@ -1,5 +1,7 @@
 package com.greendome.adhkar.ui.screens
 
+import android.Manifest
+import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -24,9 +26,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Vibration
@@ -427,14 +431,6 @@ private fun OnboardingWelcomeStep() {
             textAlign = TextAlign.Center,
             lineHeight = 26.sp
         )
-        Spacer(Modifier.height(8.dp))
-        Text(
-            text = stringResource(R.string.onboarding_settings_subtitle),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.65f),
-            textAlign = TextAlign.Center,
-            lineHeight = 22.sp
-        )
         Spacer(Modifier.height(24.dp))
         OnboardingFeatureRow(
             icon = Icons.Default.Notifications,
@@ -452,7 +448,12 @@ private fun OnboardingWelcomeStep() {
             subtitle = stringResource(R.string.onboarding_feature_adhan_subtitle)
         )
         OnboardingFeatureRow(
-            icon = Icons.Default.CheckCircle,
+            icon = Icons.Default.AccessTime,
+            title = stringResource(R.string.onboarding_feature_prayer_title),
+            subtitle = stringResource(R.string.onboarding_feature_prayer_subtitle)
+        )
+        OnboardingFeatureRow(
+            icon = Icons.Default.MenuBook,
             title = stringResource(R.string.onboarding_feature_after_prayer_title),
             subtitle = stringResource(R.string.onboarding_feature_after_prayer_subtitle)
         )
@@ -728,6 +729,19 @@ private fun OnboardingRemindersStep(
     onHomeLocationPicked: (PrayerLocation) -> Unit,
     prayerTimesOn: Boolean
 ) {
+    val context = LocalContext.current
+    var showBackgroundPrompt by remember { mutableStateOf(false) }
+    val backgroundLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { }
+
+    fun maybeAskBackground() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+            !RuntimePermissions.hasBackgroundLocation(context)
+        ) {
+            showBackgroundPrompt = true
+        }
+    }
     OnboardingStepScaffold(
         title = stringResource(R.string.onboarding_auto_azkar_title),
         subtitle = stringResource(
@@ -829,10 +843,33 @@ private fun OnboardingRemindersStep(
                 )
                 HomeAddressPicker(
                     current = homeLocation,
-                    onPicked = onHomeLocationPicked
+                    onPicked = {
+                        onHomeLocationPicked(it)
+                        maybeAskBackground()
+                    }
                 )
             }
         }
+    }
+    if (showBackgroundPrompt && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        AlertDialog(
+            onDismissRequest = { showBackgroundPrompt = false },
+            title = { Text(stringResource(R.string.home_azkar_settings_title)) },
+            text = { Text(stringResource(R.string.home_azkar_background_permission)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showBackgroundPrompt = false
+                        backgroundLauncher.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                    }
+                ) { Text(stringResource(R.string.home_azkar_background_permission_action)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showBackgroundPrompt = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
     }
 }
 

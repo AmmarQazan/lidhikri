@@ -12,13 +12,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -30,9 +33,13 @@ import com.greendome.adhkar.data.SettingsRepository
 import com.greendome.adhkar.data.local.AdhkarDatabase
 import com.greendome.adhkar.data.local.AzkarItemEntity
 import com.greendome.adhkar.prayer.PrayerLocation
+import com.greendome.adhkar.service.AutoAzkarEventPlayer
 import com.greendome.adhkar.service.HomeGeofenceScheduler
 import com.greendome.adhkar.util.RuntimePermissions
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
@@ -42,15 +49,21 @@ fun HomeAzkarSettingsScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     var location by remember { mutableStateOf(settings.homeLocation()) }
     var items by remember { mutableStateOf<List<AzkarItemEntity>>(emptyList()) }
     var enterKeys by remember { mutableStateOf(settings.homeEventKeys(HomeAzkar.Event.ENTER)) }
     var exitKeys by remember { mutableStateOf(settings.homeEventKeys(HomeAzkar.Event.EXIT)) }
     var showBackgroundPrompt by remember { mutableStateOf(false) }
+    var statusTick by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(Unit) {
         items = withContext(Dispatchers.IO) {
             AdhkarDatabase.get(context).azkarItemDao().getByCollection(HomeAzkar.COLLECTION_ID)
+        }
+        while (isActive) {
+            statusTick++
+            delay(2_000)
         }
     }
 
@@ -131,6 +144,53 @@ fun HomeAzkarSettingsScreen(
                     current = location,
                     onPicked = { saveLocation(it) }
                 )
+            }
+            item {
+                SectionTitle(title = stringResource(R.string.home_azkar_status_section))
+            }
+            item {
+                val monitorStatus = remember(statusTick) { settings.homeMonitorStatus }
+                val needsBackground = remember(statusTick) { settings.homeNeedsBackgroundPermission }
+                val lastEnter = remember(statusTick) { settings.homeLastEnterAt }
+                val lastExit = remember(statusTick) { settings.homeLastExitAt }
+                val playError = remember(statusTick) { settings.homeLastPlayError }
+                HomeAzkarMonitorStatus(
+                    status = monitorStatus,
+                    needsBackground = needsBackground,
+                    lastEnterAt = lastEnter,
+                    lastExitAt = lastExit,
+                    playError = playError,
+                )
+            }
+            item {
+                OutlinedButton(
+                    onClick = {
+                        scope.launch {
+                            AutoAzkarEventPlayer.playHome(
+                                context,
+                                HomeAzkar.Event.ENTER,
+                                ignoreCooldown = true,
+                                recordEvent = false,
+                            )
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text(stringResource(R.string.home_azkar_test_enter)) }
+            }
+            item {
+                OutlinedButton(
+                    onClick = {
+                        scope.launch {
+                            AutoAzkarEventPlayer.playHome(
+                                context,
+                                HomeAzkar.Event.EXIT,
+                                ignoreCooldown = true,
+                                recordEvent = false,
+                            )
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) { Text(stringResource(R.string.home_azkar_test_exit)) }
             }
             item {
                 SectionTitle(

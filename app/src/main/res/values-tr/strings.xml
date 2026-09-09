@@ -424,7 +424,7 @@
     <string name="onboarding_font_subtitle">Tesbihat metninin okurken nasıl görüneceğini önizleyin</string>
     <string name="onboarding_font_preview">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</string>
     <string name="onboarding_font_size_value">Zikir metin boyutu: %1$d%%</string>
-    <string name="onboarding_welcome_title">Lidhikri\'ye hoş geldiniz</string>
+    <string name="onboarding_welcome_title">Selamün aleyküm ve rahmetullah</string>
     <string name="onboarding_welcome_subtitle">Günlük yoldaşınız: telefonu kullanırken otomatik tesbih ve zikir, artı ezan, namaz vakitleri ve namaz sonrası zikir.</string>
     <string name="onboarding_language_title">Uygulama dilini seçin</string>
     <string name="onboarding_language_subtitle">Bunu daha sonra ayarlardan değiştirebilirsiniz</string>
@@ -463,7 +463,7 @@
     <string name="onboarding_overlay_granted">Diğer uygulamaların üzerinde gösterme açık</string>
     <string name="onboarding_overlay_later">Bunu sonra Ayarlar → Uygulama ve izinler bölümünden de açabilirsiniz</string>
     <string name="onboarding_permissions_title">Uygulamanın ihtiyaçlarını aç</string>
-    <string name="onboarding_permissions_subtitle">Tek dokunuşla bildirimler, diğer uygulamaların üzerinde gösterme, kilit ekranı ve farz namaz sırasında titreşim istenir — ezan ve ezan sonrası zikirden namaz sonrası zikre kadar. Bu süre sonra Ayarlar’dan değiştirilebilir.</string>
+    <string name="onboarding_permissions_subtitle">Tek dokunuşla hatırlatmalar ve pencereler için gereken izinler istenir. Sonra Ayarlar’dan değiştirilebilir.</string>
     <string name="onboarding_permissions_action">Uygulamanın ihtiyaçlarını aç</string>
     <string name="onboarding_permissions_later">Kalan izinleri sonra Ayarlar’dan verebilirsiniz.</string>
     <string name="onboarding_need_notifications">Bildirimler — ezan ve hatırlatmalar</string>
@@ -474,7 +474,6 @@
     <string name="onboarding_tasbih_window_range">%1$s ile %2$s arasında</string>
     <string name="onboarding_tasbih_window_hint">Bunu daha sonra tesbih ayarlarından değiştirebilirsiniz</string>
     <string name="onboarding_settings_title">Ayarlar rehberi</string>
-    <string name="onboarding_settings_subtitle">Burada yaptığınız ayarları daha sonra Ayarlar\'dan değiştirebilirsiniz</string>
     <string name="onboarding_settings_schedule_title">Bir bölümün hatırlatma saatini değiştirin</string>
     <string name="onboarding_settings_schedule_subtitle">Tesbihat sekmesi → bir bölüm açın → Zamanlamayı göster → saat, dakika ve günleri ayarlayın</string>
     <string name="onboarding_settings_disable_title">Bir bölümün zamanlamasını kapatın</string>
@@ -507,11 +506,11 @@
     <string name="onboarding_feature_misbaha_title">Dijital tesbih</string>
     <string name="onboarding_feature_misbaha_subtitle">Basit bir dokunuşla zikir sayın</string>
     <string name="onboarding_feature_prayer_title">Namaz vakitleri</string>
-    <string name="onboarding_feature_prayer_subtitle">Şehrinize göre, seçtiğiniz hesap yöntemiyle</string>
+    <string name="onboarding_feature_prayer_subtitle">Şehrinize göre, hesap yöntemi ve ikindi mezhebi</string>
     <string name="onboarding_feature_adhan_title">Ezan</string>
-    <string name="onboarding_feature_adhan_subtitle">Açtığınız her namazın vaktinde müezzin sesi</string>
+    <string name="onboarding_feature_adhan_subtitle">Vakit girince sesli ezan, müezzin seçimi, ezandan önce hatırlatma, kamet ve ezan dinleme zikirleri</string>
     <string name="onboarding_feature_after_prayer_title">Namaz sonrası zikir</string>
-    <string name="onboarding_feature_after_prayer_subtitle">Her farzdan sonra hatırlatma, tesbih duraklamasından bağımsız</string>
+    <string name="onboarding_feature_after_prayer_subtitle">Her farzdan sonra hatırlatma; tesbih duraklama süresinden bağımsız</string>
     <string name="onboarding_next">İleri</string>
     <string name="onboarding_back">Geri</string>
     <string name="onboarding_skip">Atla</string>
@@ -597,6 +596,8 @@
     <string name="azkar_pause">Duraklat</string>
     <string name="azkar_resume">Devam et</string>
     <string name="azkar_stop">Durdur</string>
+    <string name="azkar_next_dhikr">Sonraki zikir</string>
+    <string name="azkar_now_playing">Şimdi çalıyor: %1$s</string>
     <string name="azkar_playing">Okunuyor…</string>
     <string name="azkar_playing_reciter">Seçili kari ile çalınıyor…</string>
     <string name="azkar_paused">Duraklatıldı</string>
