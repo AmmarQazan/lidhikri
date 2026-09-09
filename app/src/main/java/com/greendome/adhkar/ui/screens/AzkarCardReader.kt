@@ -1,5 +1,6 @@
 package com.greendome.adhkar.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -37,6 +38,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -126,6 +128,16 @@ fun AzkarCardReader(
     val target = item.repeatCount.coerceAtLeast(1)
     val progress = if (target == 0) 0f else counter.toFloat() / target
     val isPlayingThis = playingItemId == item.id && playbackState != TtsPlaybackState.IDLE
+
+    LaunchedEffect(playingItemId) {
+        val id = playingItemId ?: return@LaunchedEffect
+        val idx = items.indexOfFirst { it.id == id }
+        if (idx >= 0 && idx != currentIndex) {
+            currentIndex = idx
+            counter = 0
+            virtueExpanded = false
+        }
+    }
 
     fun goNext() {
         if (currentIndex < items.lastIndex) {
@@ -271,7 +283,12 @@ fun AzkarCardReader(
                 .padding(horizontal = 12.dp)
                 .fillMaxWidth(),
             shape = RoundedCornerShape(20.dp),
-            colors = AppCardColors(),
+            border = if (isPlayingThis) BorderStroke(2.dp, GreenPrimary) else null,
+            colors = if (isPlayingThis) {
+                CardDefaults.cardColors(containerColor = GreenPrimary.copy(alpha = 0.12f))
+            } else {
+                AppCardColors()
+            },
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
             val textScroll = rememberScrollState()

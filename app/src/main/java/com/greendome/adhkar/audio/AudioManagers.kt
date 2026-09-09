@@ -5,6 +5,8 @@ import android.media.AudioManager
 import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyCallback
 import android.telephony.TelephonyManager
@@ -80,6 +82,32 @@ class DhikrAudioPlayer(private val context: Context) {
     private var player: ExoPlayer? = null
     private val flipMonitor = FlipToStopMonitor(context) { stop() }
     private var respectMonitor: PlaybackRespectMonitor? = null
+    private var pendingComplete: (() -> Unit)? = null
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private var playbackSession = 0
+    @Volatile var isAborted: Boolean = false
+        private set
+
+    private fun completeOnce() {
+        val callback = pendingComplete
+        pendingComplete = null
+        callback?.invoke()
+    }
+
+    fun resetForNewPlayback() {
+        isAborted = false
+        pendingComplete = null
+        releasePlayer()
+    }
+
+    private fun releasePlayer() {
+        playbackSession++
+        stopRespectMonitor()
+        stopFlipMonitor()
+        val old = player
+        player = null
+        old?.release()
+    }
 
     fun play(
         pathOrUri: String,
@@ -87,7 +115,12 @@ class DhikrAudioPlayer(private val context: Context) {
         voiceProfile: VoiceSettingsTarget = VoiceSettingsTarget.TASBIH,
         onComplete: () -> Unit = {}
     ) {
-        stop()
+        releasePlayer()
+        pendingComplete = null
+        if (isAborted) {
+            onComplete()
+            return
+        }
         if (DeviceAudioGate.shouldSuppressPlayback(context, settings, userInitiated = true)) {
             onComplete()
             return
@@ -111,7 +144,12 @@ class DhikrAudioPlayer(private val context: Context) {
         voiceProfile: VoiceSettingsTarget = VoiceSettingsTarget.TASBIH,
         onComplete: () -> Unit = {}
     ) {
-        stop()
+        releasePlayer()
+        pendingComplete = null
+        if (isAborted) {
+            onComplete()
+            return
+        }
         if (DeviceAudioGate.shouldSuppressPlayback(context, settings, userInitiated = true)) {
             onComplete()
             return
@@ -141,8 +179,9 @@ class DhikrAudioPlayer(private val context: Context) {
         onItemStart: (index: Int) -> Unit = {},
         onComplete: () -> Unit = {},
     ) {
-        stop()
-        if (items.isEmpty()) {
+        releasePlayer()
+        pendingComplete = null
+        if (isAborted || items.isEmpty()) {
             onComplete()
             return
         }
@@ -167,24 +206,28 @@ class DhikrAudioPlayer(private val context: Context) {
             lastStartedIndex = index
             onItemStart(index)
         }
+        fun finish() {
+            if (finished) return
+            finished = true
+            pendingComplete = null
+            stopFlipMonitor()
+            onComplete()
+        }
+        pendingComplete = { finish() }
+        val session = playbackSession
         player.addListener(object : Player.Listener {
             override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
                 markItemStarted(player.currentMediaItemIndex)
             }
 
             override fun onPlaybackStateChanged(state: Int) {
-                if (state == Player.STATE_ENDED && !finished) {
-                    finished = true
-                    stopFlipMonitor()
-                    onComplete()
+                if (state == Player.STATE_ENDED) {
+                    mainHandler.post { if (session == playbackSession) finish() }
                 }
             }
 
             override fun onPlayerError(error: PlaybackException) {
-                if (finished) return
-                finished = true
-                stopFlipMonitor()
-                onComplete()
+                mainHandler.post { if (session == playbackSession) finish() }
             }
         })
         markItemStarted(0)
@@ -200,7 +243,12 @@ class DhikrAudioPlayer(private val context: Context) {
         overrideSilent: Boolean,
         onComplete: () -> Unit = {},
     ) {
-        stop()
+        releasePlayer()
+        pendingComplete = null
+        if (isAborted) {
+            onComplete()
+            return
+        }
         if (DeviceAudioGate.shouldSuppressPlayback(
                 context,
                 settings,
@@ -227,24 +275,35 @@ class DhikrAudioPlayer(private val context: Context) {
     }
 
     fun stop() {
-        stopRespectMonitor()
-        stopFlipMonitor()
-        player?.release()
-        player = null
+        isAborted = true
+        releasePlayer()
+        completeOnce()
+    }
+
+    fun finishCurrentItem() {
+        releasePlayer()
+        completeOnce()
     }
 
     private fun listenForCompletion(player: ExoPlayer, onComplete: () -> Unit) {
+        val session = playbackSession
+        pendingComplete = onComplete
         player.addListener(object : Player.Listener {
             override fun onPlaybackStateChanged(state: Int) {
-                if (state == Player.STATE_ENDED) {
-                    stopFlipMonitor()
-                    onComplete()
+                if (state != Player.STATE_ENDED) return
+                stopFlipMonitor()
+                mainHandler.post {
+                    if (session != playbackSession) return@post
+                    completeOnce()
                 }
             }
 
             override fun onPlayerError(error: PlaybackException) {
                 stopFlipMonitor()
-                onComplete()
+                mainHandler.post {
+                    if (session != playbackSession) return@post
+                    completeOnce()
+                }
             }
         })
     }

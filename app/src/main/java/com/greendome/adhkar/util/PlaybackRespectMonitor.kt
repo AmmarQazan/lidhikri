@@ -43,6 +43,8 @@ class PlaybackRespectMonitor(
         }
     }
 
+    private var startedAtElapsed = 0L
+
     private val poll = object : Runnable {
         override fun run() {
             if (!active) return
@@ -54,6 +56,7 @@ class PlaybackRespectMonitor(
     fun start() {
         if (active) return
         active = true
+        startedAtElapsed = android.os.SystemClock.elapsedRealtime()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             playbackCallback?.let { audioManager.registerAudioPlaybackCallback(it, handler) }
         }
@@ -81,6 +84,7 @@ class PlaybackRespectMonitor(
 
     private fun checkNow() {
         if (!active) return
+        if (android.os.SystemClock.elapsedRealtime() - startedAtElapsed < GRACE_MS) return
         if (DeviceAudioGate.shouldSuppressPlayback(context, settings, userInitiated, ignoreQuietMode)) {
             stop()
             onSuppress()
@@ -89,5 +93,6 @@ class PlaybackRespectMonitor(
 
     private companion object {
         const val POLL_MS = 1_000L
+        const val GRACE_MS = 1_200L
     }
 }

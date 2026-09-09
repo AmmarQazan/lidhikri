@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,6 +36,8 @@ fun PlaybackControlBar(
     playEnabled: Boolean,
     modifier: Modifier = Modifier,
     playLabel: String = stringResource(R.string.azkar_play_tts),
+    onSkipNext: () -> Unit = {},
+    skipEnabled: Boolean = false,
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -69,6 +72,20 @@ fun PlaybackControlBar(
                 contentDescription = stringResource(
                     if (canResume) R.string.azkar_resume else R.string.azkar_pause
                 ),
+            )
+        }
+        IconButton(
+            onClick = onSkipNext,
+            enabled = skipEnabled,
+            modifier = Modifier.size(40.dp),
+            colors = IconButtonDefaults.iconButtonColors(
+                contentColor = GreenPrimaryDark,
+                disabledContentColor = GreenPrimaryDark.copy(alpha = 0.3f),
+            ),
+        ) {
+            Icon(
+                Icons.Filled.SkipNext,
+                contentDescription = stringResource(R.string.azkar_next_dhikr),
             )
         }
         OutlinedButton(

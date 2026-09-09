@@ -1,5 +1,6 @@
 package com.greendome.adhkar.ui.screens
 
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -99,6 +100,9 @@ import com.greendome.adhkar.ui.components.AudioUnavailableDialog
 import com.greendome.adhkar.ui.components.AzkarFontSizeButtons
 import com.greendome.adhkar.ui.components.DisplayModeToggle
 import com.greendome.adhkar.ui.components.PlaybackControlBar
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import com.greendome.adhkar.data.local.AdhkarCollectionEntity
 import com.greendome.adhkar.data.local.AzkarItemEntity
@@ -106,6 +110,7 @@ import com.greendome.adhkar.data.local.DhikrEntity
 import com.greendome.adhkar.prayer.PrayerRespectGate
 import com.greendome.adhkar.service.AdhkarReminderService
 import com.greendome.adhkar.service.AfterPrayerAlarmScheduler
+import com.greendome.adhkar.service.AutoAzkarEventPlayer
 import com.greendome.adhkar.service.HomeGeofenceScheduler
 import com.greendome.adhkar.service.ReminderScheduler
 import com.greendome.adhkar.service.VehicleActivityScheduler
@@ -526,7 +531,10 @@ fun AzkarCollectionScreen(
     val listState = rememberLazyListState()
     var playbackState by remember { mutableStateOf(TtsPlaybackState.IDLE) }
     var playingItemId by remember { mutableStateOf<Long?>(null) }
+    var playbackQueueIds by remember { mutableStateOf<List<Long>>(emptyList()) }
     var stopPlaybackRequested by remember { mutableStateOf(false) }
+    var skipCurrentRequested by remember { mutableStateOf(false) }
+    var playbackJob by remember { mutableStateOf<Job?>(null) }
     var showNoAudioAlert by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -535,6 +543,7 @@ fun AzkarCollectionScreen(
     var afterAdhanOn by remember(collection.id) { mutableStateOf(settings.afterAdhanAzkarEnabled) }
     var homeAzkarOn by remember(collection.id) { mutableStateOf(settings.homeAzkarEnabled) }
     var ridingAzkarOn by remember(collection.id) { mutableStateOf(settings.ridingAzkarEnabled) }
+    var monitorTick by remember(collection.id) { mutableIntStateOf(0) }
     val ridingPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
@@ -544,6 +553,15 @@ fun AzkarCollectionScreen(
             ridingAzkarOn = false
             settings.ridingAzkarEnabled = false
             VehicleActivityScheduler.unregister(context)
+        }
+    }
+    LaunchedEffect(collection.id) {
+        val tracksMonitor = collection.id == HomeAzkar.COLLECTION_ID ||
+            collection.id == RidingAzkar.COLLECTION_ID
+        if (!tracksMonitor) return@LaunchedEffect
+        while (isActive) {
+            monitorTick++
+            delay(2_000)
         }
     }
     val audioPlayer = remember { DhikrAudioPlayer(context) }
@@ -568,54 +586,90 @@ fun AzkarCollectionScreen(
         listState.animateScrollToItem(AZKAR_LIST_HEADER_COUNT + itemIndex)
     }
 
+    LaunchedEffect(playingItemId, displayMode, selectedItem) {
+        if (displayMode != AzkarDisplayMode.LIST || selectedItem != null) return@LaunchedEffect
+        val id = playingItemId ?: return@LaunchedEffect
+        val itemIndex = items.indexOfFirst { it.id == id }.takeIf { it >= 0 } ?: return@LaunchedEffect
+        val listIndex = AZKAR_LIST_HEADER_COUNT + itemIndex
+        val alreadyVisible = listState.layoutInfo.visibleItemsInfo.any { it.index == listIndex }
+        if (!alreadyVisible) {
+            listState.animateScrollToItem(listIndex)
+        }
+    }
+
     DisposableEffect(Unit) {
         onDispose {
+            playbackJob?.cancel()
             audioPlayer.stop()
         }
     }
 
     fun stopPlayback() {
         stopPlaybackRequested = true
+        skipCurrentRequested = false
+        playbackJob?.cancel()
         audioPlayer.stop()
         playbackState = TtsPlaybackState.IDLE
         playingItemId = null
+        playbackQueueIds = emptyList()
     }
 
     fun beginPlayback() {
         stopPlaybackRequested = false
-        audioPlayer.stop()
+        skipCurrentRequested = false
+        audioPlayer.resetForNewPlayback()
         playbackState = TtsPlaybackState.IDLE
         playingItemId = null
     }
 
+    fun skipToNextDhikr() {
+        if (playbackState != TtsPlaybackState.PLAYING) return
+        val currentId = playingItemId
+        if (currentId != null) {
+            val idx = playbackQueueIds.indexOf(currentId)
+            if (idx < 0 || idx >= playbackQueueIds.lastIndex) return
+        } else if (playbackQueueIds.size <= 1) {
+            return
+        }
+        skipCurrentRequested = true
+        audioPlayer.finishCurrentItem()
+    }
+
     fun playItem(item: AzkarItemEntity) {
-        scope.launch {
+        playbackJob?.cancel()
+        playbackJob = scope.launch {
             val playable = AzkarPlaybackResolver.resolvePlayable(context, item)
             if (playable == null) {
                 showNoAudioAlert = true
                 return@launch
             }
             beginPlayback()
+            playbackQueueIds = listOf(item.id)
             playingItemId = item.id
             playbackState = TtsPlaybackState.PLAYING
-            playAzkarItemsOrdered(
-                context = context,
-                items = listOf(item),
-                audioPlayer = audioPlayer,
-                settings = settings,
-                isCancelled = { stopPlaybackRequested },
-                onMissingAudio = { showNoAudioAlert = true },
-            )
-            if (!stopPlaybackRequested) {
-                playbackState = TtsPlaybackState.IDLE
-                playingItemId = null
+            try {
+                playAzkarItemsOrdered(
+                    context = context,
+                    items = listOf(item),
+                    audioPlayer = audioPlayer,
+                    settings = settings,
+                    isCancelled = { stopPlaybackRequested },
+                    onMissingAudio = { showNoAudioAlert = true },
+                )
+            } finally {
+                if (!stopPlaybackRequested) {
+                    playbackState = TtsPlaybackState.IDLE
+                    playingItemId = null
+                    playbackQueueIds = emptyList()
+                }
             }
         }
     }
 
     fun playSelected() {
         if (selectedIds.isEmpty()) return
-        scope.launch {
+        playbackJob?.cancel()
+        playbackJob = scope.launch {
             val selectedItems = items.filter { it.id in selectedIds }
             val hasAnyAudio = selectedItems.any {
                 AzkarPlaybackResolver.resolvePlayable(context, it) != null
@@ -625,18 +679,26 @@ fun AzkarCollectionScreen(
                 return@launch
             }
             beginPlayback()
+            playbackQueueIds = selectedItems.map { it.id }
             playbackState = TtsPlaybackState.PLAYING
-            playAzkarItemsOrdered(
-                context = context,
-                items = selectedItems,
-                audioPlayer = audioPlayer,
-                settings = settings,
-                isCancelled = { stopPlaybackRequested },
-                onMissingAudio = { showNoAudioAlert = true },
-            )
-            if (!stopPlaybackRequested) {
-                playbackState = TtsPlaybackState.IDLE
-                playingItemId = null
+            try {
+                playAzkarItemsOrdered(
+                    context = context,
+                    items = selectedItems,
+                    audioPlayer = audioPlayer,
+                    settings = settings,
+                    isCancelled = { stopPlaybackRequested },
+                    onMissingAudio = {},
+                    onItemStart = { playingItemId = it.id },
+                    shouldSkipCurrent = { skipCurrentRequested },
+                    onSkipConsumed = { skipCurrentRequested = false },
+                )
+            } finally {
+                if (!stopPlaybackRequested) {
+                    playbackState = TtsPlaybackState.IDLE
+                    playingItemId = null
+                    playbackQueueIds = emptyList()
+                }
             }
         }
     }
@@ -684,6 +746,10 @@ fun AzkarCollectionScreen(
         settings.homeAzkarEnabled = enabled
         if (enabled) {
             HomeGeofenceScheduler.register(context)
+            val needsSetup = !settings.hasHomeLocation ||
+                (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+                    !RuntimePermissions.hasBackgroundLocation(context))
+            if (needsSetup) onOpenHomeAzkarSettings()
         } else {
             HomeGeofenceScheduler.unregister(context)
         }
@@ -706,6 +772,13 @@ fun AzkarCollectionScreen(
 
     @Composable
     fun AzkarPlaybackSection(modifier: Modifier = Modifier) {
+        val canSkipToNext = playbackState == TtsPlaybackState.PLAYING &&
+            playbackQueueIds.size > 1 &&
+            (playingItemId?.let { id ->
+                val idx = playbackQueueIds.indexOf(id)
+                idx >= 0 && idx < playbackQueueIds.lastIndex
+            } ?: true)
+        val playingItem = playingItemId?.let { id -> items.find { it.id == id } }
         Column(modifier = modifier) {
             PlaybackControlBar(
                 playbackState = playbackState,
@@ -716,10 +789,19 @@ fun AzkarCollectionScreen(
                 onResume = {},
                 onStop = { stopPlayback() },
                 playEnabled = selectedIds.isNotEmpty() && playbackState != TtsPlaybackState.PLAYING,
+                onSkipNext = { skipToNextDhikr() },
+                skipEnabled = canSkipToNext,
             )
             if (playbackState == TtsPlaybackState.PLAYING) {
                 Text(
-                    stringResource(R.string.azkar_playing_reciter),
+                    if (playingItem != null) {
+                        stringResource(
+                            R.string.azkar_now_playing,
+                            azkarNowPlayingPreview(playingItem.localizedText(lang)),
+                        )
+                    } else {
+                        stringResource(R.string.azkar_playing_reciter)
+                    },
                     style = MaterialTheme.typography.labelMedium,
                     color = GreenPrimary,
                     modifier = Modifier.padding(top = 4.dp),
@@ -910,7 +992,6 @@ fun AzkarCollectionScreen(
                             Column(modifier = Modifier.fillMaxWidth()) {
                                 SettingRow(stringResource(R.string.azkar_auto_enable), homeAzkarOn) { on ->
                                     persistHomeAzkar(on)
-                                    if (on && !settings.hasHomeLocation) onOpenHomeAzkarSettings()
                                 }
                                 Text(
                                     stringResource(
@@ -920,6 +1001,19 @@ fun AzkarCollectionScreen(
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.padding(top = 4.dp, bottom = 8.dp)
+                                )
+                                val homeStatus = remember(monitorTick) { settings.homeMonitorStatus }
+                                val homeNeedsBg = remember(monitorTick) { settings.homeNeedsBackgroundPermission }
+                                val lastEnter = remember(monitorTick) { settings.homeLastEnterAt }
+                                val lastExit = remember(monitorTick) { settings.homeLastExitAt }
+                                val homePlayErr = remember(monitorTick) { settings.homeLastPlayError }
+                                HomeAzkarMonitorStatus(
+                                    status = homeStatus,
+                                    needsBackground = homeNeedsBg,
+                                    lastEnterAt = lastEnter,
+                                    lastExitAt = lastExit,
+                                    playError = homePlayErr,
+                                    modifier = Modifier.padding(bottom = 8.dp),
                                 )
                                 SettingsNavCard(
                                     title = stringResource(R.string.home_azkar_settings_title),
@@ -940,8 +1034,31 @@ fun AzkarCollectionScreen(
                                     ),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.padding(top = 4.dp)
+                                    modifier = Modifier.padding(top = 4.dp, bottom = 8.dp)
                                 )
+                                val ridingStatus = remember(monitorTick) { settings.ridingMonitorStatus }
+                                val lastRide = remember(monitorTick) { settings.ridingLastPlayAt }
+                                val ridePlayErr = remember(monitorTick) { settings.ridingLastPlayError }
+                                RidingAzkarMonitorStatus(
+                                    status = ridingStatus,
+                                    lastPlayAt = lastRide,
+                                    playError = ridePlayErr,
+                                    modifier = Modifier.padding(bottom = 8.dp),
+                                )
+                                OutlinedButton(
+                                    onClick = {
+                                        scope.launch {
+                                            AutoAzkarEventPlayer.playRiding(
+                                                context,
+                                                ignoreCooldown = true,
+                                                recordEvent = false,
+                                            )
+                                        }
+                                    },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(stringResource(R.string.riding_azkar_test_play))
+                                }
                             }
                         }
                         collection.autoPlayAllowed -> {
@@ -1106,16 +1223,22 @@ fun AzkarCollectionScreen(
                 items(items, key = { it.id }) { item ->
                     val checked = item.id in selectedIds
                     val isSearchTarget = initialItemId != null && item.id == initialItemId
+                    val isPlayingThis = playingItemId == item.id && playbackState != TtsPlaybackState.IDLE
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
-                        border = if (isSearchTarget) BorderStroke(2.dp, GreenPrimary) else null,
-                        colors = if (isSearchTarget) {
-                            CardDefaults.cardColors(
+                        border = when {
+                            isPlayingThis || isSearchTarget -> BorderStroke(2.dp, GreenPrimary)
+                            else -> null
+                        },
+                        colors = when {
+                            isPlayingThis -> CardDefaults.cardColors(
+                                containerColor = GreenPrimary.copy(alpha = 0.18f)
+                            )
+                            isSearchTarget -> CardDefaults.cardColors(
                                 containerColor = GreenPrimary.copy(alpha = 0.08f)
                             )
-                        } else {
-                            CardDefaults.cardColors()
+                            else -> CardDefaults.cardColors()
                         },
                     ) {
                         Row(
@@ -1138,7 +1261,17 @@ fun AzkarCollectionScreen(
                                     maxLines = 3,
                                     overflow = TextOverflow.Ellipsis,
                                     style = listTextStyle,
+                                    color = if (isPlayingThis) GreenPrimaryDark else listTextStyle.color,
                                 )
+                                if (isPlayingThis) {
+                                    Text(
+                                        stringResource(R.string.azkar_playing),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = GreenPrimary,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.padding(top = 2.dp),
+                                    )
+                                }
                                 if (item.hasOwnHijri()) {
                                     Text(
                                         CollectionScheduleHelper.hijriSummaryAr(item),
@@ -1165,7 +1298,6 @@ fun AzkarCollectionScreen(
                                     tint = if (isFavorite) GoldDome else GreenPrimary.copy(alpha = 0.5f)
                                 )
                             }
-                            val isPlayingThis = playingItemId == item.id && playbackState != TtsPlaybackState.IDLE
                             IconButton(
                                 onClick = {
                                     if (isPlayingThis) stopPlayback() else playItem(item)
@@ -1201,4 +1333,9 @@ private fun SettingRow(label: String, checked: Boolean, onChange: (Boolean) -> U
         Text(label, modifier = Modifier.weight(1f))
         Switch(checked = checked, onCheckedChange = onChange)
     }
+}
+
+private fun azkarNowPlayingPreview(text: String, maxLength: Int = 48): String {
+    val normalized = text.trim().replace(Regex("\\s+"), " ")
+    return if (normalized.length <= maxLength) normalized else normalized.take(maxLength) + "…"
 }

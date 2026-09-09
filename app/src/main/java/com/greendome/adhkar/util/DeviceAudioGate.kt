@@ -153,14 +153,16 @@ object DeviceAudioGate {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return false
         val wanted = usages.toHashSet()
         return audioManager.activePlaybackConfigurations.any { config ->
-            clientUidOf(config) != myUid && config.audioAttributes.usage in wanted
+            val uid = clientUidOf(config)
+            uid >= 0 && uid != myUid && config.audioAttributes.usage in wanted
         }
     }
 
     private fun hasActiveSpeechPlaybackFromOthers(audioManager: AudioManager, myUid: Int): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return false
         return audioManager.activePlaybackConfigurations.any { config ->
-            if (clientUidOf(config) == myUid) return@any false
+            val uid = clientUidOf(config)
+            if (uid < 0 || uid == myUid) return@any false
             val attrs = config.audioAttributes
             attrs.contentType == AudioAttributes.CONTENT_TYPE_SPEECH &&
                 attrs.usage != AudioAttributes.USAGE_ALARM &&
@@ -173,7 +175,8 @@ object DeviceAudioGate {
     private fun clientUidOf(config: android.media.AudioPlaybackConfiguration): Int {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return -1
         return runCatching {
-            config.javaClass.getMethod("getClientUid").invoke(config) as Int
+            val raw = config.javaClass.getMethod("getClientUid").invoke(config)
+            (raw as? Number)?.toInt() ?: -1
         }.getOrDefault(-1)
     }
 
