@@ -37,6 +37,7 @@ import com.greendome.adhkar.service.AdhanAlarmScheduler
 import com.greendome.adhkar.service.AdhanAlertNotifier
 import com.greendome.adhkar.service.AdhanPlaybackService
 import com.greendome.adhkar.service.AzkarCollectionPlayService
+import com.greendome.adhkar.service.ForegroundServiceStarts
 import com.greendome.adhkar.ui.theme.AppArabicFont
 import com.greendome.adhkar.ui.theme.GreenDomeTheme
 import com.greendome.adhkar.util.LocaleHelper
@@ -86,7 +87,7 @@ class AdhanActivity : ComponentActivity() {
                         },
                         onOpenAzkar = {
                             AdhanPlaybackService.stop(this)
-                            ContextCompat.startForegroundService(
+                            ForegroundServiceStarts.start(
                                 this,
                                 Intent(this, AzkarCollectionPlayService::class.java).apply {
                                     putExtra(

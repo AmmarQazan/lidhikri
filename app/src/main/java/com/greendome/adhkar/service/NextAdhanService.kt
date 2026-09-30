@@ -3,8 +3,8 @@ package com.greendome.adhkar.service
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.os.IBinder
-import androidx.core.content.ContextCompat
 import com.greendome.adhkar.data.SettingsRepository
 import com.greendome.adhkar.prayer.NextAdhanStatus
 import kotlinx.coroutines.CoroutineScope
@@ -21,25 +21,22 @@ class NextAdhanService : Service() {
     override fun onCreate() {
         super.onCreate()
         SilentNotificationChannels.ensureCreated(this)
-        if (!promoteForeground()) {
-            stopSelf()
+        if (!promoteStatus()) {
+            acknowledgeThenStop()
             return
         }
         startTicker()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.action == ACTION_STOP || !promoteForeground()) {
-            ticker?.cancel()
-            stopForeground(STOP_FOREGROUND_REMOVE)
-            NextAdhanNotifier.cancel(this)
-            stopSelf()
+        if (intent?.action == ACTION_STOP || !promoteStatus()) {
+            acknowledgeThenStop()
             return START_NOT_STICKY
         }
         return START_STICKY
     }
 
-    private fun promoteForeground(): Boolean {
+    private fun promoteStatus(): Boolean {
         val status = NextAdhanStatus.resolve(SettingsRepository(this).prayerConfig())
         val notification = if (status == null) {
             null
@@ -50,8 +47,24 @@ class NextAdhanService : Service() {
             NextAdhanNotifier.cancel(this)
             return false
         }
-        startForeground(SilentNotificationChannels.NEXT_ADHAN_NOTIFICATION_ID, notification)
+        promoteForeground(
+            SilentNotificationChannels.NEXT_ADHAN_NOTIFICATION_ID,
+            notification,
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE,
+        )
         return true
+    }
+
+    private fun acknowledgeThenStop() {
+        promoteForeground(
+            SilentNotificationChannels.NEXT_ADHAN_NOTIFICATION_ID,
+            SilentNotificationChannels.shell(this, SilentNotificationChannels.NEXT_ADHAN),
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE,
+        )
+        ticker?.cancel()
+        stopForeground(STOP_FOREGROUND_REMOVE)
+        NextAdhanNotifier.cancel(this)
+        stopSelf()
     }
 
     private fun startTicker() {
@@ -65,9 +78,10 @@ class NextAdhanService : Service() {
                     stopSelf()
                     return@launch
                 }
-                startForeground(
+                promoteForeground(
                     SilentNotificationChannels.NEXT_ADHAN_NOTIFICATION_ID,
                     NextAdhanNotifier.build(this@NextAdhanService, status = status),
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE,
                 )
                 val now = System.currentTimeMillis()
                 val toMinute = 60_000L - (now % 60_000L)
@@ -95,20 +109,20 @@ class NextAdhanService : Service() {
             val status = NextAdhanStatus.resolve(SettingsRepository(app).prayerConfig())
             if (status == null) {
                 if (ServiceRunningHelper.isRunning(app, NextAdhanService::class.java)) {
-                    app.startService(
-                        Intent(app, NextAdhanService::class.java).apply { action = ACTION_STOP },
-                    )
+                    val stop = Intent(app, NextAdhanService::class.java).apply { action = ACTION_STOP }
+                    if (!ForegroundServiceStarts.deliver(app, stop)) {
+                        ForegroundServiceStarts.start(app, stop)
+                    }
                 } else {
                     NextAdhanNotifier.cancel(app)
                 }
                 return
             }
-            runCatching {
-                ContextCompat.startForegroundService(
+            if (!ForegroundServiceStarts.start(
                     app,
                     Intent(app, NextAdhanService::class.java).apply { action = ACTION_START },
                 )
-            }.onFailure {
+            ) {
                 NextAdhanNotifier.show(app, status)
             }
         }

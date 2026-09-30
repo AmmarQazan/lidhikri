@@ -15,7 +15,8 @@ import com.greendome.adhkar.prayer.PrayerQuietWindows
 
 /**
  * يحوّل الهاتف إلى الرجاج بعد الأذان وأذكار ما بعد الأذان حتى موعد أذكار ما بعد الصلاة.
- * رنين بلا صوت مع اهتزاز — يحتاج إذن وضع عدم الإزعاج لتغيير وضع الرنين.
+ * أندرويد يربط تغيير الرنين بإذن عدم الإزعاج، لذلك يُعاد وضع الصوت وفلتر التنبيهات
+ * عند نهاية نافذة هذه الصلاة فقط، ولا يُمدَّد الوضع إلى الصلاة التالية.
  */
 object PrayerPhoneSilent {
     private const val EXIT_REQUEST = 7201
@@ -45,26 +46,29 @@ object PrayerPhoneSilent {
         if (!settings.silentDuringFardPrayer) return
         if (!hasPolicyAccess(app)) return
         if (AdhanPlaybackService.isPlaying()) return
+        val config = settings.prayerConfig()
+        val endAt = PrayerQuietWindows.activePhoneSilentEndAt(config)
+        if (endAt == null) {
+            if (settings.prayerPhoneSilentActive) exit(app)
+            return
+        }
         val manager = app.getSystemService(NotificationManager::class.java) ?: return
         val audio = app.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         if (!settings.prayerPhoneSilentActive) {
             settings.prayerPhoneSilentPrevFilter = manager.currentInterruptionFilter
             settings.prayerPhoneSilentPrevRinger = audio.ringerMode
             settings.prayerPhoneSilentActive = true
-            runCatching {
-                if (manager.currentInterruptionFilter == NotificationManager.INTERRUPTION_FILTER_NONE) {
-                    manager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
-                }
-                audio.ringerMode = AudioManager.RINGER_MODE_VIBRATE
-            }
+            applyVibrate(manager, audio, settings.prayerPhoneSilentPrevFilter)
         }
-        scheduleExit(app, settings.prayerConfig())
+        settings.prayerPhoneSilentUntil = endAt
+        scheduleExit(app, config)
     }
 
     fun exit(context: Context) {
         val app = context.applicationContext
         val settings = SettingsRepository(app)
         if (!settings.prayerPhoneSilentActive) {
+            settings.prayerPhoneSilentUntil = 0L
             cancel(app, EXIT_REQUEST, ACTION_EXIT)
             return
         }
@@ -72,19 +76,11 @@ object PrayerPhoneSilent {
         val audio = app.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val previousFilter = settings.prayerPhoneSilentPrevFilter
         val previousRinger = settings.prayerPhoneSilentPrevRinger
-        runCatching {
-            manager?.setInterruptionFilter(
-                if (previousFilter > 0) previousFilter else NotificationManager.INTERRUPTION_FILTER_ALL
-            )
-        }
-        runCatching {
-            if (previousRinger >= AudioManager.RINGER_MODE_SILENT) {
-                audio.ringerMode = previousRinger
-            }
-        }
+        restoreAudio(manager, audio, previousFilter, previousRinger)
         settings.prayerPhoneSilentActive = false
         settings.prayerPhoneSilentPrevFilter = -1
         settings.prayerPhoneSilentPrevRinger = -1
+        settings.prayerPhoneSilentUntil = 0L
         cancel(app, EXIT_REQUEST, ACTION_EXIT)
     }
 
@@ -97,9 +93,7 @@ object PrayerPhoneSilent {
             return
         }
         val config = settings.prayerConfig()
-        val now = System.currentTimeMillis()
-        val endAt = PrayerQuietWindows.nextPhoneSilentEndAt(config, now - 1L)
-        if (settings.prayerPhoneSilentActive && (endAt == null || now >= endAt)) {
+        if (settings.prayerPhoneSilentActive && !insideSilentWindow(settings, config)) {
             exit(app)
         }
         reschedule(app)
@@ -118,9 +112,77 @@ object PrayerPhoneSilent {
         scheduleEnterIfNoAdhan(app, config)
     }
 
+    private fun insideSilentWindow(settings: SettingsRepository, config: PrayerConfig): Boolean {
+        val now = System.currentTimeMillis()
+        val windowEnd = PrayerQuietWindows.activePhoneSilentEndAt(config, now) ?: return false
+        val stored = settings.prayerPhoneSilentUntil
+        val deadline = if (stored > 0L) minOf(stored, windowEnd) else windowEnd
+        return now < deadline
+    }
+
+    /**
+     * تغيير الرنين قد يفعّل عدم الإزعاج على بعض الأجهزة.
+     * نُبقي فلتر التنبيهات كما كان قبل التفعيل حتى لا يبقى الهاتف في عدم الإزعاج.
+     */
+    private fun applyVibrate(manager: NotificationManager, audio: AudioManager, previousFilter: Int) {
+        val keep = filterDuringVibrate(previousFilter)
+        runCatching {
+            audio.ringerMode = AudioManager.RINGER_MODE_VIBRATE
+            if (manager.currentInterruptionFilter != keep) {
+                manager.setInterruptionFilter(keep)
+            }
+            if (audio.ringerMode != AudioManager.RINGER_MODE_VIBRATE) {
+                audio.ringerMode = AudioManager.RINGER_MODE_VIBRATE
+            }
+            if (manager.currentInterruptionFilter != keep) {
+                manager.setInterruptionFilter(keep)
+            }
+        }
+    }
+
+    /** الرنين أولاً ثم فلتر التنبيهات، حتى لا يعيد تغيير الرنين تفعيل عدم الإزعاج. */
+    private fun restoreAudio(
+        manager: NotificationManager?,
+        audio: AudioManager,
+        previousFilter: Int,
+        previousRinger: Int,
+    ) {
+        val restore = if (previousFilter > 0) {
+            previousFilter
+        } else {
+            NotificationManager.INTERRUPTION_FILTER_ALL
+        }
+        runCatching {
+            if (previousRinger >= AudioManager.RINGER_MODE_SILENT) {
+                audio.ringerMode = previousRinger
+            }
+        }
+        runCatching { manager?.setInterruptionFilter(restore) }
+    }
+
+    private fun filterDuringVibrate(previousFilter: Int): Int = when (previousFilter) {
+        NotificationManager.INTERRUPTION_FILTER_NONE,
+        NotificationManager.INTERRUPTION_FILTER_UNKNOWN,
+        0, -1 -> NotificationManager.INTERRUPTION_FILTER_ALL
+        else -> previousFilter
+    }
+
     private fun scheduleExit(context: Context, config: PrayerConfig) {
-        val endAt = PrayerQuietWindows.nextPhoneSilentEndAt(config) ?: run {
+        val settings = SettingsRepository(context)
+        if (!settings.prayerPhoneSilentActive) {
             cancel(context, EXIT_REQUEST, ACTION_EXIT)
+            return
+        }
+        val now = System.currentTimeMillis()
+        val windowEnd = PrayerQuietWindows.activePhoneSilentEndAt(config, now)
+        val stored = settings.prayerPhoneSilentUntil
+        val endAt = when {
+            windowEnd == null -> null
+            stored > now -> minOf(stored, windowEnd)
+            else -> windowEnd
+        }
+        if (endAt == null || endAt <= now) {
+            exit(context)
             return
         }
         setExact(context, EXIT_REQUEST, ACTION_EXIT, endAt)
@@ -145,11 +207,7 @@ object PrayerPhoneSilent {
     private fun setExact(context: Context, request: Int, action: String, atMillis: Long) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val pending = pending(context, request, action)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, atMillis, pending)
-        } else {
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, atMillis, pending)
-        }
+        alarmManager.scheduleWakeup(atMillis, pending)
     }
 
     private fun cancel(context: Context, request: Int, action: String) {

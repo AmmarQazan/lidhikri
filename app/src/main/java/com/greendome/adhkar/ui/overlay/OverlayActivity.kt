@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.core.content.ContextCompat
 import com.greendome.adhkar.data.SettingsRepository
 import com.greendome.adhkar.service.AzkarCollectionPlayService
 import com.greendome.adhkar.ui.theme.AppArabicFont
@@ -75,12 +74,7 @@ class OverlayActivity : ComponentActivity() {
     }
 
     private fun stopAutoAzkarPlayback() {
-        ContextCompat.startForegroundService(
-            this,
-            Intent(this, AzkarCollectionPlayService::class.java).apply {
-                action = AzkarCollectionPlayService.ACTION_STOP_AUTO_AZKAR
-            }
-        )
+        AzkarCollectionPlayService.stopAutoAzkar(this)
     }
 
     companion object {

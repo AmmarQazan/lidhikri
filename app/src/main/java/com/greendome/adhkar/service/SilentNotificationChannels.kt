@@ -180,6 +180,14 @@ object SilentNotificationChannels {
             .setSmallIcon(com.greendome.adhkar.R.drawable.ic_notification)
             .setColor(ContextCompat.getColor(context, com.greendome.adhkar.R.color.green_primary))
 
+    /** إشعار صامت يكفي لعقد startForeground قبل الإيقاف. */
+    fun shell(context: Context, channelId: String): Notification =
+        applyAppIcon(NotificationCompat.Builder(context, channelId), context)
+            .setContentTitle(context.getString(com.greendome.adhkar.R.string.app_name))
+            .setSilent(true)
+            .setOngoing(true)
+            .build()
+
     fun applyTextReminderDefaults(builder: NotificationCompat.Builder): NotificationCompat.Builder =
         builder
             .setSilent(true)

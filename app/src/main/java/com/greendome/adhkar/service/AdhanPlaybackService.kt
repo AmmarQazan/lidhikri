@@ -4,13 +4,13 @@ import android.app.KeyguardManager
 import android.app.Notification
 import android.app.PendingIntent
 import android.app.Service
+import android.content.pm.ServiceInfo
 import android.content.Context
 import android.content.Intent
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
 import com.greendome.adhkar.R
 import com.greendome.adhkar.audio.DhikrAudioPlayer
 import com.greendome.adhkar.data.AdhanAzkar
@@ -38,20 +38,20 @@ class AdhanPlaybackService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        when (intent?.action) {
-            ACTION_STOP -> {
-                finishPlayback()
-                PrayerPhoneSilent.enter(this)
-                return START_NOT_STICKY
-            }
+        AdhanAlertNotifier.ensureChannel(this)
+        if (intent?.action == ACTION_STOP) {
+            acknowledgeForeground()
+            finishPlayback()
+            PrayerPhoneSilent.enter(this)
+            return START_NOT_STICKY
         }
         val prayer = runCatching {
             PrayerName.valueOf(intent?.getStringExtra(AdhanAlarmScheduler.EXTRA_PRAYER).orEmpty())
         }.getOrNull() ?: run {
+            acknowledgeForeground()
             stopSelf()
             return START_NOT_STICKY
         }
-        AdhanAlertNotifier.ensureChannel(this)
         val settings = SettingsRepository(this)
         val modes = settings.adhanPresentation.toDisplayModes()
         val locked = isKeyguardLocked()
@@ -59,9 +59,10 @@ class AdhanPlaybackService : Service() {
             !modes.audioOnly && !modes.showsTextViaNotification()
         val wantPopup = modes.showsTextViaPopup()
         val wantScreen = wantPopup || wantLock
-        startForeground(
+        promoteForeground(
             AdhanAlertNotifier.NOTIF_ADHAN,
-            buildNotification(prayer, fullScreen = wantScreen, ongoing = modes.playsAudio())
+            buildNotification(prayer, fullScreen = wantScreen, ongoing = modes.playsAudio()),
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK,
         )
         val duplicate = !AdhanPlaybackGuard.shouldStartNewPlayback(
             currentPrayer = playingPrayer,
@@ -160,12 +161,20 @@ class AdhanPlaybackService : Service() {
     }
 
     private fun startAfterAzkar() {
-        ContextCompat.startForegroundService(
+        ForegroundServiceStarts.start(
             this,
             Intent(this, AzkarCollectionPlayService::class.java).apply {
                 putExtra(AzkarCollectionPlayService.EXTRA_COLLECTION_ID, AdhanAzkar.COLLECTION_ID)
                 putExtra(AzkarCollectionPlayService.EXTRA_FORCE_PLAY, true)
             }
+        )
+    }
+
+    private fun acknowledgeForeground() {
+        promoteForeground(
+            AdhanAlertNotifier.NOTIF_ADHAN,
+            SilentNotificationChannels.shell(this, AdhanAlertNotifier.CHANNEL),
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK,
         )
     }
 
@@ -179,7 +188,7 @@ class AdhanPlaybackService : Service() {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             putExtra(AdhanAlarmScheduler.EXTRA_PRAYER, prayer.name)
         }
-        startActivity(screen)
+        runCatching { startActivity(screen) }
     }
 
     private fun buildNotification(

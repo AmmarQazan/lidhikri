@@ -56,7 +56,6 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import com.greendome.adhkar.data.AzkarFavorites
 import com.greendome.adhkar.data.local.AdhkarCollectionEntity
 import com.greendome.adhkar.data.local.AzkarItemEntity
@@ -64,6 +63,7 @@ import com.greendome.adhkar.data.local.DhikrEntity
 import com.greendome.adhkar.data.local.ReciterEntity
 import com.greendome.adhkar.data.model.DhikrCategory
 import com.greendome.adhkar.service.AdhkarReminderService
+import com.greendome.adhkar.service.ForegroundServiceStarts
 import com.greendome.adhkar.service.HomeGeofenceScheduler
 import com.greendome.adhkar.service.NextAdhanService
 import com.greendome.adhkar.service.NextAzkarNotifier
@@ -121,6 +121,7 @@ import com.greendome.adhkar.update.ProvidePlayAppUpdate
 import com.greendome.adhkar.update.rememberPlayAppUpdateController
 import com.greendome.adhkar.util.AppLanguages
 import com.greendome.adhkar.util.LocaleHelper
+import com.greendome.adhkar.util.BatteryExemption
 import com.greendome.adhkar.util.RuntimePermissions
 import com.greendome.adhkar.widget.DhikrOfDayManager
 import kotlinx.coroutines.launch
@@ -152,6 +153,13 @@ class MainActivity : ComponentActivity() {
             var pendingOnboardingServiceEnable by remember { mutableStateOf(false) }
             var pendingOnboardingRiding by remember { mutableStateOf(false) }
             var pendingOnboardingHome by remember { mutableStateOf(false) }
+            var promptBatteryAfterPermissions by remember { mutableStateOf(false) }
+
+            fun promptBatteryNow() {
+                if (!promptBatteryAfterPermissions) return
+                promptBatteryAfterPermissions = false
+                BatteryExemption.request(this@MainActivity)
+            }
             val layoutDirection = if (AppLanguages.isRtl(lang)) LayoutDirection.Rtl else LayoutDirection.Ltr
             val splashDurationMs = if (showOnboarding) 900L else 1400L
 
@@ -159,16 +167,21 @@ class MainActivity : ComponentActivity() {
                 ActivityResultContracts.RequestPermission()
             ) {
                 HomeGeofenceScheduler.register(this@MainActivity)
+                promptBatteryNow()
             }
 
             fun requestHomeBackgroundIfNeeded(homeEnabled: Boolean) {
-                if (!homeEnabled) return
+                if (!homeEnabled) {
+                    promptBatteryNow()
+                    return
+                }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
                     !RuntimePermissions.hasBackgroundLocation(this@MainActivity)
                 ) {
                     homeBackgroundLauncher.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
                 } else {
                     HomeGeofenceScheduler.register(this@MainActivity)
+                    promptBatteryNow()
                 }
             }
 
@@ -178,15 +191,14 @@ class MainActivity : ComponentActivity() {
                 if (granted) {
                     VehicleActivityScheduler.register(this@MainActivity)
                 }
-                if (pendingOnboardingHome) {
-                    pendingOnboardingHome = false
-                    requestHomeBackgroundIfNeeded(true)
-                }
+                val homeOn = pendingOnboardingHome
+                pendingOnboardingHome = false
+                requestHomeBackgroundIfNeeded(homeOn)
             }
 
             fun requestRidingPermissionIfNeeded(ridingEnabled: Boolean, homeEnabled: Boolean = false) {
                 val afterRiding = {
-                    if (homeEnabled) requestHomeBackgroundIfNeeded(true)
+                    requestHomeBackgroundIfNeeded(homeEnabled)
                 }
                 if (!ridingEnabled) {
                     afterRiding()
@@ -220,6 +232,7 @@ class MainActivity : ComponentActivity() {
                 settings.isServiceEnabled = result.autoTasbihEnabled
                 val ridingOn = result.ridingAzkarEnabled
                 val homeOn = result.homeAzkarEnabled
+                promptBatteryAfterPermissions = ridingOn || homeOn
                 val needsNotifications = result.autoTasbihEnabled || result.autoAzkarEnabled
                 if (!needsNotifications) {
                     requestRidingPermissionIfNeeded(ridingOn, homeOn)
@@ -331,7 +344,7 @@ class MainActivity : ComponentActivity() {
             InAppReviewPrompt.onMainScreenReady(this)
         }
         if (viewModel.settingsRepo().isServiceEnabled) {
-            ContextCompat.startForegroundService(
+            ForegroundServiceStarts.start(
                 this,
                 Intent(this, AdhkarReminderService::class.java).apply {
                     action = AdhkarReminderService.ACTION_REFRESH
@@ -1113,7 +1126,7 @@ class MainActivity : ComponentActivity() {
                     onNumberDigitStyleChanged = { style ->
                         numberDigitStyle = style
                         if (settings.isServiceEnabled) {
-                            ContextCompat.startForegroundService(
+                            ForegroundServiceStarts.start(
                                 context,
                                 Intent(context, AdhkarReminderService::class.java).apply {
                                     action = AdhkarReminderService.ACTION_REFRESH
@@ -1220,7 +1233,10 @@ class MainActivity : ComponentActivity() {
 
     private fun toggleService(currentlyOn: Boolean) {
         val action = if (currentlyOn) AdhkarReminderService.ACTION_STOP else AdhkarReminderService.ACTION_START
-        ContextCompat.startForegroundService(this, Intent(this, AdhkarReminderService::class.java).apply { this.action = action })
+        ForegroundServiceStarts.start(
+            this,
+            Intent(this, AdhkarReminderService::class.java).apply { this.action = action }
+        )
         viewModel.refreshStats()
     }
 }

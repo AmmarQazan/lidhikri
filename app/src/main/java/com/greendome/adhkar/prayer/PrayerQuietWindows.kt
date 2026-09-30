@@ -10,6 +10,9 @@ object PrayerQuietWindows {
     const val ADHAN_PRIORITY_GRACE_BEFORE_MS = 5_000L
     const val ADHAN_PRIORITY_GRACE_AFTER_MS = 30_000L
 
+    /** مهلة يعتبر فيها المنبّه المبكر نفس موعد أذكار ما بعد الصلاة. */
+    const val AFTER_PRAYER_ALARM_EARLY_SLACK_MS = 120_000L
+
     fun windowsAround(
         config: PrayerConfig,
         atMillis: Long = System.currentTimeMillis()
@@ -72,10 +75,26 @@ object PrayerQuietWindows {
 
     fun nextAfterPrayerTriggerAt(
         config: PrayerConfig,
-        fromMillis: Long = System.currentTimeMillis()
-    ): Long? = afterPrayerTriggersAround(config, fromMillis)
-        .filter { it > fromMillis }
-        .minOrNull()
+        fromMillis: Long = System.currentTimeMillis(),
+        notBefore: Long = Long.MIN_VALUE,
+    ): Long? {
+        val floor = maxOf(fromMillis, notBefore)
+        return afterPrayerTriggersAround(config, fromMillis)
+            .filter { it > floor }
+            .minOrNull()
+    }
+
+    /**
+     * موعد النهاية الذي حلّ الآن، أو ما زال ضمن مهلة التقديم.
+     * يُستخدم حتى لا يُعاد تسليح نفس المنبّه إذا وصل قبل وقته بقليل.
+     */
+    fun afterPrayerTriggerJustDue(
+        config: PrayerConfig,
+        atMillis: Long = System.currentTimeMillis(),
+        earlySlackMs: Long = AFTER_PRAYER_ALARM_EARLY_SLACK_MS,
+    ): Long? = afterPrayerTriggersAround(config, atMillis)
+        .filter { it <= atMillis + earlySlackMs }
+        .maxOrNull()
 
     /** نهاية فترة الفرض — موعد أذكار ما بعد الصلاة، حتى إن كان التذكير موقوفاً. */
     fun nextPhoneSilentEndAt(
@@ -84,6 +103,21 @@ object PrayerQuietWindows {
     ): Long? = prayerPeriodEndsAround(config, fromMillis)
         .filter { it > fromMillis }
         .minOrNull()
+
+    /**
+     * نهاية الرجاج للفرض الذي نحن داخله الآن.
+     * إذا انتهت النافذة لا تُمدَّد إلى الصلاة التالية.
+     */
+    fun activePhoneSilentEndAt(
+        config: PrayerConfig,
+        atMillis: Long = System.currentTimeMillis()
+    ): Long? {
+        val current = prayerPeriodsAround(config, atMillis)
+            .filter { (start, _) -> start <= atMillis }
+            .maxByOrNull { (start, _) -> start }
+            ?: return null
+        return current.second.takeIf { it > atMillis }
+    }
 
     /**
      * موعد التسبيح في نفس دقيقة أذكار ما بعد الصلاة، أو خلال مهلة قصيرة بعدها.
@@ -182,14 +216,20 @@ object PrayerQuietWindows {
         return prayerPeriodEndsAround(config, atMillis)
     }
 
-    private fun prayerPeriodEndsAround(config: PrayerConfig, atMillis: Long): List<Long> {
+    private fun prayerPeriodEndsAround(config: PrayerConfig, atMillis: Long): List<Long> =
+        prayerPeriodsAround(config, atMillis).map { it.second }
+
+    /** بداية الفرض ونهاية نافذة الرجاج (موعد أذكار ما بعد الصلاة). */
+    private fun prayerPeriodsAround(config: PrayerConfig, atMillis: Long): List<Pair<Long, Long>> {
         if (!config.enabled || !config.hasLocation) return emptyList()
         val zone = TimeZone.getTimeZone(PrayerTimesCalculator.zoneId(config))
         return PrayerTimesCalculator.timesAround(config, atMillis).flatMap { day ->
             val cal = Calendar.getInstance(zone).apply { timeInMillis = day.dayStartMillis }
             val friday = cal.get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY
             day.prayers.map { instant ->
-                instant.epochMillis + config.afterPrayerDelay(instant.prayer, friday) * 60_000L
+                val end = instant.epochMillis +
+                    config.afterPrayerDelay(instant.prayer, friday) * 60_000L
+                instant.epochMillis to end
             }
         }
     }

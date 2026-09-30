@@ -4,13 +4,14 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.content.pm.ServiceInfo
 import android.content.Context
 import android.app.KeyguardManager
 import android.content.Intent
 import com.greendome.adhkar.data.model.VoiceSettingsTarget
 import android.os.IBinder
+import android.os.SystemClock
 import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
 import com.greendome.adhkar.MainActivity
 import com.greendome.adhkar.R
 import com.greendome.adhkar.audio.AzkarPlaybackResolver
@@ -36,6 +37,7 @@ class AzkarCollectionPlayService : Service() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var audioPlayer: DhikrAudioPlayer? = null
     private var playingCollectionId: String? = null
+    private var sessionOpen = false
 
     override fun onCreate() {
         super.onCreate()
@@ -50,6 +52,11 @@ class AzkarCollectionPlayService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        promoteForeground(
+            NOTIF_ID,
+            playingNotification(),
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK,
+        )
         when (intent?.action) {
             ACTION_STOP_AUTO_AZKAR -> {
                 stopPlayback()
@@ -65,30 +72,31 @@ class AzkarCollectionPlayService : Service() {
             stopSelf()
             return START_NOT_STICKY
         }
+        val requestedItemId = incoming.getLongExtra(EXTRA_ITEM_ID, 0L)
+        val duplicateAfterPrayer = isDuplicateAfterPrayerStart(collectionId, requestedItemId)
+        if (duplicateAfterPrayer) {
+            if (!sessionOpen) stopSelf()
+            return START_NOT_STICKY
+        }
+        if (collectionId == PrayerRespectGate.AFTER_PRAYER_COLLECTION_ID && requestedItemId <= 0L) {
+            lastAfterPrayerStartElapsed = SystemClock.elapsedRealtime()
+        }
+        sessionOpen = true
         playingCollectionId = collectionId
         val forcePlay = incoming.getBooleanExtra(EXTRA_FORCE_PLAY, false)
-        startForeground(
-            NOTIF_ID,
-            NotificationCompat.Builder(this, CHANNEL)
-                .let { SilentNotificationChannels.applyAppIcon(it, this) }
-                .setContentTitle(getString(R.string.azkar_auto_playing))
-                .setSilent(true)
-                .setOngoing(true)
-                .build()
-        )
         scope.launch {
             AdhkarReminderService.abortActiveReminder(this@AzkarCollectionPlayService)
             val settings = SettingsRepository(this@AzkarCollectionPlayService)
             if (!forcePlay && !settings.autoAzkarEnabled) {
-                stopSelf()
+                finishSession()
                 return@launch
             }
             if (!forcePlay && PrayerRespectGate.collidesWithAdhan(this@AzkarCollectionPlayService)) {
-                stopSelf()
+                finishSession()
                 return@launch
             }
             if (!forcePlay && AdhanPlaybackService.isPlaying()) {
-                stopSelf()
+                finishSession()
                 return@launch
             }
             val db = AdhkarDatabase.get(this@AzkarCollectionPlayService)
@@ -96,7 +104,7 @@ class AzkarCollectionPlayService : Service() {
             val items = withContext(Dispatchers.IO) { db.azkarItemDao().getByCollection(collectionId) }
             val allowed = forcePlay || (collection != null && collection.autoPlayAllowed && collection.autoPlayEnabled)
             if (collection == null || items.isEmpty() || !allowed) {
-                stopSelf()
+                finishSession()
                 return@launch
             }
             val itemId = incoming.getLongExtra(EXTRA_ITEM_ID, 0L)
@@ -114,7 +122,7 @@ class AzkarCollectionPlayService : Service() {
                 candidates,
                 settings.autoAzkarRandomMode && itemId <= 0L
             ) ?: run {
-                stopSelf()
+                finishSession()
                 return@launch
             }
             val sectionTitle = collection.localizedTitle(settings.appLanguage)
@@ -145,10 +153,10 @@ class AzkarCollectionPlayService : Service() {
             ) {
                 audioPlayer?.playResolved(playable, settings, VoiceSettingsTarget.AZKAR) {
                     OverlayWindow.dismiss(applicationContext)
-                    stopSelf()
+                    finishSession()
                 }
             } else {
-                stopSelf()
+                finishSession()
             }
         }
         return START_NOT_STICKY
@@ -246,7 +254,21 @@ class AzkarCollectionPlayService : Service() {
         mgr.notify(FULLSCREEN_NOTIF, notification)
     }
 
+    private fun finishSession() {
+        sessionOpen = false
+        stopSelf()
+    }
+
+    private fun playingNotification() =
+        NotificationCompat.Builder(this, CHANNEL)
+            .let { SilentNotificationChannels.applyAppIcon(it, this) }
+            .setContentTitle(getString(R.string.azkar_auto_playing))
+            .setSilent(true)
+            .setOngoing(true)
+            .build()
+
     private fun stopPlayback() {
+        sessionOpen = false
         audioPlayer?.stop()
         OverlayWindow.dismiss(applicationContext)
         stopForeground(STOP_FOREGROUND_REMOVE)
@@ -276,20 +298,31 @@ class AzkarCollectionPlayService : Service() {
         @Volatile
         private var instance: AzkarCollectionPlayService? = null
 
+        @Volatile
+        private var lastAfterPrayerStartElapsed: Long = 0L
+
+        private const val AFTER_PRAYER_DEDUPE_MS = 120_000L
+
         fun isPlaying(): Boolean = instance != null
 
+        private fun isDuplicateAfterPrayerStart(collectionId: String, itemId: Long): Boolean {
+            if (collectionId != PrayerRespectGate.AFTER_PRAYER_COLLECTION_ID || itemId > 0L) return false
+            val started = lastAfterPrayerStartElapsed
+            if (started == 0L) return false
+            return SystemClock.elapsedRealtime() - started < AFTER_PRAYER_DEDUPE_MS
+        }
+
         fun stopAutoAzkar(context: Context) {
-            ContextCompat.startForegroundService(
-                context,
-                Intent(context, AzkarCollectionPlayService::class.java).apply {
-                    action = ACTION_STOP_AUTO_AZKAR
-                }
-            )
+            val stop = Intent(context, AzkarCollectionPlayService::class.java).apply {
+                action = ACTION_STOP_AUTO_AZKAR
+            }
+            if (!ForegroundServiceStarts.deliver(context, stop)) {
+                ForegroundServiceStarts.start(context, stop)
+            }
         }
 
         fun startForced(context: Context, collectionId: String, itemId: Long): Result<Unit> =
-            runCatching {
-                ContextCompat.startForegroundService(
+            if (ForegroundServiceStarts.start(
                     context,
                     Intent(context, AzkarCollectionPlayService::class.java).apply {
                         putExtra(EXTRA_COLLECTION_ID, collectionId)
@@ -297,7 +330,10 @@ class AzkarCollectionPlayService : Service() {
                         putExtra(EXTRA_FORCE_PLAY, true)
                     }
                 )
-                Unit
+            ) {
+                Result.success(Unit)
+            } else {
+                Result.failure(IllegalStateException("foreground start denied"))
             }
 
         private const val CHANNEL = "azkar_play"

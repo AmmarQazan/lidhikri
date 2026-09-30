@@ -4,6 +4,7 @@ import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.content.pm.ServiceInfo
 import android.content.Context
 import android.content.Intent
 import android.app.KeyguardManager
@@ -68,6 +69,11 @@ class AdhkarReminderService : Service() {
                 rescheduleAndUpdateNotification()
             }
             ACTION_STOP -> {
+                promoteForeground(
+                    NOTIF_SERVICE,
+                    SilentNotificationChannels.shell(this, SilentNotificationChannels.SERVICE),
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK,
+                )
                 settings.isServiceEnabled = false
                 notificationJob?.cancel()
                 ReminderScheduler.cancel(this)
@@ -77,7 +83,13 @@ class AdhkarReminderService : Service() {
                 return START_NOT_STICKY
             }
             ACTION_REFRESH -> updateServiceNotification()
-            ACTION_TRIGGER -> scope.launch { triggerDhikr() }
+            ACTION_TRIGGER -> scope.launch {
+                try {
+                    triggerDhikr()
+                } catch (_: Exception) {
+                    rescheduleAndUpdateNotification()
+                }
+            }
         }
         return START_STICKY
     }
@@ -179,7 +191,11 @@ class AdhkarReminderService : Service() {
     }
 
     private fun updateServiceNotification() {
-        startForeground(NOTIF_SERVICE, buildServiceNotification())
+        promoteForeground(
+            NOTIF_SERVICE,
+            buildServiceNotification(),
+            ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK,
+        )
     }
 
     private fun localizedContext(): Context =

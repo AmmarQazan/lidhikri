@@ -1,11 +1,11 @@
 package com.greendome.adhkar.service
 
+import android.app.AlarmManager
 import android.app.PendingIntent
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
-import com.greendome.adhkar.MainActivity
 import com.greendome.adhkar.data.AutoAzkarCatalog
 import com.greendome.adhkar.data.HomeAzkar
 import com.greendome.adhkar.data.RidingAzkar
@@ -26,12 +26,27 @@ object AutoAzkarEventPlayer {
         val settings = SettingsRepository(app)
         if (!ignoreCooldown && !HomeGeofenceScheduler.shouldMonitor(settings)) return false
         val now = System.currentTimeMillis()
+        if (!ignoreCooldown &&
+            event == HomeAzkar.Event.ENTER &&
+            AutoAzkarTriggers.Home.isFreshRegister(now, settings.homeMonitorArmedAt)
+        ) {
+            settings.homeLastSkip = AutoAzkarSkip.FRESH_REGISTER
+            return false
+        }
         val last = if (event == HomeAzkar.Event.ENTER) settings.homeLastEnterAt else settings.homeLastExitAt
-        if (!ignoreCooldown && !AutoAzkarTriggers.Home.canPlay(now, last)) return false
+        if (!ignoreCooldown && !AutoAzkarTriggers.Home.canPlay(now, last)) {
+            settings.homeLastSkip = AutoAzkarSkip.COOLDOWN
+            return false
+        }
         val items = withContext(Dispatchers.IO) {
             AdhkarDatabase.get(app).azkarItemDao().getByCollection(HomeAzkar.COLLECTION_ID)
         }
-        val picked = HomeAzkar.pickRandom(items, event, settings.homeEventKeys(event)) ?: return false
+        val picked = HomeAzkar.pickRandom(items, event, settings.homeEventKeys(event))
+        if (picked == null) {
+            settings.homeLastSkip = AutoAzkarSkip.NO_ITEMS
+            return false
+        }
+        settings.homeLastSkip = ""
         if (recordEvent) {
             if (event == HomeAzkar.Event.ENTER) settings.homeLastEnterAt = now else settings.homeLastExitAt = now
         }
@@ -47,18 +62,19 @@ object AutoAzkarEventPlayer {
         val settings = SettingsRepository(app)
         if (!ignoreCooldown && !VehicleActivityScheduler.shouldMonitor(settings)) return false
         val now = System.currentTimeMillis()
-        if (AutoAzkarTriggers.Riding.tripIsStale(now, settings.ridingLastPlayAt, settings.ridingInTrip)) {
-            settings.ridingInTrip = false
-        }
-        if (!ignoreCooldown &&
-            !AutoAzkarTriggers.Riding.canPlay(now, settings.ridingLastPlayAt, settings.ridingInTrip)
-        ) {
+        if (!ignoreCooldown && !AutoAzkarTriggers.Riding.canPlay(now, settings.ridingLastPlayAt)) {
+            settings.ridingLastSkip = AutoAzkarSkip.COOLDOWN
             return false
         }
         val items = withContext(Dispatchers.IO) {
             AdhkarDatabase.get(app).azkarItemDao().getByCollection(RidingAzkar.COLLECTION_ID)
         }
-        val picked = RidingAzkar.pickRandom(items, settings.ridingItemKeys()) ?: return false
+        val picked = RidingAzkar.pickRandom(items, settings.ridingItemKeys())
+        if (picked == null) {
+            settings.ridingLastSkip = AutoAzkarSkip.NO_ITEMS
+            return false
+        }
+        settings.ridingLastSkip = ""
         if (recordEvent) {
             settings.ridingInTrip = true
             settings.ridingLastPlayAt = now
@@ -75,13 +91,40 @@ object AutoAzkarEventPlayer {
     ): Boolean {
         val started = AzkarCollectionPlayService.startForced(context, collectionId, item.id)
         if (started.isSuccess) {
-            if (home) settings.homeLastPlayError = "" else settings.ridingLastPlayError = ""
+            clearPlayError(settings, home)
             return true
         }
         val err = started.exceptionOrNull()?.javaClass?.simpleName.orEmpty()
         if (home) settings.homeLastPlayError = err else settings.ridingLastPlayError = err
         notifyFallback(context, settings, collectionId, item)
+        scheduleRetry(context, collectionId, item.id)
         return false
+    }
+
+    private fun clearPlayError(settings: SettingsRepository, home: Boolean) {
+        if (home) {
+            settings.homeLastPlayError = ""
+            settings.homeLastSkip = ""
+        } else {
+            settings.ridingLastPlayError = ""
+            settings.ridingLastSkip = ""
+        }
+    }
+
+    private fun scheduleRetry(context: Context, collectionId: String, itemId: Long) {
+        val alarm = context.getSystemService(AlarmManager::class.java) ?: return
+        val pending = PendingIntent.getBroadcast(
+            context,
+            retryRequestCode(itemId),
+            retryIntent(context, collectionId, itemId),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+        runCatching {
+            alarm.scheduleWakeup(
+                System.currentTimeMillis() + RETRY_DELAY_MS,
+                pending,
+            )
+        }
     }
 
     private fun notifyFallback(
@@ -94,11 +137,16 @@ object AutoAzkarEventPlayer {
         if (!com.greendome.adhkar.util.RuntimePermissions.hasPostNotifications(context)) return
         val title = AutoAzkarCatalog.displayTitle(collectionId, settings.appLanguage)
         val text = item.localizedText(settings.appLanguage)
-        val open = PendingIntent.getActivity(
+        val play = Intent(context, AzkarCollectionPlayService::class.java).apply {
+            putExtra(AzkarCollectionPlayService.EXTRA_COLLECTION_ID, collectionId)
+            putExtra(AzkarCollectionPlayService.EXTRA_ITEM_ID, item.id)
+            putExtra(AzkarCollectionPlayService.EXTRA_FORCE_PLAY, true)
+        }
+        val open = PendingIntent.getForegroundService(
             context,
             item.id.toInt(),
-            Intent(context, MainActivity::class.java),
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            play,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
         val notification = SilentNotificationChannels.applyAppIcon(
             NotificationCompat.Builder(context, SilentNotificationChannels.DHIKR_OF_DAY),
@@ -113,5 +161,40 @@ object AutoAzkarEventPlayer {
             .build()
         context.getSystemService(android.app.NotificationManager::class.java)
             .notify(item.id.toInt(), notification)
+    }
+
+    private fun retryIntent(context: Context, collectionId: String, itemId: Long) =
+        Intent(context, AutoAzkarPlayRetryReceiver::class.java).apply {
+            putExtra(AutoAzkarPlayRetryReceiver.EXTRA_COLLECTION_ID, collectionId)
+            putExtra(AutoAzkarPlayRetryReceiver.EXTRA_ITEM_ID, itemId)
+        }
+
+    private fun retryRequestCode(itemId: Long) = 8300 + (itemId % 400).toInt()
+
+    private const val RETRY_DELAY_MS = 4_000L
+}
+
+class AutoAzkarPlayRetryReceiver : BroadcastReceiver() {
+    override fun onReceive(context: Context, intent: Intent?) {
+        val collectionId = intent?.getStringExtra(EXTRA_COLLECTION_ID) ?: return
+        val itemId = intent.getLongExtra(EXTRA_ITEM_ID, 0L)
+        if (itemId <= 0L) return
+        val app = context.applicationContext
+        val started = AzkarCollectionPlayService.startForced(app, collectionId, itemId)
+        if (started.isFailure) return
+        val settings = SettingsRepository(app)
+        if (collectionId == HomeAzkar.COLLECTION_ID) {
+            settings.homeLastPlayError = ""
+            settings.homeLastSkip = ""
+        } else {
+            settings.ridingLastPlayError = ""
+            settings.ridingLastSkip = ""
+        }
+        app.getSystemService(android.app.NotificationManager::class.java).cancel(itemId.toInt())
+    }
+
+    companion object {
+        const val EXTRA_COLLECTION_ID = "retry_collection_id"
+        const val EXTRA_ITEM_ID = "retry_item_id"
     }
 }

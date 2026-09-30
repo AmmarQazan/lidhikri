@@ -11,9 +11,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class CollectionAlarmReceiver : BroadcastReceiver() {
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     override fun onReceive(context: Context, intent: Intent?) {
         val collectionId = intent?.getStringExtra(EXTRA_COLLECTION_ID) ?: return
@@ -23,64 +24,93 @@ class CollectionAlarmReceiver : BroadcastReceiver() {
         val inheritGroup = intent.getBooleanExtra(EXTRA_INHERIT, false)
         val skipQuiet = intent.getBooleanExtra(EXTRA_SKIP_QUIET, false)
         val pending = goAsync()
+        val app = context.applicationContext
         scope.launch {
             try {
-                val settings = SettingsRepository(context)
-                if (!settings.autoAzkarEnabled) {
-                    CollectionAlarmScheduler.cancel(context, collectionId)
-                    return@launch
-                }
-                val db = AdhkarDatabase.get(context)
-                val collection = db.collectionDao().getById(collectionId) ?: return@launch
-                if (!collection.autoPlayAllowed || !collection.autoPlayEnabled) return@launch
-                val items = db.azkarItemDao().getByCollection(collectionId)
-
-                val prayerBasedAfterPrayer = collectionId == PrayerRespectGate.AFTER_PRAYER_COLLECTION_ID &&
-                    settings.prayerConfig().enabled &&
-                    settings.afterPrayerFromSalahEnabled
-                if (prayerBasedAfterPrayer && !postponed) {
-                    CollectionAlarmScheduler.schedule(context, collection, items)
-                    return@launch
-                }
-
-                val now = System.currentTimeMillis()
-                val prayerConfig = settings.prayerConfig()
-                val adhanPlaying = AdhanPlaybackService.isPlaying()
-                val atAdhan = adhanPlaying || PrayerQuietWindows.collidesWithAdhan(prayerConfig, now)
-                val inQuiet = !skipQuiet && PrayerRespectGate.isQuiet(context, now)
-                if (!postponed && (atAdhan || inQuiet)) {
-                    val resumeAt = when {
-                        inQuiet -> (PrayerQuietWindows.nextQuietEndAfter(prayerConfig, now) ?: now) + 2 * 60_000L
-                        adhanPlaying -> now + 60_000L
-                        else -> PrayerQuietWindows.delayPastAdhan(prayerConfig, now)
+                val playIntent = withContext(Dispatchers.IO) {
+                    try {
+                        preparePlay(
+                            context = app,
+                            collectionId = collectionId,
+                            postponed = postponed,
+                            triggerIndex = triggerIndex,
+                            itemId = itemId,
+                            inheritGroup = inheritGroup,
+                            skipQuiet = skipQuiet,
+                        )
+                    } finally {
+                        NextAzkarNotifier.sync(app)
                     }
-                    CollectionAlarmScheduler.schedulePostponed(
-                        context,
-                        collectionId,
-                        resumeAt,
-                        triggerIndex,
-                        itemId,
-                        inheritGroup,
-                        skipQuiet,
-                    )
-                    CollectionAlarmScheduler.schedule(context, collection, items)
-                    return@launch
                 }
-
-                val playIntent = Intent(context, AzkarCollectionPlayService::class.java).apply {
-                    putExtra(AzkarCollectionPlayService.EXTRA_COLLECTION_ID, collectionId)
-                    putExtra(AzkarCollectionPlayService.EXTRA_ITEM_ID, itemId)
-                    putExtra(AzkarCollectionPlayService.EXTRA_INHERIT, inheritGroup)
+                if (playIntent != null) {
+                    ForegroundServiceStarts.start(app, playIntent)
                 }
-                context.startForegroundService(playIntent)
-
-                if (!postponed) {
-                    CollectionAlarmScheduler.schedule(context, collection, items)
-                }
+            } catch (_: Exception) {
+                // استثناء القاعدة لا يُسقط العملية أثناء معالجة المنبّه
             } finally {
-                NextAzkarNotifier.sync(context)
                 pending.finish()
             }
+        }
+    }
+
+    private suspend fun preparePlay(
+        context: Context,
+        collectionId: String,
+        postponed: Boolean,
+        triggerIndex: Int,
+        itemId: Long,
+        inheritGroup: Boolean,
+        skipQuiet: Boolean,
+    ): Intent? {
+        val settings = SettingsRepository(context)
+        if (!settings.autoAzkarEnabled) {
+            CollectionAlarmScheduler.cancel(context, collectionId)
+            return null
+        }
+        val db = AdhkarDatabase.get(context)
+        val collection = db.collectionDao().getById(collectionId) ?: return null
+        if (!collection.autoPlayAllowed || !collection.autoPlayEnabled) return null
+        val items = db.azkarItemDao().getByCollection(collectionId)
+
+        val prayerBasedAfterPrayer = collectionId == PrayerRespectGate.AFTER_PRAYER_COLLECTION_ID &&
+            settings.prayerConfig().enabled &&
+            settings.afterPrayerFromSalahEnabled
+        if (prayerBasedAfterPrayer && !postponed) {
+            CollectionAlarmScheduler.schedule(context, collection, items)
+            return null
+        }
+
+        val now = System.currentTimeMillis()
+        val prayerConfig = settings.prayerConfig()
+        val adhanPlaying = AdhanPlaybackService.isPlaying()
+        val atAdhan = adhanPlaying || PrayerQuietWindows.collidesWithAdhan(prayerConfig, now)
+        val inQuiet = !skipQuiet && PrayerRespectGate.isQuiet(context, now)
+        if (!postponed && (atAdhan || inQuiet)) {
+            val resumeAt = when {
+                inQuiet -> (PrayerQuietWindows.nextQuietEndAfter(prayerConfig, now) ?: now) + 2 * 60_000L
+                adhanPlaying -> now + 60_000L
+                else -> PrayerQuietWindows.delayPastAdhan(prayerConfig, now)
+            }
+            CollectionAlarmScheduler.schedulePostponed(
+                context,
+                collectionId,
+                resumeAt,
+                triggerIndex,
+                itemId,
+                inheritGroup,
+                skipQuiet,
+            )
+            CollectionAlarmScheduler.schedule(context, collection, items)
+            return null
+        }
+
+        if (!postponed) {
+            CollectionAlarmScheduler.schedule(context, collection, items)
+        }
+        return Intent(context, AzkarCollectionPlayService::class.java).apply {
+            putExtra(AzkarCollectionPlayService.EXTRA_COLLECTION_ID, collectionId)
+            putExtra(AzkarCollectionPlayService.EXTRA_ITEM_ID, itemId)
+            putExtra(AzkarCollectionPlayService.EXTRA_INHERIT, inheritGroup)
         }
     }
 
