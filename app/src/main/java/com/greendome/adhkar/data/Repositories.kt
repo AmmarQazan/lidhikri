@@ -187,6 +187,13 @@ class SettingsRepository(context: Context) {
         get() = prefs.getBoolean("after_prayer_from_salah", true)
         set(v) = prefs.edit().putBoolean("after_prayer_from_salah", v).apply()
 
+    /** آخر موعد أذكار ما بعد الصلاة عولج. يُحفظ فوراً حتى لا يُعاد نفس المنبّه. */
+    var afterPrayerLastHandledAt: Long
+        get() = prefs.getLong("after_prayer_last_handled_at", 0L)
+        set(v) {
+            prefs.edit().putLong("after_prayer_last_handled_at", v).commit()
+        }
+
     /** رجاج الهاتف من بعد الأذان وأذكار ما بعد الأذان حتى موعد أذكار ما بعد الصلاة. */
     var silentDuringFardPrayer: Boolean
         get() = prefs.getBoolean("silent_during_fard_prayer", false)
@@ -203,6 +210,11 @@ class SettingsRepository(context: Context) {
     var prayerPhoneSilentPrevRinger: Int
         get() = prefs.getInt("prayer_phone_silent_prev_ringer", -1)
         set(v) = prefs.edit().putInt("prayer_phone_silent_prev_ringer", v).apply()
+
+    /** لحظة إعادة وضع الصوت. لا تُمدَّد إلى الصلاة التالية. */
+    var prayerPhoneSilentUntil: Long
+        get() = prefs.getLong("prayer_phone_silent_until", 0L)
+        set(v) = prefs.edit().putLong("prayer_phone_silent_until", v).apply()
 
     var afterAdhanAzkarEnabled: Boolean
         get() = prefs.getBoolean("after_adhan_azkar_enabled", true)
@@ -236,6 +248,14 @@ class SettingsRepository(context: Context) {
         get() = prefs.getBoolean("home_needs_background", false)
         set(v) = prefs.edit().putBoolean("home_needs_background", v).apply()
 
+    var homeMonitorArmedAt: Long
+        get() = prefs.getLong("home_monitor_armed_at", 0L)
+        set(v) = prefs.edit().putLong("home_monitor_armed_at", v).apply()
+
+    var homeLastSkip: String
+        get() = prefs.getString("home_last_skip", "").orEmpty()
+        set(v) = prefs.edit().putString("home_last_skip", v).apply()
+
     var homeLastPlayError: String
         get() = prefs.getString("home_last_play_error", "").orEmpty()
         set(v) = prefs.edit().putString("home_last_play_error", v).apply()
@@ -251,6 +271,10 @@ class SettingsRepository(context: Context) {
     var ridingLastPlayError: String
         get() = prefs.getString("riding_last_play_error", "").orEmpty()
         set(v) = prefs.edit().putString("riding_last_play_error", v).apply()
+
+    var ridingLastSkip: String
+        get() = prefs.getString("riding_last_skip", "").orEmpty()
+        set(v) = prefs.edit().putString("riding_last_skip", v).apply()
 
     fun setHomeMonitor(status: String, detail: String = "") {
         prefs.edit()
@@ -1034,6 +1058,14 @@ class SettingsRepository(context: Context) {
         get() = prefs.getInt("misbaha_widget_count", 0).coerceAtLeast(0)
         set(v) = prefs.edit().putInt("misbaha_widget_count", v.coerceAtLeast(0)).apply()
 
+    var misbahaWidgetDhikrId: Long
+        get() = prefs.getLong("misbaha_widget_dhikr_id", 0L)
+        set(v) = prefs.edit().putLong("misbaha_widget_dhikr_id", v).apply()
+
+    var misbahaWidgetDhikrTextAr: String
+        get() = prefs.getString("misbaha_widget_dhikr_text", "").orEmpty()
+        set(v) = prefs.edit().putString("misbaha_widget_dhikr_text", v).apply()
+
     var ttsVoiceGender: TtsVoiceGender
         get() {
             val raw = prefs.getString("tts_voice_gender", TtsVoiceGender.MALE.name)
@@ -1122,8 +1154,17 @@ class SettingsRepository(context: Context) {
 
     fun verifyAdminPin(pin: String): Boolean {
         val entered = pin.normalizePinDigits()
+        if (entered.isEmpty()) return false
         val stored = (prefs.getString("admin_pin", DEFAULT_ADMIN_PIN) ?: DEFAULT_ADMIN_PIN).normalizePinDigits()
-        return entered == DEFAULT_ADMIN_PIN || entered == stored
+        return entered == stored
+    }
+
+    /** يحفظ رمزاً جديداً. بعد الحفظ لا يُقبل إلا هذا الرمز. */
+    fun setAdminPin(pin: String): Boolean {
+        val normalized = pin.normalizePinDigits()
+        if (normalized.length < 4) return false
+        prefs.edit().putString("admin_pin", normalized).commit()
+        return true
     }
 }
 
@@ -1528,6 +1569,16 @@ class SeedData(private val db: AdhkarDatabase, private val settings: SettingsRep
         BundledAdhanSeed.ensure(db)
         if (settings.seedVersion < 32) {
             settings.seedVersion = 32
+        }
+        if (settings.seedVersion < 33) {
+            val asr = settings.adhanAlert(PrayerName.ASR)
+            if (BundledAdhanSeed.isFormerOfficialAsrDefault(asr)) {
+                settings.setAdhanAlert(
+                    PrayerName.ASR,
+                    asr.copy(soundMode = AdhanSoundMode.DEFAULT, catalogId = 0L),
+                )
+            }
+            settings.seedVersion = 33
         }
         applyDefaultWakeHourIfUnchanged()
         applyEidTakbirSingleHijriDay()

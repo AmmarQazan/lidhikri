@@ -84,6 +84,10 @@
     <string name="admin_pin">رمز المدير</string>
     <string name="admin_login">دخول المدير</string>
     <string name="admin_pin_wrong">الرمز غير صحيح</string>
+    <string name="admin_pin_change">رمز المدير الجديد</string>
+    <string name="admin_pin_change_action">حفظ الرمز الجديد</string>
+    <string name="admin_pin_changed">تم حفظ الرمز الجديد</string>
+    <string name="admin_pin_too_short">أربعة أرقام على الأقل</string>
     <string name="admin_add_default">إضافة ذكر افتراضي</string>
     <string name="admin_add_jawami">إضافة جامع تسبيح</string>
     <string name="admin_content_management">إدارة المحتوى</string>
@@ -381,7 +385,7 @@
     <string name="prayer_respect_uses_times_hint">المدينة وطريقة الحساب من شاشة المواقيت والموقع.</string>
     <string name="prayer_respect_enable">إيقاف التسبيحات والأذكار بعد الأذان</string>
     <string name="prayer_silent_phone">وضع الرجاج أثناء الصلاة المفروضة</string>
-    <string name="prayer_silent_phone_hint">بعد الأذان وأذكار ما بعد الأذان يتحول الهاتف إلى الرجاج (اهتزاز بدون رنين) حتى أذكار ما بعد الصلاة — وهي نفس المدة التي تعدّلها أدناه. يحتاج إذن وضع عدم الإزعاج.</string>
+    <string name="prayer_silent_phone_hint">بعد الأذان وأذكار ما بعد الأذان يتحول الهاتف إلى الرجاج حتى أذكار ما بعد الصلاة، ثم يعود وضع الصوت كما كان. لا يبقى عدم الإزعاج بعد هذه المدة. يحتاج إذن وضع عدم الإزعاج لأن أندرويد يشترطه لتغيير الرنين.</string>
     <string name="prayer_after_enable">تفعيل أذكار بعد الصلاة</string>
     <string name="auto_azkar_after_prayer_enable">تفعيل أذكار ما بعد الصلاة</string>
     <string name="auto_azkar_home_enable">تفعيل أذكار دخول وخروج المنزل</string>
@@ -436,6 +440,10 @@
     <string name="prayer_method_kuwait">الكويت</string>
     <string name="prayer_method_qatar">قطر</string>
     <string name="prayer_method_singapore">سنغافورة</string>
+    <string name="prayer_method_turkey">تركيا (ديانت)</string>
+    <string name="prayer_method_morocco">المغرب</string>
+    <string name="prayer_method_oman">عُمان</string>
+    <string name="prayer_method_tehran">طهران</string>
     <string name="prayer_madhab">مذهب العصر</string>
     <string name="prayer_madhab_auto">تلقائي (حسب جدول الدولة)</string>
     <string name="prayer_madhab_shafi">شافعي / مالكي / حنبلي</string>
@@ -556,6 +564,7 @@
     <string name="qibla_distance">%1$s كم إلى مكة</string>
     <string name="qibla_hold_flat">أمسك الهاتف أفقياً ودوّره حتى تشير الإبرة إلى الكعبة</string>
     <string name="prayer_widget_title">مواقيت الصلاة</string>
+    <string name="prayer_widget_today_title">مواقيت الأذان اليوم</string>
     <string name="prayer_widget_subtitle">مواقيت اليوم والصلاة التالية على الشاشة الرئيسية</string>
     <string name="prayer_widget_description">مواقيت صلاة اليوم</string>
     <string name="prayer_widget_add">إضافة ويدجت المواقيت</string>
@@ -603,6 +612,9 @@
     <string name="misbaha_widget_background_transparent">شفاف</string>
     <string name="misbaha_widget_theme_section">مظهر الإلكترونية</string>
     <string name="misbaha_widget_theme_hint">نفس مجموعات ألوان الخرز داخل التطبيق، تُطبَّق على الويدجت الإلكترونية</string>
+    <string name="misbaha_widget_phrase_section">التسبيحة</string>
+    <string name="misbaha_widget_phrase_hint">تظهر على ويدجت الشاشة الرئيسية</string>
+    <string name="misbaha_widget_phrase_preview">سبحان الله</string>
     <string name="misbaha_widget_target_section">العدد المستهدف</string>
     <string name="misbaha_widget_size_traditional">مقاس التقليدية: ٣×٢ على الشاشة الرئيسية</string>
     <string name="misbaha_widget_size_electronic">مقاس الإلكترونية: ٢×٢ على الشاشة الرئيسية</string>
@@ -792,7 +804,7 @@
     <string name="azkar_schedule_hint">تشغيل القسم في وقت محدد وأيام مختارة</string>
     <string name="azkar_friday_schedule_hint">التذكير يوم الجمعة فقط. وقت الكهف أدناه. الصلاة على النبي قبل صلاة الجمعة. ساعة الإجابة آخر ساعة بعد العصر.</string>
     <string name="azkar_friday_kahf_time_label">وقت تذكير سورة الكهف</string>
-    <string name="azkar_blessed_days_schedule_hint">كل ذكر يعمل في يومه الهجري. التذكير النهاري بالوقت أدناه. ليلة القدر بعد المغرب في العشر الأواخر.</string>
+    <string name="azkar_blessed_days_schedule_hint">كل ذكر يعمل في يومه الهجري. التذكير النهاري بالوقت أدناه. ليلة القدر بعد المغرب بساعة في العشر الأواخر.</string>
     <string name="azkar_blessed_days_time_label">وقت التذكير النهاري (عرفة والتكبير)</string>
     <string name="azkar_auto_enable">تفعيل التذكير التلقائي</string>
     <string name="azkar_after_prayer_auto_hint">ذكر بعد كل صلاة حسب مدينتك ومدة التأخير. فعّله هنا ثم اضبط المدينة إن لزم.</string>
@@ -830,7 +842,11 @@
     <string name="home_azkar_status_geofence">المراقبة مسجّلة (سياج جغرافي)</string>
     <string name="home_azkar_status_proximity">المراقبة مسجّلة (قرب الموقع)</string>
     <string name="home_azkar_status_failed">تعذّر تسجيل المراقبة</string>
+    <string name="home_azkar_status_location_off">الموقع في الجهاز متوقف. فعّله حتى تعمل أذكار المنزل.</string>
     <string name="home_azkar_status_need_background">اسمح بالموقع طوال الوقت حتى يعمل والتطبيق مغلق</string>
+    <string name="auto_azkar_skip_cooldown">تم التخطي: ما زالت مهلة التكرار</string>
+    <string name="auto_azkar_skip_no_items">تم التخطي: لا يوجد ذكر مختار لهذا الحدث</string>
+    <string name="auto_azkar_skip_fresh_register">تم التخطي: وصول مباشر بعد حفظ المنزل</string>
     <string name="home_azkar_last_enter">آخر وصول: %1$s</string>
     <string name="home_azkar_last_exit">آخر مغادرة: %1$s</string>
     <string name="home_azkar_never">لم يُسجَّل بعد</string>
@@ -843,7 +859,7 @@
     <string name="riding_azkar_status_failed">تعذّر تسجيل مراقبة المركبة</string>
     <string name="riding_azkar_last_play">آخر تشغيل للركوب: %1$s</string>
     <string name="riding_azkar_test_play">تجربة ذكر الركوب الآن</string>
-    <string name="auto_azkar_play_failed">تعذّر تشغيل الصوت من الخلفية. يظهر إشعار بالنص إن أمكن.</string>
+    <string name="auto_azkar_play_failed">تعذّر تشغيل الصوت في الخلفية. اضغط الإشعار للتشغيل.</string>
     <string name="azkar_auto_not_allowed">التشغيل التلقائي غير متاح لهذا القسم — يُفعّل من إعدادات المدير فقط</string>
     <string name="admin_auto_play_allowed">السماح بالتشغيل التلقائي</string>
     <string name="admin_auto_play_allowed_hint">الأقسام المفعّلة هنا فقط يمكن للمستخدم جدولتها</string>

@@ -5,7 +5,6 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import com.greendome.adhkar.data.SettingsRepository
 import com.greendome.adhkar.prayer.AdhanEvent
 import com.greendome.adhkar.prayer.AdhanEventKind
@@ -25,11 +24,7 @@ object AdhanAlarmScheduler {
         if (next != null) {
             val alarmManager = app.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val pending = pending(app, next.prayer, next.kind, next.atMillis)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, next.atMillis, pending)
-            } else {
-                alarmManager.setExact(AlarmManager.RTC_WAKEUP, next.atMillis, pending)
-            }
+            alarmManager.scheduleWakeup(next.atMillis, pending)
         }
         PrayerTimesWidgetManager.updateAll(app)
         NextAdhanService.sync(app)
@@ -68,6 +63,42 @@ object AdhanAlarmScheduler {
     const val EXTRA_PRAYER = "prayer"
     const val EXTRA_KIND = "kind"
     const val EXTRA_AT_MILLIS = "at_millis"
+    const val EXTRA_RETRY = "playback_retry"
+
+    /** محاولة واحدة لا يمسحها إعادة جدولة السلسلة. */
+    fun schedulePlaybackRetry(context: Context, event: AdhanEvent) {
+        val app = context.applicationContext
+        val alarmManager = app.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmManager.scheduleWakeup(
+            System.currentTimeMillis() + PLAYBACK_RETRY_DELAY_MS,
+            retryPending(app, event),
+        )
+    }
+
+    fun cancelPlaybackRetry(context: Context) {
+        val app = context.applicationContext
+        val alarmManager = app.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmManager.cancel(
+            retryPending(app, AdhanEvent(PrayerName.FAJR, AdhanEventKind.ADHAN, 0L)),
+        )
+    }
+
+    private fun retryPending(context: Context, event: AdhanEvent): PendingIntent {
+        val intent = Intent(context, AdhanAlarmReceiver::class.java).apply {
+            putExtra(EXTRA_PRAYER, event.prayer.name)
+            putExtra(EXTRA_KIND, event.kind.name)
+            putExtra(EXTRA_AT_MILLIS, event.atMillis)
+            putExtra(EXTRA_RETRY, true)
+        }
+        return PendingIntent.getBroadcast(
+            context,
+            RETRY_REQUEST,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+    }
+
+    private const val RETRY_REQUEST = 7191
 }
 
 class AdhanAlarmReceiver : BroadcastReceiver() {
@@ -79,32 +110,50 @@ class AdhanAlarmReceiver : BroadcastReceiver() {
             AdhanEventKind.valueOf(intent?.getStringExtra(AdhanAlarmScheduler.EXTRA_KIND).orEmpty())
         }.getOrNull()
         val firedAt = intent?.getLongExtra(AdhanAlarmScheduler.EXTRA_AT_MILLIS, 0L) ?: 0L
-        if (prayer != null && kind != null) {
-            val event = AdhanEvent(
-                prayer,
-                kind,
-                if (firedAt > 0L) firedAt else System.currentTimeMillis(),
-            )
-            val zone = PrayerTimesCalculator.zoneId(SettingsRepository(context).prayerConfig())
-            if (!AdhanFiredStore.alreadyHandled(context, event, zone)) {
-                AdhanFiredStore.remember(context, event)
-                when (kind) {
-                    AdhanEventKind.ADHAN -> {
-                        val play = Intent(context, AdhanPlaybackService::class.java).apply {
-                            action = AdhanPlaybackService.ACTION_START
-                            putExtra(AdhanAlarmScheduler.EXTRA_PRAYER, prayer.name)
+        val isRetry = intent?.getBooleanExtra(AdhanAlarmScheduler.EXTRA_RETRY, false) == true
+        var retryEvent: AdhanEvent? = null
+        try {
+            if (prayer != null && kind != null) {
+                val event = AdhanEvent(
+                    prayer,
+                    kind,
+                    if (firedAt > 0L) firedAt else System.currentTimeMillis(),
+                )
+                val zone = PrayerTimesCalculator.zoneId(SettingsRepository(context).prayerConfig())
+                if (!AdhanFiredStore.alreadyHandled(context, event, zone)) {
+                    when (kind) {
+                        AdhanEventKind.ADHAN -> {
+                            val play = Intent(context, AdhanPlaybackService::class.java).apply {
+                                action = AdhanPlaybackService.ACTION_START
+                                putExtra(AdhanAlarmScheduler.EXTRA_PRAYER, prayer.name)
+                            }
+                            val started = ForegroundServiceStarts.start(context, play)
+                            when (AdhanPlaybackGuard.missedPlayback(started, isRetry)) {
+                                MissedPlayback.NONE -> AdhanFiredStore.remember(context, event)
+                                MissedPlayback.RETRY_ONCE -> retryEvent = event
+                                MissedPlayback.GIVE_UP -> AdhanFiredStore.remember(context, event)
+                            }
                         }
-                        context.startForegroundService(play)
+                        AdhanEventKind.PRE,
+                        AdhanEventKind.IQAMA -> {
+                            AdhanAlertNotifier.show(context, prayer, kind)
+                            AdhanFiredStore.remember(context, event)
+                        }
                     }
-                    AdhanEventKind.PRE,
-                    AdhanEventKind.IQAMA -> AdhanAlertNotifier.show(context, prayer, kind)
                 }
             }
+        } finally {
+            val fromMillis = AdhanPlaybackGuard.rescheduleFromMillis(
+                firedAtMillis = firedAt,
+                nowMillis = System.currentTimeMillis(),
+            )
+            AdhanAlarmScheduler.reschedule(context, fromMillis)
+            val pendingRetry = retryEvent
+            if (pendingRetry != null) {
+                AdhanAlarmScheduler.schedulePlaybackRetry(context, pendingRetry)
+            } else if (kind == AdhanEventKind.ADHAN) {
+                AdhanAlarmScheduler.cancelPlaybackRetry(context)
+            }
         }
-        val fromMillis = AdhanPlaybackGuard.rescheduleFromMillis(
-            firedAtMillis = firedAt,
-            nowMillis = System.currentTimeMillis(),
-        )
-        AdhanAlarmScheduler.reschedule(context, fromMillis)
     }
 }

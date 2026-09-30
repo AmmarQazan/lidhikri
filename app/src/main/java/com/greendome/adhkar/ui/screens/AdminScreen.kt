@@ -83,6 +83,9 @@ fun AdminScreen(
     var pin by remember { mutableStateOf("") }
     var loggedIn by remember { mutableStateOf(isLoggedIn) }
     var pinError by remember { mutableStateOf(false) }
+    var newPin by remember { mutableStateOf("") }
+    var pinSaved by remember { mutableStateOf(false) }
+    var pinSaveError by remember { mutableStateOf(false) }
     var firebaseEmail by remember { mutableStateOf(settings.firebaseAdminEmail.orEmpty()) }
     var firebasePassword by remember { mutableStateOf(settings.firebaseAdminPassword.orEmpty()) }
     var publishInProgress by remember { mutableStateOf(false) }
@@ -172,6 +175,44 @@ fun AdminScreen(
             }
         } else {
             Text(stringResource(R.string.nav_admin), fontWeight = FontWeight.Bold)
+            OutlinedTextField(
+                value = newPin,
+                onValueChange = {
+                    newPin = it
+                    pinSaved = false
+                    pinSaveError = false
+                },
+                label = { Text(stringResource(R.string.admin_pin_change)) },
+                modifier = Modifier.fillMaxWidth(),
+                isError = pinSaveError,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                singleLine = true
+            )
+            if (pinSaveError) {
+                Text(
+                    stringResource(R.string.admin_pin_too_short),
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+            if (pinSaved) {
+                Text(
+                    stringResource(R.string.admin_pin_changed),
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+            Button(
+                onClick = {
+                    val ok = settings.setAdminPin(newPin)
+                    pinSaved = ok
+                    pinSaveError = !ok
+                    if (ok) newPin = ""
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(stringResource(R.string.admin_pin_change_action))
+            }
             Text(stringResourceDigits(R.string.today_hijri, DhikrScheduleMatcher.todayHijriFormatted()))
 
             Text(

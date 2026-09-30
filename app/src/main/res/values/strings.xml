@@ -92,6 +92,10 @@
     <string name="admin_pin">Admin PIN</string>
     <string name="admin_login">Admin login</string>
     <string name="admin_pin_wrong">Wrong PIN</string>
+    <string name="admin_pin_change">New admin PIN</string>
+    <string name="admin_pin_change_action">Save new PIN</string>
+    <string name="admin_pin_changed">New PIN saved</string>
+    <string name="admin_pin_too_short">Use at least 4 digits</string>
     <string name="admin_add_default">Add default dhikr</string>
     <string name="admin_add_jawami">Add jawami tasbih</string>
     <string name="admin_content_management">Content management</string>
@@ -389,7 +393,7 @@
     <string name="prayer_respect_uses_times_hint">City and calculation method are in Times and location.</string>
     <string name="prayer_respect_enable">Pause tasbih and adhkar after the adhan</string>
     <string name="prayer_silent_phone">Vibrate during obligatory prayer</string>
-    <string name="prayer_silent_phone_hint">After the adhan and after-adhan dhikr, the phone switches to vibrate (no ringtone) until after-prayer adhkar — the same window you can change below. Needs Do Not Disturb access.</string>
+    <string name="prayer_silent_phone_hint">After the adhan and after-adhan dhikr, the phone switches to vibrate until after-prayer adhkar, then the previous sound mode returns. Do Not Disturb does not stay on after that. Android requires Do Not Disturb access to change the ringer.</string>
     <string name="prayer_after_enable">Enable after-prayer adhkar</string>
     <string name="auto_azkar_after_prayer_enable">Enable post-prayer adhkar</string>
     <string name="auto_azkar_home_enable">Enable home enter and leave adhkar</string>
@@ -444,6 +448,10 @@
     <string name="prayer_method_kuwait">Kuwait</string>
     <string name="prayer_method_qatar">Qatar</string>
     <string name="prayer_method_singapore">Singapore</string>
+    <string name="prayer_method_turkey">Turkey (Diyanet)</string>
+    <string name="prayer_method_morocco">Morocco</string>
+    <string name="prayer_method_oman">Oman</string>
+    <string name="prayer_method_tehran">Tehran</string>
     <string name="prayer_madhab">Asr school</string>
     <string name="prayer_madhab_auto">Automatic (by country table)</string>
     <string name="prayer_madhab_shafi">Shafi / Maliki / Hanbali</string>
@@ -564,6 +572,7 @@
     <string name="qibla_distance">%1$s km to Makkah</string>
     <string name="qibla_hold_flat">Hold the phone flat and turn until the needle points to the Kaaba</string>
     <string name="prayer_widget_title">Prayer times widget</string>
+    <string name="prayer_widget_today_title">Today\'s adhan times</string>
     <string name="prayer_widget_subtitle">Today\'s times and next prayer on the home screen</string>
     <string name="prayer_widget_description">Prayer times for today</string>
     <string name="prayer_widget_add">Add prayer times widget</string>
@@ -611,6 +620,9 @@
     <string name="misbaha_widget_background_transparent">Transparent</string>
     <string name="misbaha_widget_theme_section">Electronic look</string>
     <string name="misbaha_widget_theme_hint">Same color themes as the in-app beads, applied to the electronic widget</string>
+    <string name="misbaha_widget_phrase_section">Tasbih</string>
+    <string name="misbaha_widget_phrase_hint">Shown on the home screen widget</string>
+    <string name="misbaha_widget_phrase_preview">Subhan Allah</string>
     <string name="misbaha_widget_target_section">Count target</string>
     <string name="misbaha_widget_size_traditional">Traditional size: 3×2 on the home screen</string>
     <string name="misbaha_widget_size_electronic">Electronic size: 2×2 on the home screen</string>
@@ -800,7 +812,7 @@
     <string name="azkar_schedule_hint">Play this section at a set time on selected days</string>
     <string name="azkar_friday_schedule_hint">Reminders only on Friday. Kahf uses the time below. Blessings on the Prophet come before Jumuah. The hour of response is the last hour after Asr.</string>
     <string name="azkar_friday_kahf_time_label">Kahf reminder time</string>
-    <string name="azkar_blessed_days_schedule_hint">Each dhikr plays on its Hijri day. Daytime reminders use the time below. Laylat al-Qadr is after Maghrib in the last ten nights.</string>
+    <string name="azkar_blessed_days_schedule_hint">Each dhikr plays on its Hijri day. Daytime reminders use the time below. Laylat al-Qadr is one hour after Maghrib in the last ten nights.</string>
     <string name="azkar_blessed_days_time_label">Daytime reminder (Arafah and takbir)</string>
     <string name="azkar_auto_enable">Enable auto reminder</string>
     <string name="azkar_after_prayer_auto_hint">A dhikr after each prayer, using your city and delay. Turn it on here, then set the city if needed.</string>
@@ -838,7 +850,11 @@
     <string name="home_azkar_status_geofence">Monitoring registered (geofence)</string>
     <string name="home_azkar_status_proximity">Monitoring registered (proximity)</string>
     <string name="home_azkar_status_failed">Could not register monitoring</string>
+    <string name="home_azkar_status_location_off">Device location is off. Turn it on so home adhkar can run.</string>
     <string name="home_azkar_status_need_background">Allow location all the time so it works while the app is closed</string>
+    <string name="auto_azkar_skip_cooldown">Skipped: still inside the repeat gap</string>
+    <string name="auto_azkar_skip_no_items">Skipped: no dhikr is selected for this event</string>
+    <string name="auto_azkar_skip_fresh_register">Skipped: arrival just after saving home</string>
     <string name="home_azkar_last_enter">Last arrival: %1$s</string>
     <string name="home_azkar_last_exit">Last departure: %1$s</string>
     <string name="home_azkar_never">Not recorded yet</string>
@@ -851,7 +867,7 @@
     <string name="riding_azkar_status_failed">Could not register vehicle monitoring</string>
     <string name="riding_azkar_last_play">Last riding playback: %1$s</string>
     <string name="riding_azkar_test_play">Play riding dhikr now</string>
-    <string name="auto_azkar_play_failed">Could not start audio in the background. A text notification is shown if possible.</string>
+    <string name="auto_azkar_play_failed">Could not start audio in the background. Tap the notification to play.</string>
     <string name="azkar_auto_not_allowed">Automatic playback is not available for this section. The admin must enable it first.</string>
     <string name="admin_auto_play_allowed">Allow automatic playback</string>
     <string name="admin_auto_play_allowed_hint">Only sections enabled here can be scheduled by users</string>

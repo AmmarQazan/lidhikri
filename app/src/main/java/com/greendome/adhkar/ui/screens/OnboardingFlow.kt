@@ -85,7 +85,6 @@ import com.greendome.adhkar.ui.theme.brandLogoRes
 import com.greendome.adhkar.ui.theme.GoldDome
 import com.greendome.adhkar.ui.theme.arabicFontFamily
 import com.greendome.adhkar.ui.theme.stringResourceDigits
-import com.greendome.adhkar.data.SettingsRepository
 import com.greendome.adhkar.prayer.LocationMode
 import com.greendome.adhkar.prayer.PrayerLocation
 import com.greendome.adhkar.service.PrayerPhoneSilent
@@ -139,7 +138,7 @@ data class OnboardingResult(
     val homeAzkarEnabled: Boolean = true,
     val homeLocation: PrayerLocation? = null,
     val ridingAzkarEnabled: Boolean = true,
-    val silentDuringFardPrayer: Boolean = true,
+    val silentDuringFardPrayer: Boolean = false,
     val clockHourFormat: ClockHourFormat = ClockHourFormat.HOUR_24
 )
 
@@ -232,7 +231,7 @@ fun OnboardingFlow(
                 homeAzkarEnabled = homeAzkar,
                 homeLocation = homeLocation,
                 ridingAzkarEnabled = ridingAzkar,
-                silentDuringFardPrayer = true,
+                silentDuringFardPrayer = false,
                 clockHourFormat = ClockHourFormat.HOUR_24
             )
         )
@@ -649,15 +648,7 @@ private fun OnboardingPermissionsStep() {
         Spacer(Modifier.height(16.dp))
         if (!allReady) {
             Button(
-                onClick = {
-                    SettingsRepository(context).apply {
-                        silentDuringFardPrayer = true
-                        tasbihAutoLockScreenEnabled = true
-                        azkarAutoLockScreenEnabled = true
-                        adhanAutoLockScreenEnabled = true
-                    }
-                    requestNextMissing()
-                },
+                onClick = { requestNextMissing() },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {

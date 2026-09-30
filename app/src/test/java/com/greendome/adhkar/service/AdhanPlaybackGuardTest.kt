@@ -52,4 +52,20 @@ class AdhanPlaybackGuardTest {
         val now = 5_000L
         assertEquals(now, AdhanPlaybackGuard.rescheduleFromMillis(0L, now))
     }
+
+    @Test
+    fun failedPlaybackSchedulesOneRetry() {
+        assertEquals(MissedPlayback.RETRY_ONCE, AdhanPlaybackGuard.missedPlayback(started = false, isRetry = false))
+    }
+
+    @Test
+    fun secondPlaybackFailureIsDropped() {
+        assertEquals(MissedPlayback.GIVE_UP, AdhanPlaybackGuard.missedPlayback(started = false, isRetry = true))
+    }
+
+    @Test
+    fun successfulPlaybackNeedsNoRetry() {
+        assertEquals(MissedPlayback.NONE, AdhanPlaybackGuard.missedPlayback(started = true, isRetry = false))
+        assertEquals(MissedPlayback.NONE, AdhanPlaybackGuard.missedPlayback(started = true, isRetry = true))
+    }
 }
