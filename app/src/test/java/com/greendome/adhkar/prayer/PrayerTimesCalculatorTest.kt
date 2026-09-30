@@ -3,6 +3,7 @@ package com.greendome.adhkar.prayer
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.Instant
@@ -168,7 +169,44 @@ class PrayerTimesCalculatorTest {
         val dhuhr = PrayerTimesCalculator.timesFor(cfg, noon)!!.timeOf(PrayerName.DHUHR)!!
         val expected = dhuhr + 40 * 60_000L
         assertEquals(expected, PrayerQuietWindows.nextPhoneSilentEndAt(cfg, dhuhr + 1_000L))
+        assertEquals(expected, PrayerQuietWindows.activePhoneSilentEndAt(cfg, dhuhr + 1_000L))
         assertTrue(PrayerQuietWindows.nextAfterPrayerTriggerAt(cfg, dhuhr + 1_000L) == null)
+    }
+
+    @Test
+    fun earlyAfterPrayerAlarmSkipsTheTriggerJustDue() {
+        val noon = Instant.parse("2026-06-15T09:00:00Z").toEpochMilli()
+        val cfg = config(
+            afterPrayer = mapOf(PrayerName.DHUHR to 30, PrayerName.ASR to 30),
+        )
+        val day = PrayerTimesCalculator.timesFor(cfg, noon)!!
+        val dhuhrEnd = day.timeOf(PrayerName.DHUHR)!! + 30 * 60_000L
+        val asrEnd = day.timeOf(PrayerName.ASR)!! + 30 * 60_000L
+        val early = dhuhrEnd - 1_000L
+        assertEquals(dhuhrEnd, PrayerQuietWindows.afterPrayerTriggerJustDue(cfg, early))
+        assertEquals(dhuhrEnd, PrayerQuietWindows.nextAfterPrayerTriggerAt(cfg, early))
+        assertEquals(
+            asrEnd,
+            PrayerQuietWindows.nextAfterPrayerTriggerAt(cfg, early, notBefore = dhuhrEnd),
+        )
+    }
+
+    @Test
+    fun phoneSilentDoesNotExtendUntilNextPrayer() {
+        val noon = Instant.parse("2026-06-15T09:00:00Z").toEpochMilli()
+        val cfg = config(
+            quiet = mapOf(PrayerName.DHUHR to 30),
+            afterPrayer = mapOf(PrayerName.DHUHR to 30, PrayerName.ASR to 30),
+        )
+        val day = PrayerTimesCalculator.timesFor(cfg, noon)!!
+        val dhuhr = day.timeOf(PrayerName.DHUHR)!!
+        val asr = day.timeOf(PrayerName.ASR)!!
+        val windowEnd = dhuhr + 30 * 60_000L
+        val between = windowEnd + 60_000L
+        assertTrue(between < asr)
+        assertNull(PrayerQuietWindows.activePhoneSilentEndAt(cfg, between))
+        val nextEnd = PrayerQuietWindows.nextPhoneSilentEndAt(cfg, between)
+        assertTrue(nextEnd != null && nextEnd >= asr + 30 * 60_000L)
     }
 
     @Test
@@ -217,6 +255,8 @@ class PrayerTimesCalculatorTest {
         assertEquals(CalculationMethodPref.UMM_AL_QURA, PrayerCountryDefaults.methodFor("SA"))
         assertEquals(AsrMadhabPref.HANAFI, PrayerCountryDefaults.madhabFor("PK"))
         assertEquals(AsrMadhabPref.SHAFI, PrayerCountryDefaults.madhabFor("JO"))
+        assertEquals(AsrMadhabPref.SHAFI, PrayerCountryDefaults.madhabFor("IQ"))
+        assertEquals(AsrMadhabPref.SHAFI, PrayerCountryDefaults.madhabFor("SY"))
         assertEquals(CalculationMethodPref.MUSLIM_WORLD_LEAGUE, PrayerCountryDefaults.methodFor("MR"))
         assertEquals(AsrMadhabPref.SHAFI, PrayerCountryDefaults.madhabFor("SO"))
         assertEquals("Africa/Nouakchott", PrayerCountryDefaults.timezoneIdFor("MR"))
@@ -241,6 +281,76 @@ class PrayerTimesCalculatorTest {
         assertEquals(AsrMadhabPref.SHAFI, PrayerCountryDefaults.madhabFor("GB"))
         assertEquals(AsrMadhabPref.SHAFI, PrayerCountryDefaults.madhabFor("ID"))
         assertEquals(CalculationMethodPref.MUSLIM_WORLD_LEAGUE, PrayerCountryDefaults.methodFor("JP"))
+        assertEquals(CalculationMethodPref.TURKEY, PrayerCountryDefaults.methodFor("TR"))
+        assertEquals(CalculationMethodPref.MOROCCO, PrayerCountryDefaults.methodFor("MA"))
+        assertEquals(CalculationMethodPref.OMAN, PrayerCountryDefaults.methodFor("OM"))
+        assertEquals(CalculationMethodPref.TEHRAN, PrayerCountryDefaults.methodFor("IR"))
+        assertEquals(CalculationMethodPref.DUBAI, PrayerCountryDefaults.methodFor("AE"))
+    }
+
+    @Test
+    fun officialProfilesMatchCountryCalendars() {
+        val amman = PrayerLocation(31.9539, 35.9106, "عمّان", "الأردن", "JO")
+        val ammanNoon = Instant.parse("2026-09-30T09:00:00Z").toEpochMilli()
+        val jordan = PrayerTimesCalculator.timesFor(autoConfig(amman), ammanNoon)!!
+        val ammanZone = ZoneId.of("Asia/Amman")
+        assertNear(jordan.timeOf(PrayerName.FAJR)!!, ammanZone, 5, 8)
+        assertNear(jordan.timeOf(PrayerName.DHUHR)!!, ammanZone, 12, 27)
+        assertNear(jordan.timeOf(PrayerName.MAGHRIB)!!, ammanZone, 18, 29)
+        assertNear(jordan.timeOf(PrayerName.ISHA)!!, ammanZone, 19, 44)
+
+        val dubai = PrayerLocation(25.2048, 55.2708, "دبي", "الإمارات", "AE")
+        val dubaiParams = PrayerTimesCalculator.parametersFor(autoConfig(dubai), dubai)
+        assertEquals(-3, dubaiParams.methodAdjustments.sunrise)
+        assertEquals(3, dubaiParams.methodAdjustments.dhuhr)
+        assertEquals(3, dubaiParams.methodAdjustments.asr)
+        assertEquals(3, dubaiParams.methodAdjustments.maghrib)
+
+        val istanbul = PrayerLocation(41.0082, 28.9784, "إسطنبول", "تركيا", "TR")
+        val turkey = PrayerTimesCalculator.parametersFor(autoConfig(istanbul), istanbul)
+        assertEquals(18.0, turkey.fajrAngle, 0.01)
+        assertEquals(17.0, turkey.ishaAngle, 0.01)
+        assertEquals(-7, turkey.methodAdjustments.sunrise)
+        assertEquals(5, turkey.methodAdjustments.dhuhr)
+        assertEquals(4, turkey.methodAdjustments.asr)
+        assertEquals(7, turkey.methodAdjustments.maghrib)
+        assertEquals(AsrMadhabPref.HANAFI, PrayerCountryDefaults.madhabFor("TR"))
+
+        val rabat = PrayerLocation(34.0209, -6.8416, "الرباط", "المغرب", "MA")
+        val morocco = PrayerTimesCalculator.parametersFor(autoConfig(rabat), rabat)
+        assertEquals(19.0, morocco.fajrAngle, 0.01)
+        assertEquals(17.0, morocco.ishaAngle, 0.01)
+        assertEquals(-2, morocco.methodAdjustments.sunrise)
+        assertEquals(5, morocco.methodAdjustments.dhuhr)
+        assertEquals(5, morocco.methodAdjustments.maghrib)
+
+        val muscat = PrayerLocation(23.5880, 58.3829, "مسقط", "عُمان", "OM")
+        val oman = PrayerTimesCalculator.parametersFor(autoConfig(muscat), muscat)
+        assertEquals(18.0, oman.fajrAngle, 0.01)
+        assertEquals(18.0, oman.ishaAngle, 0.01)
+        assertEquals(0, oman.ishaInterval)
+        assertEquals(5, oman.methodAdjustments.dhuhr)
+        assertEquals(5, oman.methodAdjustments.asr)
+        assertEquals(5, oman.methodAdjustments.maghrib)
+        assertEquals(1, oman.methodAdjustments.isha)
+
+        val tehran = PrayerLocation(35.6892, 51.3890, "طهران", "إيران", "IR")
+        val tehranNoon = Instant.parse("2026-09-30T08:30:00Z").toEpochMilli()
+        val iranAuto = PrayerTimesCalculator.timesFor(autoConfig(tehran), tehranNoon)!!
+        val iranPlain = PrayerTimesCalculator.timesFor(
+            autoConfig(tehran).copy(method = CalculationMethodPref.MUSLIM_WORLD_LEAGUE),
+            tehranNoon
+        )!!
+        val maghribShift = (iranAuto.timeOf(PrayerName.MAGHRIB)!! - iranPlain.timeOf(PrayerName.MAGHRIB)!!) / 60_000L
+        assertTrue("maghrib shift $maghribShift", maghribShift in 15..35)
+        val ishaShift = (iranPlain.timeOf(PrayerName.ISHA)!! - iranAuto.timeOf(PrayerName.ISHA)!!) / 60_000L
+        assertTrue("isha shift $ishaShift", ishaShift in 8..30)
+    }
+
+    private fun assertNear(millis: Long, zone: ZoneId, hour: Int, minute: Int) {
+        val local = Instant.ofEpochMilli(millis).atZone(zone)
+        val delta = kotlin.math.abs((local.hour * 60 + local.minute) - (hour * 60 + minute))
+        assertTrue("${local.toLocalTime()} expected $hour:$minute", delta <= 1)
     }
 
     @Test
@@ -296,6 +406,23 @@ class PrayerTimesCalculatorTest {
         assertEquals("Africa/Lagos", PrayerTimezones.resolve(PrayerLocation(6.5244, 3.3792, "لاغوس", "نيجيريا", "NG")))
         assertEquals("Africa/Johannesburg", PrayerTimezones.resolve(PrayerLocation(-33.9249, 18.4241, "كيب تاون", "جنوب أفريقيا", "ZA")))
         assertEquals("Asia/Tashkent", PrayerTimezones.resolve(PrayerLocation(41.2995, 69.2401, "طشقند", "أوزبكستان", "UZ")))
+    }
+
+    @Test
+    fun damascusAsrFollowsPublicCalendarsNotHanafi() {
+        val damascus = PrayerLocation(33.5138, 36.2765, "دمشق", "سوريا", "SY")
+        val noon = Instant.parse("2026-09-23T09:00:00Z").toEpochMilli()
+        val auto = PrayerTimesCalculator.timesFor(autoConfig(damascus), noon)!!
+        val zone = ZoneId.of("Asia/Damascus")
+        val asr = Instant.ofEpochMilli(auto.timeOf(PrayerName.ASR)!!).atZone(zone)
+        assertEquals(15, asr.hour)
+        assertTrue(asr.minute in 40..59)
+        val hanafi = PrayerTimesCalculator.timesFor(
+            autoConfig(damascus).copy(madhab = AsrMadhabPref.HANAFI),
+            noon
+        )!!
+        val hanafiAsr = Instant.ofEpochMilli(hanafi.timeOf(PrayerName.ASR)!!).atZone(zone)
+        assertTrue(hanafiAsr.toEpochSecond() - asr.toEpochSecond() >= 40 * 60)
     }
 
     @Test

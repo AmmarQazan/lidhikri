@@ -5,6 +5,7 @@ import com.batoulapps.adhan.CalculationParameters
 import com.batoulapps.adhan.Coordinates
 import com.batoulapps.adhan.HighLatitudeRule
 import com.batoulapps.adhan.Madhab
+import com.batoulapps.adhan.PrayerAdjustments
 import com.batoulapps.adhan.PrayerTimes
 import com.batoulapps.adhan.data.DateComponents
 import java.time.Instant
@@ -13,6 +14,7 @@ import java.time.temporal.ChronoUnit
 import java.util.TimeZone
 
 object PrayerTimesCalculator {
+    private const val TEHRAN_MAGHRIB_ANGLE = 4.5
     fun zoneId(config: PrayerConfig): ZoneId {
         val resolved = when (config.timezoneMode) {
             TimezoneMode.MANUAL -> config.timezoneId.ifBlank { TimeZone.getDefault().id }
@@ -36,22 +38,21 @@ object PrayerTimesCalculator {
         val zone = zoneId(config)
         val zoned = Instant.ofEpochMilli(atMillis).atZone(zone)
         val date = DateComponents(zoned.year, zoned.monthValue, zoned.dayOfMonth)
-        val params = parameters(config, location)
-        val times = PrayerTimes(
-            Coordinates(location.latitude, location.longitude),
-            date,
-            params
-        )
+        val methodPref = resolvedMethod(config, location)
+        val params = parameters(config, location, methodPref)
+        val coordinates = Coordinates(location.latitude, location.longitude)
+        val times = PrayerTimes(coordinates, date, params)
+        val maghribAt = maghribInstant(times, coordinates, date, params, methodPref)
         val dayStart = zoned.toLocalDate().atStartOfDay(zone).toInstant().toEpochMilli()
         val dstMode = resolvedDst(config, location)
         val prayers = listOf(
-            PrayerName.FAJR to times.fajr,
-            PrayerName.DHUHR to times.dhuhr,
-            PrayerName.ASR to times.asr,
-            PrayerName.MAGHRIB to times.maghrib,
-            PrayerName.ISHA to times.isha
+            PrayerName.FAJR to times.fajr.toInstant(),
+            PrayerName.DHUHR to times.dhuhr.toInstant(),
+            PrayerName.ASR to times.asr.toInstant(),
+            PrayerName.MAGHRIB to maghribAt,
+            PrayerName.ISHA to times.isha.toInstant()
         ).map { (prayer, raw) ->
-            val adjusted = applyDst(raw.toInstant(), zone, dstMode)
+            val adjusted = applyDst(raw, zone, dstMode)
                 .plus(config.offset(prayer).toLong(), ChronoUnit.MINUTES)
             PrayerInstant(prayer, adjusted.toEpochMilli())
         }
@@ -84,17 +85,29 @@ object PrayerTimesCalculator {
         .filter { it.epochMillis > fromMillis }
         .minByOrNull { it.epochMillis }
 
-    private fun parameters(config: PrayerConfig, location: PrayerLocation): CalculationParameters {
-        val methodPref = if (config.method == CalculationMethodPref.AUTO) {
+    private fun resolvedMethod(config: PrayerConfig, location: PrayerLocation): CalculationMethodPref {
+        return if (config.method == CalculationMethodPref.AUTO) {
             PrayerCountryDefaults.methodFor(location.countryCode)
         } else {
             config.method
         }
+    }
+
+    internal fun parametersFor(config: PrayerConfig, location: PrayerLocation): CalculationParameters {
+        return parameters(config, location, resolvedMethod(config, location))
+    }
+
+    private fun parameters(
+        config: PrayerConfig,
+        location: PrayerLocation,
+        methodPref: CalculationMethodPref
+    ): CalculationParameters {
         val src = toLibraryMethod(methodPref).parameters
         val params = CalculationParameters(src.fajrAngle, src.ishaAngle).apply {
             ishaInterval = src.ishaInterval
-            adjustments = src.adjustments
+            methodAdjustments = copyAdjustments(src.methodAdjustments)
         }
+        applyOfficialProfile(params, methodPref, location.countryCode)
         val madhabPref = if (config.madhab == AsrMadhabPref.AUTO) {
             PrayerCountryDefaults.madhabFor(location.countryCode)
         } else {
@@ -107,12 +120,84 @@ object PrayerTimesCalculator {
         return params
     }
 
+    private fun applyOfficialProfile(
+        params: CalculationParameters,
+        methodPref: CalculationMethodPref,
+        countryCode: String
+    ) {
+        when (methodPref) {
+            CalculationMethodPref.TURKEY -> {
+                params.fajrAngle = 18.0
+                params.ishaAngle = 17.0
+                params.ishaInterval = 0
+                params.methodAdjustments = PrayerAdjustments(0, -7, 5, 4, 7, 0)
+            }
+            CalculationMethodPref.MOROCCO -> {
+                params.fajrAngle = 19.0
+                params.ishaAngle = 17.0
+                params.ishaInterval = 0
+                params.methodAdjustments = PrayerAdjustments(0, -2, 5, 0, 5, 0)
+            }
+            CalculationMethodPref.OMAN -> {
+                params.fajrAngle = 18.0
+                params.ishaAngle = 18.0
+                params.ishaInterval = 0
+                params.methodAdjustments = PrayerAdjustments(0, 0, 5, 5, 5, 1)
+            }
+            CalculationMethodPref.TEHRAN -> {
+                params.fajrAngle = 17.7
+                params.ishaAngle = 14.0
+                params.ishaInterval = 0
+                params.methodAdjustments = PrayerAdjustments()
+            }
+            else -> Unit
+        }
+        if (countryCode.equals("JO", ignoreCase = true) &&
+            methodPref == CalculationMethodPref.MUSLIM_WORLD_LEAGUE
+        ) {
+            val base = params.methodAdjustments
+            params.methodAdjustments = PrayerAdjustments(
+                base.fajr,
+                base.sunrise,
+                base.dhuhr,
+                base.asr,
+                base.maghrib + 6,
+                base.isha + 5
+            )
+        }
+    }
+
+    private fun maghribInstant(
+        times: PrayerTimes,
+        coordinates: Coordinates,
+        date: DateComponents,
+        params: CalculationParameters,
+        methodPref: CalculationMethodPref
+    ): Instant {
+        val sunset = times.maghrib.toInstant()
+        if (methodPref != CalculationMethodPref.TEHRAN) return sunset
+        val probe = CalculationParameters(params.fajrAngle, TEHRAN_MAGHRIB_ANGLE)
+        probe.madhab = params.madhab
+        probe.highLatitudeRule = params.highLatitudeRule
+        val depressed = PrayerTimes(coordinates, date, probe).isha ?: return sunset
+        return if (depressed.after(times.maghrib)) depressed.toInstant() else sunset
+    }
+
+    private fun copyAdjustments(src: PrayerAdjustments?): PrayerAdjustments {
+        if (src == null) return PrayerAdjustments()
+        return PrayerAdjustments(src.fajr, src.sunrise, src.dhuhr, src.asr, src.maghrib, src.isha)
+    }
+
     private fun toLibraryMethod(pref: CalculationMethodPref): CalculationMethod = when (pref) {
         CalculationMethodPref.AUTO,
-        CalculationMethodPref.MUSLIM_WORLD_LEAGUE -> CalculationMethod.MUSLIM_WORLD_LEAGUE
+        CalculationMethodPref.MUSLIM_WORLD_LEAGUE,
+        CalculationMethodPref.TURKEY,
+        CalculationMethodPref.MOROCCO,
+        CalculationMethodPref.TEHRAN -> CalculationMethod.MUSLIM_WORLD_LEAGUE
         CalculationMethodPref.EGYPTIAN -> CalculationMethod.EGYPTIAN
         CalculationMethodPref.KARACHI -> CalculationMethod.KARACHI
-        CalculationMethodPref.UMM_AL_QURA -> CalculationMethod.UMM_AL_QURA
+        CalculationMethodPref.UMM_AL_QURA,
+        CalculationMethodPref.OMAN -> CalculationMethod.UMM_AL_QURA
         CalculationMethodPref.DUBAI -> CalculationMethod.DUBAI
         CalculationMethodPref.MOON_SIGHTING_COMMITTEE -> CalculationMethod.MOON_SIGHTING_COMMITTEE
         CalculationMethodPref.NORTH_AMERICA -> CalculationMethod.NORTH_AMERICA

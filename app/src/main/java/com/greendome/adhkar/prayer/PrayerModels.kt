@@ -27,7 +27,11 @@ enum class CalculationMethodPref {
     NORTH_AMERICA,
     KUWAIT,
     QATAR,
-    SINGAPORE
+    SINGAPORE,
+    TURKEY,
+    MOROCCO,
+    OMAN,
+    TEHRAN
 }
 
 enum class AsrMadhabPref {

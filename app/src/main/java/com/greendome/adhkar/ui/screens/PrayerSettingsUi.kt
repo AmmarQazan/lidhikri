@@ -98,6 +98,10 @@ fun methodLabel(method: CalculationMethodPref): String = stringResource(
         CalculationMethodPref.KUWAIT -> R.string.prayer_method_kuwait
         CalculationMethodPref.QATAR -> R.string.prayer_method_qatar
         CalculationMethodPref.SINGAPORE -> R.string.prayer_method_singapore
+        CalculationMethodPref.TURKEY -> R.string.prayer_method_turkey
+        CalculationMethodPref.MOROCCO -> R.string.prayer_method_morocco
+        CalculationMethodPref.OMAN -> R.string.prayer_method_oman
+        CalculationMethodPref.TEHRAN -> R.string.prayer_method_tehran
     }
 )
 

@@ -85,7 +85,11 @@ object PrayerCountryDefaults {
             "AE" -> CalculationMethodPref.DUBAI
             "KW" -> CalculationMethodPref.KUWAIT
             "QA" -> CalculationMethodPref.QATAR
-            "BH", "OM", "YE" -> CalculationMethodPref.UMM_AL_QURA
+            "BH", "YE" -> CalculationMethodPref.UMM_AL_QURA
+            "OM" -> CalculationMethodPref.OMAN
+            "TR" -> CalculationMethodPref.TURKEY
+            "MA" -> CalculationMethodPref.MOROCCO
+            "IR" -> CalculationMethodPref.TEHRAN
             "EG", "SD", "LY" -> CalculationMethodPref.EGYPTIAN
             "MR", "SO", "DJ", "KM" -> CalculationMethodPref.MUSLIM_WORLD_LEAGUE
             "PK", "IN", "BD", "AF" -> CalculationMethodPref.KARACHI
@@ -99,7 +103,7 @@ object PrayerCountryDefaults {
     internal fun builtinMadhab(countryCode: String): AsrMadhabPref {
         return when (countryCode.uppercase()) {
             "PK", "IN", "BD", "AF",
-            "TR", "IQ", "SY",
+            "TR",
             "UZ", "KZ", "KG", "TJ", "TM",
             "RU",
             "BA", "AL", "XK", "MK", "ME",
