@@ -10,7 +10,6 @@ import com.greendome.adhkar.data.ReciterLibrariesMigration
 import com.greendome.adhkar.data.SettingsRepository
 import com.greendome.adhkar.data.SubaihatReciterSeed
 import com.greendome.adhkar.data.local.AdhkarDatabase
-import com.greendome.adhkar.prayer.AdhanSoundMode
 import com.greendome.adhkar.prayer.PrayerAlertSettings
 import com.greendome.adhkar.prayer.PrayerName
 import com.greendome.adhkar.service.OfflineDownloadHelper
@@ -95,40 +94,14 @@ object RemoteContentSync {
     }
 
     internal fun applyOfficialAdhanDefaults(
-        settings: SettingsRepository,
-        bundle: RemoteContentBundle,
+        @Suppress("UNUSED_PARAMETER") settings: SettingsRepository,
+        @Suppress("UNUSED_PARAMETER") bundle: RemoteContentBundle,
     ) {
-        val ids = buildSet {
-            for (i in 0 until bundle.adhanAudio.length()) {
-                add(bundle.adhanAudio.getJSONObject(i).optLong("id"))
-            }
-        }
-        val asrId = BundledAdhanSeed.ASR_DEFAULT_ID
-        if (asrId !in ids) return
-        val current = settings.adhanAlert(PrayerName.ASR)
-        if (!shouldBindOfficialAsrAdhan(current)) return
-        settings.setAdhanAlert(
-            PrayerName.ASR,
-            current.copy(
-                soundMode = AdhanSoundMode.CATALOG,
-                catalogId = asrId,
-            )
-        )
+        // أذان العصر الافتراضي: ضياء الدين (نفس الظهر). لا يُعاد ربط نايف فيده بعد المزامنة.
     }
 
-    internal fun shouldBindOfficialAsrAdhan(current: PrayerAlertSettings): Boolean {
-        if (current.soundMode == AdhanSoundMode.SILENT ||
-            current.soundMode == AdhanSoundMode.SHORT ||
-            current.soundMode == AdhanSoundMode.CUSTOM ||
-            current.soundMode == AdhanSoundMode.RECORDED
-        ) {
-            return false
-        }
-        val id = current.catalogId
-        return id <= 0L ||
-            id == BundledAdhanSeed.DEFAULT_ID ||
-            id == BundledAdhanSeed.ASR_DEFAULT_ID
-    }
+    internal fun shouldResetOfficialAsrAdhan(current: PrayerAlertSettings): Boolean =
+        BundledAdhanSeed.isFormerOfficialAsrDefault(current)
 
     internal suspend fun reconcileAutoTasbihDhikrState(database: AdhkarDatabase) {
         database.dhikrDao().markKnownLongFormDhikr()

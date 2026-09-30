@@ -35,6 +35,7 @@ import com.greendome.adhkar.data.local.AzkarItemEntity
 import com.greendome.adhkar.prayer.PrayerLocation
 import com.greendome.adhkar.service.AutoAzkarEventPlayer
 import com.greendome.adhkar.service.HomeGeofenceScheduler
+import com.greendome.adhkar.util.BatteryExemption
 import com.greendome.adhkar.util.RuntimePermissions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -69,6 +70,21 @@ fun HomeAzkarSettingsScreen(
 
     fun persistAndRegister() {
         HomeGeofenceScheduler.register(context)
+        val backgroundReady = Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ||
+            RuntimePermissions.hasBackgroundLocation(context)
+        if (settings.homeAzkarEnabled && backgroundReady) {
+            BatteryExemption.request(context)
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+            settings.homeAzkarEnabled &&
+            RuntimePermissions.hasFineLocation(context) &&
+            !RuntimePermissions.hasBackgroundLocation(context)
+        ) {
+            showBackgroundPrompt = true
+        }
     }
 
     val backgroundLauncher = rememberLauncherForActivityResult(
@@ -154,12 +170,19 @@ fun HomeAzkarSettingsScreen(
                 val lastEnter = remember(statusTick) { settings.homeLastEnterAt }
                 val lastExit = remember(statusTick) { settings.homeLastExitAt }
                 val playError = remember(statusTick) { settings.homeLastPlayError }
+                val skipReason = remember(statusTick) { settings.homeLastSkip }
                 HomeAzkarMonitorStatus(
                     status = monitorStatus,
                     needsBackground = needsBackground,
                     lastEnterAt = lastEnter,
                     lastExitAt = lastExit,
                     playError = playError,
+                    skipReason = skipReason,
+                    onRequestBackground = {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            backgroundLauncher.launch(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                        }
+                    },
                 )
             }
             item {

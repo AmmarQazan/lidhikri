@@ -85,7 +85,7 @@ class AdhanAudioResolverTest {
         assertEquals(10005L, BundledAdhanSeed.FAJR_DEFAULT_ID)
         assertEquals(22002L, BundledAdhanSeed.ASR_DEFAULT_ID)
         assertEquals(BundledAdhanSeed.FAJR_DEFAULT_ID, BundledAdhanSeed.defaultId(PrayerName.FAJR))
-        assertEquals(BundledAdhanSeed.ASR_DEFAULT_ID, BundledAdhanSeed.defaultId(PrayerName.ASR))
+        assertEquals(BundledAdhanSeed.DEFAULT_ID, BundledAdhanSeed.defaultId(PrayerName.ASR))
         assertEquals(BundledAdhanSeed.DEFAULT_ID, BundledAdhanSeed.defaultId(PrayerName.DHUHR))
         assertEquals(
             "adhan/dhiyauddin_nizaruddin_indonesia.mp3",
@@ -98,7 +98,7 @@ class AdhanAudioResolverTest {
     }
 
     @Test
-    fun defaultAsrUsesNaifWhenCatalogHasHim() {
+    fun defaultAsrKeepsIndonesianEvenWhenNaifIsInCatalog() {
         val naif = AdhanAudioEntity(
             id = BundledAdhanSeed.ASR_DEFAULT_ID,
             nameAr = "نايف",
@@ -112,7 +112,7 @@ class AdhanAudioResolverTest {
             shortTone = { "short" },
             defaultTone = { "tone" },
         )
-        assertEquals("https://example/naif.mp3", uri)
+        assertTrue(uri!!.contains("dhiyauddin_nizaruddin_indonesia"))
     }
 
     @Test

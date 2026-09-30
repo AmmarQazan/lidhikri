@@ -2,6 +2,7 @@ package com.greendome.adhkar.data
 
 import com.greendome.adhkar.data.local.AdhkarDatabase
 import com.greendome.adhkar.data.local.AzkarItemEntity
+import com.greendome.adhkar.data.local.DhikrEntity
 import com.greendome.adhkar.data.local.ReciterAudioEntity
 import com.greendome.adhkar.data.local.ReciterAzkarAudioEntity
 import com.greendome.adhkar.data.local.ReciterEntity
@@ -21,9 +22,7 @@ object SubaihatReciterSeed {
         val defaults = db.dhikrDao().getDefaults()
         dhikrMaps().forEach { spec ->
             val matches = defaults.filter { dhikr ->
-                dhikr.isDefault &&
-                    dhikr.category == spec.category &&
-                    dhikr.sortOrder in spec.sortOrders
+                dhikr.isDefault && spec.matches(dhikr)
             }
             matches.forEach { linkDhikrAudio(db, reciterId, it.id, spec.file) }
         }
@@ -121,18 +120,57 @@ object SubaihatReciterSeed {
 
     fun bundledAssetPath(file: String): String = "$STORAGE_PREFIX/$file"
 
-    internal fun bundledDhikrAsset(category: DhikrCategory, sortOrder: Int): String? =
+    internal fun bundledDhikrAsset(
+        category: DhikrCategory,
+        sortOrder: Int,
+        textAr: String = "",
+    ): String? {
         dhikrMaps().firstOrNull { spec ->
             spec.category == category && sortOrder in spec.sortOrders
-        }?.let { bundledAssetPath(it.file) }
+        }?.let { return bundledAssetPath(it.file) }
+        return dhikrMaps()
+            .filter { spec -> spec.category == category && spec.needles.isNotEmpty() }
+            .sortedByDescending { spec -> spec.needles.sumOf { it.length } }
+            .firstOrNull { spec -> spec.matchesText(textAr) }
+            ?.let { bundledAssetPath(it.file) }
+    }
 
     private data class DhikrSpec(
         val category: DhikrCategory,
         val sortOrders: IntRange,
-        val file: String
+        val file: String,
+        val needles: List<String> = emptyList(),
+        val exact: Boolean = false,
+        val absent: List<String> = emptyList(),
     ) {
-        constructor(category: DhikrCategory, sortOrder: Int, file: String) :
-            this(category, sortOrder..sortOrder, file)
+        constructor(
+            category: DhikrCategory,
+            sortOrder: Int,
+            file: String,
+            needles: List<String> = emptyList(),
+            exact: Boolean = false,
+            absent: List<String> = emptyList(),
+        ) : this(category, sortOrder..sortOrder, file, needles, exact, absent)
+
+        fun matches(dhikr: DhikrEntity): Boolean {
+            if (dhikr.category != category) return false
+            if (dhikr.sortOrder in sortOrders) return true
+            return matchesText(dhikr.textAr)
+        }
+
+        fun matchesText(textAr: String): Boolean {
+            if (needles.isEmpty() || textAr.isBlank()) return false
+            val text = normalizeAr(textAr)
+            if (absent.map { normalizeAr(it) }.any { it.isNotEmpty() && text.contains(it) }) {
+                return false
+            }
+            val needleNorm = needles.map { normalizeAr(it) }
+            return if (exact) {
+                needleNorm.any { text == it }
+            } else {
+                needleNorm.all { it.isNotEmpty() && text.contains(it) }
+            }
+        }
     }
 
     private data class AzkarSpec(
@@ -145,24 +183,84 @@ object SubaihatReciterSeed {
     )
 
     private fun dhikrMaps(): List<DhikrSpec> = listOf(
-        DhikrSpec(DhikrCategory.GENERAL, 1, "tasbih/subhan_allah.mp3"),
-        DhikrSpec(DhikrCategory.GENERAL, 2, "tasbih/alhamdulillah.mp3"),
-        DhikrSpec(DhikrCategory.GENERAL, 3, "tasbih/tahlil.mp3"),
-        DhikrSpec(DhikrCategory.GENERAL, 4, "tasbih/allahu_akbar.mp3"),
-        DhikrSpec(DhikrCategory.GENERAL, 5, "tasbih/hawqala.mp3"),
-        DhikrSpec(DhikrCategory.GENERAL, 6, "tasbih/baqiyat.mp3"),
-        DhikrSpec(DhikrCategory.GENERAL, 7, "tasbih/istighfar.mp3"),
-        DhikrSpec(DhikrCategory.GENERAL, 8, "tasbih/salawat.mp3"),
-        DhikrSpec(DhikrCategory.GENERAL, 9, "tasbih/subhan_bihamd.mp3"),
-        DhikrSpec(DhikrCategory.GENERAL, 10, "tasbih/subhan_azim.mp3"),
-        DhikrSpec(DhikrCategory.GENERAL, 11, "tasbih/tawhid.mp3"),
-        DhikrSpec(DhikrCategory.GENERAL, 12, "jawami/subhan_bihamd_adada.mp3"),
-        DhikrSpec(DhikrCategory.GENERAL, 13, "tasbih/yunus.mp3"),
-        DhikrSpec(DhikrCategory.GENERAL, 14, "tasbih/jalal.mp3"),
-        DhikrSpec(DhikrCategory.GENERAL, 15, "tasbih/hasbi.mp3"),
+        DhikrSpec(
+            DhikrCategory.GENERAL, 1, "tasbih/subhan_allah.mp3",
+            needles = listOf("سبحان الله"),
+            exact = true,
+            absent = listOf("وبحمده", "العظيم", "عدد"),
+        ),
+        DhikrSpec(
+            DhikrCategory.GENERAL, 2, "tasbih/alhamdulillah.mp3",
+            needles = listOf("الحمدلله"),
+            exact = true,
+        ),
+        DhikrSpec(
+            DhikrCategory.GENERAL, 3, "tasbih/tahlil.mp3",
+            needles = listOf("لا اله الا الله"),
+            exact = true,
+            absent = listOf("وحده", "الا انت"),
+        ),
+        DhikrSpec(
+            DhikrCategory.GENERAL, 4, "tasbih/allahu_akbar.mp3",
+            needles = listOf("الله اكبر"),
+            exact = true,
+            absent = listOf("ولله"),
+        ),
+        DhikrSpec(
+            DhikrCategory.GENERAL, 5, "tasbih/hawqala.mp3",
+            needles = listOf("لا حول", "الا بالله"),
+        ),
+        DhikrSpec(
+            DhikrCategory.GENERAL, 6, "tasbih/baqiyat.mp3",
+            needles = listOf("والحمد لله", "والله اكبر"),
+        ),
+        DhikrSpec(
+            DhikrCategory.GENERAL, 7, "tasbih/istighfar.mp3",
+            needles = listOf("استغفر الله"),
+        ),
+        DhikrSpec(
+            DhikrCategory.GENERAL, 8, "tasbih/salawat.mp3",
+            needles = listOf("نبينا محمد"),
+        ),
+        DhikrSpec(
+            DhikrCategory.GENERAL, 9, "tasbih/subhan_bihamd.mp3",
+            needles = listOf("وبحمده"),
+            absent = listOf("عدد"),
+        ),
+        DhikrSpec(
+            DhikrCategory.GENERAL, 10, "tasbih/subhan_azim.mp3",
+            needles = listOf("العظيم"),
+        ),
+        DhikrSpec(
+            DhikrCategory.GENERAL, 11, "tasbih/tawhid.mp3",
+            needles = listOf("وحده لا شريك"),
+        ),
+        DhikrSpec(
+            DhikrCategory.GENERAL, 12, "jawami/subhan_bihamd_adada.mp3",
+            needles = listOf("وبحمده", "عدد خلقه"),
+        ),
+        DhikrSpec(
+            DhikrCategory.GENERAL, 13, "tasbih/yunus.mp3",
+            needles = listOf("كنت من الظالمين"),
+        ),
+        DhikrSpec(
+            DhikrCategory.GENERAL, 14, "tasbih/jalal.mp3",
+            needles = listOf("الجلال"),
+        ),
+        DhikrSpec(
+            DhikrCategory.GENERAL, 15, "tasbih/hasbi.mp3",
+            needles = listOf("حسبي الله"),
+        ),
         DhikrSpec(DhikrCategory.EID, 100..101, "tasbih/eid_takbir.mp3"),
-        DhikrSpec(DhikrCategory.JAWAMI, 200, "jawami/subhan_bihamd_adada.mp3"),
-        DhikrSpec(DhikrCategory.JAWAMI, 201, "jawami/subhan_adada_khalqih.mp3"),
+        DhikrSpec(
+            DhikrCategory.JAWAMI, 200, "jawami/subhan_bihamd_adada.mp3",
+            needles = listOf("وبحمده", "عدد خلقه"),
+        ),
+        DhikrSpec(
+            DhikrCategory.JAWAMI, 201, "jawami/subhan_adada_khalqih.mp3",
+            needles = listOf("عدد خلقه", "رضا"),
+            absent = listOf("وبحمده"),
+        ),
     )
 
     private fun azkarMaps(): List<AzkarSpec> = listOf(

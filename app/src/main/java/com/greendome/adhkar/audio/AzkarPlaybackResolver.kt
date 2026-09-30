@@ -17,21 +17,25 @@ object AzkarPlaybackResolver {
             return null
         }
 
-        lookupAzkarAudio(db, item, reciterId)?.let { return it }
+        val bundled = bundledPlayableForAzkar(item.collectionId, item.textAr)
+        preferLocalOrBundled(lookupAzkarAudio(db, item, reciterId), bundled)?.let { return it }
 
         val normalizedText = item.textAr.trim()
         val matchingDhikr = db.dhikrDao().getDefaults().find {
             it.textAr.trim() == normalizedText && !it.isExcludedFromAutoAudio()
         }
         if (matchingDhikr != null) {
-            db.reciterAudioDao().get(matchingDhikr.id, reciterId)
+            val fromDhikr = db.reciterAudioDao().get(matchingDhikr.id, reciterId)
                 ?.let { resolveReciterAudioEntity(it) }
-                ?.let { return it }
+            preferLocalOrBundled(fromDhikr, bundledPlayableForDhikr(matchingDhikr))?.let { return it }
         }
         if (reciterId != SubaihatReciterSeed.RECITER_ID) {
-            lookupAzkarAudio(db, item, SubaihatReciterSeed.RECITER_ID)?.let { return it }
+            preferLocalOrBundled(
+                lookupAzkarAudio(db, item, SubaihatReciterSeed.RECITER_ID),
+                bundled,
+            )?.let { return it }
         }
-        return null
+        return bundled
     }
 
     private suspend fun lookupAzkarAudio(

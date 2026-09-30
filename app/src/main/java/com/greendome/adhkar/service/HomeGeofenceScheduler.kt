@@ -32,14 +32,17 @@ object HomeGeofenceScheduler {
         unregister(app)
         if (!shouldMonitor(settings)) {
             settings.homeNeedsBackgroundPermission = false
+            settings.homeMonitorArmedAt = 0L
             settings.setHomeMonitor(AutoAzkarMonitorStatus.OFF)
             return
         }
         if (!DeviceLocation.hasFinePermission(app)) {
+            settings.homeMonitorArmedAt = 0L
             settings.setHomeMonitor(AutoAzkarMonitorStatus.NO_FINE)
             return
         }
         val location = settings.homeLocation() ?: run {
+            settings.homeMonitorArmedAt = 0L
             settings.setHomeMonitor(AutoAzkarMonitorStatus.NO_PLACE)
             return
         }
@@ -48,8 +51,8 @@ object HomeGeofenceScheduler {
                 !RuntimePermissions.hasBackgroundLocation(app)
         settings.setHomeMonitor(AutoAzkarMonitorStatus.WAITING)
         if (!DeviceLocation.isEnabled(app)) {
-            registerProximity(app, location.latitude, location.longitude)
-            settings.setHomeMonitor(AutoAzkarMonitorStatus.PROXIMITY)
+            settings.homeMonitorArmedAt = 0L
+            settings.setHomeMonitor(AutoAzkarMonitorStatus.LOCATION_OFF)
             return
         }
         registerGeofence(app, settings, location.latitude, location.longitude)
@@ -91,6 +94,7 @@ object HomeGeofenceScheduler {
             .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
             .addGeofence(geofence)
             .build()
+        settings.homeMonitorArmedAt = System.currentTimeMillis()
         val pending = pending(context)
         runCatching {
             LocationServices.getGeofencingClient(context)
@@ -117,6 +121,7 @@ object HomeGeofenceScheduler {
     @SuppressLint("MissingPermission")
     private fun registerProximity(context: Context, lat: Double, lng: Double) {
         val manager = context.getSystemService(LocationManager::class.java) ?: return
+        SettingsRepository(context.applicationContext).homeMonitorArmedAt = System.currentTimeMillis()
         runCatching {
             manager.addProximityAlert(
                 lat,

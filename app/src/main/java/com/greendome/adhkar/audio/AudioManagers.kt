@@ -116,11 +116,8 @@ class DhikrAudioPlayer(private val context: Context) {
         onComplete: () -> Unit = {}
     ) {
         releasePlayer()
+        isAborted = false
         pendingComplete = null
-        if (isAborted) {
-            onComplete()
-            return
-        }
         if (DeviceAudioGate.shouldSuppressPlayback(context, settings, userInitiated = true)) {
             onComplete()
             return
@@ -145,11 +142,8 @@ class DhikrAudioPlayer(private val context: Context) {
         onComplete: () -> Unit = {}
     ) {
         releasePlayer()
+        isAborted = false
         pendingComplete = null
-        if (isAborted) {
-            onComplete()
-            return
-        }
         if (DeviceAudioGate.shouldSuppressPlayback(context, settings, userInitiated = true)) {
             onComplete()
             return
@@ -180,8 +174,9 @@ class DhikrAudioPlayer(private val context: Context) {
         onComplete: () -> Unit = {},
     ) {
         releasePlayer()
+        isAborted = false
         pendingComplete = null
-        if (isAborted || items.isEmpty()) {
+        if (items.isEmpty()) {
             onComplete()
             return
         }
@@ -244,11 +239,8 @@ class DhikrAudioPlayer(private val context: Context) {
         onComplete: () -> Unit = {},
     ) {
         releasePlayer()
+        isAborted = false
         pendingComplete = null
-        if (isAborted) {
-            onComplete()
-            return
-        }
         if (DeviceAudioGate.shouldSuppressPlayback(
                 context,
                 settings,

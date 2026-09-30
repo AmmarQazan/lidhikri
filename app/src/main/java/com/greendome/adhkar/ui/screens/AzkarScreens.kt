@@ -1,5 +1,6 @@
 package com.greendome.adhkar.ui.screens
 
+import android.Manifest
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -114,6 +115,7 @@ import com.greendome.adhkar.service.AutoAzkarEventPlayer
 import com.greendome.adhkar.service.HomeGeofenceScheduler
 import com.greendome.adhkar.service.ReminderScheduler
 import com.greendome.adhkar.service.VehicleActivityScheduler
+import com.greendome.adhkar.util.BatteryExemption
 import com.greendome.adhkar.util.RuntimePermissions
 import com.greendome.adhkar.ui.components.AzkarTextMenu
 import com.greendome.adhkar.ui.theme.AppCardColors
@@ -549,10 +551,19 @@ fun AzkarCollectionScreen(
     ) { granted ->
         if (granted) {
             VehicleActivityScheduler.register(context)
+            BatteryExemption.request(context)
         } else {
             ridingAzkarOn = false
             settings.ridingAzkarEnabled = false
             VehicleActivityScheduler.unregister(context)
+        }
+    }
+    val homeBackgroundLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) {
+        HomeGeofenceScheduler.register(context)
+        if (settings.homeAzkarEnabled && RuntimePermissions.hasBackgroundLocation(context)) {
+            BatteryExemption.request(context)
         }
     }
     LaunchedEffect(collection.id) {
@@ -750,6 +761,7 @@ fun AzkarCollectionScreen(
                 (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
                     !RuntimePermissions.hasBackgroundLocation(context))
             if (needsSetup) onOpenHomeAzkarSettings()
+            else BatteryExemption.request(context)
         } else {
             HomeGeofenceScheduler.unregister(context)
         }
@@ -767,6 +779,7 @@ fun AzkarCollectionScreen(
             ridingPermissionLauncher.launch(permission)
         } else {
             VehicleActivityScheduler.register(context)
+            BatteryExemption.request(context)
         }
     }
 
@@ -1007,12 +1020,23 @@ fun AzkarCollectionScreen(
                                 val lastEnter = remember(monitorTick) { settings.homeLastEnterAt }
                                 val lastExit = remember(monitorTick) { settings.homeLastExitAt }
                                 val homePlayErr = remember(monitorTick) { settings.homeLastPlayError }
+                                val homeSkip = remember(monitorTick) { settings.homeLastSkip }
                                 HomeAzkarMonitorStatus(
                                     status = homeStatus,
                                     needsBackground = homeNeedsBg,
                                     lastEnterAt = lastEnter,
                                     lastExitAt = lastExit,
                                     playError = homePlayErr,
+                                    skipReason = homeSkip,
+                                    onRequestBackground = {
+                                        if (!RuntimePermissions.hasFineLocation(context)) {
+                                            onOpenHomeAzkarSettings()
+                                        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                                            homeBackgroundLauncher.launch(
+                                                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                                            )
+                                        }
+                                    },
                                     modifier = Modifier.padding(bottom = 8.dp),
                                 )
                                 SettingsNavCard(
@@ -1039,10 +1063,12 @@ fun AzkarCollectionScreen(
                                 val ridingStatus = remember(monitorTick) { settings.ridingMonitorStatus }
                                 val lastRide = remember(monitorTick) { settings.ridingLastPlayAt }
                                 val ridePlayErr = remember(monitorTick) { settings.ridingLastPlayError }
+                                val rideSkip = remember(monitorTick) { settings.ridingLastSkip }
                                 RidingAzkarMonitorStatus(
                                     status = ridingStatus,
                                     lastPlayAt = lastRide,
                                     playError = ridePlayErr,
+                                    skipReason = rideSkip,
                                     modifier = Modifier.padding(bottom = 8.dp),
                                 )
                                 OutlinedButton(

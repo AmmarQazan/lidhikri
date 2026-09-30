@@ -9,22 +9,18 @@ import org.junit.Test
 
 class OfficialAsrAdhanBindTest {
     @Test
-    fun bindsDefaultAndIndonesianAsr() {
-        assertTrue(RemoteContentSync.shouldBindOfficialAsrAdhan(PrayerAlertSettings()))
+    fun resetsFormerNaifOfficialDefault() {
         assertTrue(
-            RemoteContentSync.shouldBindOfficialAsrAdhan(
-                PrayerAlertSettings(
-                    soundMode = AdhanSoundMode.CATALOG,
-                    catalogId = BundledAdhanSeed.DEFAULT_ID,
-                )
-            )
-        )
-        assertTrue(
-            RemoteContentSync.shouldBindOfficialAsrAdhan(
+            RemoteContentSync.shouldResetOfficialAsrAdhan(
                 PrayerAlertSettings(
                     soundMode = AdhanSoundMode.CATALOG,
                     catalogId = BundledAdhanSeed.ASR_DEFAULT_ID,
                 )
+            )
+        )
+        assertTrue(
+            BundledAdhanSeed.isFormerOfficialAsrDefault(
+                PrayerAlertSettings(catalogId = BundledAdhanSeed.ASR_DEFAULT_ID)
             )
         )
     }
@@ -32,18 +28,31 @@ class OfficialAsrAdhanBindTest {
     @Test
     fun keepsCustomSilentAndOtherCatalogVoices() {
         assertFalse(
-            RemoteContentSync.shouldBindOfficialAsrAdhan(
+            RemoteContentSync.shouldResetOfficialAsrAdhan(
                 PrayerAlertSettings(soundMode = AdhanSoundMode.SILENT)
             )
         )
         assertFalse(
-            RemoteContentSync.shouldBindOfficialAsrAdhan(
+            RemoteContentSync.shouldResetOfficialAsrAdhan(
                 PrayerAlertSettings(soundMode = AdhanSoundMode.CUSTOM, customPath = "/a.mp3")
             )
         )
         assertFalse(
-            RemoteContentSync.shouldBindOfficialAsrAdhan(
+            RemoteContentSync.shouldResetOfficialAsrAdhan(
                 PrayerAlertSettings(soundMode = AdhanSoundMode.CATALOG, catalogId = 20017L)
+            )
+        )
+        assertFalse(
+            RemoteContentSync.shouldResetOfficialAsrAdhan(
+                PrayerAlertSettings()
+            )
+        )
+        assertFalse(
+            RemoteContentSync.shouldResetOfficialAsrAdhan(
+                PrayerAlertSettings(
+                    soundMode = AdhanSoundMode.CATALOG,
+                    catalogId = BundledAdhanSeed.DEFAULT_ID,
+                )
             )
         )
     }

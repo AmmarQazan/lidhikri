@@ -12,13 +12,14 @@ object DhikrPlaybackResolver {
     suspend fun resolvePlayable(context: Context, dhikr: DhikrEntity): PlayableAudio? {
         val settings = SettingsRepository(context)
         val db = AdhkarDatabase.get(context)
-        val reciterId = settings.selectedReciterId
+        val reciterId = settings.selectedReciterIdFor(VoiceSettingsTarget.TASBIH)
         val reciter = db.reciterDao().getById(reciterId)
-        if (reciter == null || reciter.voiceScope.allows(VoiceSettingsTarget.TASBIH)) {
-            db.reciterAudioDao().get(dhikr.id, reciterId)
-                ?.let { resolveReciterAudioEntity(it) }
-                ?.let { return it }
+        val fromSelected = if (reciter == null || reciter.voiceScope.allows(VoiceSettingsTarget.TASBIH)) {
+            db.reciterAudioDao().get(dhikr.id, reciterId)?.let { resolveReciterAudioEntity(it) }
+        } else {
+            null
         }
+        preferLocalOrBundled(fromSelected, bundledPlayableForDhikr(dhikr))?.let { return it }
 
         if (!dhikr.isDefault) {
             when (dhikr.audioSourceType) {
@@ -30,12 +31,39 @@ object DhikrPlaybackResolver {
         }
 
         if (reciterId != SubaihatReciterSeed.RECITER_ID) {
-            db.reciterAudioDao().get(dhikr.id, SubaihatReciterSeed.RECITER_ID)
+            val fromDefault = db.reciterAudioDao().get(dhikr.id, SubaihatReciterSeed.RECITER_ID)
                 ?.let { resolveReciterAudioEntity(it) }
-                ?.let { return it }
+            preferLocalOrBundled(fromDefault, bundledPlayableForDhikr(dhikr))?.let { return it }
         }
-        return null
+        return bundledPlayableForDhikr(dhikr)
     }
+}
+
+internal fun bundledPlayableForDhikr(dhikr: DhikrEntity): PlayableAudio? {
+    SubaihatReciterSeed.bundledDhikrAsset(dhikr.category, dhikr.sortOrder, dhikr.textAr)
+        ?.let { return PlayableAudio.Asset(normalizeAssetPath(it)) }
+    val path = usableAssetPath(dhikr.audioPath)
+    if (path != null) {
+        return PlayableAudio.Asset(normalizeAssetPath(path))
+    }
+    return null
+}
+
+internal fun bundledPlayableForAzkar(collectionId: String, textAr: String): PlayableAudio? {
+    val file = SubaihatReciterSeed.matchedAzkarFile(collectionId, textAr) ?: return null
+    return PlayableAudio.Asset(normalizeAssetPath(SubaihatReciterSeed.bundledAssetPath(file)))
+}
+
+internal fun preferLocalOrBundled(
+    resolved: PlayableAudio?,
+    bundled: PlayableAudio?,
+): PlayableAudio? {
+    when (resolved) {
+        is PlayableAudio.Asset -> return resolved
+        is PlayableAudio.File -> if (!isHttpPlaybackUri(resolved.path)) return resolved
+        null -> Unit
+    }
+    return bundled ?: resolved
 }
 
 sealed class PlayableAudio {

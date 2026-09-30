@@ -1,6 +1,7 @@
 package com.greendome.adhkar.sync
 
 import androidx.room.withTransaction
+import com.greendome.adhkar.audio.usableAssetPath
 import com.greendome.adhkar.data.AzkarFavorites
 import com.greendome.adhkar.data.BlessedDaysAzkar
 import com.greendome.adhkar.data.BundledAdhanSeed
@@ -69,8 +70,8 @@ class RemoteContentApplier(private val db: AdhkarDatabase) {
     private suspend fun insertDhikr(array: JSONArray) {
         for (i in 0 until array.length()) {
             val o = array.getJSONObject(i)
-            val remoteAudio = o.optString("remoteAudioUrl", "").takeIf { it.isNotBlank() }
-            val audioPath = o.optString("audioPath", "").takeIf { it.isNotBlank() }
+            val remoteAudio = o.optString("remoteAudioUrl", "").takeIf { it.isNotBlank() && !it.equals("null", true) }
+            val audioPath = o.optString("audioPath", "").takeIf { it.isNotBlank() && !it.equals("null", true) }
             val sourceType = enumValue<AudioSourceType>(o.optString("audioSourceType", AudioSourceType.NONE.name))
             val resolvedType = when {
                 remoteAudio != null -> AudioSourceType.DOWNLOAD
@@ -187,16 +188,22 @@ class RemoteContentApplier(private val db: AdhkarDatabase) {
     private suspend fun insertReciterAudio(array: JSONArray) {
         for (i in 0 until array.length()) {
             val o = array.getJSONObject(i)
-            val remoteUrl = o.optString("remoteUrl", "").takeIf { it.isNotBlank() }
+            val reciterId = o.getLong("reciterId")
+            val dhikrId = o.getLong("dhikrId")
+            val remoteUrl = jsonPath(o, "remoteUrl")
+            val incomingAsset = usableAssetPath(jsonPath(o, "assetPath"))
+            val existing = db.reciterAudioDao().get(dhikrId, reciterId)
+            val assetPath = incomingAsset ?: usableAssetPath(existing?.assetPath)
             db.reciterAudioDao().insert(
                 ReciterAudioEntity(
                     id = o.getLong("id"),
-                    reciterId = o.getLong("reciterId"),
-                    dhikrId = o.getLong("dhikrId"),
-                    localPath = null,
+                    reciterId = reciterId,
+                    dhikrId = dhikrId,
+                    localPath = existing?.localPath,
                     remoteUrl = remoteUrl,
-                    assetPath = null,
-                    isDownloaded = remoteUrl == null && o.optString("localPath", "").isNotBlank()
+                    assetPath = assetPath,
+                    isDownloaded = assetPath != null ||
+                        (existing?.isDownloaded == true && !existing.localPath.isNullOrBlank()),
                 )
             )
         }
@@ -205,16 +212,22 @@ class RemoteContentApplier(private val db: AdhkarDatabase) {
     private suspend fun insertReciterAzkarAudio(array: JSONArray) {
         for (i in 0 until array.length()) {
             val o = array.getJSONObject(i)
-            val remoteUrl = o.optString("remoteUrl", "").takeIf { it.isNotBlank() }
+            val reciterId = o.getLong("reciterId")
+            val azkarItemId = o.getLong("azkarItemId")
+            val remoteUrl = jsonPath(o, "remoteUrl")
+            val incomingAsset = usableAssetPath(jsonPath(o, "assetPath"))
+            val existing = db.reciterAzkarAudioDao().get(azkarItemId, reciterId)
+            val assetPath = incomingAsset ?: usableAssetPath(existing?.assetPath)
             db.reciterAzkarAudioDao().insert(
                 ReciterAzkarAudioEntity(
                     id = o.getLong("id"),
-                    reciterId = o.getLong("reciterId"),
-                    azkarItemId = o.getLong("azkarItemId"),
-                    localPath = null,
+                    reciterId = reciterId,
+                    azkarItemId = azkarItemId,
+                    localPath = existing?.localPath,
                     remoteUrl = remoteUrl,
-                    assetPath = null,
-                    isDownloaded = remoteUrl == null && o.optString("localPath", "").isNotBlank()
+                    assetPath = assetPath,
+                    isDownloaded = assetPath != null ||
+                        (existing?.isDownloaded == true && !existing.localPath.isNullOrBlank()),
                 )
             )
         }
@@ -253,6 +266,11 @@ class RemoteContentApplier(private val db: AdhkarDatabase) {
                 )
             )
         }
+    }
+
+    private fun jsonPath(o: JSONObject, key: String): String? {
+        val value = o.optString(key, "").trim()
+        return value.takeIf { it.isNotEmpty() && !it.equals("null", true) && !it.equals("undefined", true) }
     }
 
     private fun jsonFlag(o: JSONObject, key: String, default: Boolean): Boolean {

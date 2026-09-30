@@ -2,6 +2,7 @@ package com.greendome.adhkar.service
 
 import android.content.Context
 import com.greendome.adhkar.audio.AudioDownloadManager
+import com.greendome.adhkar.audio.usableAssetPath
 import com.greendome.adhkar.data.ReciterLibraryDownloadPolicy
 import com.greendome.adhkar.data.SettingsRepository
 import com.greendome.adhkar.data.local.AdhkarDatabase
@@ -73,6 +74,7 @@ object OfflineDownloadHelper {
         val downloader = AudioDownloadManager(context)
         var count = 0
         items.forEach { audio ->
+            if (usableAssetPath(audio.assetPath) != null) return@forEach
             val url = audio.remoteUrl ?: return@forEach
             val path = downloader.download(url, "reciter_${audio.id}.mp3")
             if (path != null) {
@@ -91,6 +93,7 @@ object OfflineDownloadHelper {
         val downloader = AudioDownloadManager(context)
         var count = 0
         items.forEach { audio ->
+            if (usableAssetPath(audio.assetPath) != null) return@forEach
             val url = audio.remoteUrl ?: return@forEach
             val path = downloader.download(url, "azkar_reciter_${audio.id}.mp3")
             if (path != null) {

@@ -57,6 +57,7 @@ class BlessedDaysAzkarTest {
         assertEquals(21, items[0].hijriDayStart)
         assertEquals(30, items[0].hijriDayEnd)
         assertEquals(PrayerName.MAGHRIB.name, items[0].prayerAnchor)
+        assertEquals(60, items[0].prayerOffsetMinutes)
         assertTrue(items[0].skipQuietWindow)
         assertEquals(BlessedDaysAzkar.DHUL_HIJJAH, items[1].hijriMonth)
         assertEquals(9, items[1].hijriDayStart)

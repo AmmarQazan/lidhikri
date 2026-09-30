@@ -83,7 +83,7 @@ object BlessedDaysAzkar {
             scheduleHour = 19,
             scheduleMinute = 30,
             prayerAnchor = PrayerName.MAGHRIB.name,
-            prayerOffsetMinutes = 15,
+            prayerOffsetMinutes = 60,
             skipQuietWindow = true,
         ),
         ItemSeed(

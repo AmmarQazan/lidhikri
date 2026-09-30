@@ -20,13 +20,14 @@ internal fun playbackUri(pathOrUri: String): Uri {
 internal fun cachedAssetFile(context: Context, assetPath: String): File? {
     val normalized = normalizeAssetPath(assetPath)
     val dest = File(context.filesDir, "voice_assets/$normalized")
-    if (dest.isFile && dest.length() > 16L) return dest
+    if (dest.isFile && dest.length() > 16L && hasAudioMagic(dest)) return dest
+    dest.delete()
     return runCatching {
         dest.parentFile?.mkdirs()
         context.assets.open(normalized).use { input ->
             dest.outputStream().use { output -> input.copyTo(output) }
         }
-        dest.takeIf { it.isFile && it.length() > 16L }
+        dest.takeIf { it.isFile && it.length() > 16L && hasAudioMagic(it) }
     }.getOrNull()
 }
 

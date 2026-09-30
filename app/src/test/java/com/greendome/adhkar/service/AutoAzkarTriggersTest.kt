@@ -17,27 +17,37 @@ class AutoAzkarTriggersTest {
     @Test
     fun ridingCooldownBlocksRepeats() {
         val first = 2_000_000L
-        assertFalse(
-            AutoAzkarTriggers.Riding.canPlay(first + 60_000L, first, inTrip = false)
-        )
+        assertFalse(AutoAzkarTriggers.Riding.canPlay(first + 60_000L, first))
         assertTrue(
             AutoAzkarTriggers.Riding.canPlay(
                 first + AutoAzkarTriggers.Riding.COOLDOWN_MS,
                 first,
-                inTrip = false,
             )
         )
     }
 
     @Test
-    fun ridingInTripBlocksUntilStaleEvenAfterCooldown() {
+    fun ridingPlaysAgainAfterCooldownEvenIfExitWasMissed() {
         val first = 3_000_000L
-        val afterCooldown = first + AutoAzkarTriggers.Riding.COOLDOWN_MS
-        assertFalse(AutoAzkarTriggers.Riding.canPlay(afterCooldown, first, inTrip = true))
-        assertFalse(AutoAzkarTriggers.Riding.tripIsStale(afterCooldown, first, inTrip = true))
-        val staleAt = first + AutoAzkarTriggers.Riding.TRIP_STALE_MS
-        assertTrue(AutoAzkarTriggers.Riding.tripIsStale(staleAt, first, inTrip = true))
-        assertTrue(AutoAzkarTriggers.Riding.canPlay(staleAt, first, inTrip = true))
+        assertTrue(
+            AutoAzkarTriggers.Riding.canPlay(
+                first + AutoAzkarTriggers.Riding.COOLDOWN_MS,
+                first,
+            )
+        )
+    }
+
+    @Test
+    fun homeIgnoresEnterDuringRegisterGrace() {
+        val armed = 5_000_000L
+        assertTrue(AutoAzkarTriggers.Home.isFreshRegister(armed + 5_000L, armed))
+        assertFalse(
+            AutoAzkarTriggers.Home.isFreshRegister(
+                armed + AutoAzkarTriggers.Home.REGISTER_GRACE_MS,
+                armed,
+            )
+        )
+        assertFalse(AutoAzkarTriggers.Home.isFreshRegister(armed + 5_000L, 0L))
     }
 
     @Test

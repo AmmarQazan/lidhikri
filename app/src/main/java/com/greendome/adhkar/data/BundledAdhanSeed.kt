@@ -2,12 +2,15 @@ package com.greendome.adhkar.data
 
 import com.greendome.adhkar.data.local.AdhanAudioEntity
 import com.greendome.adhkar.data.local.AdhkarDatabase
+import com.greendome.adhkar.prayer.AdhanSoundMode
+import com.greendome.adhkar.prayer.PrayerAlertSettings
 import com.greendome.adhkar.prayer.PrayerName
 
-/** الأذان المضمّن: ضياء الدين لغير الفجر والعصر، والقصاص للفجر. أذان العصر الافتراضي: نايف فيده (كتالوج بعيد). */
+/** الأذان المضمّن: ضياء الدين لغير الفجر، والقصاص للفجر. أذان العصر نفس أذان الظهر (ضياء الدين). */
 object BundledAdhanSeed {
     const val DEFAULT_ID = 10001L
     const val FAJR_DEFAULT_ID = 10005L
+    /** معرّف نايف فيده في الكتالوج البعيد — كان افتراضياً للعصر سابقاً. */
     const val ASR_DEFAULT_ID = 22002L
 
     private val retiredAssetPaths = setOf(
@@ -66,8 +69,18 @@ object BundledAdhanSeed {
 
     fun defaultId(prayer: PrayerName): Long = when (prayer) {
         PrayerName.FAJR -> FAJR_DEFAULT_ID
-        PrayerName.ASR -> ASR_DEFAULT_ID
         else -> DEFAULT_ID
+    }
+
+    fun isFormerOfficialAsrDefault(alert: PrayerAlertSettings): Boolean {
+        if (alert.soundMode == AdhanSoundMode.SILENT ||
+            alert.soundMode == AdhanSoundMode.SHORT ||
+            alert.soundMode == AdhanSoundMode.CUSTOM ||
+            alert.soundMode == AdhanSoundMode.RECORDED
+        ) {
+            return false
+        }
+        return alert.catalogId == ASR_DEFAULT_ID
     }
 
     fun entities(): List<AdhanAudioEntity> = specs.map { it.toEntity() }

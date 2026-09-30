@@ -6,16 +6,32 @@ import java.io.File
 
 fun resolveReciterAudioEntity(audio: ReciterAudioEntity): PlayableAudio? {
     usableAudioFile(audio.localPath)?.let { return PlayableAudio.File(it) }
-    audio.assetPath?.takeIf { it.isNotBlank() }?.let { return PlayableAudio.Asset(normalizeAssetPath(it)) }
-    audio.remoteUrl?.trim()?.takeIf { it.isNotBlank() }?.let { return PlayableAudio.File(it) }
+    usableAssetPath(audio.assetPath)?.let { return PlayableAudio.Asset(normalizeAssetPath(it)) }
+    usableRemoteUrl(audio.remoteUrl)?.let { return PlayableAudio.File(it) }
     return null
 }
 
 fun resolveReciterAzkarAudioEntity(audio: ReciterAzkarAudioEntity): PlayableAudio? {
     usableAudioFile(audio.localPath)?.let { return PlayableAudio.File(it) }
-    audio.assetPath?.takeIf { it.isNotBlank() }?.let { return PlayableAudio.Asset(normalizeAssetPath(it)) }
-    audio.remoteUrl?.trim()?.takeIf { it.isNotBlank() }?.let { return PlayableAudio.File(it) }
+    usableAssetPath(audio.assetPath)?.let { return PlayableAudio.Asset(normalizeAssetPath(it)) }
+    usableRemoteUrl(audio.remoteUrl)?.let { return PlayableAudio.File(it) }
     return null
+}
+
+internal fun usableAssetPath(path: String?): String? {
+    val value = path?.replace('\\', '/')?.trim().orEmpty()
+    if (value.isEmpty() || value.equals("null", true) || value.equals("undefined", true)) {
+        return null
+    }
+    if (isHttpPlaybackUri(value) || value.contains("://")) return null
+    val stripped = value.removePrefix("asset:///").removePrefix("/")
+    return if (stripped.startsWith("audio/")) stripped else "audio/$stripped"
+}
+
+internal fun usableRemoteUrl(path: String?): String? {
+    val value = path?.trim().orEmpty()
+    if (value.isEmpty() || value.equals("null", true)) return null
+    return value.takeIf { isHttpPlaybackUri(it) }
 }
 
 internal fun usableAudioFile(path: String?): String? {
