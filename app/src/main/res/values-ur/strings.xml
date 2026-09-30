@@ -381,6 +381,9 @@
     <string name="misbaha_widget_background_transparent">شفاف</string>
     <string name="misbaha_widget_theme_section">الیکٹرانک شکل</string>
     <string name="misbaha_widget_theme_hint">ایپ کے دانوں جیسے رنگوں کے تھیم، الیکٹرانک وجٹ پر</string>
+    <string name="misbaha_widget_phrase_section">تسبیح</string>
+    <string name="misbaha_widget_phrase_hint">ہوم اسکرین وجٹ پر دکھائی دیتی ہے</string>
+    <string name="misbaha_widget_phrase_preview">سبحان الله</string>
     <string name="misbaha_widget_target_section">گنتی کا ہدف</string>
     <string name="misbaha_widget_size_traditional">روایتی سائز: ہوم اسکرین پر 3×2</string>
     <string name="misbaha_widget_size_electronic">الیکٹرانک سائز: ہوم اسکرین پر 2×2</string>
@@ -570,7 +573,7 @@
     <string name="azkar_schedule_hint">منتخب دنوں پر مقررہ وقت یہ حصہ چلائیں</string>
     <string name="azkar_friday_schedule_hint">یاددہانی صرف جمعہ کو۔ کہف نیچے والا وقت استعمال کرتی ہے۔ درود جمعہ سے پہلے۔ ساعت اجابت عصر کے بعد آخری گھڑی ہے۔</string>
     <string name="azkar_friday_kahf_time_label">سورہ کہف کی یاددہانی کا وقت</string>
-    <string name="azkar_blessed_days_schedule_hint">ہر ذکر اپنی ہجری تاریخ پر۔ دن کی یاددہانی نیچے والا وقت۔ لیلۃ القدر مغرب کے بعد۔</string>
+    <string name="azkar_blessed_days_schedule_hint">ہر ذکر اپنی ہجری تاریخ پر۔ دن کی یاددہانی نیچے والا وقت۔ لیلۃ القدر مغرب کے ایک گھنٹے بعد۔</string>
     <string name="azkar_blessed_days_time_label">دن کی یاددہانی (عرفہ اور تکبیر)</string>
     <string name="azkar_auto_enable">خودکار یاد دہانی چالو کریں</string>
     <string name="azkar_auto_not_allowed">اس حصے کے لیے خودکار چلانا دستیاب نہیں۔ پہلے ایڈمن کو چالو کرنا ہوگا۔</string>

@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -42,6 +43,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.greendome.adhkar.R
 import com.greendome.adhkar.data.SettingsRepository
+import com.greendome.adhkar.data.local.AdhkarDatabase
+import com.greendome.adhkar.data.local.DhikrEntity
 import com.greendome.adhkar.data.model.MisbahaStyle
 import com.greendome.adhkar.data.model.MisbahaWidgetBackground
 import com.greendome.adhkar.ui.theme.GreenPrimary
@@ -49,6 +52,8 @@ import com.greendome.adhkar.ui.theme.stringResourceDigits
 import com.greendome.adhkar.util.formatDigits
 import com.greendome.adhkar.widget.MisbahaWidgetManager
 import com.greendome.adhkar.widget.PrayerTimesWidgetManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @Composable
 fun WidgetsSettingsScreen(
@@ -121,7 +126,29 @@ fun MisbahaWidgetSettingsScreen(
     var background by remember { mutableStateOf(settings.misbahaWidgetBackground) }
     var target by remember { mutableIntStateOf(settings.misbahaWidgetTarget) }
     var count by remember { mutableIntStateOf(settings.misbahaWidgetCount) }
+    var phrases by remember { mutableStateOf<List<DhikrEntity>>(emptyList()) }
+    var phraseId by remember { mutableLongStateOf(settings.misbahaWidgetDhikrId) }
     val remaining = (target - count).coerceAtLeast(0)
+    val phraseLabel = phrases.find { it.id == phraseId }
+        ?.localizedText(settings.appLanguage)
+        .orEmpty()
+
+    LaunchedEffect(Unit) {
+        val loaded = withContext(Dispatchers.IO) {
+            AdhkarDatabase.get(context).dhikrDao().getEnabledList()
+                .filter { it.isBuiltinShortTasbih() }
+                .distinctBy { it.textAr.trim() }
+                .sortedBy { it.sortOrder }
+        }
+        phrases = loaded
+        if (settings.misbahaWidgetDhikrTextAr.isBlank()) {
+            val chosen = loaded.firstOrNull() ?: return@LaunchedEffect
+            settings.misbahaWidgetDhikrId = chosen.id
+            settings.misbahaWidgetDhikrTextAr = chosen.textAr
+            phraseId = chosen.id
+            MisbahaWidgetManager.updateAll(context)
+        }
+    }
 
     LaunchedEffect(style, background, target, count) {
         MisbahaWidgetManager.updateAll(context)
@@ -181,6 +208,38 @@ fun MisbahaWidgetSettingsScreen(
                 )
             }
             item {
+                SectionTitle(
+                    title = stringResource(R.string.misbaha_widget_phrase_section),
+                    subtitle = stringResource(R.string.misbaha_widget_phrase_hint),
+                )
+            }
+            items(phrases.size) { index ->
+                val option = phrases[index]
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = phraseId == option.id,
+                        onClick = {
+                            if (phraseId != option.id) {
+                                phraseId = option.id
+                                settings.misbahaWidgetDhikrId = option.id
+                                settings.misbahaWidgetDhikrTextAr = option.textAr
+                                count = 0
+                                settings.misbahaWidgetCount = 0
+                                MisbahaWidgetManager.updateAll(context)
+                            }
+                        }
+                    )
+                    Text(
+                        option.localizedText(settings.appLanguage),
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(start = 4.dp)
+                    )
+                }
+            }
+            item {
                 SectionTitle(title = stringResource(R.string.misbaha_widget_target_section))
             }
             item {
@@ -206,6 +265,16 @@ fun MisbahaWidgetSettingsScreen(
                             modifier = Modifier.padding(start = 4.dp)
                         )
                     }
+                }
+            }
+            item {
+                if (phraseLabel.isNotBlank()) {
+                    Text(
+                        phraseLabel,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             }
             item {

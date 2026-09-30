@@ -23,9 +23,22 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:orientation="vertical"
-        android:paddingTop="28dp"
-        android:paddingStart="40dp"
-        android:paddingEnd="40dp">
+        android:paddingTop="16dp"
+        android:paddingStart="28dp"
+        android:paddingEnd="28dp">
+
+        <TextView
+            android:id="@+id/widget_misbaha_phrase"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:maxLines="2"
+            android:text="@string/misbaha_widget_phrase_preview"
+            android:textColor="@color/green_primary_dark"
+            android:textSize="13sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/widget_misbaha_progress"

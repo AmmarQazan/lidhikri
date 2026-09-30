@@ -182,7 +182,7 @@
     <string name="azkar_schedule_hint">Reproducir esta sección a una hora fija en los días elegidos</string>
     <string name="azkar_friday_schedule_hint">Recordatorios solo el viernes. Kahf usa la hora de abajo. Las salutaciones al Profeta son antes del Jumuah. La hora de respuesta es la última hora después del Asr.</string>
     <string name="azkar_friday_kahf_time_label">Hora del recordatorio de Kahf</string>
-    <string name="azkar_blessed_days_schedule_hint">Cada dhikr suena en su día hijri. La hora de abajo es diurna. Laylat al-Qadr es después del Magrib.</string>
+    <string name="azkar_blessed_days_schedule_hint">Cada dhikr suena en su día hijri. La hora de abajo es diurna. Laylat al-Qadr es una hora después del Magrib.</string>
     <string name="azkar_blessed_days_time_label">Recordatorio diurno (Arafat y takbir)</string>
     <string name="azkar_schedule_section">Horario automático</string>
     <string name="azkar_schedule_show">Mostrar horario auto</string>
@@ -634,6 +634,9 @@
     <string name="misbaha_widget_theme_section">Apariencia electrónica</string>
     <string name="misbaha_widget_theme_hint">Los mismos temas de color que las cuentas de la app, aplicados al widget electrónico</string>
     <string name="misbaha_widget_tap_hint">Toca el widget en la pantalla de inicio para contar.</string>
+    <string name="misbaha_widget_phrase_section">Tasbih</string>
+    <string name="misbaha_widget_phrase_hint">Se muestra en el widget de inicio</string>
+    <string name="misbaha_widget_phrase_preview">Gloria a Allah</string>
     <string name="misbaha_widget_target_section">Meta</string>
     <string name="misbaha_widget_traditional_description">Cuentas tradicionales compactas con recuento y restante</string>
     <string name="misbaha_widget_traditional_label">Misbaha tradicional</string>

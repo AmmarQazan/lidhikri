@@ -13,6 +13,7 @@ import com.greendome.adhkar.R
 import com.greendome.adhkar.data.DailyStatsRepository
 import com.greendome.adhkar.data.SettingsRepository
 import com.greendome.adhkar.data.local.AdhkarDatabase
+import com.greendome.adhkar.data.local.DhikrEntity
 import com.greendome.adhkar.data.model.MisbahaStyle
 import com.greendome.adhkar.data.model.MisbahaWidgetBackground
 import com.greendome.adhkar.ui.screens.toElectronicColors
@@ -24,12 +25,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicBoolean
 
 object MisbahaWidgetManager {
     const val ACTION_INCREMENT = "com.greendome.adhkar.widget.MISBAHA_INCREMENT"
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val lock = Any()
+    private val resolvingPhrase = AtomicBoolean(false)
 
     fun increment(context: Context, pendingResult: BroadcastReceiver.PendingResult? = null) {
         val appContext = context.applicationContext
@@ -144,6 +147,9 @@ object MisbahaWidgetManager {
         val background = settings.misbahaWidgetBackground
         views.setInt(R.id.widget_misbaha_root, "setBackgroundResource", background.drawableRes())
         val contrast = background.contrastTextColor()
+        val phrase = phraseLabel(context, settings, localized)
+        views.setTextViewText(R.id.widget_misbaha_phrase, phrase)
+        views.setTextColor(R.id.widget_misbaha_phrase, contrast)
 
         val size = widgetSizePx(context, appWidgetManager, appWidgetId, style)
         if (style == MisbahaStyle.TRADITIONAL) {
@@ -187,6 +193,7 @@ object MisbahaWidgetManager {
             )
             views.setImageViewBitmap(R.id.widget_misbaha_graphic, graphic)
             val electronicText = if (background == MisbahaWidgetBackground.DARK) contrast else colors.text
+            views.setTextColor(R.id.widget_misbaha_phrase, electronicText)
             views.setTextColor(R.id.widget_misbaha_count, electronicText)
             views.setTextColor(R.id.widget_misbaha_progress, electronicText)
         }
@@ -203,6 +210,7 @@ object MisbahaWidgetManager {
         )
         views.setOnClickPendingIntent(R.id.widget_misbaha_root, pendingIntent)
         views.setOnClickPendingIntent(R.id.widget_misbaha_center, pendingIntent)
+        views.setOnClickPendingIntent(R.id.widget_misbaha_phrase, pendingIntent)
         views.setOnClickPendingIntent(R.id.widget_misbaha_progress, pendingIntent)
         if (style == MisbahaStyle.ELECTRONIC) {
             views.setOnClickPendingIntent(R.id.widget_misbaha_stage, pendingIntent)
@@ -213,6 +221,40 @@ object MisbahaWidgetManager {
             views.setOnClickPendingIntent(R.id.widget_misbaha_remaining, pendingIntent)
         }
         return views
+    }
+
+    private fun phraseLabel(
+        context: Context,
+        settings: SettingsRepository,
+        localized: Context,
+    ): String {
+        val textAr = settings.misbahaWidgetDhikrTextAr
+        if (textAr.isBlank()) {
+            resolveDefaultPhrase(context)
+            return localized.getString(R.string.misbaha_widget_phrase_preview)
+        }
+        return DhikrEntity(textAr = textAr).localizedText(settings.appLanguage)
+    }
+
+    private fun resolveDefaultPhrase(context: Context) {
+        if (!resolvingPhrase.compareAndSet(false, true)) return
+        val appContext = context.applicationContext
+        scope.launch {
+            try {
+                val settings = SettingsRepository(appContext)
+                if (settings.misbahaWidgetDhikrTextAr.isNotBlank()) return@launch
+                val first = AdhkarDatabase.get(appContext).dhikrDao().getEnabledList()
+                    .filter { it.isBuiltinShortTasbih() }
+                    .distinctBy { it.textAr.trim() }
+                    .minByOrNull { it.sortOrder }
+                    ?: return@launch
+                settings.misbahaWidgetDhikrId = first.id
+                settings.misbahaWidgetDhikrTextAr = first.textAr
+                updateAll(appContext)
+            } finally {
+                resolvingPhrase.set(false)
+            }
+        }
     }
 
     private fun providerClass(style: MisbahaStyle) = if (style == MisbahaStyle.TRADITIONAL) {

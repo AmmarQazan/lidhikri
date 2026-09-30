@@ -182,7 +182,7 @@
     <string name="azkar_schedule_hint">Lire cette section à une heure fixe les jours choisis</string>
     <string name="azkar_friday_schedule_hint">Rappels le vendredi seulement. Kahf utilise l’heure ci-dessous. Les prières sur le Prophète sont avant la Jumuah. L’heure d’exaucement est la dernière heure après Asr.</string>
     <string name="azkar_friday_kahf_time_label">Heure du rappel de Kahf</string>
-    <string name="azkar_blessed_days_schedule_hint">Chaque dhikr s’active à sa date hijri. L’heure ci-dessous sert le jour. Laylat al-Qadr est après Maghrib.</string>
+    <string name="azkar_blessed_days_schedule_hint">Chaque dhikr s’active à sa date hijri. L’heure ci-dessous sert le jour. Laylat al-Qadr est une heure après Maghrib.</string>
     <string name="azkar_blessed_days_time_label">Rappel de jour (Arafah et takbir)</string>
     <string name="azkar_schedule_section">Planification automatique</string>
     <string name="azkar_schedule_show">Afficher la planification auto</string>
@@ -634,6 +634,9 @@
     <string name="misbaha_widget_theme_section">Apparence électronique</string>
     <string name="misbaha_widget_theme_hint">Les mêmes thèmes de couleurs que les perles de l\'application, appliqués au widget électronique</string>
     <string name="misbaha_widget_tap_hint">Touchez le widget sur l\'accueil pour compter.</string>
+    <string name="misbaha_widget_phrase_section">Tasbih</string>
+    <string name="misbaha_widget_phrase_hint">Affiché sur le widget de l\'accueil</string>
+    <string name="misbaha_widget_phrase_preview">Gloire à Allah</string>
     <string name="misbaha_widget_target_section">Objectif</string>
     <string name="misbaha_widget_traditional_description">Perles traditionnelles compactes avec compte et reste</string>
     <string name="misbaha_widget_traditional_label">Misbaha traditionnelle</string>

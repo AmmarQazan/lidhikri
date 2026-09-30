@@ -381,6 +381,9 @@
     <string name="misbaha_widget_background_transparent">पारदर्शी</string>
     <string name="misbaha_widget_theme_section">इलेक्ट्रॉनिक रूप</string>
     <string name="misbaha_widget_theme_hint">ऐप के दानों जैसे रंग थीम, इलेक्ट्रॉनिक विजेट पर</string>
+    <string name="misbaha_widget_phrase_section">तस्बीह</string>
+    <string name="misbaha_widget_phrase_hint">होम स्क्रीन विजेट पर दिखता है</string>
+    <string name="misbaha_widget_phrase_preview">सुभान अल्लाह</string>
     <string name="misbaha_widget_target_section">गिनती लक्ष्य</string>
     <string name="misbaha_widget_size_traditional">पारंपरिक आकार: होम स्क्रीन पर 3×2</string>
     <string name="misbaha_widget_size_electronic">इलेक्ट्रॉनिक आकार: होम स्क्रीन पर 2×2</string>
@@ -570,7 +573,7 @@
     <string name="azkar_schedule_hint">चयनित दिनों पर निर्धारित समय यह खंड चलाएँ</string>
     <string name="azkar_friday_schedule_hint">याददाश्त केवल जुमे को। कहफ़ नीचे वाला समय इस्तेमाल करती है। दरूद जुमा से पहले। इजाबत की घड़ी अस्र के बाद आख़िरी घंटा है।</string>
     <string name="azkar_friday_kahf_time_label">कहफ़ याददाश्त का समय</string>
-    <string name="azkar_blessed_days_schedule_hint">हर ज़िक्र अपनी हिजरी तारीख पर। दिन की याददाश्त नीचे वाला वक्त। क़द्र मगरिब के बाद।</string>
+    <string name="azkar_blessed_days_schedule_hint">हर ज़िक्र अपनी हिजरी तारीख पर। दिन की याददाश्त नीचे वाला वक्त। क़द्र मगरिब के एक घंटे बाद।</string>
     <string name="azkar_blessed_days_time_label">दिन की याददाश्त (अरफ़ा और तकबीर)</string>
     <string name="azkar_auto_enable">स्वचालित अनुस्मारक सक्षम करें</string>
     <string name="azkar_auto_not_allowed">इस खंड के लिए स्वचालित चलाना उपलब्ध नहीं। पहले प्रशासन को सक्षम करना होगा।</string>
