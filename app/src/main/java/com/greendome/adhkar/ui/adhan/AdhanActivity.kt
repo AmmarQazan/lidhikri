@@ -1,5 +1,6 @@
 package com.greendome.adhkar.ui.adhan
 
+import android.app.KeyguardManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -9,6 +10,7 @@ import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.lifecycle.lifecycleScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,21 +34,32 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.greendome.adhkar.R
 import com.greendome.adhkar.data.SettingsRepository
+import com.greendome.adhkar.data.local.AdhkarDatabase
 import com.greendome.adhkar.prayer.PrayerName
 import com.greendome.adhkar.service.AdhanAlarmScheduler
 import com.greendome.adhkar.service.AdhanAlertNotifier
 import com.greendome.adhkar.service.AdhanPlaybackService
 import com.greendome.adhkar.service.AzkarCollectionPlayService
 import com.greendome.adhkar.service.ForegroundServiceStarts
+import com.greendome.adhkar.service.PrayerPhoneSilent
+import com.greendome.adhkar.ui.overlay.OverlayActivity
+import com.greendome.adhkar.ui.overlay.OverlayWindow
 import com.greendome.adhkar.ui.theme.AppArabicFont
 import com.greendome.adhkar.ui.theme.GreenDomeTheme
+import com.greendome.adhkar.util.AzkarDailyPicker
 import com.greendome.adhkar.util.LocaleHelper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AdhanActivity : ComponentActivity() {
 
+    private var openingAfterAdhanAzkar = false
+
     private val finished = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            if (!isFinishing) finish()
+            if (openingAfterAdhanAzkar || isFinishing) return
+            finish()
         }
     }
 
@@ -85,20 +98,7 @@ class AdhanActivity : ComponentActivity() {
                             AdhanPlaybackService.stop(this)
                             finish()
                         },
-                        onOpenAzkar = {
-                            AdhanPlaybackService.stop(this)
-                            ForegroundServiceStarts.start(
-                                this,
-                                Intent(this, AzkarCollectionPlayService::class.java).apply {
-                                    putExtra(
-                                        AzkarCollectionPlayService.EXTRA_COLLECTION_ID,
-                                        AdhanPlaybackService.ADHAN_AZKAR_ID
-                                    )
-                                    putExtra(AzkarCollectionPlayService.EXTRA_FORCE_PLAY, true)
-                                }
-                            )
-                            finish()
-                        }
+                        onOpenAzkar = { openAfterAdhanAzkar() }
                     )
                 }
             }
@@ -108,6 +108,78 @@ class AdhanActivity : ComponentActivity() {
     override fun onDestroy() {
         runCatching { unregisterReceiver(finished) }
         super.onDestroy()
+    }
+
+    /**
+     * النافذة تُفتح من هنا والنشاط ما زال في المقدمة.
+     * إيقاف الأذان يبث انتهاء الأذان ويغلق هذه الشاشة، وفتح الأذكار بعده يرفضه أندرويد.
+     */
+    private fun openAfterAdhanAzkar() {
+        if (openingAfterAdhanAzkar || isFinishing) return
+        openingAfterAdhanAzkar = true
+        lifecycleScope.launch {
+            val itemId = showAfterAdhanAzkarWindow()
+            AdhanPlaybackService.stopForAzkar(this@AdhanActivity)
+            if (itemId != null) {
+                ForegroundServiceStarts.start(
+                    this@AdhanActivity,
+                    Intent(this@AdhanActivity, AzkarCollectionPlayService::class.java).apply {
+                        putExtra(
+                            AzkarCollectionPlayService.EXTRA_COLLECTION_ID,
+                            AdhanPlaybackService.ADHAN_AZKAR_ID,
+                        )
+                        putExtra(AzkarCollectionPlayService.EXTRA_ITEM_ID, itemId)
+                        putExtra(AzkarCollectionPlayService.EXTRA_FORCE_PLAY, true)
+                        putExtra(AzkarCollectionPlayService.EXTRA_SKIP_UI, true)
+                    },
+                )
+            } else {
+                PrayerPhoneSilent.enter(this@AdhanActivity)
+            }
+            if (!isFinishing) finish()
+        }
+    }
+
+    private suspend fun showAfterAdhanAzkarWindow(): Long? {
+        if (isFinishing) return null
+        val settings = SettingsRepository(this)
+        val db = AdhkarDatabase.get(this)
+        val now = System.currentTimeMillis()
+        val loaded = withContext(Dispatchers.IO) {
+            val collection = db.collectionDao().getById(AdhanPlaybackService.ADHAN_AZKAR_ID)
+            val items = db.azkarItemDao().getByCollection(AdhanPlaybackService.ADHAN_AZKAR_ID)
+            collection to items
+        }
+        val (collection, items) = loaded
+        if (isFinishing || collection == null || items.isEmpty()) return null
+        val candidates = items.filter { !it.hasOwnHijri() || it.matchesHijri(now) }
+        val picked = AzkarDailyPicker.pick(
+            this,
+            AdhanPlaybackService.ADHAN_AZKAR_ID,
+            candidates,
+            settings.autoAzkarRandomMode,
+        ) ?: return null
+        if (isFinishing) return null
+        val title = collection.localizedTitle(settings.appLanguage)
+        val text = picked.localizedText(settings.appLanguage)
+        val keyguard = getSystemService(KEYGUARD_SERVICE) as KeyguardManager
+        if (OverlayWindow.hasPermission(this)) {
+            OverlayWindow.showAutoAzkar(
+                context = this,
+                sectionTitle = title,
+                text = text,
+                onDismiss = { OverlayWindow.dismiss(applicationContext) },
+                onStopAuto = {
+                    AzkarCollectionPlayService.stopAutoAzkar(this)
+                    OverlayWindow.dismiss(applicationContext)
+                },
+            )
+        } else if (keyguard.isKeyguardLocked) {
+            startActivity(OverlayActivity.lockScreenAutoAzkarIntent(this, title, text, picked.id))
+        } else {
+            startActivity(OverlayActivity.autoAzkarIntent(this, title, text))
+        }
+        return picked.id
     }
 }
 

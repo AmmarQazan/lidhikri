@@ -45,6 +45,15 @@ class AdhanPlaybackService : Service() {
             PrayerPhoneSilent.enter(this)
             return START_NOT_STICKY
         }
+        if (intent?.action == ACTION_STOP_FOR_AZKAR) {
+            acknowledgeForeground()
+            cancelPendingAfterAzkar()
+            playingPrayer = null
+            player?.cancel()
+            stopForeground(STOP_FOREGROUND_REMOVE)
+            stopSelf()
+            return START_NOT_STICKY
+        }
         val prayer = runCatching {
             PrayerName.valueOf(intent?.getStringExtra(AdhanAlarmScheduler.EXTRA_PRAYER).orEmpty())
         }.getOrNull() ?: run {
@@ -244,7 +253,7 @@ class AdhanPlaybackService : Service() {
         if (instance === this) instance = null
         cancelPendingAfterAzkar()
         playingPrayer = null
-        player?.stop()
+        player?.cancel()
         player = null
         sendBroadcast(Intent(ACTION_FINISHED).setPackage(packageName))
         stopForeground(STOP_FOREGROUND_REMOVE)
@@ -254,6 +263,7 @@ class AdhanPlaybackService : Service() {
     companion object {
         const val ACTION_START = "com.greendome.adhkar.ADHAN_START"
         const val ACTION_STOP = "com.greendome.adhkar.ADHAN_STOP"
+        const val ACTION_STOP_FOR_AZKAR = "com.greendome.adhkar.ADHAN_STOP_FOR_AZKAR"
         const val ACTION_FINISHED = "com.greendome.adhkar.ADHAN_FINISHED"
         const val ADHAN_AZKAR_ID = AdhanAzkar.COLLECTION_ID
 
@@ -267,6 +277,13 @@ class AdhanPlaybackService : Service() {
             val intent = Intent(app, AdhanPlaybackService::class.java).setAction(ACTION_STOP)
             runCatching { app.startService(intent) }
             runCatching { app.stopService(Intent(app, AdhanPlaybackService::class.java)) }
+        }
+
+        /** إيقاف الأذان لفتح أذكار ما بعد الأذان فوراً، بلا جدولة التأخير المعتاد. */
+        fun stopForAzkar(context: Context) {
+            val app = context.applicationContext
+            val intent = Intent(app, AdhanPlaybackService::class.java).setAction(ACTION_STOP_FOR_AZKAR)
+            runCatching { app.startService(intent) }
         }
     }
 }

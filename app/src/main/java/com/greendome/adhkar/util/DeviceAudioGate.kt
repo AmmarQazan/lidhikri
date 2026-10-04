@@ -6,8 +6,25 @@ import android.media.AudioAttributes
 import android.media.AudioManager
 import android.os.Build
 import com.greendome.adhkar.data.SettingsRepository
+import java.util.concurrent.atomic.AtomicInteger
 
 object DeviceAudioGate {
+
+    /**
+     * تشغيلنا الحالي. أندرويد 10+ يخفي تكوينات التطبيقات الأخرى،
+     * فـ [AudioManager.isMusicActive] يرى بث الموسيقى على الجهاز كله بما فيه بثنا.
+     */
+    private val ownPlaybackCount = AtomicInteger(0)
+
+    fun beginOwnPlayback() {
+        ownPlaybackCount.incrementAndGet()
+    }
+
+    fun endOwnPlayback() {
+        ownPlaybackCount.updateAndGet { current -> (current - 1).coerceAtLeast(0) }
+    }
+
+    private fun isOwnPlaybackActive(): Boolean = ownPlaybackCount.get() > 0
 
     /** الهاتف صامت أو اهتزاز فقط */
     fun isRingerMuted(context: Context): Boolean {
@@ -57,6 +74,10 @@ object DeviceAudioGate {
      * تطبيق آخر يشغّل صوتاً:
      * يوتيوب/موسيقى، تسجيلات واتساب وتيليجرام وسيجنال ومسنجر،
      * أو أي بث وسائط/كلام من تطبيق آخر.
+     *
+     * النظام يرسل تكوينات التطبيقات الأخرى بدون معرّف (يوتيوب وفيسبوك يظهران كوسائط نشطة فقط).
+     * طالما لسنا نحن من يشغّل، أي تكوين وسائط نشط يعني تطبيقاً آخر.
+     * ويُفحص بث الموسيقى أيضاً لأن بعض الأجهزة لا تدرج التكوين.
      */
     fun isOtherAppAudioPlaying(context: Context): Boolean {
         val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -65,29 +86,12 @@ object DeviceAudioGate {
             AudioManager.MODE_IN_CALL,
             AudioManager.MODE_IN_COMMUNICATION -> return true
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            return hasActiveUsageFromOthers(
-                audioManager,
-                myUid,
-                AudioAttributes.USAGE_MEDIA,
-                AudioAttributes.USAGE_GAME,
-                AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE,
-                AudioAttributes.USAGE_ASSISTANT,
-                AudioAttributes.USAGE_VOICE_COMMUNICATION,
-                AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING,
-            ) || hasActiveSpeechPlaybackFromOthers(audioManager, myUid)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+            hasAnonymousOrForeignPlayback(audioManager, myUid)
+        ) {
+            return true
         }
-        @Suppress("DEPRECATION")
-        if (audioManager.isMusicActive) return true
-        return hasActiveUsage(
-            audioManager,
-            AudioAttributes.USAGE_MEDIA,
-            AudioAttributes.USAGE_GAME,
-            AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE,
-            AudioAttributes.USAGE_ASSISTANT,
-            AudioAttributes.USAGE_VOICE_COMMUNICATION,
-            AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING,
-        ) || hasActiveSpeechPlayback(audioManager)
+        return isForeignMusicStreamActive(audioManager)
     }
 
     /**
@@ -132,44 +136,54 @@ object DeviceAudioGate {
         }
     }
 
-    /** بث كلام من تطبيق آخر حتى لو كان usage غير معتاد */
-    private fun hasActiveSpeechPlayback(audioManager: AudioManager): Boolean {
+    /**
+     * فيسبوك ويوتيوب والموسيقى على بث الموسيقى.
+     * أثناء تشغيلنا لا يُحسب هذا البث كتطبيق آخر حتى لا يُوقف التسبيح نفسه.
+     */
+    @Suppress("DEPRECATION")
+    private fun isForeignMusicStreamActive(audioManager: AudioManager): Boolean {
+        if (!audioManager.isMusicActive) return false
+        return !isOwnPlaybackActive()
+    }
+
+    /**
+     * تكوين نشط لوسائط/فيديو/كلام.
+     * المعرّف -1 هو الشكل الذي يصل به يوتيوب للتطبيقات العادية، وليس «لا يوجد صوت».
+     */
+    private fun hasAnonymousOrForeignPlayback(audioManager: AudioManager, myUid: Int): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return false
         return audioManager.activePlaybackConfigurations.any { config ->
-            val attrs = config.audioAttributes
-            attrs.contentType == AudioAttributes.CONTENT_TYPE_SPEECH &&
-                attrs.usage != AudioAttributes.USAGE_ALARM &&
-                attrs.usage != AudioAttributes.USAGE_NOTIFICATION &&
-                attrs.usage != AudioAttributes.USAGE_NOTIFICATION_EVENT &&
-                attrs.usage != AudioAttributes.USAGE_NOTIFICATION_RINGTONE
+            isOtherAppPlayback(config, myUid)
         }
     }
 
-    private fun hasActiveUsageFromOthers(
-        audioManager: AudioManager,
+    private fun isOtherAppPlayback(
+        config: android.media.AudioPlaybackConfiguration,
         myUid: Int,
-        vararg usages: Int,
     ): Boolean {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return false
-        val wanted = usages.toHashSet()
-        return audioManager.activePlaybackConfigurations.any { config ->
-            val uid = clientUidOf(config)
-            uid >= 0 && uid != myUid && config.audioAttributes.usage in wanted
-        }
+        if (!isExternalMedia(config.audioAttributes)) return false
+        val uid = clientUidOf(config)
+        if (uid == myUid) return false
+        if (uid >= 0) return true
+        return !isOwnPlaybackActive()
     }
 
-    private fun hasActiveSpeechPlaybackFromOthers(audioManager: AudioManager, myUid: Int): Boolean {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return false
-        return audioManager.activePlaybackConfigurations.any { config ->
-            val uid = clientUidOf(config)
-            if (uid < 0 || uid == myUid) return@any false
-            val attrs = config.audioAttributes
-            attrs.contentType == AudioAttributes.CONTENT_TYPE_SPEECH &&
-                attrs.usage != AudioAttributes.USAGE_ALARM &&
-                attrs.usage != AudioAttributes.USAGE_NOTIFICATION &&
-                attrs.usage != AudioAttributes.USAGE_NOTIFICATION_EVENT &&
-                attrs.usage != AudioAttributes.USAGE_NOTIFICATION_RINGTONE
+    private fun isExternalMedia(attrs: AudioAttributes): Boolean {
+        when (attrs.usage) {
+            AudioAttributes.USAGE_MEDIA,
+            AudioAttributes.USAGE_GAME,
+            AudioAttributes.USAGE_ASSISTANT,
+            AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE,
+            AudioAttributes.USAGE_VOICE_COMMUNICATION,
+            AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING -> return true
+            AudioAttributes.USAGE_ALARM,
+            AudioAttributes.USAGE_NOTIFICATION,
+            AudioAttributes.USAGE_NOTIFICATION_EVENT,
+            AudioAttributes.USAGE_NOTIFICATION_RINGTONE -> return false
         }
+        return attrs.contentType == AudioAttributes.CONTENT_TYPE_MOVIE ||
+            attrs.contentType == AudioAttributes.CONTENT_TYPE_MUSIC ||
+            attrs.contentType == AudioAttributes.CONTENT_TYPE_SPEECH
     }
 
     private fun clientUidOf(config: android.media.AudioPlaybackConfiguration): Int {

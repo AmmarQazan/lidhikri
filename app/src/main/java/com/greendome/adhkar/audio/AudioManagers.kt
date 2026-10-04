@@ -82,6 +82,7 @@ class DhikrAudioPlayer(private val context: Context) {
     private var player: ExoPlayer? = null
     private val flipMonitor = FlipToStopMonitor(context) { stop() }
     private var respectMonitor: PlaybackRespectMonitor? = null
+    private var ownPlaybackMarked = false
     private var pendingComplete: (() -> Unit)? = null
     private val mainHandler = Handler(Looper.getMainLooper())
     private var playbackSession = 0
@@ -102,11 +103,24 @@ class DhikrAudioPlayer(private val context: Context) {
 
     private fun releasePlayer() {
         playbackSession++
+        endOwnPlaybackSession()
         stopRespectMonitor()
         stopFlipMonitor()
         val old = player
         player = null
         old?.release()
+    }
+
+    private fun beginOwnPlaybackSession() {
+        if (ownPlaybackMarked) return
+        ownPlaybackMarked = true
+        DeviceAudioGate.beginOwnPlayback()
+    }
+
+    private fun endOwnPlaybackSession() {
+        if (!ownPlaybackMarked) return
+        ownPlaybackMarked = false
+        DeviceAudioGate.endOwnPlayback()
     }
 
     fun play(
@@ -125,10 +139,11 @@ class DhikrAudioPlayer(private val context: Context) {
         val mode = DhikrVolumeResolver.volumeMode(settings, voiceProfile)
         val attrs = DhikrVolumeResolver.playerAudioAttributes(mode)
         val player = PlaybackExoPlayer.create(context).also { player = it }
-        player.setAudioAttributes(attrs, DhikrVolumeResolver.shouldHandleAudioFocus(mode))
+        player.setAudioAttributes(attrs, shouldTakeAudioFocus(settings, mode))
         player.setMediaItem(MediaItem.fromUri(playbackUri(pathOrUri)))
         player.volume = DhikrVolumeResolver.playerVolume(settings, voiceProfile)
         listenForCompletion(player, onComplete)
+        beginOwnPlaybackSession()
         startRespectMonitor(settings, userInitiated = true)
         startFlipMonitorIfEnabled(settings)
         player.prepare()
@@ -156,10 +171,11 @@ class DhikrAudioPlayer(private val context: Context) {
         val mode = DhikrVolumeResolver.volumeMode(settings, voiceProfile)
         val attrs = DhikrVolumeResolver.playerAudioAttributes(mode)
         val player = PlaybackExoPlayer.create(context).also { player = it }
-        player.setAudioAttributes(attrs, DhikrVolumeResolver.shouldHandleAudioFocus(mode))
+        player.setAudioAttributes(attrs, shouldTakeAudioFocus(settings, mode))
         player.setMediaItem(MediaItem.fromUri("asset:///$assetPath"))
         player.volume = DhikrVolumeResolver.playerVolume(settings, voiceProfile)
         listenForCompletion(player, onComplete)
+        beginOwnPlaybackSession()
         startRespectMonitor(settings, userInitiated = true)
         startFlipMonitorIfEnabled(settings)
         player.prepare()
@@ -187,7 +203,7 @@ class DhikrAudioPlayer(private val context: Context) {
         val mode = DhikrVolumeResolver.volumeMode(settings, voiceProfile)
         val attrs = DhikrVolumeResolver.playerAudioAttributes(mode)
         val player = PlaybackExoPlayer.create(context).also { player = it }
-        player.setAudioAttributes(attrs, DhikrVolumeResolver.shouldHandleAudioFocus(mode))
+        player.setAudioAttributes(attrs, shouldTakeAudioFocus(settings, mode))
         player.volume = DhikrVolumeResolver.playerVolume(settings, voiceProfile)
         player.setMediaItems(
             items.mapIndexed { index, item ->
@@ -205,6 +221,7 @@ class DhikrAudioPlayer(private val context: Context) {
             if (finished) return
             finished = true
             pendingComplete = null
+            endOwnPlaybackSession()
             stopFlipMonitor()
             onComplete()
         }
@@ -226,6 +243,7 @@ class DhikrAudioPlayer(private val context: Context) {
             }
         })
         markItemStarted(0)
+        beginOwnPlaybackSession()
         startRespectMonitor(settings, userInitiated = true)
         startFlipMonitorIfEnabled(settings)
         player.prepare()
@@ -260,6 +278,7 @@ class DhikrAudioPlayer(private val context: Context) {
         player.setMediaItem(MediaItem.fromUri(playbackUri(pathOrUri)))
         player.volume = 1f
         listenForCompletion(player, onComplete)
+        beginOwnPlaybackSession()
         startRespectMonitor(settings, userInitiated = false, ignoreQuietMode = overrideSilent)
         startFlipMonitorIfEnabled(settings)
         player.prepare()
@@ -270,6 +289,13 @@ class DhikrAudioPlayer(private val context: Context) {
         isAborted = true
         releasePlayer()
         completeOnce()
+    }
+
+    /** إيقاف بلا نداء الاكتمال، حتى لا يُحسب الإيقاف اليدوي انتهاءً طبيعياً. */
+    fun cancel() {
+        isAborted = true
+        pendingComplete = null
+        releasePlayer()
     }
 
     fun finishCurrentItem() {
@@ -283,6 +309,7 @@ class DhikrAudioPlayer(private val context: Context) {
         player.addListener(object : Player.Listener {
             override fun onPlaybackStateChanged(state: Int) {
                 if (state != Player.STATE_ENDED) return
+                endOwnPlaybackSession()
                 stopFlipMonitor()
                 mainHandler.post {
                     if (session != playbackSession) return@post
@@ -291,6 +318,7 @@ class DhikrAudioPlayer(private val context: Context) {
             }
 
             override fun onPlayerError(error: PlaybackException) {
+                endOwnPlaybackSession()
                 stopFlipMonitor()
                 mainHandler.post {
                     if (session != playbackSession) return@post
@@ -307,6 +335,12 @@ class DhikrAudioPlayer(private val context: Context) {
             else MediaItem.fromUri("asset:///$path")
         }
         is PlayableAudio.File -> MediaItem.fromUri(playbackUri(path))
+    }
+
+    /** مع خيار التخطي لا نطلب تركيز الصوت، حتى لا يُوقف يوتيوب إن فشل الاكتشاف. */
+    private fun shouldTakeAudioFocus(settings: SettingsRepository, mode: VolumeMode): Boolean {
+        if (settings.pauseDuringMedia) return false
+        return DhikrVolumeResolver.shouldHandleAudioFocus(mode)
     }
 
     private fun startFlipMonitorIfEnabled(settings: SettingsRepository) {

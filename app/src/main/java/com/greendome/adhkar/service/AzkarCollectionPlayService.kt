@@ -38,6 +38,7 @@ class AzkarCollectionPlayService : Service() {
     private var audioPlayer: DhikrAudioPlayer? = null
     private var playingCollectionId: String? = null
     private var sessionOpen = false
+    private var releaseOverlayOnDestroy = true
 
     override fun onCreate() {
         super.onCreate()
@@ -84,6 +85,8 @@ class AzkarCollectionPlayService : Service() {
         sessionOpen = true
         playingCollectionId = collectionId
         val forcePlay = incoming.getBooleanExtra(EXTRA_FORCE_PLAY, false)
+        val skipUi = incoming.getBooleanExtra(EXTRA_SKIP_UI, false)
+        releaseOverlayOnDestroy = !skipUi
         scope.launch {
             AdhkarReminderService.abortActiveReminder(this@AzkarCollectionPlayService)
             val settings = SettingsRepository(this@AzkarCollectionPlayService)
@@ -135,10 +138,12 @@ class AzkarCollectionPlayService : Service() {
 
             DailyStatsRepository(db).incrementAzkarToday()
 
-            if (modes.showsTextViaNotification()) {
-                showSilentTextNotification(picked.id, sectionTitle, displayText)
-            } else if (!modes.audioOnly) {
-                showAutoAzkarText(settings, picked.id, sectionTitle, displayText)
+            if (!skipUi) {
+                if (modes.showsTextViaNotification()) {
+                    showSilentTextNotification(picked.id, sectionTitle, displayText)
+                } else if (!modes.audioOnly) {
+                    showAutoAzkarText(settings, picked.id, sectionTitle, displayText)
+                }
             }
 
             val playable = withContext(Dispatchers.IO) {
@@ -148,11 +153,14 @@ class AzkarCollectionPlayService : Service() {
                 playable != null &&
                 !DeviceAudioGate.shouldSuppressPlayback(
                     this@AzkarCollectionPlayService,
-                    settings
+                    settings,
+                    userInitiated = skipUi,
                 )
             ) {
                 audioPlayer?.playResolved(playable, settings, VoiceSettingsTarget.AZKAR) {
-                    OverlayWindow.dismiss(applicationContext)
+                    if (releaseOverlayOnDestroy) {
+                        OverlayWindow.dismiss(applicationContext)
+                    }
                     finishSession()
                 }
             } else {
@@ -279,7 +287,9 @@ class AzkarCollectionPlayService : Service() {
         val finishedAdhanAzkar = playingCollectionId == AdhanAzkar.COLLECTION_ID
         if (instance === this) instance = null
         audioPlayer?.stop()
-        OverlayWindow.dismiss(applicationContext)
+        if (releaseOverlayOnDestroy) {
+            OverlayWindow.dismiss(applicationContext)
+        }
         super.onDestroy()
         if (finishedAdhanAzkar) {
             PrayerPhoneSilent.enter(this)
@@ -293,6 +303,7 @@ class AzkarCollectionPlayService : Service() {
         const val EXTRA_ITEM_ID = "item_id"
         const val EXTRA_INHERIT = "inherit_group"
         const val EXTRA_FORCE_PLAY = "force_play"
+        const val EXTRA_SKIP_UI = "skip_ui"
         const val ACTION_STOP_AUTO_AZKAR = "stop_auto_azkar"
 
         @Volatile
