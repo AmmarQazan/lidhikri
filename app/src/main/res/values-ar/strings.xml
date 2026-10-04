@@ -564,8 +564,9 @@
     <string name="qibla_distance">%1$s كم إلى مكة</string>
     <string name="qibla_hold_flat">أمسك الهاتف أفقياً ودوّره حتى تشير الإبرة إلى الكعبة</string>
     <string name="prayer_widget_title">مواقيت الصلاة</string>
-    <string name="prayer_widget_today_title">مواقيت الأذان اليوم</string>
-    <string name="prayer_widget_subtitle">مواقيت اليوم والصلاة التالية على الشاشة الرئيسية</string>
+    <string name="prayer_widget_today_title">أوقات الأذان</string>
+    <string name="prayer_widget_subtitle">قائمة عمودية لأوقات اليوم، والخلفية قابلة للتغيير</string>
+    <string name="prayer_widget_background_hint">اختر خلفية الويدجت. الشفافة تُظهر خلفية الشاشة الرئيسية.</string>
     <string name="prayer_widget_description">مواقيت صلاة اليوم</string>
     <string name="prayer_widget_add">إضافة ويدجت المواقيت</string>
     <string name="prayer_widget_manual_hint">اضغط مطولاً على الشاشة الرئيسية واختر الأدوات ثم مواقيت الصلاة.</string>

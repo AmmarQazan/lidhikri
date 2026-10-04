@@ -1066,6 +1066,15 @@ class SettingsRepository(context: Context) {
         get() = prefs.getString("misbaha_widget_dhikr_text", "").orEmpty()
         set(v) = prefs.edit().putString("misbaha_widget_dhikr_text", v).apply()
 
+    var prayerWidgetBackground: MisbahaWidgetBackground
+        get() {
+            val raw = prefs.getString("prayer_widget_background", MisbahaWidgetBackground.CREAM.name)
+                ?: MisbahaWidgetBackground.CREAM.name
+            return runCatching { MisbahaWidgetBackground.valueOf(raw) }
+                .getOrDefault(MisbahaWidgetBackground.CREAM)
+        }
+        set(v) = prefs.edit().putString("prayer_widget_background", v.name).apply()
+
     var ttsVoiceGender: TtsVoiceGender
         get() {
             val raw = prefs.getString("tts_voice_gender", TtsVoiceGender.MALE.name)

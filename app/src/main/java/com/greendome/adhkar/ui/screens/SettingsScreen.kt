@@ -29,7 +29,8 @@ import com.greendome.adhkar.ui.theme.stringResourceDigits
 
 private enum class SettingsDestination {
     HUB, AUTO_TASBIH, PRAYER_HUB, PRAYER_TIMES, PRAYER_ADHAN, PRAYER_RESPECT, PRAYER_QIBLA,
-    AUTO_AZKAR, HOME_AZKAR, HOME_LAYOUT, DISPLAY, APP_GENERAL, MISBAHA, WIDGETS, DHIKR_OF_DAY, MISBAHA_WIDGET, VERSION
+    AUTO_AZKAR, HOME_AZKAR, HOME_LAYOUT, DISPLAY, APP_GENERAL, MISBAHA, WIDGETS, DHIKR_OF_DAY,
+    PRAYER_WIDGET, MISBAHA_WIDGET, VERSION
 }
 
 @Composable
@@ -225,11 +226,17 @@ fun SettingsScreen(
         SettingsDestination.WIDGETS -> WidgetsSettingsScreen(
             settings = settings,
             onOpenDhikrOfDay = { destination = SettingsDestination.DHIKR_OF_DAY },
+            onOpenPrayerWidget = { destination = SettingsDestination.PRAYER_WIDGET },
             onOpenMisbahaWidget = { destination = SettingsDestination.MISBAHA_WIDGET },
             onBack = { navigateBack(SettingsDestination.HUB) },
             modifier = modifier
         )
         SettingsDestination.DHIKR_OF_DAY -> DhikrOfDaySettingsScreen(
+            settings = settings,
+            onBack = { destination = SettingsDestination.WIDGETS },
+            modifier = modifier
+        )
+        SettingsDestination.PRAYER_WIDGET -> PrayerTimesWidgetSettingsScreen(
             settings = settings,
             onBack = { destination = SettingsDestination.WIDGETS },
             modifier = modifier

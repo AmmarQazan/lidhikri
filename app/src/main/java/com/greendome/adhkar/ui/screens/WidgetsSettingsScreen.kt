@@ -59,11 +59,11 @@ import kotlinx.coroutines.withContext
 fun WidgetsSettingsScreen(
     settings: SettingsRepository,
     onOpenDhikrOfDay: () -> Unit,
+    onOpenPrayerWidget: () -> Unit,
     onOpenMisbahaWidget: () -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
     SettingsSubScreenScaffold(
         title = stringResource(R.string.settings_widgets_title),
         onBack = onBack,
@@ -92,6 +92,67 @@ fun WidgetsSettingsScreen(
                 SettingsNavCard(
                     title = stringResource(R.string.prayer_widget_title),
                     subtitle = stringResource(R.string.prayer_widget_subtitle),
+                    onClick = onOpenPrayerWidget
+                )
+            }
+            item {
+                SettingsNavCard(
+                    title = stringResource(R.string.settings_misbaha_widget_title),
+                    subtitle = stringResource(R.string.settings_misbaha_widget_subtitle),
+                    onClick = onOpenMisbahaWidget
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun PrayerTimesWidgetSettingsScreen(
+    settings: SettingsRepository,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    var background by remember { mutableStateOf(settings.prayerWidgetBackground) }
+
+    LaunchedEffect(background) {
+        PrayerTimesWidgetManager.updateAll(context)
+    }
+
+    SettingsSubScreenScaffold(
+        title = stringResource(R.string.prayer_widget_title),
+        onBack = onBack,
+        modifier = modifier
+    ) {
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            item {
+                Text(
+                    stringResource(R.string.prayer_widget_subtitle),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            item {
+                SectionTitle(
+                    title = stringResource(R.string.misbaha_widget_background_section),
+                    subtitle = stringResource(R.string.prayer_widget_background_hint)
+                )
+            }
+            item {
+                WidgetBackgroundSelector(
+                    selected = background,
+                    onSelected = { selected ->
+                        background = selected
+                        settings.prayerWidgetBackground = selected
+                    }
+                )
+            }
+            item {
+                Button(
                     onClick = {
                         val pinned = PrayerTimesWidgetManager.requestPin(context)
                         if (!pinned) {
@@ -101,15 +162,11 @@ fun WidgetsSettingsScreen(
                                 Toast.LENGTH_LONG
                             ).show()
                         }
-                    }
-                )
-            }
-            item {
-                SettingsNavCard(
-                    title = stringResource(R.string.settings_misbaha_widget_title),
-                    subtitle = stringResource(R.string.settings_misbaha_widget_subtitle),
-                    onClick = onOpenMisbahaWidget
-                )
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(R.string.prayer_widget_add))
+                }
             }
         }
     }

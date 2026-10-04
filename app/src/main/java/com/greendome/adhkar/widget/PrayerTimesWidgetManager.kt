@@ -15,10 +15,13 @@ import com.greendome.adhkar.MainActivity
 import com.greendome.adhkar.R
 import com.greendome.adhkar.data.SettingsRepository
 import com.greendome.adhkar.data.model.ClockHourFormat
+import com.greendome.adhkar.data.model.MisbahaWidgetBackground
+import com.greendome.adhkar.data.model.NumberDigitStyle
 import com.greendome.adhkar.prayer.PrayerName
 import com.greendome.adhkar.prayer.PrayerTimesCalculator
 import com.greendome.adhkar.util.LocaleHelper
 import com.greendome.adhkar.util.formatClockTime
+import com.greendome.adhkar.util.formatDigits
 import java.time.Instant
 import java.time.ZoneId
 
@@ -59,13 +62,16 @@ object PrayerTimesWidgetManager {
         val config = settings.prayerConfig()
         val times = PrayerTimesCalculator.timesFor(config)
         val zone = PrayerTimesCalculator.zoneId(config)
-        val format = settings.azkarClockHourFormat
+        val format = ClockHourFormat.HOUR_12
         val am = localized.getString(R.string.clock_period_am)
         val pm = localized.getString(R.string.clock_period_pm)
         val next = PrayerTimesCalculator.nextPrayer(config)
+        val background = settings.prayerWidgetBackground
         val highlight = ContextCompat.getColor(localized, R.color.green_primary)
-        val primary = ContextCompat.getColor(localized, R.color.text_primary)
+        val primary = labelColor(background)
+        val digits = settings.numberDigitStyle
 
+        views.setInt(R.id.widget_prayer_root, "setBackgroundResource", background.drawableRes())
         views.setTextViewText(
             R.id.widget_prayer_city,
             localized.getString(R.string.prayer_widget_today_title)
@@ -90,7 +96,7 @@ object PrayerTimesWidgetManager {
                 Chip(R.id.widget_prayer_maghrib, R.id.widget_prayer_maghrib_name, R.id.widget_prayer_maghrib_time, R.string.prayer_name_maghrib, times.timeOf(PrayerName.MAGHRIB), next?.prayer == PrayerName.MAGHRIB),
                 Chip(R.id.widget_prayer_isha, R.id.widget_prayer_isha_name, R.id.widget_prayer_isha_time, R.string.prayer_name_isha, times.timeOf(PrayerName.ISHA), next?.prayer == PrayerName.ISHA),
             ).forEach { chip ->
-                bindChip(views, localized, chip, zone, format, am, pm, highlight, primary)
+                bindChip(views, localized, chip, zone, format, am, pm, digits, highlight, primary)
             }
         }
 
@@ -121,17 +127,24 @@ object PrayerTimesWidgetManager {
         format: ClockHourFormat,
         am: String,
         pm: String,
+        digits: NumberDigitStyle,
         highlightColor: Int,
         timeColor: Int,
     ) {
         views.setTextViewText(chip.nameId, context.getString(chip.nameRes))
-        views.setTextViewText(chip.timeId, chip.millis?.let { clock(it, zone, format, am, pm) } ?: "--:--")
+        val time = chip.millis?.let { clock(it, zone, format, am, pm) } ?: "--:--"
+        views.setTextViewText(chip.timeId, time.formatDigits(digits))
         views.setTextColor(chip.nameId, if (chip.highlight) highlightColor else timeColor)
         views.setTextColor(chip.timeId, if (chip.highlight) highlightColor else timeColor)
         if (!chip.highlight) return
-        views.setTextViewTextSize(chip.nameId, TypedValue.COMPLEX_UNIT_SP, 14f)
-        views.setTextViewTextSize(chip.timeId, TypedValue.COMPLEX_UNIT_SP, 16f)
+        views.setTextViewTextSize(chip.nameId, TypedValue.COMPLEX_UNIT_SP, 17f)
+        views.setTextViewTextSize(chip.timeId, TypedValue.COMPLEX_UNIT_SP, 17f)
         views.setInt(chip.columnId, "setBackgroundResource", R.drawable.widget_prayer_next_chip)
+    }
+
+    private fun labelColor(background: MisbahaWidgetBackground): Int = when (background) {
+        MisbahaWidgetBackground.DARK -> 0xFFF3E6C8.toInt()
+        else -> 0xFF1A1A1A.toInt()
     }
 
     private fun clock(

@@ -572,8 +572,9 @@
     <string name="qibla_distance">%1$s km to Makkah</string>
     <string name="qibla_hold_flat">Hold the phone flat and turn until the needle points to the Kaaba</string>
     <string name="prayer_widget_title">Prayer times widget</string>
-    <string name="prayer_widget_today_title">Today\'s adhan times</string>
-    <string name="prayer_widget_subtitle">Today\'s times and next prayer on the home screen</string>
+    <string name="prayer_widget_today_title">Adhan times</string>
+    <string name="prayer_widget_background_hint">Choose a widget background. Transparent shows the home screen wallpaper.</string>
+    <string name="prayer_widget_subtitle">Vertical list of today\'s times, with a changeable background</string>
     <string name="prayer_widget_description">Prayer times for today</string>
     <string name="prayer_widget_add">Add prayer times widget</string>
     <string name="prayer_widget_manual_hint">Long-press the home screen and choose Widgets, then Prayer times.</string>
