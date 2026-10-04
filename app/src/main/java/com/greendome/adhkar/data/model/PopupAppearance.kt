@@ -24,7 +24,7 @@ data class PopupAppearance(
 
         const val AZKAR_DEFAULT_BOX_WIDTH = 0.92f
         const val AZKAR_DEFAULT_FONT_SCALE = 1.15f
-        const val AZKAR_DEFAULT_AUTO_DISMISS_SECONDS = 20
+        const val AZKAR_DEFAULT_AUTO_DISMISS_SECONDS = 25
         const val AZKAR_MAX_AUTO_DISMISS_SECONDS = 180
     }
 }
