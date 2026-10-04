@@ -54,6 +54,18 @@ class RidingAzkarTest {
     }
 
     @Test
+    fun fullRidingDuaHasSubaihatAudio() {
+        val items = RidingAzkar.items()
+        assertEquals(
+            "riding/sakhkhara.mp3",
+            SubaihatReciterSeed.matchedAzkarFile(RidingAzkar.COLLECTION_ID, items[0].text),
+        )
+        assertNull(
+            SubaihatReciterSeed.matchedAzkarFile(RidingAzkar.COLLECTION_ID, items[1].text),
+        )
+    }
+
+    @Test
     fun entityHasNoClockAutoPlay() {
         val entity = RidingAzkar.entity()
         assertEquals(RidingAzkar.COLLECTION_ID, entity.id)

@@ -348,6 +348,7 @@ object SubaihatReciterSeed {
         AzkarSpec("home", "home/mawlaj.mp3", listOf("المولج")),
         AzkarSpec("home", "home/tawakkalt.mp3", listOf("توكلت")),
         AzkarSpec("home", "home/adilla.mp3", listOf("اضل")),
+        AzkarSpec("riding", "riding/sakhkhara.mp3", listOf("ظلمت نفسي")),
         AzkarSpec("jawami", "jawami/subhan_bihamd_adada.mp3", listOf("وبحمده", "عدد خلقه")),
         AzkarSpec(
             "jawami",

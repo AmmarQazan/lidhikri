@@ -1,7 +1,7 @@
 {
-  "version": 24,
-  "contentPath": "bundles/v24/content.json",
-  "sha256": "cbe8ef46b018ce577d5b2840c85fa910094392dbd5da34608b9d83110a5ea403",
-  "generatedAt": "2026-09-01T14:53:54.278Z",
+  "version": 26,
+  "contentPath": "bundles/v26/content.json",
+  "sha256": "7f1fc001c27583336200a32e6f9db4bf2138be3e442db99c3ca8e63eee53628f",
+  "generatedAt": "2026-10-01T07:14:41.792Z",
   "minAppVersion": "1.0.5"
 }

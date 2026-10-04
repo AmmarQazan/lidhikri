@@ -117,6 +117,7 @@ DOWNLOADS_COPIES: list[tuple[str, str]] = [
     ("اذكار بعد الصلاة اللهم ااعني على ذكرك1.mp3.mp3", "after_prayer/ainni.mp3"),
     ("يوم الجمعه فيه ساعة.mp3.mp3", "friday/hour.mp3"),
     ("من قرأ سورة الكهف يوم الجمعة.mp3.mp3", "friday/kahf.mp3"),
+    ("دعاء الركوب.mp3.mp3", "riding/sakhkhara.mp3"),
 ]
 
 WAV_CONVERSIONS: list[tuple[str, str, str]] = [
