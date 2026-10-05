@@ -626,7 +626,7 @@
     <string name="misbaha_widget_phrase_preview">Subhan Allah</string>
     <string name="misbaha_widget_target_section">Count target</string>
     <string name="misbaha_widget_size_traditional">Traditional size: 3×2 on the home screen</string>
-    <string name="misbaha_widget_size_electronic">Electronic size: 2×2 on the home screen</string>
+    <string name="misbaha_widget_size_electronic">Electronic size: 3×3 on the home screen</string>
     <string name="misbaha_widget_add">Add misbaha widget to home screen</string>
     <string name="misbaha_widget_reset">Reset widget count</string>
     <string name="misbaha_widget_hint">If the button does not work, long-press the home screen and choose Widgets.</string>

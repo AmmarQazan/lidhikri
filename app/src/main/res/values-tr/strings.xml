@@ -386,7 +386,7 @@
     <string name="misbaha_widget_phrase_preview">Sübhanallah</string>
     <string name="misbaha_widget_target_section">Sayı hedefi</string>
     <string name="misbaha_widget_size_traditional">Geleneksel boyut: ana ekranda 3×2</string>
-    <string name="misbaha_widget_size_electronic">Elektronik boyut: ana ekranda 2×2</string>
+    <string name="misbaha_widget_size_electronic">Elektronik boyut: ana ekranda 3×3</string>
     <string name="misbaha_widget_add">Ana ekrana tesbih ekran aracı ekle</string>
     <string name="misbaha_widget_reset">Ekran aracı sayacını sıfırla</string>
     <string name="misbaha_widget_hint">Düğme çalışmazsa ana ekrana uzun basın ve Ekran araçları seçin.</string>

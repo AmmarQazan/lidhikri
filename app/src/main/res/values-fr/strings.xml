@@ -621,7 +621,7 @@
     <string name="misbaha_widget_hint">Si le bouton ne fonctionne pas, appui long sur l\'accueil puis Widgets.</string>
     <string name="misbaha_widget_manual_hint">Ajoutez le widget manuellement depuis la liste des widgets.</string>
     <string name="misbaha_widget_reset">Réinitialiser le compteur du widget</string>
-    <string name="misbaha_widget_size_electronic">Taille électronique : 2×2 sur l\'accueil</string>
+    <string name="misbaha_widget_size_electronic">Taille électronique : 3×3 sur l\'accueil</string>
     <string name="misbaha_widget_size_traditional">Taille traditionnelle : 3×2 sur l\'accueil</string>
     <string name="misbaha_widget_style_section">Style du widget</string>
     <string name="misbaha_widget_background_section">Fond du widget</string>

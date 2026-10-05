@@ -6,8 +6,8 @@
     <LinearLayout
         android:id="@+id/widget_root"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top"
+        android:layout_height="match_parent"
+        android:gravity="center"
         android:background="@drawable/widget_misbaha_background_cream"
         android:layoutDirection="locale"
         android:orientation="vertical"

@@ -6,8 +6,11 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Build
+import android.os.Bundle
 import android.util.TypedValue
+import androidx.annotation.RequiresApi
 import android.view.View
 import android.widget.RemoteViews
 import androidx.core.content.ContextCompat
@@ -33,9 +36,23 @@ class PrayerTimesWidgetProvider : AppWidgetProvider() {
     ) {
         PrayerTimesWidgetManager.updateAll(context)
     }
+
+    override fun onAppWidgetOptionsChanged(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetId: Int,
+        newOptions: Bundle,
+    ) {
+        PrayerTimesWidgetManager.updateAll(context)
+    }
 }
 
 object PrayerTimesWidgetManager {
+    private const val TITLE_BLOCK_DP = 32
+    private const val ROW_DP = 24
+    private const val HIGHLIGHT_ROW_DP = 30
+    private const val ROW_COUNT = 7
+
     fun updateAll(context: Context) {
         val app = context.applicationContext
         val manager = AppWidgetManager.getInstance(app)
@@ -87,7 +104,7 @@ object PrayerTimesWidgetManager {
         )
 
         if (times != null) {
-            listOf(
+            val chips = listOf(
                 Chip(R.id.widget_prayer_imsak, R.id.widget_prayer_imsak_name, R.id.widget_prayer_imsak_time, R.string.prayer_name_imsak, times.imsakMillis, false),
                 Chip(R.id.widget_prayer_fajr, R.id.widget_prayer_fajr_name, R.id.widget_prayer_fajr_time, R.string.prayer_name_fajr, times.timeOf(PrayerName.FAJR), next?.prayer == PrayerName.FAJR),
                 Chip(R.id.widget_prayer_sunrise, R.id.widget_prayer_sunrise_name, R.id.widget_prayer_sunrise_time, R.string.prayer_name_sunrise, times.sunriseMillis, false),
@@ -95,8 +112,12 @@ object PrayerTimesWidgetManager {
                 Chip(R.id.widget_prayer_asr, R.id.widget_prayer_asr_name, R.id.widget_prayer_asr_time, R.string.prayer_name_asr, times.timeOf(PrayerName.ASR), next?.prayer == PrayerName.ASR),
                 Chip(R.id.widget_prayer_maghrib, R.id.widget_prayer_maghrib_name, R.id.widget_prayer_maghrib_time, R.string.prayer_name_maghrib, times.timeOf(PrayerName.MAGHRIB), next?.prayer == PrayerName.MAGHRIB),
                 Chip(R.id.widget_prayer_isha, R.id.widget_prayer_isha_name, R.id.widget_prayer_isha_time, R.string.prayer_name_isha, times.timeOf(PrayerName.ISHA), next?.prayer == PrayerName.ISHA),
-            ).forEach { chip ->
+            )
+            chips.forEach { chip ->
                 bindChip(views, localized, chip, zone, format, am, pm, digits, highlight, primary)
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                centerNextPrayer(context, appWidgetId, views, chips.indexOfFirst { it.highlight })
             }
         }
 
@@ -136,10 +157,50 @@ object PrayerTimesWidgetManager {
         views.setTextViewText(chip.timeId, time.formatDigits(digits))
         views.setTextColor(chip.nameId, if (chip.highlight) highlightColor else timeColor)
         views.setTextColor(chip.timeId, if (chip.highlight) highlightColor else timeColor)
-        if (!chip.highlight) return
-        views.setTextViewTextSize(chip.nameId, TypedValue.COMPLEX_UNIT_SP, 17f)
-        views.setTextViewTextSize(chip.timeId, TypedValue.COMPLEX_UNIT_SP, 17f)
-        views.setInt(chip.columnId, "setBackgroundResource", R.drawable.widget_prayer_next_chip)
+        views.setTextViewTextSize(chip.nameId, TypedValue.COMPLEX_UNIT_SP, if (chip.highlight) 17f else 14f)
+        views.setTextViewTextSize(chip.timeId, TypedValue.COMPLEX_UNIT_SP, if (chip.highlight) 17f else 14f)
+        views.setInt(
+            chip.columnId,
+            "setBackgroundResource",
+            if (chip.highlight) R.drawable.widget_prayer_next_chip else 0,
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun centerNextPrayer(
+        context: Context,
+        appWidgetId: Int,
+        views: RemoteViews,
+        nextIndex: Int,
+    ) {
+        if (nextIndex < 0) return
+        val options = AppWidgetManager.getInstance(context).getAppWidgetOptions(appWidgetId)
+        val heightDp = widgetHeightDp(context, options)
+        if (heightDp <= 0) return
+        val viewportDp = (heightDp - TITLE_BLOCK_DP).coerceAtLeast(0)
+        val listHeight = (ROW_COUNT - 1) * ROW_DP + HIGHLIGHT_ROW_DP
+        val centerInList = nextIndex * ROW_DP + HIGHLIGHT_ROW_DP / 2
+        val ideal = viewportDp / 2 - centerInList
+        val margin = if (listHeight <= viewportDp) {
+            ideal.coerceIn(0, viewportDp - listHeight)
+        } else {
+            ideal.coerceIn(viewportDp - listHeight, 0)
+        }
+        views.setViewLayoutMargin(
+            R.id.widget_prayer_chips,
+            RemoteViews.MARGIN_TOP,
+            margin.toFloat(),
+            TypedValue.COMPLEX_UNIT_DIP,
+        )
+    }
+
+    private fun widgetHeightDp(context: Context, options: Bundle): Int {
+        val minH = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT)
+        val maxH = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT)
+        val reported = maxOf(minH, maxH)
+        if (reported <= 0) return 0
+        val portrait = context.resources.configuration.orientation != Configuration.ORIENTATION_LANDSCAPE
+        return if (portrait) reported else minOf(minH, maxH).takeIf { it > 0 } ?: reported
     }
 
     private fun labelColor(background: MisbahaWidgetBackground): Int = when (background) {

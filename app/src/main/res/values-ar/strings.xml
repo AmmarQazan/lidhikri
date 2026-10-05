@@ -618,7 +618,7 @@
     <string name="misbaha_widget_phrase_preview">سبحان الله</string>
     <string name="misbaha_widget_target_section">العدد المستهدف</string>
     <string name="misbaha_widget_size_traditional">مقاس التقليدية: ٣×٢ على الشاشة الرئيسية</string>
-    <string name="misbaha_widget_size_electronic">مقاس الإلكترونية: ٢×٢ على الشاشة الرئيسية</string>
+    <string name="misbaha_widget_size_electronic">مقاس الإلكترونية: ٣×٣ على الشاشة الرئيسية</string>
     <string name="misbaha_widget_add">إضافة مسبحة إلى الشاشة الرئيسية</string>
     <string name="misbaha_widget_reset">تصفير عدّاد الويدجت</string>
     <string name="misbaha_widget_hint">إذا لم يعمل الزر، اضغط مطوّلاً على الشاشة الرئيسية واختر «الويدجت».</string>

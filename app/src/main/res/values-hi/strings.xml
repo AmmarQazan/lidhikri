@@ -386,7 +386,7 @@
     <string name="misbaha_widget_phrase_preview">सुभान अल्लाह</string>
     <string name="misbaha_widget_target_section">गिनती लक्ष्य</string>
     <string name="misbaha_widget_size_traditional">पारंपरिक आकार: होम स्क्रीन पर 3×2</string>
-    <string name="misbaha_widget_size_electronic">इलेक्ट्रॉनिक आकार: होम स्क्रीन पर 2×2</string>
+    <string name="misbaha_widget_size_electronic">इलेक्ट्रॉनिक आकार: होम स्क्रीन पर 3×3</string>
     <string name="misbaha_widget_add">होम स्क्रीन पर मिसबहा विजेट जोड़ें</string>
     <string name="misbaha_widget_reset">विजेट गिनती रीसेट करें</string>
     <string name="misbaha_widget_hint">यदि बटन काम न करे तो होम स्क्रीन देर तक दबाएँ और विजेट चुनें।</string>

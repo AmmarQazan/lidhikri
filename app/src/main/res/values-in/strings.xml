@@ -386,7 +386,7 @@
     <string name="misbaha_widget_phrase_preview">Subhanallah</string>
     <string name="misbaha_widget_target_section">Sasaran hitungan</string>
     <string name="misbaha_widget_size_traditional">Ukuran tradisional: 3×2 di layar beranda</string>
-    <string name="misbaha_widget_size_electronic">Ukuran elektronik: 2×2 di layar beranda</string>
+    <string name="misbaha_widget_size_electronic">Ukuran elektronik: 3×3 di layar beranda</string>
     <string name="misbaha_widget_add">Tambah komponen misbaha ke layar beranda</string>
     <string name="misbaha_widget_reset">Atur ulang hitungan komponen</string>
     <string name="misbaha_widget_hint">Jika tombol tidak berfungsi, tekan lama layar beranda lalu pilih Komponen.</string>
