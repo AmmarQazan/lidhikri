@@ -70,7 +70,12 @@
     <string name="pause_during_calls">إيقاف أثناء المكالمات</string>
     <string name="pause_during_calls_hint">لا يُشغَّل صوت التطبيق أثناء مكالمة هاتف أو مكالمة صوت/فيديو (واتساب، تيليجرام، سيجنال، مسنجر، ميت، سكايب، وأي مكالمة أونلاين).</string>
     <string name="pause_during_media">تخطي صوت التطبيق إذا كان هناك صوت من تطبيق آخر</string>
-    <string name="pause_during_media_hint">عند التفعيل: لا يُشغَّل صوت التطبيق إذا كان تطبيق آخر يشغّل صوتاً — يوتيوب، موسيقى، تسجيلات واتساب/تيليجرام/سيجنال/مسنجر، أو مكالمة صوت/فيديو داخل هذه التطبيقات. عند الإيقاف: قد يتوقف التطبيق الآخر مؤقتاً ثم يعود بعد الذكر.</string>
+    <string name="pause_during_media_hint">عند التفعيل: يُتخطى صوت الأجزاء التي تحددها إذا كان تطبيق آخر يشغّل صوتاً — يوتيوب، موسيقى، أو تسجيلات. الافتراضي: التسبيحات التلقائية فقط.</string>
+    <string name="pause_during_media_scope">ينطبق على</string>
+    <string name="pause_media_part_auto_tasbih">التسبيحات التلقائية</string>
+    <string name="pause_media_part_tasbih">تسبيحات المسبحة</string>
+    <string name="pause_media_part_auto_azkar">الأذكار التلقائية</string>
+    <string name="pause_media_part_adhan">الأذان</string>
     <string name="respect_quiet_mode">احترام الصامت وعدم الإزعاج</string>
     <string name="respect_quiet_mode_hint">لا يُشغَّل صوت التذكير إذا كان الهاتف صامتاً أو في وضع عدم الإزعاج.</string>
     <string name="flip_to_stop_playback">إيقاف بالقلب</string>

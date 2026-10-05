@@ -70,7 +70,12 @@
     <string name="pause_during_calls">कॉल के दौरान रोकें</string>
     <string name="pause_during_calls_hint">फ़ोन कॉल या आवाज़/वीडियो कॉल के दौरान ऐप ऑडियो न चलाएँ (WhatsApp, Telegram, Signal, Messenger, Meet, Skype, और कोई भी ऑनलाइन कॉल)।</string>
     <string name="pause_during_media">यदि कोई अन्य ऐप ऑडियो चला रहा हो तो ऐप ध्वनि छोड़ें</string>
-    <string name="pause_during_media_hint">चालू होने पर: यदि कोई अन्य ऐप ऑडियो चला रहा हो तो यह ऐप मौन रहता है — YouTube, संगीत, WhatsApp/Telegram/Signal/Messenger वॉइस नोट, या इन-ऐप आवाज़/वीडियो कॉल। बंद होने पर: अन्य ऐप थोड़ी देर रुककर ज़िक्र के बाद जारी रह सकते हैं।</string>
+    <string name="pause_during_media_hint">चालू होने पर: चुने हुए भाग मौन रहते हैं यदि कोई अन्य ऐप ऑडियो चला रहा हो। डिफ़ॉल्ट: केवल स्वचालित तस्बीह।</string>
+    <string name="pause_during_media_scope">इन पर लागू</string>
+    <string name="pause_media_part_auto_tasbih">स्वचालित तस्बीह</string>
+    <string name="pause_media_part_tasbih">मिसबाहा तस्बीह</string>
+    <string name="pause_media_part_auto_azkar">स्वचालित अज़कार</string>
+    <string name="pause_media_part_adhan">अज़ान</string>
     <string name="respect_quiet_mode">मौन / डिस्टर्ब न करें का सम्मान</string>
     <string name="respect_quiet_mode_hint">फ़ोन मौन या डिस्टर्ब न करें में हो तो अनुस्मारक ऑडियो न चलाएँ।</string>
     <string name="flip_to_stop_playback">रोकने के लिए फ़ोन पलटें</string>

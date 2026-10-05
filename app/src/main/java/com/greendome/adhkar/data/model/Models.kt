@@ -15,6 +15,17 @@ enum class VolumeMode {
     RING
 }
 
+/**
+ * أجزاء يُحترم فيها صوت تطبيق آخر.
+ * الافتراضي عند غياب الاختيار المحفوظ: التسبيح التلقائي فقط.
+ */
+enum class MediaRespectPart {
+    AUTO_TASBIH,
+    TASBIH,
+    AUTO_AZKAR,
+    ADHAN,
+}
+
 /** طريقة عرض تذكير التسبيح */
 enum class ReminderDisplayStyle {
     POPUP_ONLY,

@@ -70,7 +70,12 @@
     <string name="pause_during_calls">Jeda saat panggilan</string>
     <string name="pause_during_calls_hint">Jangan putar audio aplikasi saat panggilan telepon atau panggilan suara/video (WhatsApp, Telegram, Signal, Messenger, Meet, Skype, dan panggilan daring apa pun).</string>
     <string name="pause_during_media">Lewati suara aplikasi jika aplikasi lain memutar audio</string>
-    <string name="pause_during_media_hint">Saat aktif: aplikasi ini tetap senyap jika aplikasi lain memutar audio — YouTube, musik, catatan suara WhatsApp/Telegram/Signal/Messenger, atau panggilan suara/video dalam aplikasi. Saat nonaktif: aplikasi lain mungkin menjeda sebentar lalu lanjut setelah dzikir.</string>
+    <string name="pause_during_media_hint">Saat aktif: bagian yang dipilih tetap senyap jika aplikasi lain memutar audio. Bawaan: hanya tasbih otomatis.</string>
+    <string name="pause_during_media_scope">Berlaku untuk</string>
+    <string name="pause_media_part_auto_tasbih">Tasbih otomatis</string>
+    <string name="pause_media_part_tasbih">Tasbih misbaha</string>
+    <string name="pause_media_part_auto_azkar">Dzikir otomatis</string>
+    <string name="pause_media_part_adhan">Azan</string>
     <string name="respect_quiet_mode">Hormati senyap / Jangan Ganggu</string>
     <string name="respect_quiet_mode_hint">Jangan putar audio pengingat saat ponsel senyap atau dalam mode Jangan Ganggu.</string>
     <string name="flip_to_stop_playback">Balik ponsel untuk berhenti</string>

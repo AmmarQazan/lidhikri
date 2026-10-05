@@ -111,6 +111,7 @@ import com.greendome.adhkar.audio.AzkarPlaybackResolver
 import com.greendome.adhkar.audio.DhikrAudioPlayer
 import com.greendome.adhkar.audio.DhikrPlaybackResolver
 import com.greendome.adhkar.audio.playResolved
+import com.greendome.adhkar.data.model.MediaRespectPart
 import com.greendome.adhkar.data.model.VoiceSettingsTarget
 import com.greendome.adhkar.sync.ContentUpdateDialogs
 import com.greendome.adhkar.sync.RemoteContentPublisher
@@ -459,7 +460,12 @@ class MainActivity : ComponentActivity() {
                     return@launch
                 }
                 playingDhikrId = dhikr.id
-                audioPlayer.playResolved(playable, settings, VoiceSettingsTarget.TASBIH) {
+                audioPlayer.playResolved(
+                    playable,
+                    settings,
+                    VoiceSettingsTarget.TASBIH,
+                    MediaRespectPart.TASBIH,
+                ) {
                     playingDhikrId = null
                 }
             }

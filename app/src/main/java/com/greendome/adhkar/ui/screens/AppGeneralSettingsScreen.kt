@@ -9,10 +9,12 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -26,12 +28,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.greendome.adhkar.R
 import com.greendome.adhkar.data.SettingsRepository
+import com.greendome.adhkar.data.model.MediaRespectPart
 import com.greendome.adhkar.service.OfflineDownloadHelper
 import com.greendome.adhkar.ui.overlay.OverlayWindow
 import com.greendome.adhkar.util.AppLanguages
@@ -51,6 +55,7 @@ fun AppGeneralSettingsScreen(
     val scope = rememberCoroutineScope()
     var pauseCalls by remember { mutableStateOf(settings.pauseDuringCalls) }
     var pauseMedia by remember { mutableStateOf(settings.pauseDuringMedia) }
+    var mediaParts by remember { mutableStateOf(settings.pauseDuringMediaParts) }
     var respectQuiet by remember { mutableStateOf(settings.respectQuietMode) }
     var flipToStop by remember { mutableStateOf(settings.flipToStopPlayback) }
     var langExpanded by remember { mutableStateOf(false) }
@@ -141,6 +146,34 @@ fun AppGeneralSettingsScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(start = 4.dp, top = 2.dp)
                 )
+                if (pauseMedia) {
+                    Text(
+                        stringResource(R.string.pause_during_media_scope),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(start = 4.dp, top = 10.dp)
+                    )
+                    MediaRespectPart.entries.forEach { part ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Checkbox(
+                                checked = part in mediaParts,
+                                onCheckedChange = { checked ->
+                                    val next = if (checked) mediaParts + part else mediaParts - part
+                                    mediaParts = next
+                                    settings.pauseDuringMediaParts = next
+                                },
+                            )
+                            Text(
+                                stringResource(part.labelRes()),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                        }
+                    }
+                }
             }
             item {
                 SettingSwitch(stringResource(R.string.respect_quiet_mode), respectQuiet) {
@@ -203,4 +236,11 @@ fun AppGeneralSettingsScreen(
             }
         }
     }
+}
+
+private fun MediaRespectPart.labelRes(): Int = when (this) {
+    MediaRespectPart.AUTO_TASBIH -> R.string.pause_media_part_auto_tasbih
+    MediaRespectPart.TASBIH -> R.string.pause_media_part_tasbih
+    MediaRespectPart.AUTO_AZKAR -> R.string.pause_media_part_auto_azkar
+    MediaRespectPart.ADHAN -> R.string.pause_media_part_adhan
 }

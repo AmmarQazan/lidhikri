@@ -77,6 +77,7 @@ import com.greendome.adhkar.audio.DhikrPlaybackResolver
 import com.greendome.adhkar.audio.playResolved
 import com.greendome.adhkar.data.SettingsRepository
 import com.greendome.adhkar.data.local.DhikrEntity
+import com.greendome.adhkar.data.model.MediaRespectPart
 import com.greendome.adhkar.data.model.MisbahaBeadTheme
 import com.greendome.adhkar.data.model.MisbahaStyle
 import com.greendome.adhkar.util.MisbahaFeedback
@@ -169,12 +170,17 @@ fun MisbahaScreen(
                 audioPlayer.playSequence(
                     items = playables,
                     settings = settings,
+                    mediaPart = MediaRespectPart.TASBIH,
                     onItemStart = { countFromPlayback() },
                 ) {
                     isPlaying = false
                 }
             } else {
-                audioPlayer.playResolved(playable, settings) {
+                audioPlayer.playResolved(
+                    playable,
+                    settings,
+                    mediaPart = MediaRespectPart.TASBIH,
+                ) {
                     isPlaying = false
                 }
             }

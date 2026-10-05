@@ -78,7 +78,12 @@
     <string name="pause_during_calls">Pause during calls</string>
     <string name="pause_during_calls_hint">Do not play app audio during phone calls or voice/video calls (WhatsApp, Telegram, Signal, Messenger, Meet, Skype, and any online call).</string>
     <string name="pause_during_media">Skip app sound if another app is playing audio</string>
-    <string name="pause_during_media_hint">When on: this app stays silent if another app is playing audio — YouTube, music, WhatsApp/Telegram/Signal/Messenger voice notes, or in-app voice/video calls. When off: other apps may pause briefly then resume after the dhikr.</string>
+    <string name="pause_during_media_hint">When on: selected parts stay silent if another app is playing audio — YouTube, music, or voice notes. Default: automatic tasbih only.</string>
+    <string name="pause_during_media_scope">Applies to</string>
+    <string name="pause_media_part_auto_tasbih">Automatic tasbih</string>
+    <string name="pause_media_part_tasbih">Misbaha tasbih</string>
+    <string name="pause_media_part_auto_azkar">Automatic adhkar</string>
+    <string name="pause_media_part_adhan">Adhan</string>
     <string name="respect_quiet_mode">Respect silent / Do Not Disturb</string>
     <string name="respect_quiet_mode_hint">Do not play reminder audio when the phone is silent or in Do Not Disturb.</string>
     <string name="flip_to_stop_playback">Flip phone to stop</string>

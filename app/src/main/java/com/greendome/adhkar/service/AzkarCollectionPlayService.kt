@@ -8,6 +8,7 @@ import android.content.pm.ServiceInfo
 import android.content.Context
 import android.app.KeyguardManager
 import android.content.Intent
+import com.greendome.adhkar.data.model.MediaRespectPart
 import com.greendome.adhkar.data.model.VoiceSettingsTarget
 import android.os.IBinder
 import android.os.SystemClock
@@ -88,7 +89,11 @@ class AzkarCollectionPlayService : Service() {
         val skipUi = incoming.getBooleanExtra(EXTRA_SKIP_UI, false)
         releaseOverlayOnDestroy = !skipUi
         scope.launch {
-            AdhkarReminderService.abortActiveReminder(this@AzkarCollectionPlayService)
+            // النافذة فُتحت قبل التشغيل؛ إلغاؤها هنا يُظهرها لحظة ثم يُبقي الصوت فقط.
+            AdhkarReminderService.abortActiveReminder(
+                this@AzkarCollectionPlayService,
+                dismissOverlay = !skipUi,
+            )
             val settings = SettingsRepository(this@AzkarCollectionPlayService)
             if (!forcePlay && !settings.autoAzkarEnabled) {
                 finishSession()
@@ -155,9 +160,15 @@ class AzkarCollectionPlayService : Service() {
                     this@AzkarCollectionPlayService,
                     settings,
                     userInitiated = skipUi,
+                    mediaPart = MediaRespectPart.AUTO_AZKAR,
                 )
             ) {
-                audioPlayer?.playResolved(playable, settings, VoiceSettingsTarget.AZKAR) {
+                audioPlayer?.playResolved(
+                    playable,
+                    settings,
+                    VoiceSettingsTarget.AZKAR,
+                    MediaRespectPart.AUTO_AZKAR,
+                ) {
                     if (releaseOverlayOnDestroy) {
                         OverlayWindow.dismiss(applicationContext)
                     }

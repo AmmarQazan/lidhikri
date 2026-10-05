@@ -6,6 +6,7 @@ import android.media.AudioAttributes
 import android.media.AudioManager
 import android.os.Build
 import com.greendome.adhkar.data.SettingsRepository
+import com.greendome.adhkar.data.model.MediaRespectPart
 import java.util.concurrent.atomic.AtomicInteger
 
 object DeviceAudioGate {
@@ -106,19 +107,26 @@ object DeviceAudioGate {
      * لا تشغّل صوت التطبيق عند:
      * - الصامت / عدم الإزعاج (حسب الإعداد) — للتذكير التلقائي فقط
      * - مكالمة هاتف أو صوت/فيديو (إعداد «إيقاف أثناء المكالمات»)
-     * - صوت من تطبيق آخر: يوتيوب، تسجيلات، مكالمات التطبيقات (إعداد التخطي)
+     * - صوت من تطبيق آخر، فقط إذا كان [mediaPart] ضمن الأجزاء المحددة في الإعداد
      *
      * [userInitiated]: تشغيل من زر داخل التطبيق؛ لا يُمنع بالصامت أو عدم الإزعاج.
+     * [mediaPart]: جزء الصوت. بلا جزء لا يُحترم تطبيق آخر مهما كان مفتاح التخطي.
      */
     fun shouldSuppressPlayback(
         context: Context,
         settings: SettingsRepository,
         userInitiated: Boolean = false,
         ignoreQuietMode: Boolean = false,
+        mediaPart: MediaRespectPart? = null,
     ): Boolean {
         if (!userInitiated && !ignoreQuietMode && shouldSuppressQuietMode(context, settings)) return true
         if (settings.pauseDuringCalls && isCallOrCommunicationActive(context)) return true
-        if (settings.pauseDuringMedia && isOtherAppAudioPlaying(context)) return true
+        if (mediaPart != null &&
+            settings.respectsOtherAppAudio(mediaPart) &&
+            isOtherAppAudioPlaying(context)
+        ) {
+            return true
+        }
         return false
     }
 

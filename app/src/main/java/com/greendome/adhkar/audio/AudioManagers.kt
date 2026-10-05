@@ -19,6 +19,7 @@ import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import com.greendome.adhkar.data.SettingsRepository
+import com.greendome.adhkar.data.model.MediaRespectPart
 import com.greendome.adhkar.data.model.VolumeMode
 import com.greendome.adhkar.data.model.VoiceSettingsTarget
 import com.greendome.adhkar.util.DeviceAudioGate
@@ -127,24 +128,31 @@ class DhikrAudioPlayer(private val context: Context) {
         pathOrUri: String,
         settings: SettingsRepository,
         voiceProfile: VoiceSettingsTarget = VoiceSettingsTarget.TASBIH,
+        mediaPart: MediaRespectPart? = null,
         onComplete: () -> Unit = {}
     ) {
         releasePlayer()
         isAborted = false
         pendingComplete = null
-        if (DeviceAudioGate.shouldSuppressPlayback(context, settings, userInitiated = true)) {
+        if (DeviceAudioGate.shouldSuppressPlayback(
+                context,
+                settings,
+                userInitiated = true,
+                mediaPart = mediaPart,
+            )
+        ) {
             onComplete()
             return
         }
         val mode = DhikrVolumeResolver.volumeMode(settings, voiceProfile)
         val attrs = DhikrVolumeResolver.playerAudioAttributes(mode)
         val player = PlaybackExoPlayer.create(context).also { player = it }
-        player.setAudioAttributes(attrs, shouldTakeAudioFocus(settings, mode))
+        player.setAudioAttributes(attrs, shouldTakeAudioFocus(settings, mode, mediaPart))
         player.setMediaItem(MediaItem.fromUri(playbackUri(pathOrUri)))
         player.volume = DhikrVolumeResolver.playerVolume(settings, voiceProfile)
         listenForCompletion(player, onComplete)
         beginOwnPlaybackSession()
-        startRespectMonitor(settings, userInitiated = true)
+        startRespectMonitor(settings, userInitiated = true, mediaPart = mediaPart)
         startFlipMonitorIfEnabled(settings)
         player.prepare()
         player.play()
@@ -154,29 +162,36 @@ class DhikrAudioPlayer(private val context: Context) {
         assetPath: String,
         settings: SettingsRepository,
         voiceProfile: VoiceSettingsTarget = VoiceSettingsTarget.TASBIH,
+        mediaPart: MediaRespectPart? = null,
         onComplete: () -> Unit = {}
     ) {
         releasePlayer()
         isAborted = false
         pendingComplete = null
-        if (DeviceAudioGate.shouldSuppressPlayback(context, settings, userInitiated = true)) {
+        if (DeviceAudioGate.shouldSuppressPlayback(
+                context,
+                settings,
+                userInitiated = true,
+                mediaPart = mediaPart,
+            )
+        ) {
             onComplete()
             return
         }
         val cached = cachedAssetFile(context, assetPath)
         if (cached != null) {
-            play(cached.absolutePath, settings, voiceProfile, onComplete)
+            play(cached.absolutePath, settings, voiceProfile, mediaPart, onComplete)
             return
         }
         val mode = DhikrVolumeResolver.volumeMode(settings, voiceProfile)
         val attrs = DhikrVolumeResolver.playerAudioAttributes(mode)
         val player = PlaybackExoPlayer.create(context).also { player = it }
-        player.setAudioAttributes(attrs, shouldTakeAudioFocus(settings, mode))
+        player.setAudioAttributes(attrs, shouldTakeAudioFocus(settings, mode, mediaPart))
         player.setMediaItem(MediaItem.fromUri("asset:///$assetPath"))
         player.volume = DhikrVolumeResolver.playerVolume(settings, voiceProfile)
         listenForCompletion(player, onComplete)
         beginOwnPlaybackSession()
-        startRespectMonitor(settings, userInitiated = true)
+        startRespectMonitor(settings, userInitiated = true, mediaPart = mediaPart)
         startFlipMonitorIfEnabled(settings)
         player.prepare()
         player.play()
@@ -186,6 +201,7 @@ class DhikrAudioPlayer(private val context: Context) {
         items: List<PlayableAudio>,
         settings: SettingsRepository,
         voiceProfile: VoiceSettingsTarget = VoiceSettingsTarget.TASBIH,
+        mediaPart: MediaRespectPart? = null,
         onItemStart: (index: Int) -> Unit = {},
         onComplete: () -> Unit = {},
     ) {
@@ -196,14 +212,20 @@ class DhikrAudioPlayer(private val context: Context) {
             onComplete()
             return
         }
-        if (DeviceAudioGate.shouldSuppressPlayback(context, settings, userInitiated = true)) {
+        if (DeviceAudioGate.shouldSuppressPlayback(
+                context,
+                settings,
+                userInitiated = true,
+                mediaPart = mediaPart,
+            )
+        ) {
             onComplete()
             return
         }
         val mode = DhikrVolumeResolver.volumeMode(settings, voiceProfile)
         val attrs = DhikrVolumeResolver.playerAudioAttributes(mode)
         val player = PlaybackExoPlayer.create(context).also { player = it }
-        player.setAudioAttributes(attrs, shouldTakeAudioFocus(settings, mode))
+        player.setAudioAttributes(attrs, shouldTakeAudioFocus(settings, mode, mediaPart))
         player.volume = DhikrVolumeResolver.playerVolume(settings, voiceProfile)
         player.setMediaItems(
             items.mapIndexed { index, item ->
@@ -244,7 +266,7 @@ class DhikrAudioPlayer(private val context: Context) {
         })
         markItemStarted(0)
         beginOwnPlaybackSession()
-        startRespectMonitor(settings, userInitiated = true)
+        startRespectMonitor(settings, userInitiated = true, mediaPart = mediaPart)
         startFlipMonitorIfEnabled(settings)
         player.prepare()
         player.play()
@@ -254,6 +276,7 @@ class DhikrAudioPlayer(private val context: Context) {
         pathOrUri: String,
         settings: SettingsRepository,
         overrideSilent: Boolean,
+        mediaPart: MediaRespectPart? = null,
         onComplete: () -> Unit = {},
     ) {
         releasePlayer()
@@ -264,6 +287,7 @@ class DhikrAudioPlayer(private val context: Context) {
                 settings,
                 userInitiated = false,
                 ignoreQuietMode = overrideSilent,
+                mediaPart = mediaPart,
             )
         ) {
             onComplete()
@@ -279,7 +303,12 @@ class DhikrAudioPlayer(private val context: Context) {
         player.volume = 1f
         listenForCompletion(player, onComplete)
         beginOwnPlaybackSession()
-        startRespectMonitor(settings, userInitiated = false, ignoreQuietMode = overrideSilent)
+        startRespectMonitor(
+            settings,
+            userInitiated = false,
+            ignoreQuietMode = overrideSilent,
+            mediaPart = mediaPart,
+        )
         startFlipMonitorIfEnabled(settings)
         player.prepare()
         player.play()
@@ -337,9 +366,13 @@ class DhikrAudioPlayer(private val context: Context) {
         is PlayableAudio.File -> MediaItem.fromUri(playbackUri(path))
     }
 
-    /** مع خيار التخطي لا نطلب تركيز الصوت، حتى لا يُوقف يوتيوب إن فشل الاكتشاف. */
-    private fun shouldTakeAudioFocus(settings: SettingsRepository, mode: VolumeMode): Boolean {
-        if (settings.pauseDuringMedia) return false
+    /** مع احترام هذا الجزء لا نطلب تركيز الصوت، حتى لا يُوقف يوتيوب إن فشل الاكتشاف. */
+    private fun shouldTakeAudioFocus(
+        settings: SettingsRepository,
+        mode: VolumeMode,
+        mediaPart: MediaRespectPart?,
+    ): Boolean {
+        if (mediaPart != null && settings.respectsOtherAppAudio(mediaPart)) return false
         return DhikrVolumeResolver.shouldHandleAudioFocus(mode)
     }
 
@@ -355,6 +388,7 @@ class DhikrAudioPlayer(private val context: Context) {
         settings: SettingsRepository,
         userInitiated: Boolean,
         ignoreQuietMode: Boolean = false,
+        mediaPart: MediaRespectPart? = null,
     ) {
         stopRespectMonitor()
         val monitor = PlaybackRespectMonitor(
@@ -362,6 +396,7 @@ class DhikrAudioPlayer(private val context: Context) {
             settings = settings,
             userInitiated = userInitiated,
             ignoreQuietMode = ignoreQuietMode,
+            mediaPart = mediaPart,
             onSuppress = { stop() },
         )
         respectMonitor = monitor

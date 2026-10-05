@@ -500,7 +500,12 @@
     <string name="pause_during_calls">Pause pendant les appels</string>
     <string name="pause_during_calls_hint">Pas de son de l\'application pendant un appel téléphonique ou audio/vidéo (WhatsApp, Telegram, Signal, Messenger, Meet, Skype, et tout appel en ligne).</string>
     <string name="pause_during_media">Couper le son si une autre application diffuse de l\'audio</string>
-    <string name="pause_during_media_hint">Activé : silence si une autre application diffuse de l\'audio — YouTube, musique, notes vocales WhatsApp/Telegram/Signal/Messenger, ou appels dans ces applications. Désactivé : les autres applications peuvent s\'interrompre puis reprendre.</string>
+    <string name="pause_during_media_hint">Activé : les parties choisies restent silencieuses si une autre application diffuse de l\'audio. Par défaut : uniquement le tasbih automatique.</string>
+    <string name="pause_during_media_scope">S\'applique à</string>
+    <string name="pause_media_part_auto_tasbih">Tasbih automatique</string>
+    <string name="pause_media_part_tasbih">Tasbih du misbaha</string>
+    <string name="pause_media_part_auto_azkar">Adhkar automatiques</string>
+    <string name="pause_media_part_adhan">Adhan</string>
     <string name="respect_quiet_mode">Respecter le mode silencieux / Ne pas déranger</string>
     <string name="respect_quiet_mode_hint">Pas de son de rappel si le téléphone est silencieux ou en mode Ne pas déranger.</string>
     <string name="flip_to_stop_playback">Retourner le téléphone pour arrêter</string>

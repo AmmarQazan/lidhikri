@@ -6,6 +6,7 @@ import com.greendome.adhkar.data.SubaihatReciterSeed
 import com.greendome.adhkar.data.local.AdhkarDatabase
 import com.greendome.adhkar.data.local.DhikrEntity
 import com.greendome.adhkar.data.model.AudioSourceType
+import com.greendome.adhkar.data.model.MediaRespectPart
 import com.greendome.adhkar.data.model.VoiceSettingsTarget
 
 object DhikrPlaybackResolver {
@@ -75,11 +76,12 @@ fun DhikrAudioPlayer.playResolved(
     playable: PlayableAudio,
     settings: SettingsRepository,
     voiceProfile: VoiceSettingsTarget = VoiceSettingsTarget.TASBIH,
+    mediaPart: MediaRespectPart? = null,
     onComplete: () -> Unit = {}
 ) {
     when (playable) {
-        is PlayableAudio.Asset -> playAsset(playable.path, settings, voiceProfile, onComplete)
-        is PlayableAudio.File -> play(playable.path, settings, voiceProfile, onComplete)
+        is PlayableAudio.Asset -> playAsset(playable.path, settings, voiceProfile, mediaPart, onComplete)
+        is PlayableAudio.File -> play(playable.path, settings, voiceProfile, mediaPart, onComplete)
     }
 }
 

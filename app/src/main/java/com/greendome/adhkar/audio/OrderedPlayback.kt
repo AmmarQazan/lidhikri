@@ -4,6 +4,7 @@ import android.content.Context
 import com.greendome.adhkar.data.SettingsRepository
 import com.greendome.adhkar.data.local.AzkarItemEntity
 import com.greendome.adhkar.data.local.DhikrEntity
+import com.greendome.adhkar.data.model.MediaRespectPart
 import com.greendome.adhkar.data.model.VoiceSettingsTarget
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -78,7 +79,11 @@ suspend fun playDhikrItemsOrdered(
             playedAny = true
             suspendCancellableCoroutine { cont ->
                 cont.invokeOnCancellation { audioPlayer.stop() }
-                audioPlayer.playResolved(playable, settings) {
+                audioPlayer.playResolved(
+                    playable,
+                    settings,
+                    mediaPart = MediaRespectPart.TASBIH,
+                ) {
                     if (cont.isActive) cont.resume(Unit)
                 }
             }

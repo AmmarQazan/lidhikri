@@ -15,6 +15,7 @@ import com.greendome.adhkar.data.model.AzkarListText
 import com.greendome.adhkar.data.model.DhikrOfDayDisplayMode
 import com.greendome.adhkar.data.model.DhikrOfDayTextColor
 import com.greendome.adhkar.data.model.DhikrOfDayWidgetText
+import com.greendome.adhkar.data.model.MediaRespectPart
 import com.greendome.adhkar.data.model.MisbahaFeedbackMode
 import com.greendome.adhkar.data.model.MisbahaBeadTheme
 import com.greendome.adhkar.data.model.MisbahaStyle
@@ -173,6 +174,33 @@ class SettingsRepository(context: Context) {
     var pauseDuringMedia: Boolean
         get() = prefs.getBoolean("pause_media", true)
         set(v) = prefs.edit().putBoolean("pause_media", v).apply()
+
+    /**
+     * الأجزاء التي يُتخطى صوتها إذا كان تطبيق آخر يشغّل صوتاً.
+     * بلا قيمة محفوظة: التسبيحات التلقائية فقط.
+     */
+    var pauseDuringMediaParts: Set<MediaRespectPart>
+        get() {
+            if (!prefs.contains("pause_media_parts")) {
+                return setOf(MediaRespectPart.AUTO_TASBIH)
+            }
+            return prefs.getString("pause_media_parts", "").orEmpty()
+                .split(',')
+                .mapNotNull { name ->
+                    val trimmed = name.trim()
+                    if (trimmed.isEmpty()) null
+                    else runCatching { MediaRespectPart.valueOf(trimmed) }.getOrNull()
+                }
+                .toSet()
+        }
+        set(value) {
+            prefs.edit()
+                .putString("pause_media_parts", value.joinToString(",") { it.name })
+                .apply()
+        }
+
+    fun respectsOtherAppAudio(part: MediaRespectPart): Boolean =
+        pauseDuringMedia && part in pauseDuringMediaParts
 
     /** لا تشغّل الصوت في الصامت أو عدم الإزعاج */
     var respectQuietMode: Boolean

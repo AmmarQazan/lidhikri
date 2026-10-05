@@ -70,7 +70,12 @@
     <string name="pause_during_calls">Aramalarda duraklat</string>
     <string name="pause_during_calls_hint">Telefon aramalarında veya sesli/görüntülü aramalarda (WhatsApp, Telegram, Signal, Messenger, Meet, Skype ve her çevrimiçi arama) uygulama sesini çalma.</string>
     <string name="pause_during_media">Başka uygulama ses çalıyorsa uygulama sesini atla</string>
-    <string name="pause_during_media_hint">Açıkken: başka bir uygulama ses çalıyorsa bu uygulama sessiz kalır — YouTube, müzik, WhatsApp/Telegram/Signal/Messenger ses notları veya uygulama içi sesli/görüntülü aramalar. Kapalıyken: diğer uygulamalar kısa süre duraklayıp zikirden sonra devam edebilir.</string>
+    <string name="pause_during_media_hint">Açıkken: seçilen bölümler, başka bir uygulama ses çalıyorsa sessiz kalır. Varsayılan: yalnızca otomatik tesbihat.</string>
+    <string name="pause_during_media_scope">Şunlara uygulanır</string>
+    <string name="pause_media_part_auto_tasbih">Otomatik tesbihat</string>
+    <string name="pause_media_part_tasbih">Tesbih taneleri</string>
+    <string name="pause_media_part_auto_azkar">Otomatik ezkar</string>
+    <string name="pause_media_part_adhan">Ezan</string>
     <string name="respect_quiet_mode">Sessiz / Rahatsız Etme moduna uy</string>
     <string name="respect_quiet_mode_hint">Telefon sessizken veya Rahatsız Etme açıkken hatırlatma sesini çalma.</string>
     <string name="flip_to_stop_playback">Durdurmak için telefonu çevir</string>

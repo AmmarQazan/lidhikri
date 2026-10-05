@@ -15,6 +15,7 @@ import com.greendome.adhkar.R
 import com.greendome.adhkar.audio.DhikrAudioPlayer
 import com.greendome.adhkar.data.AdhanAzkar
 import com.greendome.adhkar.data.model.DisplayModes
+import com.greendome.adhkar.data.model.MediaRespectPart
 import com.greendome.adhkar.data.SettingsRepository
 import com.greendome.adhkar.prayer.AdhanAudioResolver
 import com.greendome.adhkar.prayer.AdhanEventKind
@@ -123,6 +124,7 @@ class AdhanPlaybackService : Service() {
                     pathOrUri = path,
                     settings = settings,
                     overrideSilent = alert.overrideSilent,
+                    mediaPart = MediaRespectPart.ADHAN,
                 ) {
                     scheduleAfterAzkar(settings, alert.afterAdhanAzkar)
                 }

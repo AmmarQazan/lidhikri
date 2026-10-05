@@ -27,6 +27,7 @@ import com.greendome.adhkar.data.local.DhikrEntity
 import com.greendome.adhkar.prayer.PrayerRespectGate
 import com.greendome.adhkar.util.CollectionScheduleHelper
 import com.greendome.adhkar.util.DeviceAudioGate
+import com.greendome.adhkar.data.model.MediaRespectPart
 import com.greendome.adhkar.data.model.VoiceSettingsTarget
 import com.greendome.adhkar.ui.overlay.OverlayActivity
 import com.greendome.adhkar.ui.overlay.OverlayWindow
@@ -160,9 +161,9 @@ class AdhkarReminderService : Service() {
         return CollectionScheduleHelper.isAnyDueAt(collections)
     }
 
-    private fun abortActiveReminder() {
+    private fun abortActiveReminder(dismissOverlay: Boolean = true) {
         audioPlayer.stop()
-        OverlayWindow.dismiss(this)
+        if (dismissOverlay) OverlayWindow.dismiss(this)
         SilentNotificationChannels.cancelTransientReminderAlerts(this)
     }
 
@@ -203,7 +204,14 @@ class AdhkarReminderService : Service() {
 
     private fun shouldSkipPlayback(): Boolean {
         if (settings.pauseDuringCalls && callMonitor.isVoipOrCallActive()) return true
-        if (DeviceAudioGate.shouldSuppressPlayback(this, settings)) return true
+        if (DeviceAudioGate.shouldSuppressPlayback(
+                this,
+                settings,
+                mediaPart = MediaRespectPart.AUTO_TASBIH,
+            )
+        ) {
+            return true
+        }
         if (ReminderScheduler.isOutsideTasbihWindow(this)) return true
         if (PrayerRespectGate.isQuiet(this)) return true
         if (PrayerRespectGate.collidesWithAdhan(this)) return true
@@ -220,9 +228,21 @@ class AdhkarReminderService : Service() {
 
     private suspend fun playAudioFor(dhikr: DhikrEntity) {
         if (!dhikr.isEligibleForAutoTasbih()) return
-        if (DeviceAudioGate.shouldSuppressPlayback(this, settings)) return
+        if (DeviceAudioGate.shouldSuppressPlayback(
+                this,
+                settings,
+                mediaPart = MediaRespectPart.AUTO_TASBIH,
+            )
+        ) {
+            return
+        }
         val playable = DhikrPlaybackResolver.resolvePlayable(this, dhikr) ?: return
-        audioPlayer.playResolved(playable, settings, VoiceSettingsTarget.TASBIH)
+        audioPlayer.playResolved(
+            playable,
+            settings,
+            VoiceSettingsTarget.TASBIH,
+            MediaRespectPart.AUTO_TASBIH,
+        )
     }
 
     private fun showSilentTextNotification(dhikrId: Long, text: String) {
@@ -315,9 +335,9 @@ class AdhkarReminderService : Service() {
         @Volatile
         private var instance: AdhkarReminderService? = null
 
-        fun abortActiveReminder(context: Context) {
-            instance?.abortActiveReminder()
-            OverlayWindow.dismiss(context)
+        fun abortActiveReminder(context: Context, dismissOverlay: Boolean = true) {
+            instance?.abortActiveReminder(dismissOverlay)
+            if (dismissOverlay) OverlayWindow.dismiss(context)
             SilentNotificationChannels.cancelTransientReminderAlerts(context)
         }
 

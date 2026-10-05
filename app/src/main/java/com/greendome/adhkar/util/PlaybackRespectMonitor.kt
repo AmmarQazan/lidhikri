@@ -10,6 +10,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.core.content.ContextCompat
 import com.greendome.adhkar.data.SettingsRepository
+import com.greendome.adhkar.data.model.MediaRespectPart
 
 /**
  * يوقف التشغيل عند مكالمة أو صوت تطبيق آخر أو الصامت أثناء الاستماع.
@@ -19,6 +20,7 @@ class PlaybackRespectMonitor(
     private val settings: SettingsRepository,
     private val userInitiated: Boolean,
     private val ignoreQuietMode: Boolean,
+    private val mediaPart: MediaRespectPart?,
     private val onSuppress: () -> Unit,
 ) {
     private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -85,7 +87,14 @@ class PlaybackRespectMonitor(
     private fun checkNow() {
         if (!active) return
         if (android.os.SystemClock.elapsedRealtime() - startedAtElapsed < GRACE_MS) return
-        if (DeviceAudioGate.shouldSuppressPlayback(context, settings, userInitiated, ignoreQuietMode)) {
+        if (DeviceAudioGate.shouldSuppressPlayback(
+                context,
+                settings,
+                userInitiated,
+                ignoreQuietMode,
+                mediaPart,
+            )
+        ) {
             stop()
             onSuppress()
         }

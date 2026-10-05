@@ -70,7 +70,12 @@
     <string name="pause_during_calls">کال کے دوران روکیں</string>
     <string name="pause_during_calls_hint">فون کال یا صوتی/ویڈیو کال کے دوران ایپ کی آڈیو نہ چلائیں (WhatsApp، Telegram، Signal، Messenger، Meet، Skype، اور کوئی بھی آن لائن کال)۔</string>
     <string name="pause_during_media">اگر دوسری ایپ آڈیو چلا رہی ہو تو ایپ کی آواز چھوڑیں</string>
-    <string name="pause_during_media_hint">آن ہونے پر: اگر دوسری ایپ آڈیو چلا رہی ہو تو یہ ایپ خاموش رہتی ہے — YouTube، موسیقی، WhatsApp/Telegram/Signal/Messenger کی وائس نوٹس، یا ایپ کے اندر صوتی/ویڈیو کالیں۔ آف ہونے پر: دوسری ایپس مختصر رک کر ذکر کے بعد جاری ہو سکتی ہیں۔</string>
+    <string name="pause_during_media_hint">آن ہونے پر: منتخب حصے خاموش رہتے ہیں اگر دوسری ایپ آواز چلا رہی ہو۔ طے شدہ: صرف خودکار تسبیحات۔</string>
+    <string name="pause_during_media_scope">اس پر لاگو</string>
+    <string name="pause_media_part_auto_tasbih">خودکار تسبیحات</string>
+    <string name="pause_media_part_tasbih">مسبحہ کی تسبیحات</string>
+    <string name="pause_media_part_auto_azkar">خودکار اذکار</string>
+    <string name="pause_media_part_adhan">اذان</string>
     <string name="respect_quiet_mode">خاموش / ڈسٹرب نہ کریں کا لحاظ</string>
     <string name="respect_quiet_mode_hint">فون خاموش یا ڈسٹرب نہ کریں میں ہو تو یاد دہانی کی آڈیو نہ چلائیں۔</string>
     <string name="flip_to_stop_playback">روکنے کے لیے فون پلٹیں</string>
